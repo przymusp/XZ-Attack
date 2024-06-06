@@ -1,0 +1,26 @@
+commit 8cc9874a7974cd575aee44f218836f7acdbeb0ed
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Sep 21 16:15:50 2022 +0800
+
+    liblzma: Add dest and src NULL checks to lzma_index_cat.
+    
+    The documentation states LZMA_PROG_ERROR can be returned from
+    lzma_index_cat. Previously, lzma_index_cat could not return
+    LZMA_PROG_ERROR. Now, the validation is similar to
+    lzma_index_append, which does a NULL check on the index
+    parameter.
+
+diff --git a/src/liblzma/common/index.c b/src/liblzma/common/index.c
+index e0b14a3d..24ec3c10 100644
+--- a/src/liblzma/common/index.c
++++ b/src/liblzma/common/index.c
+@@ -771,6 +771,9 @@ extern LZMA_API(lzma_ret)
+ lzma_index_cat(lzma_index *restrict dest, lzma_index *restrict src,
+ 		const lzma_allocator *allocator)
+ {
++	if (dest == NULL || src == NULL)
++		return LZMA_PROG_ERROR;
++
+ 	const lzma_vli dest_file_size = lzma_index_file_size(dest);
+ 
+ 	// Check that we don't exceed the file size limits.

@@ -1,0 +1,32 @@
+commit 916448d624aaf55cef0fc3e53754affb8c4f309d
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Mar 8 23:08:46 2023 +0800
+
+    Revert: "Add warning if Capsicum sandbox system calls are unsupported."
+    
+    The warning causes the exit status to be 2, so this will cause problems
+    for many scripted use cases for xz. The sandbox usage is already very
+    limited already, so silently disabling this allows it to be more usable.
+
+diff --git a/src/xz/file_io.c b/src/xz/file_io.c
+index bc4f933d..37710428 100644
+--- a/src/xz/file_io.c
++++ b/src/xz/file_io.c
+@@ -233,13 +233,11 @@ io_sandbox_enter(int src_fd)
+ 
+ #ifdef HAVE_CAPSICUM
+ capsicum_error:
+-	// Even though it is undocumented, if a kernel is configured without
+-	// capability mode support or used in an emulator that does not
+-	// implement the capability system calls, then the capsicum system
+-	// calls will fail and set errno to ENOSYS.
++	// If a kernel is configured without capability mode support or
++	// used in an emulator that does not implement the capability
++	// system calls, then the capsicum system calls will fail and set
++	// errno to ENOSYS.
+ 	if (errno == ENOSYS) {
+-		message_warning(_("%s: Cannot enable the sandbox"),
+-				strerror(errno));
+ 		sandbox_allowed = false;
+ 		return;
+ 	}

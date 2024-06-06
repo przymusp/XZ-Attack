@@ -1,0 +1,25 @@
+commit 5f7ce42a16b1e86ca8408b5c670c25e2a12acc4e
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Dec 20 20:46:44 2022 +0800
+
+    liblzma: Fix lzma_microlzma_encoder() return value.
+    
+    Using return_if_error on lzma_lzma_lclppb_encode was improper because
+    return_if_error is expecting an lzma_ret value, but
+    lzma_lzma_lclppb_encode returns a boolean. This could result in
+    lzma_microlzma_encoder, which would be misleading for applications.
+
+diff --git a/src/liblzma/common/microlzma_encoder.c b/src/liblzma/common/microlzma_encoder.c
+index d3ef0632..a787ca25 100644
+--- a/src/liblzma/common/microlzma_encoder.c
++++ b/src/liblzma/common/microlzma_encoder.c
+@@ -111,7 +111,8 @@ microlzma_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator,
+ 
+ 	// Encode the properties byte. Bitwise-negation of it will be the
+ 	// first output byte.
+-	return_if_error(lzma_lzma_lclppb_encode(options, &coder->props));
++	if (lzma_lzma_lclppb_encode(options, &coder->props))
++		return LZMA_OPTIONS_ERROR;
+ 
+ 	// Initialize the LZMA encoder.
+ 	const lzma_filter_info filters[2] = {

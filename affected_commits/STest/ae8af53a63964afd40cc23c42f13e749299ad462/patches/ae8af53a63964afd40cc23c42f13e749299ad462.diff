@@ -1,0 +1,26 @@
+commit ae8af53a63964afd40cc23c42f13e749299ad462
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Tue Jan 25 22:01:23 2022 +0800
+
+    Testing MacOS CI steps
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index dddc11d..c0313d5 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -31,3 +31,15 @@ jobs:
+         run: make
+       - name: Test
+         run: ./stests
++  MacOS:
++    runs-on: macos-latest
++    steps:
++      - uses: actions/checkout@v2
++      - name: Install Dependencies
++        run: brew update > /dev/null; brew upgrade > /dev/null; brew install cmake
++      - name: CMake
++        run: cmake .
++      -name: Build
++        run: make
++      - name: Test
++        run: ./stests

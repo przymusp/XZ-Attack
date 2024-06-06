@@ -1,0 +1,19 @@
+commit 8b2f6001b4f412c259a7883427f2f2c8cea98ea8
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Mar 18 00:40:28 2023 +0800
+
+    CMake: Fix typo in a comment.
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6b2367c2..8d9b056c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2,7 +2,7 @@
+ #
+ # Very limited CMake support for building some parts of XZ Utils
+ #
+-# For now, this is indented to be useful to build static or shared liblzma
++# For now, this is intended to be useful to build static or shared liblzma
+ # on Windows with MSVC (to avoid the need to maintain Visual Studio project
+ # files). Building liblzma on a few other platforms should work too but it
+ # is somewhat experimental and not as portable as using ./configure.

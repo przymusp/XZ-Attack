@@ -1,0 +1,40 @@
+commit 105c7ca90d4152942e0798580a37f736d02faa22
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Oct 19 16:23:32 2023 +0800
+
+    Build: Remove check for COND_CHECK_CRC32 in check/Makefile.inc.
+    
+    Currently crc32 is always enabled, so COND_CHECK_CRC32 must always be
+    set. Because of this, it makes the recent change to conditionally
+    compile check/crc_clmul.c appear wrong since that file has CLMUL
+    implementations for both CRC32 and CRC64.
+
+diff --git a/src/liblzma/check/Makefile.inc b/src/liblzma/check/Makefile.inc
+index 7780d20d..6186e10a 100644
+--- a/src/liblzma/check/Makefile.inc
++++ b/src/liblzma/check/Makefile.inc
+@@ -4,6 +4,8 @@
+ ## This file has been put into the public domain.
+ ## You can do whatever you want with this file.
+ ##
++## Note: There is no check for COND_CHECK_CRC32 because
++## currently crc32 is always enabled.
+ 
+ EXTRA_DIST += \
+ 	check/crc32_tablegen.c \
+@@ -14,7 +16,6 @@ liblzma_la_SOURCES += \
+ 	check/check.h \
+ 	check/crc_common.h
+ 
+-if COND_CHECK_CRC32
+ if COND_SMALL
+ liblzma_la_SOURCES += check/crc32_small.c
+ else
+@@ -31,7 +32,6 @@ liblzma_la_SOURCES += check/crc_clmul.c
+ endif
+ endif
+ endif
+-endif
+ 
+ if COND_CHECK_CRC64
+ if COND_SMALL

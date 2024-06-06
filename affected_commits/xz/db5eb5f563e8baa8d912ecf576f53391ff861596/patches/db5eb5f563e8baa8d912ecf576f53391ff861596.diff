@@ -1,0 +1,37 @@
+commit db5eb5f563e8baa8d912ecf576f53391ff861596
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Jan 22 23:33:39 2024 +0800
+
+    xz: Update xz -lvv for RISC-V filter.
+    
+    Version 5.6.0 will be shown, even though upcoming alphas and betas
+    will be able to support this filter. 5.6.0 looks nicer in the output and
+    people shouldn't be encouraged to use an unstable version in production
+    in any way.
+
+diff --git a/src/xz/list.c b/src/xz/list.c
+index 86c3a762..96933760 100644
+--- a/src/xz/list.c
++++ b/src/xz/list.c
+@@ -544,11 +544,21 @@ parse_block_header(file_pair *pair, const lzma_index_iter *iter,
+ 		xfi->memusage_max = bhi->memusage;
+ 
+ 	// Determine the minimum XZ Utils version that supports this Block.
++	//   - RISC-V filter needs 5.6.0.
+ 	//
+ 	//   - ARM64 filter needs 5.4.0.
+ 	//
+ 	//   - 5.0.0 doesn't support empty LZMA2 streams and thus empty
+ 	//     Blocks that use LZMA2. This decoder bug was fixed in 5.0.2.
++	if (xfi->min_version < 50060002U) {
++		for (size_t i = 0; filters[i].id != LZMA_VLI_UNKNOWN; ++i) {
++			if (filters[i].id == LZMA_FILTER_RISCV) {
++				xfi->min_version = 50060002U;
++				break;
++			}
++		}
++	}
++
+ 	if (xfi->min_version < 50040002U) {
+ 		for (size_t i = 0; filters[i].id != LZMA_VLI_UNKNOWN; ++i) {
+ 			if (filters[i].id == LZMA_FILTER_ARM64) {

@@ -1,0 +1,18 @@
+commit 9002c9f8ccfe1cd4cf2056bdf011ddad916c9efe
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Thu Jan 13 21:47:10 2022 +0800
+
+    Updated Readme
+
+diff --git a/README.md b/README.md
+index b7e1b5b..13aca8a 100644
+--- a/README.md
++++ b/README.md
+@@ -43,6 +43,7 @@ The test runner can be run with a few simple command line arguments.
+ | -t \<testname>   | Only run tests that match \<testname>            |
+ | -f \<fixturename>| Only run fixtures that match \<fixturename>      |
+ | -m               | Output machine readable                          |
++| -s               | Skip the rest of the test when an assert fails   |
+ | -k \<marker>     | prepend \<marker> before machine readable output |
+ | help             | Output help message                              |
+ 

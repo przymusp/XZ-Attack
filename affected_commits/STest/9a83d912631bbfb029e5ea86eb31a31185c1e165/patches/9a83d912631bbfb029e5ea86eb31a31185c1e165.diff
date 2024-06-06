@@ -1,0 +1,23 @@
+commit 9a83d912631bbfb029e5ea86eb31a31185c1e165
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Sat Dec 11 06:41:11 2021 +0800
+
+    Added gitnigore to project
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..1770f6b
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,10 @@
++*.o
++*.exe
++*.la
++*.lo
++*.cmake
++!build/cmake/*.cmake
++Makefile
++stests
++CMakeCache.txt
++CMakeFiles/
+\ No newline at end of file

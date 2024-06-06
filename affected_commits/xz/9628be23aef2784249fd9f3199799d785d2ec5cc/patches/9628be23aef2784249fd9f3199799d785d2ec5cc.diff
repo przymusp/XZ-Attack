@@ -1,0 +1,27 @@
+commit 9628be23aef2784249fd9f3199799d785d2ec5cc
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat May 13 00:46:50 2023 +0800
+
+    xz: Update man page for new --filters-help option.
+
+diff --git a/src/xz/xz.1 b/src/xz/xz.1
+index d8025a27..f7e5ac49 100644
+--- a/src/xz/xz.1
++++ b/src/xz/xz.1
+@@ -1406,6 +1406,16 @@ For example, when compressing an archive with executable files
+ followed by text files, the executable part could use a filter
+ chain with a BCJ filter and the text part only the LZMA2 filter.
+ .TP
++.B \-\-filters-help
++Display a help message describing how to specify presets and
++custom filter chains in the
++.B \-\-filters
++and
++.BI \-\-filters1= filters
++\&...\&
++.BI \-\-filters9= filters
++options, and exit successfully.
++.TP
+ \fB\-\-lzma1\fR[\fB=\fIoptions\fR]
+ .PD 0
+ .TP

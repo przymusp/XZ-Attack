@@ -1,0 +1,18 @@
+commit eecf295089c344a5003980acfc9330ca4240a2cb
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Tue Oct 19 22:56:50 2021 +0800
+
+    Adding test to Makefile.am
+
+diff --git a/Makefile.am b/Makefile.am
+index c93a82e9..73111dac 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -625,6 +625,7 @@ libarchive_test_SOURCES= \
+ 	libarchive/test/test_write_format_xar_empty.c \
+ 	libarchive/test/test_write_format_zip.c \
+ 	libarchive/test/test_write_format_zip_compression_store.c \
++	libarchive/test/test_write_format_zip_entry_size_unset.c \
+ 	libarchive/test/test_write_format_zip_empty.c \
+ 	libarchive/test/test_write_format_zip_empty_zip64.c \
+ 	libarchive/test/test_write_format_zip_file.c \

@@ -1,0 +1,23 @@
+commit 844ba4b70797f19d0e6769725e34d8c9fca06163
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Mar 19 19:41:46 2024 +0800
+
+    codespell: Add .codespellrc to set default options.
+    
+    There are no false positives so far, but these can be added later if
+    needed by using the "ignore-words-list" option.
+
+diff --git a/.codespellrc b/.codespellrc
+new file mode 100644
+index 0000000..6fca532
+--- /dev/null
++++ b/.codespellrc
+@@ -0,0 +1,8 @@
++[codespell]
++
++# Add extra dictionaries to help improvement comments, docs, etc.
++builtin = clear,rare,informal,usage,names
++
++# Always default to highest interactive level to avoid accidentally
++# changing a false positive or picking the wrong replacement.
++interactive = 3

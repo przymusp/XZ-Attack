@@ -1,0 +1,20 @@
+commit 0b8a20806deb563708df9e00ad22a8401324c833
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Wed Dec 15 21:11:40 2021 +0800
+
+    Adding copyright to license
+
+diff --git a/license.txt b/license.txt
+index 3fbf632..a54f72e 100644
+--- a/license.txt
++++ b/license.txt
+@@ -16,4 +16,6 @@
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+- THE SOFTWARE.
+\ No newline at end of file
++ THE SOFTWARE.
++
++ Copyright (c) 2021 Jia Tan
+\ No newline at end of file

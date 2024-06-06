@@ -1,0 +1,21 @@
+commit 710cbc186cad0ac601c38bd6bf31167648a5581e
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Dec 21 16:39:53 2023 +0800
+
+    xz: Add a comment to Capsicum sandbox setup.
+    
+    This comment is repeated in xzdec.c to help remind us why all the
+    capabilities are removed from stdin in certain situations.
+
+diff --git a/src/xz/file_io.c b/src/xz/file_io.c
+index 4a2c8392..9b89434f 100644
+--- a/src/xz/file_io.c
++++ b/src/xz/file_io.c
+@@ -226,6 +226,7 @@ io_sandbox_enter(int src_fd)
+ 			CAP_EVENT, CAP_FCNTL, CAP_LOOKUP, CAP_READ, CAP_SEEK)))
+ 		goto error;
+ 
++	// If not reading from stdin, remove all capabilities from it.
+ 	if (src_fd != STDIN_FILENO && cap_rights_limit(
+ 			STDIN_FILENO, cap_rights_clear(&rights)))
+ 		goto error;

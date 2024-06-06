@@ -1,0 +1,18 @@
+commit 49be29d6380b94e6fb26e511dd2cdbd9afce0f8b
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Aug 28 21:52:54 2023 +0800
+
+    Update THANKS.
+
+diff --git a/THANKS b/THANKS
+index 3d8a2e27..db13bdb5 100644
+--- a/THANKS
++++ b/THANKS
+@@ -66,6 +66,7 @@ has been important. :-) In alphabetical order:
+   - Jouk Jansen
+   - Jun I Jin
+   - Kiyoshi Kanazawa
++  - Joona Kannisto
+   - Per Øyvind Karlsen
+   - Iouri Kharon
+   - Thomas Klausner

@@ -1,0 +1,18 @@
+commit a11a2b8b5e830ba682c1d81aaa7078842b296995
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Nov 19 23:18:04 2022 +0800
+
+    CMake: Adds test_memlimit to CMake tests
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ec44bac3..6d085bf9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -795,6 +795,7 @@ if(BUILD_TESTING)
+         test_filter_flags
+         test_hardware
+         test_index
++        test_memlimit
+         test_stream_flags
+         test_vli
+     )

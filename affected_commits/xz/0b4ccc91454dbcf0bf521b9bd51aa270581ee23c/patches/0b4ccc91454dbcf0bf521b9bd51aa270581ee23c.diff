@@ -1,0 +1,14 @@
+commit 0b4ccc91454dbcf0bf521b9bd51aa270581ee23c
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Mar 9 10:05:32 2024 +0800
+
+    Tests: Update RISC-V test files.
+    
+    This increases code coverage and tests for possible shifting bugs.
+
+diff --git a/tests/files/good-1-riscv-lzma2-1.xz b/tests/files/good-1-riscv-lzma2-1.xz
+index 0d04a122..85f3b756 100644
+Binary files a/tests/files/good-1-riscv-lzma2-1.xz and b/tests/files/good-1-riscv-lzma2-1.xz differ
+diff --git a/tests/files/good-1-riscv-lzma2-2.xz b/tests/files/good-1-riscv-lzma2-2.xz
+index 7ca0ed86..60d2403a 100644
+Binary files a/tests/files/good-1-riscv-lzma2-2.xz and b/tests/files/good-1-riscv-lzma2-2.xz differ

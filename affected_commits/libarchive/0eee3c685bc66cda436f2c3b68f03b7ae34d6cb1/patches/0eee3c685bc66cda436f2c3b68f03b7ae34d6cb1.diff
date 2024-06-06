@@ -1,0 +1,32 @@
+commit 0eee3c685bc66cda436f2c3b68f03b7ae34d6cb1
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Wed Oct 27 22:05:43 2021 +0800
+
+    Cleaned up archive_read_disk_descend functions.
+
+diff --git a/libarchive/archive_read_disk_posix.c b/libarchive/archive_read_disk_posix.c
+index 3ee6269f..7e9b63bd 100644
+--- a/libarchive/archive_read_disk_posix.c
++++ b/libarchive/archive_read_disk_posix.c
+@@ -1290,7 +1290,7 @@ archive_read_disk_descend(struct archive *_a)
+ 	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
+ 	    "archive_read_disk_descend");
+ 
+-	if (t->visit_type != TREE_REGULAR || !t->descend)
++	if (!archive_read_disk_can_descend(_a))
+ 		return (ARCHIVE_OK);
+ 
+ 	/*
+diff --git a/libarchive/archive_read_disk_windows.c b/libarchive/archive_read_disk_windows.c
+index 877bc449..4838969d 100644
+--- a/libarchive/archive_read_disk_windows.c
++++ b/libarchive/archive_read_disk_windows.c
+@@ -1300,7 +1300,7 @@ archive_read_disk_descend(struct archive *_a)
+ 	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
+ 	    "archive_read_disk_descend");
+ 
+-	if (t->visit_type != TREE_REGULAR || !t->descend)
++	if (!archive_read_disk_can_descend(_a))
+ 		return (ARCHIVE_OK);
+ 
+ 	if (tree_current_is_physical_dir(t)) {

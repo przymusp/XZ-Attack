@@ -1,0 +1,25 @@
+commit de366679572305bfa6c470c74af46c63f437192e
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Sat Oct 16 15:33:25 2021 +0800
+
+    Only use deflate when size is not set if the user did not specify a compression algorithm
+
+diff --git a/libarchive/archive_write_set_format_zip.c b/libarchive/archive_write_set_format_zip.c
+index f4352d5a..ea60054c 100644
+--- a/libarchive/archive_write_set_format_zip.c
++++ b/libarchive/archive_write_set_format_zip.c
+@@ -745,7 +745,13 @@ archive_write_zip_header(struct archive_write *a, struct archive_entry *entry)
+ 		 * makes length-at-end more reliable) and will
+ 		 * enable Zip64 extensions unless we're told not to.
+ 		 */
+-		zip->entry_compression = COMPRESSION_DEFAULT;
++
++		#ifdef HAVE_ZLIB_H
++		if(zip->requested_compression == COMPRESSION_UNSPECIFIED){
++			zip->entry_compression = COMPRESSION_DEFLATE;
++		}
++		#endif
++
+ 		zip->entry_flags |= ZIP_ENTRY_FLAG_LENGTH_AT_END;
+ 		if ((zip->flags & ZIP_FLAG_AVOID_ZIP64) == 0) {
+ 			zip->entry_uses_zip64 = 1;

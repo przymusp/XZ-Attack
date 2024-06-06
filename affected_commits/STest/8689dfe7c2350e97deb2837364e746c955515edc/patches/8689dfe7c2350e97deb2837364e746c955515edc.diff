@@ -1,0 +1,31 @@
+commit 8689dfe7c2350e97deb2837364e746c955515edc
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Wed Dec 15 20:33:22 2021 +0800
+
+    Removed redundancy in color logging
+
+diff --git a/src/stest.c b/src/stest.c
+index 62fef6e..e41fe85 100644
+--- a/src/stest.c
++++ b/src/stest.c
+@@ -164,18 +164,10 @@ void stest_simple_test_result_log(int passed, char* reason, const char* function
+ 			{
+ 				printf("%s%s,%s,%u,%s\r\n", stest_magic_marker, stest_current_fixture_path, function, line, reason );
+ 			}
+-			
+ 		}
+ 		else
+-		{	
+-			if ( vs_mode )
+-			{
+-				printf("%s (%u)		%s,%s\r\n", stest_current_fixture_path, line, function, reason );
+-			}
+-			else
+-			{
+-				stest_log_failure(reason, function, line);
+-			}
++		{
++			stest_log_failure(reason, function, line);	
+ 		}
+ 		stests_failed++;
+ 

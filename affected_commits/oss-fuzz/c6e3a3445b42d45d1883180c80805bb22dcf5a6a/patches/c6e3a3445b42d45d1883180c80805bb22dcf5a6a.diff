@@ -1,0 +1,25 @@
+commit c6e3a3445b42d45d1883180c80805bb22dcf5a6a
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Dec 1 03:11:49 2023 +0800
+
+    xz-java: Add upstream maintainers to contact fields in project.yaml. (#11295)
+
+diff --git a/projects/xz-java/project.yaml b/projects/xz-java/project.yaml
+index 2c80ae4c9..b0eccddbe 100644
+--- a/projects/xz-java/project.yaml
++++ b/projects/xz-java/project.yaml
+@@ -1,9 +1,12 @@
+ homepage: "https://tukaani.org/xz/java.html"
+ language: jvm
++primary_contact: "jiat0218@gmail.com"
++auto_ccs:
++  - "lasse.collin@tukaani.org"
+ fuzzing_engines:
+   - libfuzzer
+ main_repo: "https://github.com/tukaani-project/xz-java"
+ sanitizers:
+   - address
+ vendor_ccs:
+-  - "bug-disclosure@code-intelligence.com"
+\ No newline at end of file
++  - "bug-disclosure@code-intelligence.com"

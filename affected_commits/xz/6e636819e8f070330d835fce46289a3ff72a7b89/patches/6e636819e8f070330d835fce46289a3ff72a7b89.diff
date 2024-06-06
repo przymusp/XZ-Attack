@@ -1,0 +1,16 @@
+commit 6e636819e8f070330d835fce46289a3ff72a7b89
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Mar 9 10:18:29 2024 +0800
+
+    Tests: Update two test files.
+    
+    The original files were generated with random local to my machine.
+    To better reproduce these files in the future, a constant seed was used
+    to recreate these files.
+
+diff --git a/tests/files/bad-3-corrupt_lzma2.xz b/tests/files/bad-3-corrupt_lzma2.xz
+index 926f95b0..f9ec69a2 100644
+Binary files a/tests/files/bad-3-corrupt_lzma2.xz and b/tests/files/bad-3-corrupt_lzma2.xz differ
+diff --git a/tests/files/good-large_compressed.lzma b/tests/files/good-large_compressed.lzma
+index 8450fea8..878991f3 100644
+Binary files a/tests/files/good-large_compressed.lzma and b/tests/files/good-large_compressed.lzma differ

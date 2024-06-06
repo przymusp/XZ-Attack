@@ -1,0 +1,33 @@
+commit d9166b52cf3458a4da3eb92224837ca8fc208d79
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Jul 24 21:43:44 2023 +0800
+
+    liblzma: Prevent an empty translation unit in Windows builds.
+    
+    To workaround Automake lacking Windows resource compiler support, an
+    empty source file is compiled to overwrite the resource files for static
+    library builds. Translation units without an external declaration are
+    not allowed by the C standard and result in a warning when used with
+    -Wempty-translation-unit (Clang) or -pedantic (GCC).
+
+diff --git a/src/liblzma/Makefile.am b/src/liblzma/Makefile.am
+index 0751f7a6..13453e72 100644
+--- a/src/liblzma/Makefile.am
++++ b/src/liblzma/Makefile.am
+@@ -72,11 +72,15 @@ endif
+ # static liblzma, we overwrite the static object file with an object file
+ # compiled from empty input. Note that GNU-specific features are OK here,
+ # because on Windows we are compiled with the GNU toolchain.
++#
++# The typedef in empty.c will prevent an empty translation unit, which is
++# not allowed by the C standard. It results in a warning with
++# -Wempty-translation-unit with Clang or -pedantic for GCC.
+ .rc.lo:
+ 	$(LIBTOOL) --mode=compile $(RC) $(DEFS) $(DEFAULT_INCLUDES) \
+ 		$(INCLUDES) $(liblzma_la_CPPFLAGS) $(CPPFLAGS) $(RCFLAGS) \
+ 		-i $< -o $@
+-	echo > empty.c
++	echo "typedef void empty;" > empty.c
+ 	$(COMPILE) -c empty.c -o $(*D)/$(*F).o
+ 
+ # Remove ordinals from the generated .def file. People must link by name,

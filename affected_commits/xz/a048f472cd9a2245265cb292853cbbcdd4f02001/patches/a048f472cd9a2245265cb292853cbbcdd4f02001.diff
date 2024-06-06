@@ -1,0 +1,27 @@
+commit a048f472cd9a2245265cb292853cbbcdd4f02001
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Jul 28 21:54:22 2023 +0800
+
+    CI: Update ci_build.sh CMake to always make Unix Makefiles.
+    
+    The default for many of the MSYS2 environments is for CMake to create
+    Ninja build files. This would complicate the build script since we would
+    need a different command to run the tests. Its simpler to always use
+    Unix Makefiles so that "make test" is always a usable target for
+    testing.
+
+diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
+index 6ab4777f..3cc014be 100755
+--- a/build-aux/ci_build.sh
++++ b/build-aux/ci_build.sh
+@@ -236,8 +236,8 @@ then
+ 
+ 		# Remove old cache file to clear previous settings.
+ 		rm -f "CMakeCache.txt"
+-		cmake "$SRC_DIR/CMakeLists.txt" -B "$DEST_DIR" $EXTRA_OPTIONS -DADDITIONAL_CHECK_TYPES="$CHECK_TYPE"
+-		make
++		cmake "$SRC_DIR/CMakeLists.txt" -B "$DEST_DIR" $EXTRA_OPTIONS -DADDITIONAL_CHECK_TYPES="$CHECK_TYPE" -G "Unix Makefiles"
++		cmake --build "$DEST_DIR"
+ 	;;
+ 	esac
+ fi

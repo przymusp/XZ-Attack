@@ -1,0 +1,18 @@
+commit 379769d04ea4abbb9cce50a16a4f2eec407170e3
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Tue Oct 19 21:45:58 2021 +0800
+
+    Added new test to cmake lists
+
+diff --git a/libarchive/test/CMakeLists.txt b/libarchive/test/CMakeLists.txt
+index 53cc3e22..dcec40ba 100644
+--- a/libarchive/test/CMakeLists.txt
++++ b/libarchive/test/CMakeLists.txt
+@@ -276,6 +276,7 @@ IF(ENABLE_TEST)
+     test_write_format_zip_compression_store.c
+     test_write_format_zip_empty.c
+     test_write_format_zip_empty_zip64.c
++    test_write_format_zip_entry_size_unset.c
+     test_write_format_zip_file.c
+     test_write_format_zip_file_zip64.c
+     test_write_format_zip_large.c

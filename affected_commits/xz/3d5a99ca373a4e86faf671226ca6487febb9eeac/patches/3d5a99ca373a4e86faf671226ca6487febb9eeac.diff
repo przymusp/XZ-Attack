@@ -1,0 +1,48 @@
+commit 3d5a99ca373a4e86faf671226ca6487febb9eeac
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Sep 21 19:28:53 2022 +0800
+
+    liblzma: Fix copying of check type statistics in lzma_index_cat().
+    
+    The check type of the last Stream in dest was never copied to
+    dest->checks (the code tried to copy it but it was done too late).
+    This meant that the value returned by lzma_index_checks() would
+    only include the check type of the last Stream when multiple
+    lzma_indexes had been concatenated.
+    
+    In xz --list this meant that the summary would only list the
+    check type of the last Stream, so in this sense this was only
+    a visual bug. However, it's possible that some applications
+    use this information for purposes other than merely showing
+    it to the users in an informational message. I'm not aware of
+    such applications though and it's quite possible that such
+    applications don't exist.
+    
+    Regular streamed decompression in xz or any other application
+    doesn't use lzma_index_cat() and so this bug cannot affect them.
+
+diff --git a/src/liblzma/common/index.c b/src/liblzma/common/index.c
+index 010e1f80..e0b14a3d 100644
+--- a/src/liblzma/common/index.c
++++ b/src/liblzma/common/index.c
+@@ -839,6 +839,11 @@ lzma_index_cat(lzma_index *restrict dest, lzma_index *restrict src,
+ 		}
+ 	}
+ 
++	// dest->checks includes the check types of all except the last Stream
++	// in dest. Set the bit for the check type of the last Stream now so
++	// that it won't get lost when Stream(s) from src are appended to dest.
++	dest->checks = lzma_index_checks(dest);
++
+ 	// Add all the Streams from src to dest. Update the base offsets
+ 	// of each Stream from src.
+ 	const index_cat_info info = {
+@@ -855,7 +860,7 @@ lzma_index_cat(lzma_index *restrict dest, lzma_index *restrict src,
+ 	dest->total_size += src->total_size;
+ 	dest->record_count += src->record_count;
+ 	dest->index_list_size += src->index_list_size;
+-	dest->checks = lzma_index_checks(dest) | src->checks;
++	dest->checks |= src->checks;
+ 
+ 	// There's nothing else left in src than the base structure.
+ 	lzma_free(src, allocator);

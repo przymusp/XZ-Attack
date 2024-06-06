@@ -1,0 +1,25 @@
+commit 7673ef5aa80c1af7fb693360dd82f527b46c2c56
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Feb 4 21:06:35 2023 +0800
+
+    Build: Adjust CMake version search regex.
+    
+    Now, the LZMA_VERSION_MAJOR, LZMA_VERSION_MINOR, and LZMA_VERSION_PATCH
+    macros do not need to be on consecutive lines in version.h. They can be
+    separated by more whitespace, comments, or even other content, as long
+    as they appear in the proper order (major, minor, patch).
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cfa0dd6f..2e4ae1ec 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -64,7 +64,9 @@ file(READ src/liblzma/api/lzma/version.h XZ_VERSION)
+ string(REGEX REPLACE
+ "^.*\n\
+ #define LZMA_VERSION_MAJOR ([0-9]+)\n\
++.*\
+ #define LZMA_VERSION_MINOR ([0-9]+)\n\
++.*\
+ #define LZMA_VERSION_PATCH ([0-9]+)\n\
+ .*$"
+        "\\1.\\2.\\3" XZ_VERSION "${XZ_VERSION}")

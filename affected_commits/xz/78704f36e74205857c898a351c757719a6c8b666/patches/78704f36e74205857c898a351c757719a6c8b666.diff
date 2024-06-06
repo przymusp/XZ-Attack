@@ -1,0 +1,30 @@
+commit 78704f36e74205857c898a351c757719a6c8b666
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Jun 28 20:31:11 2023 +0800
+
+    liblzma: Prevent uninitialzed warning in mt stream encoder.
+    
+    This change only impacts the compiler warning since it was impossible
+    for the wait_abs struct in stream_encode_mt() to be used before it was
+    initialized since mythread_condtime_set() will always be called before
+    mythread_cond_timedwait().
+    
+    Since the mythread.h code is different between the POSIX and
+    Windows versions, this warning was only present on Windows builds.
+    
+    Thanks to Arthur S for reporting the warning and providing an initial
+    patch.
+
+diff --git a/src/liblzma/common/stream_encoder_mt.c b/src/liblzma/common/stream_encoder_mt.c
+index 703b794e..a8336d88 100644
+--- a/src/liblzma/common/stream_encoder_mt.c
++++ b/src/liblzma/common/stream_encoder_mt.c
+@@ -743,7 +743,7 @@ stream_encode_mt(void *coder_ptr, const lzma_allocator *allocator,
+ 
+ 		// These are for wait_for_work().
+ 		bool has_blocked = false;
+-		mythread_condtime wait_abs;
++		mythread_condtime wait_abs = {};
+ 
+ 		while (true) {
+ 			mythread_sync(coder->mutex) {

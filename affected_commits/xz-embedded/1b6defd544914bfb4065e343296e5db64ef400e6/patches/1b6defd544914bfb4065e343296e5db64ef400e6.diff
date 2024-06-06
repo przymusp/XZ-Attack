@@ -1,0 +1,21 @@
+commit 1b6defd544914bfb4065e343296e5db64ef400e6
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Jan 19 23:13:32 2024 +0800
+
+    Update IRC network from Freenode to Libera Chat.
+    
+    This was forgotten when the channel moved from Freenode to Libera Chat.
+
+diff --git a/linux/Documentation/xz.txt b/linux/Documentation/xz.txt
+index f2cd6a8..b1a743e 100644
+--- a/linux/Documentation/xz.txt
++++ b/linux/Documentation/xz.txt
+@@ -111,7 +111,7 @@ Reporting bugs
+     latest code.
+ 
+     Report bugs to <xz@tukaani.org> or visit #tukaani on
+-    Freenode and talk to the maintainers. We don't actively read LKML or
++    Libera Chat and talk to the maintainers. We don't actively read LKML or
+     other kernel-related mailing lists, so if there's something we should
+     know, please use email or IRC.
+ 

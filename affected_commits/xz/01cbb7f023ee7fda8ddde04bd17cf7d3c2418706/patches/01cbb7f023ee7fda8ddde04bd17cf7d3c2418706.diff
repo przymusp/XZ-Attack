@@ -1,0 +1,19 @@
+commit 01cbb7f023ee7fda8ddde04bd17cf7d3c2418706
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Jul 26 20:26:23 2023 +0800
+
+    Update .gitignore.
+
+diff --git a/.gitignore b/.gitignore
+index ef4754db..333eb9eb 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -107,3 +107,7 @@ coverage
+ /xzcat
+ /xzcat.1
+ /xzdec
++
++/windows/*/.vs
++/windows/*/liblzma.vcxproj.user
++/.vscode/
+\ No newline at end of file

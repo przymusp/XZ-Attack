@@ -1,0 +1,57 @@
+commit e5faaebbcf02ea880cfc56edc702d4f7298788ad
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Mar 5 00:27:31 2024 +0800
+
+    Build: Require attribute no_profile_instrument_function for ifunc usage.
+    
+    Using __attribute__((__no_profile_instrument_function__)) on the ifunc
+    resolver works around a bug in GCC -fprofile-generate:
+    it adds profiling code even to ifunc resolvers which can make
+    the ifunc resolver crash at program startup. This attribute
+    was not introduced until GCC 7 and Clang 13, so ifunc won't
+    be used with prior versions of these compilers.
+    
+    This bug was brought to our attention by:
+    
+        https://bugs.gentoo.org/925415
+    
+    And was reported to upstream GCC by:
+    
+        https://gcc.gnu.org/bugzilla/show_bug.cgi?id=11411
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b45002d8..3b616b5c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1082,6 +1082,13 @@ if(USE_ATTR_IFUNC STREQUAL "auto")
+             #endif
+ 
+             static void func(void) { return; }
++
++            /*
++            * The attribute __no_profile_instrument_function__ is
++            * needed with GCC to prevent improper instrumentation in
++            * the ifunc resolver.
++            */
++            __attribute__((__no_profile_instrument_function__))
+             static void (*resolve_func(void)) (void) { return func; }
+             void func_ifunc(void)
+                     __attribute__((__ifunc__(\"resolve_func\")));
+diff --git a/configure.ac b/configure.ac
+index 446e26e2..176bb9ce 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -915,6 +915,13 @@ if test "x$enable_ifunc" = xauto ; then
+ 		#endif
+ 
+ 		static void func(void) { return; }
++
++		/*
++		 * The attribute __no_profile_instrument_function__ is
++		 * needed with GCC to prevent improper instrumentation in
++		 * the ifunc resolver.
++		 */
++		__attribute__((__no_profile_instrument_function__))
+ 		static void (*resolve_func (void)) (void) { return func; }
+ 		void func_ifunc (void)
+ 				__attribute__((__ifunc__("resolve_func")));

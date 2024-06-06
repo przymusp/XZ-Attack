@@ -1,0 +1,53 @@
+commit 183a62f0b540ff4d23cc19b2b6bc2525f0bd64df
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Dec 16 20:51:38 2023 +0800
+
+    liblzma: Set all values in lzma_lz_encoder to NULL after allocation.
+    
+    The first member of lzma_lz_encoder doesn't necessarily need to be set
+    to NULL since it will always be set before anything tries to use it.
+    However the function pointer members must be set to NULL since other
+    functions rely on this NULL value to determine if this behavior is
+    supported or not.
+    
+    This fixes a somewhat serious bug, where the options_update() and
+    set_out_limit() function pointers are not set to NULL. This seems to
+    have been forgotten since these function pointers were added many years
+    after the original two (code() and end()).
+    
+    The problem is that by not setting this to NULL we are relying on the
+    memory allocation to zero things out if lzma_filters_update() is called
+    on a LZMA1 encoder. The function pointer for set_out_limit() is less
+    serious because there is not an API function that could call this in an
+    incorrect way. set_out_limit() is only called by the MicroLZMA encoder,
+    which must use LZMA1 where set_out_limit() is always set. Its currently
+    not possible to call set_out_limit() on an LZMA2 encoder at this time.
+    
+    So calling lzma_filters_update() on an LZMA1 encoder had undefined
+    behavior since its possible that memory could be manipulated so the
+    options_update member pointed to a different instruction sequence.
+    
+    This is unlikely to be a bug in an existing application since it relies
+    on calling lzma_filters_update() on an LZMA1 encoder in the first place.
+    For instance, it does not affect xz because lzma_filters_update() can
+    only be used when encoding to the .xz format.
+    
+    This is fixed by using memzero() to set all members of lzma_lz_encoder
+    to NULL after it is allocated. This ensures this mistake will not occur
+    here in the future if any additional function pointers are added.
+
+diff --git a/src/liblzma/lz/lz_encoder.c b/src/liblzma/lz/lz_encoder.c
+index 795ae27a..dbc5c7b8 100644
+--- a/src/liblzma/lz/lz_encoder.c
++++ b/src/liblzma/lz/lz_encoder.c
+@@ -564,9 +564,7 @@ lzma_lz_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator,
+ 		next->update = &lz_encoder_update;
+ 		next->set_out_limit = &lz_encoder_set_out_limit;
+ 
+-		coder->lz.coder = NULL;
+-		coder->lz.code = NULL;
+-		coder->lz.end = NULL;
++		memzero((&coder->lz), sizeof(lzma_lz_encoder));
+ 
+ 		// mf.size is initialized to silence Valgrind
+ 		// when used on optimized binaries (GCC may reorder

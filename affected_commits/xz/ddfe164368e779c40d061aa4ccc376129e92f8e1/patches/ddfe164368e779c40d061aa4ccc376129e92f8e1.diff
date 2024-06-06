@@ -1,0 +1,19 @@
+commit ddfe164368e779c40d061aa4ccc376129e92f8e1
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Mar 24 20:05:59 2023 +0800
+
+    CMake: Only build xzdec if decoders are enabled.
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 584f1af1..d936667f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -887,7 +887,7 @@ check_symbol_exists(getopt_long getopt.h HAVE_GETOPT_LONG)
+ # xzdec
+ #############################################################################
+ 
+-if(HAVE_GETOPT_LONG)
++if(HAVE_GETOPT_LONG AND HAVE_DECODERS)
+     add_executable(xzdec
+         src/common/sysdefs.h
+         src/common/tuklib_common.h

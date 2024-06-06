@@ -1,0 +1,19 @@
+commit 299920bab9ae258a247366339264e8aefca9e3ce
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Nov 17 20:04:58 2023 +0800
+
+    Tests: Fix typo in a comment.
+
+diff --git a/tests/test_files.sh b/tests/test_files.sh
+index 60402e73..b1505f7b 100755
+--- a/tests/test_files.sh
++++ b/tests/test_files.sh
+@@ -9,7 +9,7 @@
+ #
+ ###############################################################################
+ 
+-# If both xz and xzdec were not build, skip this test.
++# If both xz and xzdec were not built, skip this test.
+ XZ=../src/xz/xz
+ XZDEC=../src/xzdec/xzdec
+ test -x "$XZ" || XZ=

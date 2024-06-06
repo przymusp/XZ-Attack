@@ -1,0 +1,32 @@
+commit 143e4d1eb721ebb5b378713ff6a7334dd2eabc2e
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Mar 19 19:47:27 2024 +0800
+
+    Fix typos discovered by codespell.
+
+diff --git a/README b/README
+index 72c7c86..2171825 100644
+--- a/README
++++ b/README
+@@ -159,7 +159,7 @@ Notes about shared libraries
+ 
+     Please don't create a shared library of XZ Embedded itself unless
+     it is fine to rebuild everything depending on that shared library
+-    everytime you upgrade to a newer version of XZ Embedded. There are
++    every time you upgrade to a newer version of XZ Embedded. There are
+     no API or ABI stability guarantees between different versions of
+     XZ Embedded.
+ 
+diff --git a/linux/include/linux/xz.h b/linux/include/linux/xz.h
+index d2987e6..0bf4282 100644
+--- a/linux/include/linux/xz.h
++++ b/linux/include/linux/xz.h
+@@ -215,7 +215,7 @@ XZ_EXTERN struct xz_dec *xz_dec_init(enum xz_mode mode, uint32_t dict_max);
+  * the multi-call decoder if you don't want to uncompress the whole stream.
+  *
+  * Use xz_dec_run() when XZ data is stored inside some other file format.
+- * The decoding will stop after one XZ stream has been decompresed. To
++ * The decoding will stop after one XZ stream has been decompressed. To
+  * decompress regular .xz files which might have multiple concatenated
+  * streams, use xz_dec_catrun() instead.
+  */

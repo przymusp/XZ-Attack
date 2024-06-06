@@ -1,0 +1,19 @@
+commit 1cac5ed4fa45c9861d745b02d80575cb2ff01d81
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Aug 3 15:56:20 2023 +0800
+
+    Translations: Update the Chinese (simplified) translation.
+
+diff --git a/po/zh_CN.po b/po/zh_CN.po
+index 157fea96..44cfe94f 100644
+--- a/po/zh_CN.po
++++ b/po/zh_CN.po
+@@ -36,7 +36,7 @@ msgstr "0 仅可用于 --block-list 的最后一个元素"
+ #: src/xz/args.c:451
+ #, c-format
+ msgid "%s: Unknown file format type"
+-msgstr "%s：位置文件格式类型"
++msgstr "%s：未知文件格式类型"
+ 
+ #: src/xz/args.c:474 src/xz/args.c:482
+ #, c-format

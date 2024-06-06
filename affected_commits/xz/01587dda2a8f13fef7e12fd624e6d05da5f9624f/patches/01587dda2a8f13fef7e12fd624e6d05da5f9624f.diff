@@ -1,0 +1,24 @@
+commit 01587dda2a8f13fef7e12fd624e6d05da5f9624f
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Mar 7 20:02:22 2023 +0800
+
+    xz: Fix -Wunused-label in io_sandbox_enter().
+    
+    Thanks to Xin Li for recommending the fix.
+
+diff --git a/src/xz/file_io.c b/src/xz/file_io.c
+index 1a7dac13..bc4f933d 100644
+--- a/src/xz/file_io.c
++++ b/src/xz/file_io.c
+@@ -243,9 +243,9 @@ capsicum_error:
+ 		sandbox_allowed = false;
+ 		return;
+ 	}
+-#endif
+-
++#else
+ error:
++#endif
+ 	message_fatal(_("Failed to enable the sandbox"));
+ }
+ #endif // ENABLE_SANDBOX

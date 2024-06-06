@@ -1,0 +1,45 @@
+commit c60b25569d414bb73b705977a4dd342f8f9f1965
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Oct 19 00:22:50 2023 +0800
+
+    liblzma: Fix -fsanitize=address failure with crc_clmul functions.
+    
+    After forcing crc_simd_body() to always be inlined it caused
+    -fsanitize=address to fail for lzma_crc32_clmul() and
+    lzma_crc64_clmul(). The __no_sanitize_address__ attribute was added
+    to lzma_crc32_clmul() and lzma_crc64_clmul(), but not removed from
+    crc_simd_body(). ASAN and inline functions behavior has changed over
+    the years for GCC specifically, so while strictly required we will
+    keep __attribute__((__no_sanitize_address__)) on crc_simd_body() in
+    case this becomes a requirement in the future.
+    
+    Older GCC versions refuse to inline a function with ASAN if the
+    caller and callee do not agree on sanitization flags
+    (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=89124#c3). If the
+    function was forced to be inlined, it will not compile if the callee
+    function has __no_sanitize_address__ but the caller doesn't.
+
+diff --git a/src/liblzma/check/crc_clmul.c b/src/liblzma/check/crc_clmul.c
+index b90f43e3..7110fd7e 100644
+--- a/src/liblzma/check/crc_clmul.c
++++ b/src/liblzma/check/crc_clmul.c
+@@ -227,6 +227,9 @@ calc_hi(uint64_t p, uint64_t a, int n)
+ #if (defined(__GNUC__) || defined(__clang__)) && !defined(__EDG__)
+ __attribute__((__target__("ssse3,sse4.1,pclmul")))
+ #endif
++#if lzma_has_attribute(__no_sanitize_address__)
++__attribute__((__no_sanitize_address__))
++#endif
+ extern uint32_t
+ lzma_crc32_clmul(const uint8_t *buf, size_t size, uint32_t crc)
+ {
+@@ -317,6 +320,9 @@ calc_hi(uint64_t poly, uint64_t a)
+ #if (defined(__GNUC__) || defined(__clang__)) && !defined(__EDG__)
+ __attribute__((__target__("ssse3,sse4.1,pclmul")))
+ #endif
++#if lzma_has_attribute(__no_sanitize_address__)
++__attribute__((__no_sanitize_address__))
++#endif
+ extern uint64_t
+ lzma_crc64_clmul(const uint8_t *buf, size_t size, uint64_t crc)
+ {

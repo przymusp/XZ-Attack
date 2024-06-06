@@ -1,0 +1,31 @@
+commit b8a45ce068ffbe1c03790805267f88b385b7768e
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Tue May 17 21:13:07 2022 +0800
+
+    stdio include fixes
+
+diff --git a/src/stest.c b/src/stest.c
+index 19639ee..584e7b4 100644
+--- a/src/stest.c
++++ b/src/stest.c
+@@ -5,7 +5,6 @@
+ 
+ #include "stest.h"
+ #include <setjmp.h>
+-#include <stdio.h>
+ #include <string.h>
+ 
+ #ifdef STEST_INTERNAL_TESTS
+diff --git a/src/stest.h b/src/stest.h
+index f25dd8f..4e0cf7b 100644
+--- a/src/stest.h
++++ b/src/stest.h
+@@ -6,6 +6,8 @@
+ #ifndef STEST_H
+ #define STEST_H
+ 
++#include <stdio.h>
++
+ /*
+ Defines
+ */

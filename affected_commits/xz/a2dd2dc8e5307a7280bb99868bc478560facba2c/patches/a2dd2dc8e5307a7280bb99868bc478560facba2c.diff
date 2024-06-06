@@ -1,0 +1,28 @@
+commit a2dd2dc8e5307a7280bb99868bc478560facba2c
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Jan 23 23:52:49 2024 +0800
+
+    CI: Use RISC-V filter when building with BCJ support.
+
+diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
+index 51b611a6..ab056818 100755
+--- a/build-aux/ci_build.sh
++++ b/build-aux/ci_build.sh
+@@ -204,7 +204,7 @@ then
+ 
+ 		cd "$DEST_DIR"
+ 
+-		add_to_filter_list "$BCJ" ",x86,powerpc,ia64,arm,armthumb,arm64,sparc"
++		add_to_filter_list "$BCJ" ",x86,powerpc,ia64,arm,armthumb,arm64,sparc,riscv"
+ 		add_to_filter_list "$DELTA" ",delta"
+ 
+ 		add_extra_option "$ENCODERS" "--enable-encoders=$FILTER_LIST" "--disable-encoders"
+@@ -226,7 +226,7 @@ then
+ 	cmake)
+ 		cd "$DEST_DIR"
+ 
+-		add_to_filter_list "$BCJ" ";x86;powerpc;ia64;arm;armthumb;arm64;sparc"
++		add_to_filter_list "$BCJ" ";x86;powerpc;ia64;arm;armthumb;arm64;sparc;riscv"
+ 		add_to_filter_list "$DELTA" ";delta"
+ 
+ 		add_extra_option "$THREADS" "-DENABLE_THREADS=ON" "-DENABLE_THREADS=OFF"

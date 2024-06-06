@@ -1,0 +1,18 @@
+commit 54d2b66049cd25d60f84047c454b920702918cae
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Sat Oct 9 13:58:44 2021 +0800
+
+    Added bin folder to .gitignore
+
+diff --git a/.gitignore b/.gitignore
+index 9c09bf49..6b4d2dc7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -7,6 +7,7 @@
+ !build/cmake/*.cmake
+ .deps/
+ .libs/
++bin/
+ .dirstamp
+ Makefile
+ Makefile.in

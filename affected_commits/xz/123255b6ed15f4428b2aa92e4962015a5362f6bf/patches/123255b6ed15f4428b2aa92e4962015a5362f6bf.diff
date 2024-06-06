@@ -1,0 +1,25 @@
+commit 123255b6ed15f4428b2aa92e4962015a5362f6bf
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Jan 16 20:55:10 2023 +0800
+
+    xz: Do not set compression settings with raw format in list mode.
+    
+    Calling coder_set_compression_settings() in list mode with verbose mode
+    on caused the filter chain and memory requirements to print. This was
+    unnecessary since the command results in an error and not consistent
+    with other formats like lzma and alone.
+
+diff --git a/src/xz/args.c b/src/xz/args.c
+index b0a1174a..c31f759a 100644
+--- a/src/xz/args.c
++++ b/src/xz/args.c
+@@ -720,7 +720,8 @@ args_parse(args_info *args, int argc, char **argv)
+ 	// be done also when uncompressing raw data, since for raw decoding
+ 	// the options given on the command line are used to know what kind
+ 	// of raw data we are supposed to decode.
+-	if (opt_mode == MODE_COMPRESS || opt_format == FORMAT_RAW)
++	if (opt_mode == MODE_COMPRESS || (opt_format == FORMAT_RAW
++			&& opt_mode != MODE_LIST))
+ 		coder_set_compression_settings();
+ 
+ 	// If no filenames are given, use stdin.

@@ -1,0 +1,31 @@
+commit f281cd0d692ac0c70fc7669b80dddb863ea947e1
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat May 13 19:28:23 2023 +0800
+
+    xz: Add a message if --block-list is used outside of xz compresssion.
+    
+    --block-list is only supported with compression in xz format. This avoids
+    silently ignoring when --block-list is unused.
+
+diff --git a/src/xz/args.c b/src/xz/args.c
+index b2eee193..6ae3c96f 100644
+--- a/src/xz/args.c
++++ b/src/xz/args.c
+@@ -788,6 +788,17 @@ args_parse(args_info *args, int argc, char **argv)
+ 	if (opt_mode == MODE_COMPRESS && opt_format == FORMAT_AUTO)
+ 		opt_format = FORMAT_XZ;
+ 
++	// Set opt_block_list to NULL if we are not compressing to the .xz
++	// format. This option cannot be used outside of this case, and
++	// simplifies the implementation later.
++	if ((opt_mode != MODE_COMPRESS || opt_format != FORMAT_XZ)
++			&& opt_block_list != NULL) {
++		message(V_WARNING, _("--block-list is ignored unless "
++				"compressing to the .xz format"));
++		free(opt_block_list);
++		opt_block_list = NULL;
++	}
++
+ 	// Compression settings need to be validated (options themselves and
+ 	// their memory usage) when compressing to any file format. It has to
+ 	// be done also when uncompressing raw data, since for raw decoding

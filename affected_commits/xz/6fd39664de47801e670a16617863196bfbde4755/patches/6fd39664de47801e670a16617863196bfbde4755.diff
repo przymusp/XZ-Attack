@@ -1,0 +1,8 @@
+commit 6fd39664de47801e670a16617863196bfbde4755
+Merge: 78e0561d fc0c7884
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Jan 7 00:10:50 2023 +0800
+
+    Merge pull request #7 from tukaani-project/tuktest_index_hash
+    
+    Tuktest index hash

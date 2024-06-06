@@ -1,0 +1,24 @@
+commit 40abd88afcc61a8157fcd12d78d491caeb8e12be
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Oct 18 22:50:25 2023 +0800
+
+    liblzma: Add the crc_always_inline macro to crc_simd_body().
+    
+    Forcing this to be inline has a significant speed improvement at the
+    cost of a few repeated instructions. The compilers tested on did not
+    inline this function since it is large and is used twice in the same
+    translation unit.
+
+diff --git a/src/liblzma/check/crc_clmul.c b/src/liblzma/check/crc_clmul.c
+index f53fcc92..6ebb1232 100644
+--- a/src/liblzma/check/crc_clmul.c
++++ b/src/liblzma/check/crc_clmul.c
+@@ -64,7 +64,7 @@ __attribute__((__target__("ssse3,sse4.1,pclmul")))
+ #if lzma_has_attribute(__no_sanitize_address__)
+ __attribute__((__no_sanitize_address__))
+ #endif
+-static inline void
++static crc_always_inline void
+ crc_simd_body(const uint8_t *buf, const size_t size, __m128i *v0, __m128i *v1,
+ 		const __m128i vfold16, const __m128i initial_crc)
+ {

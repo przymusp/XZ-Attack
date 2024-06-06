@@ -1,0 +1,33 @@
+commit b0891684b4436aed31510fddcbb218d513bd5489
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Mar 21 23:36:00 2023 +0800
+
+    CMake: Conditionally build xz list.* files if decoders are enabled.
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index db429560..b4a9e5d1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -958,8 +958,6 @@ if(NOT MSVC AND HAVE_GETOPT_LONG)
+         src/xz/file_io.h
+         src/xz/hardware.c
+         src/xz/hardware.h
+-        src/xz/list.c
+-        src/xz/list.h
+         src/xz/main.c
+         src/xz/main.h
+         src/xz/message.c
+@@ -982,6 +980,13 @@ if(NOT MSVC AND HAVE_GETOPT_LONG)
+         src/liblzma/api
+     )
+ 
++    if(HAVE_DECODERS)
++        target_sources(xz PRIVATE
++            src/xz/list.c
++            src/xz/list.h
++        )
++    endif()
++
+     target_link_libraries(xz PRIVATE liblzma)
+ 
+     target_compile_definitions(xz PRIVATE ASSUME_RAM=128)

@@ -1,0 +1,26 @@
+commit 8ebaf3f665ddc7e4f19c613005050dde5ccbe499
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Sep 27 00:02:11 2023 +0800
+
+    liblzma: Avoid compiler warning without creating extra symbol.
+    
+    When the generic fast crc64 method is used, then we omit
+    lzma_crc64_table[][]. Similar to
+    d9166b52cf3458a4da3eb92224837ca8fc208d79, we can avoid compiler warnings
+    with -Wempty-translation-unit (Clang) or -pedantic (GCC) by creating a
+    never used typedef instead of an extra symbol.
+
+diff --git a/src/liblzma/check/crc64_table.c b/src/liblzma/check/crc64_table.c
+index 241adcd4..6f9adb04 100644
+--- a/src/liblzma/check/crc64_table.c
++++ b/src/liblzma/check/crc64_table.c
+@@ -20,8 +20,7 @@
+ 		|| (defined(__e2k__) && __iset__ >= 6)
+ // No table needed but something has to be exported to keep some toolchains
+ // happy. Also use a declaration to silence compiler warnings.
+-extern const char lzma_crc64_dummy;
+-const char lzma_crc64_dummy;
++typedef void lzma_crc64_dummy;
+ 
+ #else
+ // Having the declaration here silences clang -Wmissing-variable-declarations.

@@ -1,0 +1,22 @@
+commit 799ead162de63b8400733603d3abcd2e1977bdca
+Author: Jia Cheong Tan <jiat0218@gmail.com>
+Date:   Tue Dec 20 22:05:21 2022 +0800
+
+    Doxygen: Update .gitignore for generating docs for in source build.
+    
+    In source builds are not recommended, but we should still ignore
+    the generated artifacts.
+
+diff --git a/.gitignore b/.gitignore
+index 2804cfd9..f0b11aa9 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -37,6 +37,8 @@ build-aux/test-driver
+ 
+ coverage
+ 
++/doc/html
++
+ /src/liblzma/liblzma.pc
+ /src/lzmainfo/lzmainfo
+ /src/xz/xz

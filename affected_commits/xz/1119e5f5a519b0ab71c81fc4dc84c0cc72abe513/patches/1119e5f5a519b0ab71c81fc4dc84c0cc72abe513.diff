@@ -1,0 +1,24 @@
+commit 1119e5f5a519b0ab71c81fc4dc84c0cc72abe513
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Jul 14 21:10:27 2023 +0800
+
+    Docs: Update README.
+    
+    This adds an entry to "Other implementations of the .xz format" for
+    XZ for Java.
+
+diff --git a/README b/README
+index ed1cace1..9e76301b 100644
+--- a/README
++++ b/README
+@@ -289,6 +289,10 @@ XZ Utils
+ 
+         https://tukaani.org/xz/embedded.html
+ 
++    XZ for Java is a complete implementation written in pure Java.
++
++        https://tukaani.org/xz/java.html
++
+ 
+ 6. Contact information
+ ----------------------

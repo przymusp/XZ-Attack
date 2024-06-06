@@ -1,0 +1,22 @@
+commit dd1c1135741057c91e8d018be9ec4d43968b0e64
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Jan 18 21:51:43 2023 +0800
+
+    CI: Enable --config-cache in autotool builds.
+    
+    If CFLAGS are set in a build, the cache must be cleared with
+    "make distclean", or by deleting the cache file.
+
+diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
+index e2c09cdb..2d0f8643 100755
+--- a/build-aux/ci_build.sh
++++ b/build-aux/ci_build.sh
+@@ -158,7 +158,7 @@ if [ "$PHASE" = "all" ] || [ "$PHASE" = "build" ]; then
+ 		fi
+ 
+ 		# Run configure script
+-		"$SRC_DIR"/configure --enable-werror --enable-checks=$CHECK_TYPE $EXTRA_OPTIONS
++		"$SRC_DIR"/configure --enable-werror --enable-checks=$CHECK_TYPE $EXTRA_OPTIONS --config-cache
+ 
+ 		# Build the project
+ 		make

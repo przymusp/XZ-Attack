@@ -1,0 +1,39 @@
+commit 72d2933bfae514e0dbb123488e9f1eb7cf64175f
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Mar 5 00:34:46 2024 +0800
+
+    liblzma: Use attribute no_profile_instrument_function with ifunc.
+    
+    Thanks to Sam James for determining this was the attribute needed to
+    workaround the GCC bug and for his version of the patch in Gentoo.
+
+diff --git a/src/liblzma/check/crc32_fast.c b/src/liblzma/check/crc32_fast.c
+index 5e26914a..079051f1 100644
+--- a/src/liblzma/check/crc32_fast.c
++++ b/src/liblzma/check/crc32_fast.c
+@@ -135,6 +135,11 @@ typedef uint32_t (*crc32_func_type)(
+ // This resolver is shared between all three dispatch methods. It serves as
+ // the ifunc resolver if ifunc is supported, otherwise it is called as a
+ // regular function by the constructor or first call resolution methods.
++// The __no_profile_instrument_function__ attribute support is checked when
++// determining if ifunc can be used, so it is safe to use here.
++#ifdef CRC_USE_IFUNC
++__attribute__((__no_profile_instrument_function__))
++#endif
+ static crc32_func_type
+ crc32_resolve(void)
+ {
+diff --git a/src/liblzma/check/crc64_fast.c b/src/liblzma/check/crc64_fast.c
+index f29fe3d3..5728b45e 100644
+--- a/src/liblzma/check/crc64_fast.c
++++ b/src/liblzma/check/crc64_fast.c
+@@ -98,6 +98,9 @@ typedef uint64_t (*crc64_func_type)(
+ #	pragma GCC diagnostic ignored "-Wunused-function"
+ #endif
+ 
++#ifdef CRC_USE_IFUNC
++__attribute__((__no_profile_instrument_function__))
++#endif
+ static crc64_func_type
+ crc64_resolve(void)
+ {

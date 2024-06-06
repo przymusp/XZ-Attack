@@ -1,0 +1,20 @@
+commit 862a6f1914523b7e851bef70c1ef8abfe183821a
+Author: JiaT75 <jiat0218@gmail.com>
+Date:   Thu Jan 6 20:31:19 2022 +0800
+
+    Not supporting output coloring on Windows
+
+diff --git a/src/stest.c b/src/stest.c
+index 01b4035..f723e3c 100644
+--- a/src/stest.c
++++ b/src/stest.c
+@@ -131,7 +131,8 @@ static int stest_can_color(){
+ 
+ static void stest_determine_color_output(FILE* standard_out){
+ #ifdef WIN32
+-  stest_color_output = GetFileType(standard_out) == FILE_TYPE_CHAR);
++  //Output coloring is not supported on windows
++  stest_color_output = 0;
+ #else
+   stest_color_output = isatty(fileno(standard_out));
+ #endif

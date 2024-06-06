@@ -1,0 +1,18 @@
+commit e1b1a9d6370b788bd6078952c6c201e12bc27cbf
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Dec 16 11:20:20 2023 +0800
+
+    Docs: Update repository URL in Changelog.
+
+diff --git a/ChangeLog b/ChangeLog
+index 224783c3..a24858d9 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,6 +1,6 @@
+ See the commit log in the git repository:
+ 
+-    git clone https://git.tukaani.org/xz.git
++    git clone https://github.com/tukaani-project/xz
+ 
+ Note that "make dist" doesn't put this tiny file into the package.
+ Instead, the git commit log is used as ChangeLog. See dist-hook in

@@ -1,0 +1,243 @@
+commit b99690b51fa08565c10a4e590ffb8bdfb077ba91
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Thu May 19 23:18:12 2022 +0800
+
+    removed STEST macro and changed to use __func__ instead
+
+diff --git a/README.md b/README.md
+index 84f083c..c1cf101 100644
+--- a/README.md
++++ b/README.md
+@@ -52,7 +52,7 @@ The test runner can be run with a few simple command line arguments.
+ 
+ ```C
+ // Sample test
+-STEST(my_test)
++void my_test() {
+   int actual = 10;
+   assert_int_equal(10, actual);
+ 
+@@ -60,16 +60,10 @@ STEST(my_test)
+   assert_string_contains("Hello", actual_str);
+ }
+ 
+-STEST_HELPER(int, helper, int arg1, int arg2)
+-  assert_true(arg2 > arg1);
+-  return arg2 - arg1;
+-}
+-
+-// Another sample Test calling a helper function
+-STEST(another_test)
++// Another sample Test
++void another_test() {
+   assert_true(1);
+   assert_false(0);
+-  assert_int_equal(helper(1, 2));
+ }
+ 
+ // Sample fixture
+diff --git a/src/stest.h b/src/stest.h
+index 4e0cf7b..9571b2e 100644
+--- a/src/stest.h
++++ b/src/stest.h
+@@ -14,16 +14,6 @@ Defines
+ 
+ #define STEST_PRINT_BUFFER_SIZE 10000
+ 
+-// First prototype, then declare the test function
+-#define STEST(test_name) static void test_name(void); \
+-static void test_name(void) \
+-{ const char *__STEST_FUNC_NAME__ = #test_name; (void) __STEST_FUNC_NAME__;
+-
+-#define STEST_HELPER(return_type, test_name, ...) static return_type \
+-test_name(__VA_ARGS__); \
+-static return_type test_name(__VA_ARGS__) \
+-{ const char *__STEST_FUNC_NAME__ = #test_name; (void) __STEST_FUNC_NAME__;
+-
+ /*
+ Typedefs
+ */
+@@ -76,22 +66,22 @@ Assert Macros
+ */
+ 
+ // clang-format off
+-#define assert_true(test) do { stest_assert_true(test, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_false(test) do {  stest_assert_false(test, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_int_equal(expected, actual) do {  stest_assert_int_equal(expected, actual, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_ulong_equal(expected, actual) do {  stest_assert_ulong_equal(expected, actual, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_string_equal(expected, actual) do {  stest_assert_string_equal(expected, actual, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_n_array_equal(expected, actual, n) do { size_t stest_count; for(stest_count=0; stest_count<n; stest_count++) { char s_stest[STEST_PRINT_BUFFER_SIZE]; sprintf(s_stest,"Expected %d to be %d at position %d", actual[stest_count], expected[stest_count], (int)stest_count); stest_simple_test_result((expected[stest_count] == actual[stest_count]), s_stest, __STEST_FUNC_NAME__, __LINE__);} } while (0)
+-#define assert_bit_set(bit_number, value) { stest_simple_test_result(((1 << bit_number) & value), " Expected bit to be set" ,  __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_bit_not_set(bit_number, value) { stest_simple_test_result(!((1 << bit_number) & value), " Expected bit not to to be set" ,  __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_bit_mask_matches(value, mask) { stest_simple_test_result(((value & mask) == mask), " Expected all bits of mask to be set" ,  __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_fail(message) { stest_simple_test_result(0, message,  __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_float_equal(expected, actual, delta) do {  stest_assert_float_equal(expected, actual, delta, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_double_equal(expected, actual, delta) do {  stest_assert_double_equal(expected, actual, delta, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_string_contains(expected, actual) do {  stest_assert_string_contains(expected, actual, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_string_not_contains(expected, actual) do {  stest_assert_string_not_contains(expected, actual, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_string_starts_with(expected, actual) do {  stest_assert_string_starts_with(expected, actual, __STEST_FUNC_NAME__, __LINE__); } while (0)
+-#define assert_string_ends_with(expected, actual) do {  stest_assert_string_ends_with(expected, actual, __STEST_FUNC_NAME__, __LINE__); } while (0)
++#define assert_true(test) do { stest_assert_true(test, __func__, __LINE__); } while (0)
++#define assert_false(test) do {  stest_assert_false(test, __func__, __LINE__); } while (0)
++#define assert_int_equal(expected, actual) do {  stest_assert_int_equal(expected, actual, __func__, __LINE__); } while (0)
++#define assert_ulong_equal(expected, actual) do {  stest_assert_ulong_equal(expected, actual, __func__, __LINE__); } while (0)
++#define assert_string_equal(expected, actual) do {  stest_assert_string_equal(expected, actual, __func__, __LINE__); } while (0)
++#define assert_n_array_equal(expected, actual, n) do { size_t stest_count; for(stest_count=0; stest_count<n; stest_count++) { char s_stest[STEST_PRINT_BUFFER_SIZE]; sprintf(s_stest,"Expected %d to be %d at position %d", actual[stest_count], expected[stest_count], (int)stest_count); stest_simple_test_result((expected[stest_count] == actual[stest_count]), s_stest, __func__, __LINE__);} } while (0)
++#define assert_bit_set(bit_number, value) { stest_simple_test_result(((1 << bit_number) & value), " Expected bit to be set" ,  __func__, __LINE__); } while (0)
++#define assert_bit_not_set(bit_number, value) { stest_simple_test_result(!((1 << bit_number) & value), " Expected bit not to to be set" ,  __func__, __LINE__); } while (0)
++#define assert_bit_mask_matches(value, mask) { stest_simple_test_result(((value & mask) == mask), " Expected all bits of mask to be set" ,  __func__, __LINE__); } while (0)
++#define assert_fail(message) { stest_simple_test_result(0, message,  __func__, __LINE__); } while (0)
++#define assert_float_equal(expected, actual, delta) do {  stest_assert_float_equal(expected, actual, delta, __func__, __LINE__); } while (0)
++#define assert_double_equal(expected, actual, delta) do {  stest_assert_double_equal(expected, actual, delta, __func__, __LINE__); } while (0)
++#define assert_string_contains(expected, actual) do {  stest_assert_string_contains(expected, actual, __func__, __LINE__); } while (0)
++#define assert_string_not_contains(expected, actual) do {  stest_assert_string_not_contains(expected, actual, __func__, __LINE__); } while (0)
++#define assert_string_starts_with(expected, actual) do {  stest_assert_string_starts_with(expected, actual, __func__, __LINE__); } while (0)
++#define assert_string_ends_with(expected, actual) do {  stest_assert_string_ends_with(expected, actual, __func__, __LINE__); } while (0)
+ 
+ /*
+ Fixture / Test Management
+diff --git a/tests/stests.c b/tests/stests.c
+index dcf3ef5..1177e7f 100644
+--- a/tests/stests.c
++++ b/tests/stests.c
+@@ -6,7 +6,7 @@
+ #include "stests.h"
+ #include "stddef.h"
+ 
+-STEST(test_assert_n_array_equal)
++static void test_assert_n_array_equal(void) {
+   int array_1[4] = {0, 1, 2, 3};
+   int array_2[4] = {0, 1, 2, 4};
+   int array_3[4] = {0, 1, 2, 3};
+@@ -18,7 +18,7 @@ STEST(test_assert_n_array_equal)
+   assert_test_fails(assert_n_array_equal(array_1, array_2, 0));
+ }
+ 
+-STEST(test_assert_string_equal)
++static void test_assert_string_equal(void) {
+   assert_test_passes(assert_string_equal((char *)0, (char *)0));
+   assert_test_passes(assert_string_equal("", ""));
+   assert_test_passes(assert_string_equal("foo", "foo"));
+@@ -29,33 +29,33 @@ STEST(test_assert_string_equal)
+   assert_test_fails(assert_string_equal("foo", "foo\n"));
+ }
+ 
+-STEST(test_assert_ulong_equal)
++static void test_assert_ulong_equal(void) {
+   assert_test_passes(assert_ulong_equal(1, 1));
+   assert_test_passes(assert_ulong_equal(-2, -2));
+   assert_test_fails(assert_ulong_equal(1, 0));
+   assert_test_fails(assert_ulong_equal(-2, 2));
+ }
+ 
+-STEST(test_assert_int_equal)
++static void test_assert_int_equal(void) {
+   assert_test_passes(assert_int_equal(1, 1));
+   assert_test_passes(assert_int_equal(-2, -2));
+   assert_test_fails(assert_int_equal(1, 0));
+   assert_test_fails(assert_int_equal(-2, 2));
+ }
+ 
+-STEST(test_assert_true)
++static void test_assert_true(void) {
+   assert_test_passes(assert_true(1));
+   assert_test_fails(assert_true(0));
+ }
+ 
+-STEST(test_assert_false)
++static void test_assert_false(void) {
+   assert_test_passes(assert_false(0));
+   assert_test_fails(assert_false(1));
+ }
+ 
+-STEST(test_assert_fail) assert_test_fails(assert_fail("")); }
++static void test_assert_fail(void) { assert_test_fails(assert_fail("")); }
+ 
+-STEST(test_assert_bit_set)
++static void test_assert_bit_set(void) {
+   for(int bit = 0, value = 1; bit < sizeof(int) * 8; bit++, value <<= 1) {
+     assert_test_passes(assert_bit_set(bit, value));
+     if(bit > 0) {
+@@ -64,7 +64,7 @@ STEST(test_assert_bit_set)
+   }
+ }
+ 
+-STEST(test_assert_bit_not_set)
++static void test_assert_bit_not_set(void) {
+   for(int bit = 0, value = 1; bit < sizeof(int) * 8; bit++, value <<= 1) {
+     assert_test_fails(assert_bit_not_set(bit, value));
+     if(bit > 0) {
+@@ -73,7 +73,7 @@ STEST(test_assert_bit_not_set)
+   }
+ }
+ 
+-STEST(test_assert_bit_mask_matches)
++static void test_assert_bit_mask_matches(void) {
+   // mask in binary => 000100100011010001010110
+   int mask = 0x123456;
+   for(int i = 0; i < sizeof(int) * 8 - 1; i++) {
+@@ -82,7 +82,7 @@ STEST(test_assert_bit_mask_matches)
+   }
+ }
+ 
+-STEST(test_assert_double_equal)
++static void test_assert_double_equal(void) {
+   const double delta = 0.001;
+   assert_test_passes(assert_double_equal(1.0, 1.0, delta));
+   assert_test_fails(assert_double_equal(1.0, 2.0, delta));
+@@ -93,43 +93,34 @@ STEST(test_assert_double_equal)
+   assert_test_fails(assert_double_equal(d1, d2, delta));
+ }
+ 
+-STEST(test_assert_string_contains)
++static void test_assert_string_contains(void) {
+   const char *str1 = "string one";
+   const char *str2 = "string one and more";
+   assert_test_passes(assert_string_contains(str1, str2));
+   assert_test_fails(assert_string_contains(str2, str1));
+ }
+ 
+-STEST(test_assert_string_not_contains)
++static void test_assert_string_not_contains(void) {
+   const char *str1 = "string one";
+   const char *str2 = "string one and more";
+   assert_test_fails(assert_string_not_contains(str1, str2));
+   assert_test_passes(assert_string_not_contains(str2, str1));
+ }
+ 
+-STEST(test_assert_string_starts_with)
++static void(test_assert_string_starts_with)(void) {
+   const char *str1 = "string one";
+   const char *str2 = "string one and more";
+   assert_test_passes(assert_string_starts_with(str1, str2));
+   assert_test_fails(assert_string_starts_with(str2, str1));
+ }
+ 
+-STEST(test_assert_string_ends_with)
++static void(test_assert_string_ends_with)(void) {
+   const char *str1 = "and more";
+   const char *str2 = "string one and more";
+   assert_test_passes(assert_string_ends_with(str1, str2));
+   assert_test_fails(assert_string_ends_with(str2, str1));
+ }
+ 
+-STEST_HELPER(int, helper_function, int arg1, int arg2)
+-  assert_true(arg2 > arg1);
+-  return arg2 - arg1;
+-}
+-
+-STEST(test_using_helper_function)
+-  assert_int_equal(1, helper_function(1, 2));
+-}
+-
+ void test_fixture_stest() {
+   test_fixture_start();
+   run_test(test_assert_true);
+@@ -147,7 +138,6 @@ void test_fixture_stest() {
+   run_test(test_assert_string_not_contains);
+   run_test(test_assert_string_starts_with);
+   run_test(test_assert_string_ends_with);
+-  run_test(test_using_helper_function);
+   test_fixture_end();
+ }
+ 

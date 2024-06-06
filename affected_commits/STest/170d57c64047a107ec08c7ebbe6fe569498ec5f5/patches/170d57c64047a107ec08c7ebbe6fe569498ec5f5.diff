@@ -1,0 +1,200 @@
+commit 170d57c64047a107ec08c7ebbe6fe569498ec5f5
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Thu Jan 13 21:35:56 2022 +0800
+
+    Removed ABORT_TEST_IF_ASSERT_FAIL so failing asserts will always exit the test
+
+diff --git a/src/stest.c b/src/stest.c
+index b5739f6..cf362d1 100644
+--- a/src/stest.c
++++ b/src/stest.c
+@@ -5,6 +5,7 @@
+ 
+ #include "stest.h"
+ #include <string.h>
++#include <setjmp.h>
+ 
+ #ifdef STEST_INTERNAL_TESTS
+ static int stest_last_passed = 0;
+@@ -53,6 +54,9 @@ static stest_void_void stest_suite_teardown_func = 0;
+ static stest_void_void stest_fixture_setup = 0;
+ static stest_void_void stest_fixture_teardown = 0;
+ 
++static jmp_buf env;
++
++
+ unsigned int GetTickCount(void);
+ int stest_is_string_equal_i(const char *s1, const char *s2);
+ int stest_is_display_only(void);
+@@ -200,10 +204,7 @@ void stest_simple_test_result_log(int passed, const char *reason,
+     }
+     stests_failed++;
+ 
+-#ifdef ABORT_TEST_IF_ASSERT_FAIL
+-    printf("Test has been finished with failure.\r\n");
+     longjmp(env, 1);
+-#endif
+   }
+   else {
+     if(stest_verbose) {
+@@ -416,14 +417,10 @@ void stest_test(const char *test, void (*test_function)(void)) {
+   stest_suite_setup();
+   stest_setup();
+ 
+-#ifdef ABORT_TEST_IF_ASSERT_FAIL
+-  skip_failed_test = setjmp(env);
+-  if(!skip_failed_test)
++  int skip_failed_test = setjmp(env);
++  if(!skip_failed_test){
+     test_function();
+-#else
+-  test_function();
+-#endif
+-
++  }
+   stest_teardown();
+   stest_suite_teardown();
+   stests_run++;
+diff --git a/src/stest.h b/src/stest.h
+index 60a2d81..9dadc61 100644
+--- a/src/stest.h
++++ b/src/stest.h
+@@ -1,7 +1,7 @@
+-/*
++/*
+  * Copyright (c) 2021 Jia Tan
+  * Copyright (c) 2010 Keith Nicholas
+- */
++ */
+ 
+ #ifndef STEST_H
+ #define STEST_H
+@@ -13,64 +13,58 @@ Defines
+ 
+ #define STEST_PRINT_BUFFER_SIZE 100000
+ 
+-#ifdef ABORT_TEST_IF_ASSERT_FAIL
+-#include <setjmp.h>
+-jmp_buf env;
+-int skip_failed_test;
+-#endif
+-
+ /*
+ Typedefs
+ */
+ 
+ typedef void (*stest_void_void)(void);
+-typedef void (*stest_void_string)(const char *);
++typedef void (*stest_void_string)(const char *);
+ 
+ /*
+ Declarations
+ */
+ 
+-extern void (*stest_simple_test_result)(int passed, const char *reason,
+-                                        const char *function,
+-                                        unsigned int line);
+-void stest_test_fixture_start(const char *filepath);
+-void stest_test_fixture_end(void);
+-void stest_simple_test_result_log(int passed, const char *reason,
+-                                  const char *function, unsigned int line);
+-void stest_assert_true(int test, const char *function, unsigned int line);
+-void stest_assert_false(int test, const char *function, unsigned int line);
+-void stest_assert_int_equal(int expected, int actual, const char *function,
+-                            unsigned int line);
+-void stest_assert_ulong_equal(unsigned long expected, unsigned long actual,
+-                              const char *function, unsigned int line);
+-void stest_assert_float_equal(float expected, float actual, float delta,
+-                              const char *function, unsigned int line);
+-void stest_assert_double_equal(double expected, double actual, double delta,
+-                               const char *function, unsigned int line);
+-void stest_assert_string_equal(const char *expected, const char *actual,
+-                               const char *function, unsigned int line);
+-void stest_assert_string_ends_with(const char *expected, const char *actual,
+-                                   const char *function, unsigned int line);
+-void stest_assert_string_starts_with(const char *expected, const char *actual,
+-                                     const char *function, unsigned int line);
+-void stest_assert_string_contains(const char *expected, const char *actual,
+-                                  const char *function, unsigned int line);
+-void stest_assert_string_not_contains(const char *expected, const char *actual,
+-                                      const char *function, unsigned int line);
+-int stest_should_run_fixture(const char *fixture);
+-int stest_should_run_test(const char *test);
+-void stest_before_run(const char *fixture, const char *test);
+-void stest_setup(void);
+-void stest_teardown(void);
+-void stest_suite_teardown(void);
+-void stest_suite_setup(void);
+-void stest_test(const char *test, void (*test_function)(void));
++extern void (*stest_simple_test_result)(int passed, const char *reason,
++                                        const char *function,
++                                        unsigned int line);
++void stest_test_fixture_start(const char *filepath);
++void stest_test_fixture_end(void);
++void stest_simple_test_result_log(int passed, const char *reason,
++                                  const char *function, unsigned int line);
++void stest_assert_true(int test, const char *function, unsigned int line);
++void stest_assert_false(int test, const char *function, unsigned int line);
++void stest_assert_int_equal(int expected, int actual, const char *function,
++                            unsigned int line);
++void stest_assert_ulong_equal(unsigned long expected, unsigned long actual,
++                              const char *function, unsigned int line);
++void stest_assert_float_equal(float expected, float actual, float delta,
++                              const char *function, unsigned int line);
++void stest_assert_double_equal(double expected, double actual, double delta,
++                               const char *function, unsigned int line);
++void stest_assert_string_equal(const char *expected, const char *actual,
++                               const char *function, unsigned int line);
++void stest_assert_string_ends_with(const char *expected, const char *actual,
++                                   const char *function, unsigned int line);
++void stest_assert_string_starts_with(const char *expected, const char *actual,
++                                     const char *function, unsigned int line);
++void stest_assert_string_contains(const char *expected, const char *actual,
++                                  const char *function, unsigned int line);
++void stest_assert_string_not_contains(const char *expected, const char *actual,
++                                      const char *function, unsigned int line);
++int stest_should_run_fixture(const char *fixture);
++int stest_should_run_test(const char *test);
++void stest_before_run(const char *fixture, const char *test);
++void stest_setup(void);
++void stest_teardown(void);
++void stest_suite_teardown(void);
++void stest_suite_setup(void);
++void stest_test(const char *test, void (*test_function)(void));
+ 
+ /*
+ Assert Macros
+ */
+ 
+-// clang-format off
++// clang-format off
+ #define assert_true(test) do { stest_assert_true(test, __FUNCTION__, __LINE__); } while (0)
+ #define assert_false(test) do {  stest_assert_false(test, __FUNCTION__, __LINE__); } while (0)
+ #define assert_int_equal(expected, actual) do {  stest_assert_int_equal(expected, actual, __FUNCTION__, __LINE__); } while (0)
+@@ -94,20 +88,20 @@ Fixture / Test Management
+ 
+ void fixture_setup(void (*setup)( void ));
+ void fixture_teardown(void (*teardown)( void ));
+-#define run_test(test) do { stest_test(#test, test);} while (0)
++#define run_test(test) do { stest_test(#test, test);} while (0)
+ #define test_fixture_start() do { stest_test_fixture_start(__FILE__); } while (0)
+ #define test_fixture_end() do { stest_test_fixture_end();} while (0)
+-void fixture_filter(const char* filter);
+-void test_filter(const char* filter);
++void fixture_filter(const char* filter);
++void test_filter(const char* filter);
+ void suite_teardown(stest_void_void teardown);
+ void suite_setup(stest_void_void setup);
+ int run_tests(stest_void_void tests);
+ int stest_testrunner(int argc, char** argv, stest_void_void tests, stest_void_void setup, stest_void_void teardown);
+ #endif
+-//clang-format on
++//clang-format on
+ 
+-#ifdef STEST_INTERNAL_TESTS
+-void stest_simple_test_result_nolog(int passed, const char* reason, const char* function, unsigned int line);
++#ifdef STEST_INTERNAL_TESTS
++void stest_simple_test_result_nolog(int passed, const char* reason, const char* function, unsigned int line);
+ void stest_assert_last_passed(const char* function, unsigned int line);
+ void stest_assert_last_failed(const char* function, unsigned int line);
+ void stest_enable_logging(void);

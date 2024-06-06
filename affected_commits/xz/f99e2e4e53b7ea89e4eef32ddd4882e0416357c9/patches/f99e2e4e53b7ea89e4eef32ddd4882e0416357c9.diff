@@ -1,0 +1,23 @@
+commit f99e2e4e53b7ea89e4eef32ddd4882e0416357c9
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Jul 13 23:32:10 2023 +0800
+
+    xz: Fix typo in man page.
+    
+    The Memory limit information section described three output
+    columns when it actually has six. This was reworded to
+    "multiple" to make it more future proof.
+
+diff --git a/src/xz/xz.1 b/src/xz/xz.1
+index c9e521e1..81de5948 100644
+--- a/src/xz/xz.1
++++ b/src/xz/xz.1
+@@ -2371,7 +2371,7 @@ Each filter is printed on its own line.
+ .
+ .SS "Memory limit information"
+ .B "xz \-\-robot \-\-info\-memory"
+-prints a single line with three tab-separated columns:
++prints a single line with multiple tab-separated columns:
+ .IP 1. 4
+ Total amount of physical memory (RAM) in bytes.
+ .IP 2. 4

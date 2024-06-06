@@ -1,0 +1,22 @@
+commit cf3d1f130e50cf63da4bb1031771605f6f443b6a
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Mar 24 20:06:33 2023 +0800
+
+    CI: Change ci_build.sh to use bash instead of sh.
+    
+    This script is only meant to be run as part of the CI build/test process
+    on machines that are known to have bash (Ubuntu and MacOS). If this
+    assumption changes in the future, then the bash specific commands will
+    need to be replaced with a more portable option. For now, it is
+    convenient to use bash commands.
+
+diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
+index 3b462e63..0a9dc09b 100755
+--- a/build-aux/ci_build.sh
++++ b/build-aux/ci_build.sh
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ #
+ #############################################################################
+ #

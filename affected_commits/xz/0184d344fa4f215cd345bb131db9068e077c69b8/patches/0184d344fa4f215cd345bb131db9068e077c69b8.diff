@@ -1,0 +1,43 @@
+commit 0184d344fa4f215cd345bb131db9068e077c69b8
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Jul 19 23:36:00 2023 +0800
+
+    liblzma: Suppress -Wunused-function warning.
+    
+    Clang 16.0.0 and earlier have a bug that the ifunc resolver function
+    triggers the -Wunused-function warning. The resolver function is static
+    and only "used" by the __attribute__((__ifunc()__)).
+    
+    At this time, the bug is still unresolved, but has been reported:
+    https://github.com/llvm/llvm-project/issues/63957
+    
+    This is not a problem in GCC.
+
+diff --git a/src/liblzma/check/crc64_fast.c b/src/liblzma/check/crc64_fast.c
+index e2d4ec3c..f6e872ed 100644
+--- a/src/liblzma/check/crc64_fast.c
++++ b/src/liblzma/check/crc64_fast.c
+@@ -441,6 +441,13 @@ is_clmul_supported(void)
+ typedef uint64_t (*crc64_func_type)(
+ 		const uint8_t *buf, size_t size, uint64_t crc);
+ 
++// Clang 16.0.0 and older has a bug where it marks the ifunc resolver
++// function as unused since it is static and never used outside of
++// __attribute__((__ifunc__())).
++#if defined(HAVE_FUNC_ATTRIBUTE_IFUNC) && defined(__clang__)
++#	pragma GCC diagnostic push
++#	pragma GCC diagnostic ignored "-Wunused-function"
++#endif
+ 
+ static crc64_func_type
+ crc64_resolve(void)
+@@ -448,6 +455,9 @@ crc64_resolve(void)
+ 	return is_clmul_supported() ? &crc64_clmul : &crc64_generic;
+ }
+ 
++#if defined(HAVE_FUNC_ATTRIBUTE_IFUNC) && defined(__clang__)
++#	pragma GCC diagnostic pop
++#endif
+ 
+ #ifndef HAVE_FUNC_ATTRIBUTE_IFUNC
+ 

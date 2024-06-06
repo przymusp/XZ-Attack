@@ -1,0 +1,24 @@
+commit 8be5cc3b1359d88b4b30a39067466c0ae0bfbc4d
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Mar 28 22:45:42 2023 +0800
+
+    CI: Removes CMakeCache.txt between builds.
+    
+    If the cache file is not removed, CMake will not reset configurations
+    back to their default values. In order to make the tests independent, it
+    is simplest to purge the cache. Unfortunatly, this will slow down the
+    tests a little and repeat some checks.
+
+diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
+index 8edeb3c5..7fb180c2 100755
+--- a/build-aux/ci_build.sh
++++ b/build-aux/ci_build.sh
+@@ -218,6 +218,8 @@ then
+ 		# CMake disables the shared library by default.
+ 		add_extra_option "$SHARED" "-DBUILD_SHARED_LIBS=ON" ""
+ 
++		# Remove old cache file to clear previous settings.
++		rm -f "CMakeCache.txt"
+ 		cmake "$SRC_DIR/CMakeLists.txt" -B "$DEST_DIR" $EXTRA_OPTIONS -DADDITIONAL_CHECK_TYPES="$CHECK_TYPE"
+ 		make
+ 	;;

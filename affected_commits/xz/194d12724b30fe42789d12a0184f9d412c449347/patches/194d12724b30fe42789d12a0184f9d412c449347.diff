@@ -1,0 +1,18 @@
+commit 194d12724b30fe42789d12a0184f9d412c449347
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Jul 20 22:11:13 2023 +0800
+
+    Tests: Add ARM64 filter test to test_compress.sh.
+
+diff --git a/tests/test_compress.sh b/tests/test_compress.sh
+index 46244cc6..457bfbe8 100755
+--- a/tests/test_compress.sh
++++ b/tests/test_compress.sh
+@@ -144,6 +144,7 @@ test_filter POWERPC powerpc
+ test_filter IA64 ia64
+ test_filter ARM arm
+ test_filter ARMTHUMB armthumb
++test_filter ARM64 arm64
+ test_filter SPARC sparc
+ 
+ exit 0

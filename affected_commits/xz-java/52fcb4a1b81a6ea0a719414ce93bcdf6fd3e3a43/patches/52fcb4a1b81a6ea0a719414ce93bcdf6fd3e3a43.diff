@@ -1,0 +1,43 @@
+commit 52fcb4a1b81a6ea0a719414ce93bcdf6fd3e3a43
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Dec 9 23:37:11 2022 +0800
+
+    Removes unused imports flagged by text editor.
+
+diff --git a/src/org/tukaani/xz/CountingInputStream.java b/src/org/tukaani/xz/CountingInputStream.java
+index 8599f97..7c1ddc6 100644
+--- a/src/org/tukaani/xz/CountingInputStream.java
++++ b/src/org/tukaani/xz/CountingInputStream.java
+@@ -9,7 +9,6 @@
+ 
+ package org.tukaani.xz;
+ 
+-import java.io.FilterInputStream;
+ import java.io.InputStream;
+ import java.io.IOException;
+ 
+diff --git a/src/org/tukaani/xz/index/BlockInfo.java b/src/org/tukaani/xz/index/BlockInfo.java
+index babae7f..5321c35 100644
+--- a/src/org/tukaani/xz/index/BlockInfo.java
++++ b/src/org/tukaani/xz/index/BlockInfo.java
+@@ -9,8 +9,6 @@
+ 
+ package org.tukaani.xz.index;
+ 
+-import org.tukaani.xz.common.StreamFlags;
+-
+ public class BlockInfo {
+     public int blockNumber = -1;
+     public long compressedOffset = -1;
+diff --git a/src/org/tukaani/xz/index/IndexEncoder.java b/src/org/tukaani/xz/index/IndexEncoder.java
+index 3028802..83e2760 100644
+--- a/src/org/tukaani/xz/index/IndexEncoder.java
++++ b/src/org/tukaani/xz/index/IndexEncoder.java
+@@ -12,7 +12,6 @@ package org.tukaani.xz.index;
+ import java.io.OutputStream;
+ import java.io.IOException;
+ import java.util.ArrayList;
+-import java.util.Iterator;
+ import java.util.zip.CheckedOutputStream;
+ import org.tukaani.xz.common.EncoderUtil;
+ import org.tukaani.xz.XZIOException;

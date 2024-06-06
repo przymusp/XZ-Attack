@@ -1,0 +1,38 @@
+commit 5e3d890f8862a7d4fbef5e38e11b6c9fbd98f468
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Oct 24 00:50:08 2023 +0800
+
+    CI: Disable sandboxing in fsanitize=address,undefined job.
+    
+    The sandboxing on Linux now supports Landlock, which restricts all
+    supported filesystem actions after xz opens the files it needs. The
+    sandbox is only enabled when one file is input and we are writing to
+    standard out. With fsanitize=address,undefined, the instrumentation
+    needs to read additional files after the sandbox is in place. This
+    forces all xz based test to fail, so the sandbox must instead be
+    disabled.
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index b5582a74..0ab27beb 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -80,13 +80,17 @@ jobs:
+ 
+       # ifunc must be disabled for this test because __attribute__ ifunc is
+       # incompatible with -fsanitize=address.
++      #
++      # The sandbox must also be disabled because it will prevent access to
++      # the /proc/ filesystem on Linux, which is used by the sanitizer's
++      # instrumentation.
+       - name: Build with -fsanitize=address,undefined
+         if: ${{ matrix.os == 'ubuntu-latest' && matrix.build_system == 'autotools' }}
+-        run: ./build-aux/ci_build.sh -b autotools -p build -f "-fsanitize=address,undefined" -d ifunc
++        run: ./build-aux/ci_build.sh -b autotools -p build -f "-fsanitize=address,undefined" -d ifunc,sandbox
+       - name: Test with -fsanitize=address,undefined
+         if: ${{ matrix.os == 'ubuntu-latest' && matrix.build_system == 'autotools' }}
+         run: |
+-            ./build-aux/ci_build.sh -b autotools -p test -f "-fsanitize=address,undefined" -d ifunc
++            ./build-aux/ci_build.sh -b autotools -p test -f "-fsanitize=address,undefined" -d ifunc,sandbox
+             cd ../xz_build && make distclean
+ 
+       - name: Build with full features

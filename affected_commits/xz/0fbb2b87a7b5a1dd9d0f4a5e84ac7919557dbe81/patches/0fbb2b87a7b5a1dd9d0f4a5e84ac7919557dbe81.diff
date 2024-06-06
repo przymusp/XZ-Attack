@@ -1,0 +1,19 @@
+commit 0fbb2b87a7b5a1dd9d0f4a5e84ac7919557dbe81
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Apr 7 20:46:41 2023 +0800
+
+    Docs: Add missing word to SECURITY.md.
+
+diff --git a/.github/SECURITY.md b/.github/SECURITY.md
+index 0e707776..756d4e39 100644
+--- a/.github/SECURITY.md
++++ b/.github/SECURITY.md
+@@ -8,7 +8,7 @@ branches. Security patches for old releases are available on the
+ 
+ ## Reporting a Vulnerability
+ 
+-If discover a security vulnerability in this project, please
++If you discover a security vulnerability in this project, please
+ report it privately. **Do not disclose it as a public issue.** This gives
+ us time to work with you to fix the issue before public exposure, reducing
+ the chance that the exploit will be used before a patch is released.

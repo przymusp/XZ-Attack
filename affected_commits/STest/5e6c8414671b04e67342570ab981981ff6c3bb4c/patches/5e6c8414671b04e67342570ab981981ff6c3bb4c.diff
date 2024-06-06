@@ -1,0 +1,46 @@
+commit 5e6c8414671b04e67342570ab981981ff6c3bb4c
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Wed Dec 15 21:10:24 2021 +0800
+
+    Added copyright to main files
+
+diff --git a/src/stest.c b/src/stest.c
+index e41fe85..30a390a 100644
+--- a/src/stest.c
++++ b/src/stest.c
+@@ -1,4 +1,5 @@
+ /* 
++ * Copyright (c) 2021 Jia Tan
+  * Copyright (c) 2010 Keith Nicholas
+ */
+ 
+diff --git a/src/stest.h b/src/stest.h
+index 7cd987e..ac58d03 100644
+--- a/src/stest.h
++++ b/src/stest.h
+@@ -1,4 +1,5 @@
+ /* 
++ * Copyright (c) 2021 Jia Tan
+  * Copyright (c) 2010 Keith Nicholas
+ */
+ 
+diff --git a/tests/stests.c b/tests/stests.c
+index 8a9aca8..4e54e0a 100644
+--- a/tests/stests.c
++++ b/tests/stests.c
+@@ -1,4 +1,5 @@
+ /* 
++ * Copyright (c) 2021 Jia Tan
+  * Copyright (c) 2010 Keith Nicholas
+ */
+ 
+diff --git a/tests/stests.h b/tests/stests.h
+index 5360e50..13bff1a 100644
+--- a/tests/stests.h
++++ b/tests/stests.h
+@@ -1,4 +1,5 @@
+ /* 
++ * Copyright (c) 2021 Jia Tan
+  * Copyright (c) 2010 Keith Nicholas
+ */
+ 

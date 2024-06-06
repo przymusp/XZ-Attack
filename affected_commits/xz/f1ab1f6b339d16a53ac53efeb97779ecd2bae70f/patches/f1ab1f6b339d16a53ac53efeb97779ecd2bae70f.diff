@@ -1,0 +1,31 @@
+commit f1ab1f6b339d16a53ac53efeb97779ecd2bae70f
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Feb 24 23:46:23 2023 +0800
+
+    liblzma: Clarify lzma_lzma_preset() documentation in lzma12.h.
+    
+    lzma_lzma_preset() does not guarentee that the lzma_options_lzma are
+    usable in an encoder even if it returns false (success). If liblzma
+    is built with default configurations, then the options will always be
+    usable. However if the match finders hc3, hc4, or bt4 are disabled, then
+    the options may not be usable depending on the preset level requested.
+    
+    The documentation was updated to reflect this complexity, since this
+    behavior was unclear before.
+
+diff --git a/src/liblzma/api/lzma/lzma12.h b/src/liblzma/api/lzma/lzma12.h
+index 3d3723f9..e7d00fcc 100644
+--- a/src/liblzma/api/lzma/lzma12.h
++++ b/src/liblzma/api/lzma/lzma12.h
+@@ -555,6 +555,11 @@ do { \
+  * This function is available only if LZMA1 or LZMA2 encoder has been enabled
+  * when building liblzma.
+  *
++ * If features (like certain match finders) have been disabled at build time,
++ * then the function may return success (false) even though the resulting
++ * LZMA1/LZMA2 options may not be usable for encoder initialization
++ * (LZMA_OPTIONS_ERROR).
++ *
+  * \param[out]  options Pointer to LZMA1 or LZMA2 options to be filled
+  * \param       preset  Preset level bitwse-ORed with preset flags
+  *

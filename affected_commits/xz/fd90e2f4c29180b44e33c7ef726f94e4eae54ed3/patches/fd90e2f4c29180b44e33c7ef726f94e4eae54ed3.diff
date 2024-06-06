@@ -1,0 +1,22 @@
+commit fd90e2f4c29180b44e33c7ef726f94e4eae54ed3
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Mar 16 22:07:15 2023 +0800
+
+    liblzma: Remove note from lzma_options_bcj about the ARM64 exception.
+    
+    This was left in by mistake since an early version of the ARM64 filter
+    used a different struct for its options.
+
+diff --git a/src/liblzma/api/lzma/bcj.h b/src/liblzma/api/lzma/bcj.h
+index eecdf5fd..0c84e0cf 100644
+--- a/src/liblzma/api/lzma/bcj.h
++++ b/src/liblzma/api/lzma/bcj.h
+@@ -55,7 +55,7 @@
+ 
+ 
+ /**
+- * \brief       Options for BCJ filters (except ARM64)
++ * \brief       Options for BCJ filters
+  *
+  * The BCJ filters never change the size of the data. Specifying options
+  * for them is optional: if pointer to options is NULL, default value is

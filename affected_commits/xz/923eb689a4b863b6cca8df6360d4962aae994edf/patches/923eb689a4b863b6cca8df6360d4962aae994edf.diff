@@ -1,0 +1,22 @@
+commit 923eb689a4b863b6cca8df6360d4962aae994edf
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Jan 11 00:51:01 2023 +0800
+
+    CI/CD: Enables warnings as errors in autotool build.
+    
+    This will help us catch warnings and potential bugs in builds that are
+    not often tested by us.
+
+diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
+index 8c309028..6e264769 100755
+--- a/build-aux/ci_build.sh
++++ b/build-aux/ci_build.sh
+@@ -128,7 +128,7 @@ if [ "$PHASE" = "all" ] || [ "$PHASE" = "build" ]; then
+ 		fi
+ 
+ 		# Run configure script
+-		"$SRC_DIR"/configure --enable-checks=$CHECK_TYPE $EXTRA_OPTIONS
++		"$SRC_DIR"/configure --enable-werror --enable-checks=$CHECK_TYPE $EXTRA_OPTIONS
+ 
+ 		# Build the project
+ 		make

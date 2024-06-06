@@ -1,0 +1,43 @@
+commit 8c9b8b2063daa78ead9f648c2ec3c91e8615dffb
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Mar 9 09:52:32 2024 +0800
+
+    liblzma: Fix typos in crc32_fast.c and crc64_fast.c.
+
+diff --git a/src/liblzma/check/crc32_fast.c b/src/liblzma/check/crc32_fast.c
+index 719d696c..bfa295a0 100644
+--- a/src/liblzma/check/crc32_fast.c
++++ b/src/liblzma/check/crc32_fast.c
+@@ -135,12 +135,12 @@ typedef uint32_t (*crc32_func_type)(
+ // This resolver is shared between all three dispatch methods. It serves as
+ // the ifunc resolver if ifunc is supported, otherwise it is called as a
+ // regular function by the constructor or first call resolution methods.
+-// The funcion attributes are needed for safe IFUNC resolver usage with GCC.
++// The function attributes are needed for safe IFUNC resolver usage with GCC.
+ lzma_resolver_attributes
+ static crc32_func_type
+ crc32_resolve(void)
+ {
+-	return  is_arch_extension_supported()
++	return is_arch_extension_supported()
+ 			? &crc32_arch_optimized : &crc32_generic;
+ }
+ 
+diff --git a/src/liblzma/check/crc64_fast.c b/src/liblzma/check/crc64_fast.c
+index 330a5016..52cddb2c 100644
+--- a/src/liblzma/check/crc64_fast.c
++++ b/src/liblzma/check/crc64_fast.c
+@@ -98,12 +98,11 @@ typedef uint64_t (*crc64_func_type)(
+ #	pragma GCC diagnostic ignored "-Wunused-function"
+ #endif
+ 
+-// The funcion attributes are needed for safe IFUNC resolver usage with GCC.
+ lzma_resolver_attributes
+ static crc64_func_type
+ crc64_resolve(void)
+ {
+-	return  is_arch_extension_supported()
++	return is_arch_extension_supported()
+ 			? &crc64_arch_optimized : &crc64_generic;
+ }
+ 

@@ -1,0 +1,18 @@
+commit b26a89869315ece2f6d9d10d32d45f672550f245
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Jan 22 23:33:39 2024 +0800
+
+    xz: Update message in --long-help for RISC-V Filter.
+
+diff --git a/src/xz/message.c b/src/xz/message.c
+index e3ac6ff6..b94a0eba 100644
+--- a/src/xz/message.c
++++ b/src/xz/message.c
+@@ -1107,6 +1107,7 @@ message_help(bool long_help)
+ "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
+ "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
+ "  --sparc[=OPTS]      SPARC BCJ filter\n"
++"  --riscv[=OPTS]      RISC-V BCJ filter\n"
+ "                      Valid OPTS for all BCJ filters:\n"
+ "                        start=NUM  start offset for conversions (default=0)"));
+ 

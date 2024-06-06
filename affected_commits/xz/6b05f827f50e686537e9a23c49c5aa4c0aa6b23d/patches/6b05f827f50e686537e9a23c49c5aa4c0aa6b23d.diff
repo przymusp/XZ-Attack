@@ -1,0 +1,22 @@
+commit 6b05f827f50e686537e9a23c49c5aa4c0aa6b23d
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Nov 22 20:39:41 2023 +0800
+
+    tuklib_integer: Fix typo discovered by codespell.
+    
+    Based on internet dictionary searches, 'choise' is an outdated spelling
+    of 'choice'.
+
+diff --git a/src/common/tuklib_integer.h b/src/common/tuklib_integer.h
+index e22aa8ad..6dd2a5f7 100644
+--- a/src/common/tuklib_integer.h
++++ b/src/common/tuklib_integer.h
+@@ -251,7 +251,7 @@
+ // was one instruction longer.
+ //
+ // Conclusion: At least in case of GCC and Clang, byte-by-byte code is
+-// the best choise for strict-align archs to do unaligned access.
++// the best choice for strict-align archs to do unaligned access.
+ //
+ // See also: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=111502
+ //

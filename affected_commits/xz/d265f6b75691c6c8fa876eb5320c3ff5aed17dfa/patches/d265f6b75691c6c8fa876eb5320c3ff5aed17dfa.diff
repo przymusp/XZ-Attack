@@ -1,0 +1,20 @@
+commit d265f6b75691c6c8fa876eb5320c3ff5aed17dfa
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Sep 26 00:43:43 2023 +0800
+
+    CMake: Remove /lib from tests include path.
+    
+    The tests never included anything from /lib, so this was not needed.
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f91d2772..284f78cd 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1363,7 +1363,6 @@ if(BUILD_TESTING)
+             src/common
+             src/liblzma/api
+             src/liblzma
+-            lib
+         )
+ 
+         target_link_libraries("${TEST}" PRIVATE liblzma)

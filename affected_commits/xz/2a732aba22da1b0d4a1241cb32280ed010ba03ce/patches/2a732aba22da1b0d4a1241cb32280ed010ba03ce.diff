@@ -1,0 +1,37 @@
+commit 2a732aba22da1b0d4a1241cb32280ed010ba03ce
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Nov 17 20:19:26 2023 +0800
+
+    xz: Fix a bug with --files and --files0 in raw mode without a suffix.
+    
+    The following command caused a segmentation fault:
+    
+        xz -Fraw --lzma1 --files=foo
+    
+    when foo was a valid file. The usage of --files or --files0 was not
+    being checked when compressing or decompressing in raw mode without a
+    suffix. The suffix checking code was meant to validate that all files
+    to be processed are "-" (if not writing to standard out), meaning the
+    data is only coming from standard in. In this case, there were no file
+    names to check since --files and --files0 store their file name in a
+    different place.
+    
+    Later code assumed the suffix was set and caused a segmentation fault.
+    Now, the above command results in an error.
+
+diff --git a/src/xz/args.c b/src/xz/args.c
+index cee5f202..8a5ce1f5 100644
+--- a/src/xz/args.c
++++ b/src/xz/args.c
+@@ -840,6 +840,11 @@ args_parse(args_info *args, int argc, char **argv)
+ 	if (opt_format == FORMAT_RAW && !suffix_is_set() && !opt_stdout
+ 			&& (opt_mode == MODE_COMPRESS
+ 				|| opt_mode == MODE_DECOMPRESS)) {
++		if (args->files_name != NULL)
++			message_fatal(_("With --format=raw, "
++					"--suffix=.SUF is required "
++					"unless writing to stdout"));
++
+ 		// If all of the filenames provided are "-" (more than one
+ 		// "-" could be specified) or no filenames are provided,
+ 		// then we are only going to be writing to standard out.

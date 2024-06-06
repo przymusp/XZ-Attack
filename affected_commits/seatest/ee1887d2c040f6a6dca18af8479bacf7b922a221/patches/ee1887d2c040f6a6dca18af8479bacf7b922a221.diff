@@ -1,0 +1,16 @@
+commit ee1887d2c040f6a6dca18af8479bacf7b922a221
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Sun Nov 7 12:19:11 2021 +0800
+
+    Added .gitignore file
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..2c6319f
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,4 @@
++Makefile
++bin/
++config.log
++config.status

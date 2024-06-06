@@ -1,0 +1,42 @@
+commit 7190f4cc7c9ade5b9b3675d0cbfa3b6d6ec9cb4f
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Jul 28 21:56:48 2023 +0800
+
+    CI: Fix windows-ci dependency installation.
+    
+    All of the MSYS2 environments need make, and it does not come with the
+    toolchain package. The toolchain package will install the needed
+    compiler toolchains since without this package CMake cannot properly
+    generate the Makefiles.
+
+diff --git a/.github/workflows/windows-ci.yml b/.github/workflows/windows-ci.yml
+index f5c58bac..fe62b11b 100644
+--- a/.github/workflows/windows-ci.yml
++++ b/.github/workflows/windows-ci.yml
+@@ -42,7 +42,7 @@ jobs:
+         with:
+           msystem: ${{ matrix.msys2_env }}
+           update: true
+-          install: pactoys
++          install: pactoys make
+ 
+       - name: Checkout code
+         # Need to explicitly set the shell here since we set the default
+@@ -71,7 +71,7 @@ jobs:
+ 
+       - name: Install Dependencies
+         if: ${{ matrix.msys2_env != 'msys' && matrix.build_system == 'autotools' }}
+-        run: pacboy --noconfirm -S --needed autotools:p gcc:p clang:p make:p doxygen:p
++        run: pacboy --noconfirm -S --needed autotools:p toolchain:p doxygen:p
+ 
+       - name: Install Dependencies
+         if: ${{ matrix.msys2_env == 'msys' && matrix.build_system == 'cmake' }}
+@@ -79,7 +79,7 @@ jobs:
+ 
+       - name: Install Dependencies
+         if: ${{ matrix.msys2_env != 'msys' && matrix.build_system == 'cmake' }}
+-        run: pacboy --noconfirm -S --needed cmake:p gcc:p clang:p make:p
++        run: pacboy --noconfirm -S --needed cmake:p toolchain:p
+ 
+       ##################
+       # Build and Test #

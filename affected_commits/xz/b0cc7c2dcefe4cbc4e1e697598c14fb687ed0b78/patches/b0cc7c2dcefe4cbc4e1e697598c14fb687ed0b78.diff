@@ -1,0 +1,19 @@
+commit b0cc7c2dcefe4cbc4e1e697598c14fb687ed0b78
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed May 31 20:25:00 2023 +0800
+
+    Translations: Update the Croatian translation.
+
+diff --git a/po/hr.po b/po/hr.po
+index 69afd74b..34b701eb 100644
+--- a/po/hr.po
++++ b/po/hr.po
+@@ -654,7 +654,7 @@ msgid ""
+ msgstr ""
+ "  -k, --keep          zadrži (ne briše) navedene ulazne datoteke\n"
+ "  -f, --force         piše preko izlaznih datoteka i\n"
+-"                        preko (de)komprimiranih poveznica \n"
++"                        preko (de)komprimiranih poveznica\n"
+ "  -c, --stdout        piše na standardni izlaz i ne briše\n"
+ "                        ulazne datoteke"
+ 

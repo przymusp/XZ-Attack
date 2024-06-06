@@ -1,0 +1,46 @@
+commit 185f657914f8474bb07c3bd8af97b939c9400988
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Sat Dec 11 18:52:25 2021 +0800
+
+    Added untested string based asserts
+
+diff --git a/tests/stests.c b/tests/stests.c
+index 0f55b87..4daebed 100644
+--- a/tests/stests.c
++++ b/tests/stests.c
+@@ -96,19 +96,31 @@ void test_assert_double_equal(){
+ }
+ 
+ void test_assert_string_contains(){
+-
++  const char* str1 = "string one";
++  const char* str2 = "string one and more";
++  assert_test_passes(assert_string_contains(str2, str1));
++  assert_test_fails(assert_string_contains(str1, str2));
+ }
+ 
+ void test_assert_string_not_contains(){
+-
++  const char* str1 = "string one";
++  const char* str2 = "string one and more";
++  assert_test_fails(assert_string_not_contains(str2, str1));
++  assert_test_passes(assert_string_not_contains(str1, str2));
+ }
+ 
+ void test_assert_string_starts_with(){
+-
++  const char* str1 = "string one";
++  const char* str2 = "string one and more";
++  assert_test_passes(assert_string_starts_with(str2, str1));
++  assert_test_fails(assert_string_starts_with(str1, str2));
+ }
+ 
+ void test_assert_string_ends_with(){
+-
++  const char* str1 = "and more";
++  const char* str2 = "string one and more";
++  assert_test_passes(assert_string_ends_with(str2, str1));
++  assert_test_fails(assert_string_ends_with(str1, str2));
+ }
+ 
+ void test_fixture_stest(void)

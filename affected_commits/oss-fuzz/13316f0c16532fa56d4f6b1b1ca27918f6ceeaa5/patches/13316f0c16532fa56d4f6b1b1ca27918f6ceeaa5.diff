@@ -1,0 +1,22 @@
+commit 13316f0c16532fa56d4f6b1b1ca27918f6ceeaa5
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Nov 29 23:25:54 2023 +0800
+
+    xz: Change Dockerfile clone URL to match project.yaml entry. (#11286)
+    
+    The old URL is still kept as a mirror, but it is not always up to date
+    since the primary repository is on GitHub. This now matches the
+    'main_repo' entry in the corresponding project.yaml.
+
+diff --git a/projects/xz/Dockerfile b/projects/xz/Dockerfile
+index 7e0336241..9d19d8334 100644
+--- a/projects/xz/Dockerfile
++++ b/projects/xz/Dockerfile
+@@ -16,6 +16,6 @@
+ 
+ FROM gcr.io/oss-fuzz-base/base-builder
+ RUN apt-get update && apt-get install -y make autoconf autopoint libtool zip
+-RUN git clone https://git.tukaani.org/xz.git
++RUN git clone https://github.com/tukaani-project/xz.git
+ COPY build.sh $SRC/
+ WORKDIR xz

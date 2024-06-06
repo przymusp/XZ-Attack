@@ -1,0 +1,18 @@
+commit 34372a5adbe5a7f6bf29498410ba3a463a720966
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Jan 22 23:33:39 2024 +0800
+
+    CMake: Support RISC-V BCJ Filter for encoding and decoding.
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d2d29db6..c5573d7b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -448,6 +448,7 @@ set(SIMPLE_FILTERS
+     powerpc
+     ia64
+     sparc
++    riscv
+ )
+ 
+ # The SUPPORTED_FILTERS are shared between Encoders and Decoders

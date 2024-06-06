@@ -1,0 +1,14 @@
+commit 62d5603b5114c5aa8bb5f6bb461efbe0e3b51891
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Mar 22 21:36:05 2024 +0800
+
+    codespell: Omit .codespellrc from releases.
+
+diff --git a/.gitattributes b/.gitattributes
+index de2f316..7e8b706 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -1,2 +1,3 @@
+ .gitignore export-ignore
+ .gitattributes export-ignore
++.codespellrc export-ignore

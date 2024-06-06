@@ -1,0 +1,24 @@
+commit 17f8844e6fc355abf997d77637a7447c4f7bbcbd
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Jul 8 21:24:19 2023 +0800
+
+    liblzma: Remove non-portable empty initializer.
+    
+    Commit 78704f36e74205857c898a351c757719a6c8b666 added an empty
+    initializer {} to prevent a warning. The empty initializer is a GNU
+    extension and results in a build failure on MSVC. The -wpedantic flag
+    warns about empty initializers.
+
+diff --git a/src/liblzma/common/stream_encoder_mt.c b/src/liblzma/common/stream_encoder_mt.c
+index a8336d88..64de526b 100644
+--- a/src/liblzma/common/stream_encoder_mt.c
++++ b/src/liblzma/common/stream_encoder_mt.c
+@@ -743,7 +743,7 @@ stream_encode_mt(void *coder_ptr, const lzma_allocator *allocator,
+ 
+ 		// These are for wait_for_work().
+ 		bool has_blocked = false;
+-		mythread_condtime wait_abs = {};
++		mythread_condtime wait_abs = { 0 };
+ 
+ 		while (true) {
+ 			mythread_sync(coder->mutex) {

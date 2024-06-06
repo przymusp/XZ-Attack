@@ -1,0 +1,22 @@
+commit 315c64c7e18acc59a745b68148188a73e998252b
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Feb 1 21:43:33 2023 +0800
+
+    CI: Update .gitignore for artifacts directory in build-aux.
+    
+    The workflow action for our CI pipeline can only reference artifacts in
+    the source directory, so we should ignore these files if the ci_build.sh
+    is run locally.
+
+diff --git a/.gitignore b/.gitignore
+index 7f2dec23..d6b144f1 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -25,6 +25,7 @@ Makefile.in
+ /libtool
+ /stamp-h1
+ 
++build-aux/artifacts
+ build-aux/compile
+ build-aux/config.guess
+ build-aux/config.rpath

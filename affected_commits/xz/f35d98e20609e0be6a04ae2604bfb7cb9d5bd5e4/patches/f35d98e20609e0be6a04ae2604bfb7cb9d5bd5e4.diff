@@ -1,0 +1,25 @@
+commit f35d98e20609e0be6a04ae2604bfb7cb9d5bd5e4
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Jan 24 20:48:50 2023 +0800
+
+    liblzma: Fix documentation in filter.h for lzma_str_to_filters()
+    
+    The previous documentation for lzma_str_to_filters() was technically
+    correct, but misleading. lzma_str_to_filters() returns NULL on success,
+    which is in practice always defined to 0. This is the same value as
+    LZMA_OK, but lzma_str_to_filters() does not return lzma_ret so we should
+    be more clear.
+
+diff --git a/src/liblzma/api/lzma/filter.h b/src/liblzma/api/lzma/filter.h
+index 4c83b2b3..d5054c24 100644
+--- a/src/liblzma/api/lzma/filter.h
++++ b/src/liblzma/api/lzma/filter.h
+@@ -589,7 +589,7 @@ extern LZMA_API(lzma_ret) lzma_filter_flags_decode(
+  *                          be LZMA_FILTERS_MAX + 1 (that is, five) elements
+  *                          in the array. The old contents are ignored so it
+  *                          doesn't need to be initialized. This array is
+- *                          modified only if this function returns LZMA_OK.
++ *                          modified only if this function returns NULL.
+  *                          Once the allocated filter options are no longer
+  *                          needed, lzma_filters_free() can be used to free the
+  *                          options (it doesn't free the filters array itself).

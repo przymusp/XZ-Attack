@@ -1,0 +1,39 @@
+commit 01e34aa1171b04f8b28960b1cc6135a903e0c13d
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Sep 29 22:11:54 2023 +0800
+
+    CI: Disable CLANG64 MSYS2 environment until bug is resolved.
+    
+    lld 17.0.1 searches for libraries to link first in the toolchain
+    directories before the local directory when building. The is a problem
+    for us because liblzma.a is installed in MSYS2 CLANG64 by default and
+    xz.exe will thus use the installed library instead of the one being
+    built.
+    
+    This causes tests to fail when they are expecting features to be
+    disabled. More importantly, it will compile xz.exe with an incorrect
+    liblzma and could cause unexpected behavior by being unable to update
+    liblzma code in static builds. The CLANG64 environment can be tested
+    again once this is fixed.
+    
+    Link to bug: https://github.com/llvm/llvm-project/issues/67779.
+
+diff --git a/.github/workflows/windows-ci.yml b/.github/workflows/windows-ci.yml
+index fe62b11b..cb690ddf 100644
+--- a/.github/workflows/windows-ci.yml
++++ b/.github/workflows/windows-ci.yml
+@@ -18,9 +18,11 @@ jobs:
+       matrix:
+         # Test different environments since the code may change between
+         # them and we want to ensure that we support all potential users.
+-        # clang64 currently fails due to a warning, so support will be
+-        # added later.
+-        msys2_env: [mingw64, mingw32, ucrt64, clang64, msys]
++        # clang64 builds are currently broken when building static libraries
++        # due to a bug in ldd search path:
++        # https://github.com/llvm/llvm-project/issues/67779
++        # TODO - re-enable clang64 when this is resolved.
++        msys2_env: [mingw64, mingw32, ucrt64, msys]
+         build_system: [autotools, cmake]
+ 
+     # Set the shell to be msys2 as a default to avoid setting it for

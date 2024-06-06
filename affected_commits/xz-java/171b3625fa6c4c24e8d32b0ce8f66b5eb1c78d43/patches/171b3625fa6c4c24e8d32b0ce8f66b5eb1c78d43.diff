@@ -1,0 +1,19 @@
+commit 171b3625fa6c4c24e8d32b0ce8f66b5eb1c78d43
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Jan 19 23:16:45 2024 +0800
+
+    Update README for bug report email address and IRC channel server.
+
+diff --git a/README b/README
+index 3b20334..37d62c3 100644
+--- a/README
++++ b/README
+@@ -81,6 +81,6 @@ Demo programs
+ 
+ Reporting bugs
+ 
+-    Report bugs to <lasse.collin@tukaani.org> or visit the IRC channel
+-    #tukaani on Freenode and talk to Larhzu.
++    Report bugs to <xz@tukaani.org> or visit the IRC channel
++    #tukaani on Libera Chat to talk to the maintainers.
+ 

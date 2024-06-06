@@ -1,0 +1,30 @@
+commit 5d691fe58286b92d704c0dc5cd0c4df22881c6c6
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Sep 12 22:34:06 2023 +0800
+
+    CMake: Fix unconditionally defining HAVE_CLOCK_MONOTONIC.
+    
+    If HAVE_CLOCK_GETTIME was defined, then HAVE_CLOCK_MONOTONIC was always
+    added as a compile definition even if the check for it failed.
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c69b135e..63dd59f7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -168,13 +168,11 @@ if(NOT WIN32 AND NOT DEFINED HAVE_CLOCK_GETTIME)
+         endif()
+     endif()
+     if(HAVE_CLOCK_GETTIME)
++        add_compile_definitions(HAVE_CLOCK_GETTIME)
++
+         # Check if CLOCK_MONOTONIC is available for clock_gettime().
+         check_symbol_exists(CLOCK_MONOTONIC time.h HAVE_CLOCK_MONOTONIC)
+-
+-        add_compile_definitions(
+-            HAVE_CLOCK_GETTIME
+-            HAVE_CLOCK_MONOTONIC
+-        )
++        tuklib_add_definition_if(ALL HAVE_CLOCK_MONOTONIC)
+     endif()
+ endif()
+ 

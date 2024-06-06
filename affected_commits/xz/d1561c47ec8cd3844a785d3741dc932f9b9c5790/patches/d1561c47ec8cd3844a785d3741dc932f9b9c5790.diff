@@ -1,0 +1,31 @@
+commit d1561c47ec8cd3844a785d3741dc932f9b9c5790
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Jan 11 22:46:48 2023 +0800
+
+    xz: Fix warning -Wformat-nonliteral on clang in message.c.
+    
+    clang and gcc differ in how they handle -Wformat-nonliteral. gcc will
+    allow a non-literal format string as long as the function takes its
+    format arguments as a va_list.
+
+diff --git a/src/xz/message.c b/src/xz/message.c
+index 4b577656..c54ebc5b 100644
+--- a/src/xz/message.c
++++ b/src/xz/message.c
+@@ -723,7 +723,16 @@ vmessage(enum message_verbosity v, const char *fmt, va_list ap)
+ 		// This is a translatable string because French needs
+ 		// a space before a colon.
+ 		fprintf(stderr, _("%s: "), progname);
++
++#ifdef __clang__
++#	pragma GCC diagnostic push
++#	pragma GCC diagnostic ignored "-Wformat-nonliteral"
++#endif
+ 		vfprintf(stderr, fmt, ap);
++#ifdef __clang__
++#	pragma GCC diagnostic pop
++#endif
++
+ 		fputc('\n', stderr);
+ 
+ 		signals_unblock();

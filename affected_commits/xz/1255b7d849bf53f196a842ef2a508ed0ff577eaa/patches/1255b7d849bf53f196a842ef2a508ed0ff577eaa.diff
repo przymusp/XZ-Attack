@@ -1,0 +1,18 @@
+commit 1255b7d849bf53f196a842ef2a508ed0ff577eaa
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Feb 26 23:39:29 2024 +0800
+
+    Update THANKS.
+
+diff --git a/THANKS b/THANKS
+index 9bb90c77..bcf3d4ff 100644
+--- a/THANKS
++++ b/THANKS
+@@ -170,6 +170,7 @@ has been important. :-) In alphabetical order:
+   - Ralf Wildenhues
+   - Charles Wilson
+   - Lars Wirzenius
++  - Chien Wong
+   - Pilorz Wojciech
+   - Ryan Young
+   - Andreas Zieringer

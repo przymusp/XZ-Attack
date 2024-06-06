@@ -1,0 +1,53 @@
+commit 6403e93344476972e908ce17e8244f5c2b957dfd
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Mar 20 23:21:06 2023 +0800
+
+    XZ updates (#9960)
+    
+    Let me know if you would rather have the commits squashed into one, or
+    separated into multiple PRs. This should address:
+    
+    - Changing the primary contact email address. This will give the XZ
+    Utils maintainers access to the filed bugs in the issue tracker since
+    the previous primary contact email address was not associated with a
+    Google account.
+    - Updated the main repository URL. The project recently moved to GitHub
+    as the main repository. The old repository will still be a mirror, but
+    it will be updated with a slight delay.
+    - Fixed [build
+    issue](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=57241) by
+    adding an extra argument to the autogen.sh script.
+
+diff --git a/projects/xz/build.sh b/projects/xz/build.sh
+index 9886951c0..8480c901f 100755
+--- a/projects/xz/build.sh
++++ b/projects/xz/build.sh
+@@ -15,7 +15,7 @@
+ #
+ ################################################################################
+ 
+-./autogen.sh --no-po4a
++./autogen.sh --no-po4a --no-doxygen
+ ./configure \
+   --enable-static \
+   --disable-debug \
+diff --git a/projects/xz/project.yaml b/projects/xz/project.yaml
+index c251990ae..aafdf48fe 100644
+--- a/projects/xz/project.yaml
++++ b/projects/xz/project.yaml
+@@ -1,7 +1,8 @@
+ homepage: "https://tukaani.org/xz/"
+ language: c++
+-primary_contact: "lasse.collin@tukaani.org"
++primary_contact: "jiat0218@gmail.com"
+ auto_ccs:
++  - "lasse.collin@tukaani.org"
+   - "bshas3@gmail.com"
+ fuzzing_engines:
+   - libfuzzer
+@@ -11,4 +12,4 @@ sanitizers:
+   - address
+   - memory
+   - undefined
+-main_repo: 'https://git.tukaani.org/xz.git'
++main_repo: 'https://github.com/tukaani-project/xz.git'

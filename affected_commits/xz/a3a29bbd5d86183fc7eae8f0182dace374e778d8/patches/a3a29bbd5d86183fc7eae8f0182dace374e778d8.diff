@@ -1,0 +1,31 @@
+commit a3a29bbd5d86183fc7eae8f0182dace374e778d8
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Mar 9 10:08:32 2024 +0800
+
+    Tests: Test --single-stream can decompress bad-3-corrupt_lzma2.xz.
+    
+    The first stream in this file is valid, so this tests that xz properly
+    stops after decompressing it.
+
+diff --git a/tests/test_files.sh b/tests/test_files.sh
+index 16cb8619..812b2152 100755
+--- a/tests/test_files.sh
++++ b/tests/test_files.sh
+@@ -149,6 +149,17 @@ else
+ 	exit 1
+ fi
+ 
++# Test that --single-stream can decompress bad-3-corrupt_lzma2.xz.
++# The first Stream in this file should decompress without errors.
++# This file cannot be decompressed with xzdec.
++I="$srcdir/files/bad-3-corrupt_lzma2.xz"
++if test -z "$XZ" || "$XZ" -dc --single-stream $NO_WARN "$I" > /dev/null; then
++	:
++else
++	echo "Good first Stream failed xz with --single-stream: $I"
++	exit 1
++fi
++
+ 
+ #########
+ # .lzma #

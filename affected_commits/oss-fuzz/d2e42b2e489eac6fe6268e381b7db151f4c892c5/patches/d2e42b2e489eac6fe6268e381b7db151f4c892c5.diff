@@ -1,0 +1,24 @@
+commit d2e42b2e489eac6fe6268e381b7db151f4c892c5
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Jul 7 22:01:15 2023 +0800
+
+    xz: Disable ifunc to fix Issue 60259. (#10667)
+    
+    Indirect function support was added to xz on machines that support it
+    for function dispatching. ifunc is not compatible with
+    -fsanitize=address, so this should be disabled for fuzzing builds.
+
+diff --git a/projects/xz/build.sh b/projects/xz/build.sh
+index 8480c901f..57923c8f5 100755
+--- a/projects/xz/build.sh
++++ b/projects/xz/build.sh
+@@ -24,7 +24,8 @@
+   --disable-xz \
+   --disable-xzdec \
+   --disable-lzmadec \
+-  --disable-lzmainfo
++  --disable-lzmainfo \
++  --disable-ifunc
+ make clean
+ make -j$(nproc) && make -C tests/ossfuzz && \
+     cp tests/ossfuzz/config/fuzz.options $OUT/ && \

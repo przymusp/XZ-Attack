@@ -1,0 +1,26 @@
+commit eea78216d27182ca917bf00e02feaab058a4d21e
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Feb 23 20:27:15 2024 +0800
+
+    xz: Fix Capsicum sandbox compile error.
+    
+    user_abort_pipe[] was still being used instead of the parameters.
+
+diff --git a/src/xz/sandbox.c b/src/xz/sandbox.c
+index 9e30a07a..3b3069c8 100644
+--- a/src/xz/sandbox.c
++++ b/src/xz/sandbox.c
+@@ -330,11 +330,11 @@ sandbox_enable_strict_if_allowed(
+ 			CAP_WRITE)))
+ 		goto error;
+ 
+-	if (cap_rights_limit(user_abort_pipe[0], cap_rights_init(&rights,
++	if (cap_rights_limit(pipe_event_fd, cap_rights_init(&rights,
+ 			CAP_EVENT)))
+ 		goto error;
+ 
+-	if (cap_rights_limit(user_abort_pipe[1], cap_rights_init(&rights,
++	if (cap_rights_limit(pipe_write_fd, cap_rights_init(&rights,
+ 			CAP_WRITE)))
+ 		goto error;
+ 

@@ -1,0 +1,21 @@
+commit 850adec171203cd22b57d016084d713f72ae5307
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Feb 3 22:52:55 2023 +0800
+
+    Docs: Omit SIGTSTP not handled from TODO.
+
+diff --git a/TODO b/TODO
+index 7b9a3adf..ad37f3f5 100644
+--- a/TODO
++++ b/TODO
+@@ -24,10 +24,6 @@ Known bugs
+ 
+     tuklib_exit() doesn't block signals => EINTR is possible.
+ 
+-    SIGTSTP is not handled. If xz is stopped, the estimated remaining
+-    time and calculated (de)compression speed won't make sense in the
+-    progress indicator (xz --verbose).
+-
+     If liblzma has created threads and fork() gets called, liblzma
+     code will break in the child process unless it calls exec() and
+     doesn't touch liblzma.

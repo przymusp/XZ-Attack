@@ -1,0 +1,18 @@
+commit 35558adf9c45e5597f2c8dbd969885dd484038d2
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Nov 30 20:41:00 2023 +0800
+
+    Update THANKS.
+
+diff --git a/THANKS b/THANKS
+index c2d268bd..0711c53d 100644
+--- a/THANKS
++++ b/THANKS
+@@ -51,6 +51,7 @@ has been important. :-) In alphabetical order:
+   - Bjarni Ingi Gislason
+   - John Paul Adrian Glaubitz
+   - Bill Glessner
++  - Matthew Good
+   - Michał Górny
+   - Jason Gorski
+   - Juan Manuel Guerrero

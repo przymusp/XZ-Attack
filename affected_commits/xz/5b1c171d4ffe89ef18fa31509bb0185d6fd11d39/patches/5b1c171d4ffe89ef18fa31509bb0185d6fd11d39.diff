@@ -1,0 +1,26 @@
+commit 5b1c171d4ffe89ef18fa31509bb0185d6fd11d39
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Feb 6 23:42:08 2023 +0800
+
+    liblzma: Convert list of flags in lzma_mt to bulleted list.
+
+diff --git a/src/liblzma/api/lzma/container.h b/src/liblzma/api/lzma/container.h
+index 088b63a9..c141588e 100644
+--- a/src/liblzma/api/lzma/container.h
++++ b/src/liblzma/api/lzma/container.h
+@@ -73,9 +73,12 @@ typedef struct {
+ 	 * Encoder: No flags are currently supported.
+ 	 *
+ 	 * Decoder: Bitwise-or of zero or more of the decoder flags:
+-	 * LZMA_TELL_NO_CHECK, LZMA_TELL_UNSUPPORTED_CHECK,
+-	 * LZMA_TELL_ANY_CHECK, LZMA_IGNORE_CHECK,
+-	 * LZMA_CONCATENATED, LZMA_FAIL_FAST
++	 * - LZMA_TELL_NO_CHECK
++	 * - LZMA_TELL_UNSUPPORTED_CHECK
++	 * - LZMA_TELL_ANY_CHECK
++	 * - LZMA_IGNORE_CHECK
++	 * - LZMA_CONCATENATED
++	 * - LZMA_FAIL_FAST
+ 	 */
+ 	uint32_t flags;
+ 

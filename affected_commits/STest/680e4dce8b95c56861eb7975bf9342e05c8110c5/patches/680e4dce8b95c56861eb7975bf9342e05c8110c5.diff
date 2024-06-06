@@ -1,0 +1,77 @@
+commit 680e4dce8b95c56861eb7975bf9342e05c8110c5
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Sat Dec 11 19:41:30 2021 +0800
+
+    Now showing line numbers on failing internal tests
+
+diff --git a/src/stest.c b/src/stest.c
+index 01b5444..7f628eb 100644
+--- a/src/stest.c
++++ b/src/stest.c
+@@ -550,14 +550,14 @@ void stest_simple_test_result_nolog(int passed, char* reason, const char* functi
+   stest_last_passed = passed;  
+ }
+ 
+-void stest_assert_last_passed()
++void stest_assert_last_passed(const char* function, unsigned int line)
+ {
+-  assert_int_equal(1, stest_last_passed);
++  stest_assert_int_equal(1, stest_last_passed, function, line);
+ }
+ 
+-void stest_assert_last_failed()
++void stest_assert_last_failed(const char* function, unsigned int line)
+ {
+-  assert_int_equal(0, stest_last_passed);
++  stest_assert_int_equal(0, stest_last_passed, function, line);
+ }
+ 
+ void stest_disable_logging()
+diff --git a/src/stest.h b/src/stest.h
+index 0800756..7cd987e 100644
+--- a/src/stest.h
++++ b/src/stest.h
+@@ -93,8 +93,8 @@ int stest_testrunner(int argc, char** argv, stest_void_void tests, stest_void_vo
+ 
+ #ifdef STEST_INTERNAL_TESTS 
+ void stest_simple_test_result_nolog(int passed, char* reason, const char* function, unsigned int line);
+-void stest_assert_last_passed();
+-void stest_assert_last_failed();
+-void stest_enable_logging();
+-void stest_disable_logging();
++void stest_assert_last_passed(const char* function, unsigned int line);
++void stest_assert_last_failed(const char* function, unsigned int line);
++void stest_enable_logging(void);
++void stest_disable_logging(void);
+ #endif
+diff --git a/tests/stests.h b/tests/stests.h
+index a4ed466..5360e50 100644
+--- a/tests/stests.h
++++ b/tests/stests.h
+@@ -9,16 +9,16 @@
+ #endif
+ 
+ #define without_logging(X) stest_disable_logging(); X; stest_enable_logging();
+-#define assert_test_passes(X) without_logging(X); stest_assert_last_passed();
+-#define assert_test_fails(X) without_logging(X); stest_assert_last_failed();
++#define assert_test_passes(X) without_logging(X); stest_assert_last_passed(__FUNCTION__, __LINE__);
++#define assert_test_fails(X) without_logging(X); stest_assert_last_failed(__FUNCTION__, __LINE__);
+ 
+-void test_assert_true();
+-void test_assert_false();
+-void test_assert_int_equal();
+-void test_assert_ulong_equal();
+-void test_assert_string_equal();
+-void test_assert_n_array_equal();
++void test_assert_true(void);
++void test_assert_false(void);
++void test_assert_int_equal(void);
++void test_assert_ulong_equal(void);
++void test_assert_string_equal(void);
++void test_assert_n_array_equal(void);
+ 
+-void test_fixture_stest();
+-void all_tests();
++void test_fixture_stest(void);
++void all_tests(void);
+ 

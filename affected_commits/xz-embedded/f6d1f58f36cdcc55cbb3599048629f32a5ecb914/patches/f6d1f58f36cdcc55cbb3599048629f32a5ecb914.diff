@@ -1,0 +1,25 @@
+commit f6d1f58f36cdcc55cbb3599048629f32a5ecb914
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Jan 19 23:13:32 2024 +0800
+
+    Update contact email address.
+
+diff --git a/linux/Documentation/xz.txt b/linux/Documentation/xz.txt
+index 52c9150..f2cd6a8 100644
+--- a/linux/Documentation/xz.txt
++++ b/linux/Documentation/xz.txt
+@@ -110,10 +110,10 @@ Reporting bugs
+     at upstream. See <https://xz.tukaani.org/xz-embedded/> to get the
+     latest code.
+ 
+-    Report bugs to <lasse.collin@tukaani.org> or visit #tukaani on
+-    Freenode and talk to Larhzu. I don't actively read LKML or other
+-    kernel-related mailing lists, so if there's something I should know,
+-    you should email to me personally or use IRC.
++    Report bugs to <xz@tukaani.org> or visit #tukaani on
++    Freenode and talk to the maintainers. We don't actively read LKML or
++    other kernel-related mailing lists, so if there's something we should
++    know, please use email or IRC.
+ 
+     Don't bother Igor Pavlov with questions about the XZ implementation
+     in the kernel or about XZ Utils. While these two implementations

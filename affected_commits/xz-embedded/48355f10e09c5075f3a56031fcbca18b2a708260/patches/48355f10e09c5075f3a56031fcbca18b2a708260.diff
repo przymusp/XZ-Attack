@@ -1,0 +1,34 @@
+commit 48355f10e09c5075f3a56031fcbca18b2a708260
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Mar 22 20:10:19 2024 +0800
+
+    xzminidec: Create macro to set the maximum supported dictionary size.
+    
+    The macro can be overridden at compile time by setting something like:
+    
+        -DDICT_SIZE_MAX="(1U << 25)"
+
+diff --git a/userspace/xzminidec.c b/userspace/xzminidec.c
+index 634e32c..df2b719 100644
+--- a/userspace/xzminidec.c
++++ b/userspace/xzminidec.c
+@@ -18,6 +18,10 @@
+ #include <string.h>
+ #include "xz.h"
+ 
++#ifndef DICT_SIZE_MAX
++#	define DICT_SIZE_MAX (64U << 20)
++#endif
++
+ static uint8_t in[BUFSIZ];
+ static uint8_t out[BUFSIZ];
+ 
+@@ -44,7 +48,7 @@ int main(int argc, char **argv)
+ 	 * Support up to 64 MiB dictionary. The actually needed memory
+ 	 * is allocated once the headers have been parsed.
+ 	 */
+-	s = xz_dec_init(XZ_DYNALLOC, 1 << 26);
++	s = xz_dec_init(XZ_DYNALLOC, DICT_SIZE_MAX);
+ 	if (s == NULL) {
+ 		msg = "Memory allocation failed\n";
+ 		goto error;

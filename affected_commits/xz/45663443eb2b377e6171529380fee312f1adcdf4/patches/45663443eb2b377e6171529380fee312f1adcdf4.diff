@@ -1,0 +1,24 @@
+commit 45663443eb2b377e6171529380fee312f1adcdf4
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Feb 13 22:37:07 2024 +0800
+
+    liblzma: Fix build error if only RISC-V BCJ filter is enabled.
+    
+    If any other BCJ filter was enabled for encoding or decoding, then this
+    was not a problem.
+
+diff --git a/src/liblzma/common/string_conversion.c b/src/liblzma/common/string_conversion.c
+index ad8241e2..0bc459bc 100644
+--- a/src/liblzma/common/string_conversion.c
++++ b/src/liblzma/common/string_conversion.c
+@@ -250,7 +250,9 @@ static const char *parse_options(const char **const str, const char *str_end,
+ 		|| defined(HAVE_ENCODER_IA64) \
+ 		|| defined(HAVE_DECODER_IA64) \
+ 		|| defined(HAVE_ENCODER_SPARC) \
+-		|| defined(HAVE_DECODER_SPARC)
++		|| defined(HAVE_DECODER_SPARC) \
++		|| defined(HAVE_ENCODER_RISCV) \
++		|| defined(HAVE_DECODER_RISCV)
+ static const option_map bcj_optmap[] = {
+ 	{
+ 		.name = "start",

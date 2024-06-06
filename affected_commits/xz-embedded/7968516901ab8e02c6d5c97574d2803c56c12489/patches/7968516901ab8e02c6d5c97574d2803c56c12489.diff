@@ -1,0 +1,18 @@
+commit 7968516901ab8e02c6d5c97574d2803c56c12489
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Dec 16 12:56:05 2023 +0800
+
+    Add .gitattributes.
+    
+    git archive can be used to create a release without certain files.
+    In this case, we only care to remove the .gitignore and the
+    .gitattributes itself.
+
+diff --git a/.gitattributes b/.gitattributes
+new file mode 100644
+index 0000000..de2f316
+--- /dev/null
++++ b/.gitattributes
+@@ -0,0 +1,2 @@
++.gitignore export-ignore
++.gitattributes export-ignore

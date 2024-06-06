@@ -1,0 +1,18 @@
+commit fb9c50f38a17bf37581de4034b36c8df8ec90a87
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Apr 7 20:43:22 2023 +0800
+
+    Update THANKS.
+
+diff --git a/THANKS b/THANKS
+index 0d811705..fcd1e698 100644
+--- a/THANKS
++++ b/THANKS
+@@ -52,6 +52,7 @@ has been important. :-) In alphabetical order:
+   - Michał Górny
+   - Jason Gorski
+   - Juan Manuel Guerrero
++  - Gabriela Gutierrez
+   - Diederik de Haas
+   - Joachim Henke
+   - Christian Hesse

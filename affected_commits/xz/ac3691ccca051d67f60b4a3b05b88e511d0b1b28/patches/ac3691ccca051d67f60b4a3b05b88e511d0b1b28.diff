@@ -1,0 +1,17 @@
+commit ac3691ccca051d67f60b4a3b05b88e511d0b1b28
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Jan 22 23:33:39 2024 +0800
+
+    Tests: Add RISC-V Filter test in test_compress.sh.
+
+diff --git a/tests/test_compress.sh b/tests/test_compress.sh
+index 457bfbe8..72c53411 100755
+--- a/tests/test_compress.sh
++++ b/tests/test_compress.sh
+@@ -146,5 +146,6 @@ test_filter ARM arm
+ test_filter ARMTHUMB armthumb
+ test_filter ARM64 arm64
+ test_filter SPARC sparc
++test_filter RISCV riscv
+ 
+ exit 0

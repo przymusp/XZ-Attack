@@ -1,0 +1,31 @@
+commit 2ab2e4b5a542eab93902985ce4e642719a8b7a4e
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Nov 23 22:13:39 2023 +0800
+
+    xz: Use is_tty() in message.c.
+
+diff --git a/src/xz/message.c b/src/xz/message.c
+index c2a5d33d..e3ac6ff6 100644
+--- a/src/xz/message.c
++++ b/src/xz/message.c
+@@ -15,11 +15,6 @@
+ 
+ #include <stdarg.h>
+ 
+-#ifdef _MSC_VER
+-#	include <io.h>
+-#	define isatty _isatty
+-#endif
+-
+ 
+ /// Number of the current file
+ static unsigned int files_pos = 0;
+@@ -125,7 +120,7 @@ message_init(void)
+ 	// exception, even if --verbose was not used, user can send SIGALRM
+ 	// to make us print progress information once without automatic
+ 	// updating.
+-	progress_automatic = isatty(STDERR_FILENO);
++	progress_automatic = is_tty(STDERR_FILENO);
+ 
+ 	// Commented out because COLUMNS is rarely exported to environment.
+ 	// Most users have at least 80 columns anyway, let's think something

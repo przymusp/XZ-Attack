@@ -1,0 +1,22 @@
+commit 3cf72c4bcba5370f07477c9b9b62ae33069ef9a9
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Feb 6 21:46:43 2023 +0800
+
+    liblzma: Replace '\n' -> newline in filter.h documentation.
+    
+    The '\n' renders as a newline when the comments are converted to html
+    by Doxygen.
+
+diff --git a/src/liblzma/api/lzma/filter.h b/src/liblzma/api/lzma/filter.h
+index d5a975fc..b030c2ca 100644
+--- a/src/liblzma/api/lzma/filter.h
++++ b/src/liblzma/api/lzma/filter.h
+@@ -744,7 +744,7 @@ extern LZMA_API(lzma_ret) lzma_str_from_filters(
+  *
+  *   - If LZMA_STR_ENCODER or LZMA_STR_DECODER is used then filters and
+  *     the supported options are listed one filter per line. There won't
+- *     be a '\n' after the last filter.
++ *     be a newline after the last filter.
+  *
+  *   - If LZMA_STR_ALL_FILTERS is used then the list will include also
+  *     those filters that cannot be used in the .xz format (LZMA1).

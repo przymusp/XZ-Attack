@@ -1,0 +1,27 @@
+commit 18d7facd3802b55c287581405c4d49c98708c136
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Sep 2 20:18:55 2022 +0800
+
+    liblzma: lzma_index_append: Add missing integer overflow check.
+    
+    The documentation in src/liblzma/api/lzma/index.h suggests that
+    both the unpadded (compressed) size and the uncompressed size
+    are checked for overflow, but only the unpadded size was checked.
+    The uncompressed check is done first since that is more likely to
+    occur than the unpadded or index field size overflows.
+
+diff --git a/src/liblzma/common/index.c b/src/liblzma/common/index.c
+index 86c10544..010e1f80 100644
+--- a/src/liblzma/common/index.c
++++ b/src/liblzma/common/index.c
+@@ -656,6 +656,10 @@ lzma_index_append(lzma_index *i, const lzma_allocator *allocator,
+ 	const uint32_t index_list_size_add = lzma_vli_size(unpadded_size)
+ 			+ lzma_vli_size(uncompressed_size);
+ 
++	// Check that uncompressed size will not overflow.
++	if (uncompressed_base + uncompressed_size > LZMA_VLI_MAX)
++		return LZMA_DATA_ERROR;
++
+ 	// Check that the file size will stay within limits.
+ 	if (index_file_size(s->node.compressed_base,
+ 			compressed_base + unpadded_size, s->record_count + 1,

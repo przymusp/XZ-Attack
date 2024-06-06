@@ -1,0 +1,30 @@
+commit eb8ad59e9bab32a8d655796afd39597ea6dcc64d
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Feb 26 20:06:10 2024 +0800
+
+    Tests: Add test_microlzma to .gitignore and CMakeLists.txt.
+
+diff --git a/.gitignore b/.gitignore
+index 5788d4ac..d633ea6f 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -67,6 +67,7 @@ coverage
+ /tests/test_index
+ /tests/test_index_hash
+ /tests/test_lzip_decoder
++/tests/test_microlzma
+ /tests/test_memlimit
+ /tests/test_stream_flags
+ /tests/test_vli
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b783399c..76700591 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1984,6 +1984,7 @@ if(BUILD_TESTING)
+         test_index_hash
+         test_lzip_decoder
+         test_memlimit
++        test_microlzma
+         test_stream_flags
+         test_vli
+     )

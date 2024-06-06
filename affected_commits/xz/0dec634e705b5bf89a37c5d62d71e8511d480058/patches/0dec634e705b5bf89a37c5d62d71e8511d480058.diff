@@ -1,0 +1,31 @@
+commit 0dec634e705b5bf89a37c5d62d71e8511d480058
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Jan 12 23:02:20 2023 +0800
+
+    CI: Only run autogen.sh if it has not already run.
+
+diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
+index fa2a166d..0e43d29f 100755
+--- a/build-aux/ci_build.sh
++++ b/build-aux/ci_build.sh
+@@ -102,12 +102,17 @@ if [ "$PHASE" = "all" ] || [ "$PHASE" = "build" ]; then
+ 	mkdir -p "$DEST_DIR"
+ 	case $BUILD_SYSTEM in
+ 		autotools)
+-		# Run autogen.sh script
+ 		cd "$SRC_DIR"
+-		"./autogen.sh"
++
++		# Run autogen.sh script if not already run
++		if [ ! -f configure ]
++		then 
++			"./autogen.sh"
++		fi
++
+ 		cd "$DEST_DIR"
+-		# Generate configure option values
+ 
++		# Generate configure option values
+ 		EXTRA_OPTIONS=""
+ 		FILTER_LIST="lzma1,lzma2"
+ 

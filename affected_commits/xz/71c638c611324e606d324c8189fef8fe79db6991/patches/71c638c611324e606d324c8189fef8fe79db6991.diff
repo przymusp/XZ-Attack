@@ -1,0 +1,20 @@
+commit 71c638c611324e606d324c8189fef8fe79db6991
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Aug 1 21:58:51 2023 +0800
+
+    Add newline to end of .gitignore.
+    
+    Newline was accidentally removed in commit
+    01cbb7f023ee7fda8ddde04bd17cf7d3c2418706.
+
+diff --git a/.gitignore b/.gitignore
+index 333eb9eb..5788d4ac 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -110,4 +110,4 @@ coverage
+ 
+ /windows/*/.vs
+ /windows/*/liblzma.vcxproj.user
+-/.vscode/
+\ No newline at end of file
++/.vscode/

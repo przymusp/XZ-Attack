@@ -1,0 +1,18 @@
+commit 7f68a68c19d0ae57bd0e802be0ea8f974e41299f
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Feb 2 01:38:51 2024 +0800
+
+    liblzma: Update Authors list in crc32_arm64.h.
+
+diff --git a/src/liblzma/check/crc32_arm64.h b/src/liblzma/check/crc32_arm64.h
+index a1888ea7..a9722bdb 100644
+--- a/src/liblzma/check/crc32_arm64.h
++++ b/src/liblzma/check/crc32_arm64.h
+@@ -5,6 +5,7 @@
+ //
+ //  Authors:    Chenxi Mao
+ //              Jia Tan
++//              Hans Jansen
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.

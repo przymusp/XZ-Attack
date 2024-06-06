@@ -1,0 +1,25 @@
+commit 5dad6f628af742bab826819760deb677597445f7
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Sat Dec 16 20:18:47 2023 +0800
+
+    liblzma: Improve lzma encoder init function consistency.
+    
+    lzma_encoder_init() did not check for NULL options, but
+    lzma2_encoder_init() did. This is more of a code style improvement than
+    anything else to help make lzma_encoder_init() and lzma2_encoder_init()
+    more similar.
+
+diff --git a/src/liblzma/lzma/lzma_encoder.c b/src/liblzma/lzma/lzma_encoder.c
+index 559c63ed..79fdeca2 100644
+--- a/src/liblzma/lzma/lzma_encoder.c
++++ b/src/liblzma/lzma/lzma_encoder.c
+@@ -712,6 +712,9 @@ static lzma_ret
+ lzma_encoder_init(lzma_lz_encoder *lz, const lzma_allocator *allocator,
+ 		lzma_vli id, const void *options, lzma_lz_options *lz_options)
+ {
++        if (options == NULL)
++                return LZMA_PROG_ERROR;
++
+ 	lz->code = &lzma_encode;
+ 	lz->set_out_limit = &lzma_lzma_set_out_limit;
+ 	return lzma_lzma_encoder_create(

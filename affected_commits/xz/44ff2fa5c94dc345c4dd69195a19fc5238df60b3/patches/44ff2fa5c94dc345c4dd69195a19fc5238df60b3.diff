@@ -1,0 +1,22 @@
+commit 44ff2fa5c94dc345c4dd69195a19fc5238df60b3
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Jan 23 23:50:57 2024 +0800
+
+    Tests: Skip RISC-V test files if decoder was not built.
+
+diff --git a/tests/test_files.sh b/tests/test_files.sh
+index b1505f7b..12f71f3a 100755
+--- a/tests/test_files.sh
++++ b/tests/test_files.sh
+@@ -80,6 +80,11 @@ do
+ 			have_feature DECODER_ARM64 "$I" || continue
+ 			;;
+ 	esac
++	case $I in
++		*/good-1-riscv-lzma2-*.xz)
++			have_feature DECODER_RISCV "$I" || continue
++			;;
++	esac
+ 
+ 	if test -z "$XZ" || "$XZ" $NO_WARN -dc "$I" > /dev/null; then
+ 		:

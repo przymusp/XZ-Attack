@@ -1,0 +1,18 @@
+commit 86118ea320f867e09e98a8682cc08cbbdfd640e2
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Tue Jun 27 23:38:32 2023 +0800
+
+    Update THANKS.
+
+diff --git a/THANKS b/THANKS
+index 03ec8e09..1f91d053 100644
+--- a/THANKS
++++ b/THANKS
+@@ -62,6 +62,7 @@ has been important. :-) In alphabetical order:
+   - Nicholas Jackson
+   - Sam James
+   - Hajin Jang
++  - Hans Jansen
+   - Jouk Jansen
+   - Jun I Jin
+   - Kiyoshi Kanazawa

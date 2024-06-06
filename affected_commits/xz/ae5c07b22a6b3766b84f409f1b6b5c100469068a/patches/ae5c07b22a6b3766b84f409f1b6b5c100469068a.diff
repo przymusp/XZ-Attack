@@ -1,0 +1,54 @@
+commit ae5c07b22a6b3766b84f409f1b6b5c100469068a
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Aug 28 21:31:25 2023 +0800
+
+    liblzma: Add overflow check for Unpadded size in lzma_index_append().
+    
+    This was not a security bug since there was no path to overflow
+    UINT64_MAX in lzma_index_append() or when it calls index_file_size().
+    The bug was discovered by a failing assert() in vli_ceil4() when called
+    from index_file_size() when unpadded_sum (the sum of the compressed size
+    of current Stream and the unpadded_size parameter) exceeds LZMA_VLI_MAX.
+    
+    Previously, the unpadded_size parameter was checked to be not greater
+    than UNPADDED_SIZE_MAX, but no check was done once compressed_base was
+    added.
+    
+    This could not have caused an integer overflow in index_file_size() when
+    called by lzma_index_append(). The calculation for file_size breaks down
+    into the sum of:
+    
+    - Compressed base from all previous Streams
+    - 2 * LZMA_STREAM_HEADER_SIZE (size of the current Streams header and
+      footer)
+    - stream_padding (can be set by lzma_index_stream_padding())
+    - Compressed base from the current Stream
+    - Unpadded size (parameter to lzma_index_append())
+    
+    The sum of everything except for Unpadded size must be less than
+    LZMA_VLI_MAX. This is guarenteed by overflow checks in the functions
+    that can set these values including lzma_index_stream_padding(),
+    lzma_index_append(), and lzma_index_cat(). The maximum value for
+    Unpadded size is enforced by lzma_index_append() to be less than or
+    equal UNPADDED_SIZE_MAX. Thus, the sum cannot exceed UINT64_MAX since
+    LZMA_VLI_MAX is half of UINT64_MAX.
+    
+    Thanks to Joona Kannisto for reporting this.
+
+diff --git a/src/liblzma/common/index.c b/src/liblzma/common/index.c
+index 97cc9f95..8a35f439 100644
+--- a/src/liblzma/common/index.c
++++ b/src/liblzma/common/index.c
+@@ -661,6 +661,12 @@ lzma_index_append(lzma_index *i, const lzma_allocator *allocator,
+ 	if (uncompressed_base + uncompressed_size > LZMA_VLI_MAX)
+ 		return LZMA_DATA_ERROR;
+ 
++	// Check that the new unpadded sum will not overflow. This is
++	// checked again in index_file_size(), but the unpadded sum is
++	// passed to vli_ceil4() which expects a valid lzma_vli value.
++	if (compressed_base + unpadded_size > UNPADDED_SIZE_MAX)
++		return LZMA_DATA_ERROR;
++
+ 	// Check that the file size will stay within limits.
+ 	if (index_file_size(s->node.compressed_base,
+ 			compressed_base + unpadded_size, s->record_count + 1,

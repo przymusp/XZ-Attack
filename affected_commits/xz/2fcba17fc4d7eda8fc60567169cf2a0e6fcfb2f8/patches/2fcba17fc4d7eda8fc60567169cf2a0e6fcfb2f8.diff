@@ -1,0 +1,23 @@
+commit 2fcba17fc4d7eda8fc60567169cf2a0e6fcfb2f8
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Dec 29 01:55:19 2022 +0800
+
+    xz: Includes <time.h> and <sys/time.h> conditionally in mytime.c.
+    
+    Previously, mytime.c depended on mythread.h for <time.h> to be included.
+
+diff --git a/src/xz/mytime.c b/src/xz/mytime.c
+index a81c88af..7e8a0749 100644
+--- a/src/xz/mytime.c
++++ b/src/xz/mytime.c
+@@ -12,7 +12,9 @@
+ 
+ #include "private.h"
+ 
+-#if !(defined(HAVE_CLOCK_GETTIME) && defined(HAVE_CLOCK_MONOTONIC))
++#if defined(HAVE_CLOCK_GETTIME) && defined(HAVE_CLOCK_MONOTONIC)
++#	include <time.h>
++#else
+ #	include <sys/time.h>
+ #endif
+ 

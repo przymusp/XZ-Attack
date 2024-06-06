@@ -1,0 +1,25 @@
+commit 8721fb072192bbb193b8b47ccdb2d298c35d63e4
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Sun Dec 12 23:37:12 2021 +0800
+
+    Fixed internal test last passed and last failed to be boolena
+
+diff --git a/src/stest.c b/src/stest.c
+index 7f628eb..62fef6e 100644
+--- a/src/stest.c
++++ b/src/stest.c
+@@ -552,12 +552,12 @@ void stest_simple_test_result_nolog(int passed, char* reason, const char* functi
+ 
+ void stest_assert_last_passed(const char* function, unsigned int line)
+ {
+-  stest_assert_int_equal(1, stest_last_passed, function, line);
++  stest_assert_true(stest_last_passed, function, line);
+ }
+ 
+ void stest_assert_last_failed(const char* function, unsigned int line)
+ {
+-  stest_assert_int_equal(0, stest_last_passed, function, line);
++  stest_assert_false(stest_last_passed, function, line);
+ }
+ 
+ void stest_disable_logging()

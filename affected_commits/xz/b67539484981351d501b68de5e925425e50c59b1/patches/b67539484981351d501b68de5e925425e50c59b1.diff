@@ -1,0 +1,36 @@
+commit b67539484981351d501b68de5e925425e50c59b1
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Feb 8 20:30:23 2023 +0800
+
+    liblzma: Omit lzma_index_iter's internal field from Doxygen docs.
+    
+    Add \private above this field and its sub-fields since it is not meant
+    to be modified by users.
+
+diff --git a/src/liblzma/api/lzma/index.h b/src/liblzma/api/lzma/index.h
+index c7be9772..c349b5f7 100644
+--- a/src/liblzma/api/lzma/index.h
++++ b/src/liblzma/api/lzma/index.h
+@@ -235,14 +235,21 @@ typedef struct {
+ 		const void *reserved_ptr4;
+ 	} block;
+ 
+-	/*
++	/** 
++	 * \private     Internal struct.
++	 *
+ 	 * Internal data which is used to store the state of the iterator.
+ 	 * The exact format may vary between liblzma versions, so don't
+ 	 * touch these in any way.
+ 	 */
+ 	union {
++		/** \private     Internal field. */
+ 		const void *p;
++
++		/** \private     Internal field. */
+ 		size_t s;
++
++		/** \private     Internal field. */
+ 		lzma_vli v;
+ 	} internal[6];
+ } lzma_index_iter;

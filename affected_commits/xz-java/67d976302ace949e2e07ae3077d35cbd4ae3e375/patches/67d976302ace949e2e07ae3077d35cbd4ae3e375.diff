@@ -1,0 +1,60 @@
+commit 67d976302ace949e2e07ae3077d35cbd4ae3e375
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Jan 19 23:16:45 2024 +0800
+
+    Update docs and metadata for new project website.
+
+diff --git a/README b/README
+index ed592c8..3b20334 100644
+--- a/README
++++ b/README
+@@ -16,7 +16,7 @@ Introduction
+ 
+     For the latest source code, see the project home page:
+ 
+-        https://tukaani.org/xz/java.html
++        https://xz.tukaani.org/xz-for-java/
+ 
+     The source code is compatible with Java 5 and later (except
+     module-info.java which is Java 9 or later). However, the default
+diff --git a/build.properties b/build.properties
+index 052d972..3d82dc4 100644
+--- a/build.properties
++++ b/build.properties
+@@ -8,7 +8,7 @@
+ #
+ 
+ title = XZ data compression
+-homepage = https://tukaani.org/xz/java.html
++homepage = https://xz.tukaani.org/xz-for-java/
+ version = 1.9
+ debug = false
+ 
+diff --git a/maven/pom_template.xml b/maven/pom_template.xml
+index 666c51a..04d2086 100644
+--- a/maven/pom_template.xml
++++ b/maven/pom_template.xml
+@@ -32,8 +32,8 @@
+     </licenses>
+ 
+     <scm>
+-        <url>https://git.tukaani.org/?p=xz-java.git</url>
+-        <connection>scm:git:https://git.tukaani.org/xz-java.git</connection>
++        <url>https://github.com/tukaani-project/xz-java</url>
++        <connection>scm:git:https://github.com/tukaani-project/xz-java</connection>
+     </scm>
+ 
+     <developers>
+diff --git a/src/org/tukaani/xz/package-info.java b/src/org/tukaani/xz/package-info.java
+index ad23233..7f77f4e 100644
+--- a/src/org/tukaani/xz/package-info.java
++++ b/src/org/tukaani/xz/package-info.java
+@@ -25,7 +25,7 @@
+  * Threading is planned but it is unknown when it will be implemented.
+  * <p>
+  * For the latest source code, see the
+- * <a href="https://tukaani.org/xz/java.html">home page of XZ for Java</a>.
++ * <a href="https://xz.tukaani.org/xz-for-java/">home page of XZ for Java</a>.
+  *
+  * <h2>Getting started</h2>
+  * <p>

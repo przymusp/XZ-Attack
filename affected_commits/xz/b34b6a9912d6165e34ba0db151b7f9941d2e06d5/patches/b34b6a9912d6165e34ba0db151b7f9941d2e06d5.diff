@@ -1,0 +1,32 @@
+commit b34b6a9912d6165e34ba0db151b7f9941d2e06d5
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Dec 20 21:31:34 2023 +0800
+
+    liblzma: Initialize lzma_lz_encoder pointers with NULL.
+    
+    This fixes the recent change to lzma_lz_encoder that used memzero
+    instead of the NULL constant. On some compilers the NULL constant
+    (always 0) may not equal the NULL pointer (this only needs to guarentee
+    to not point to valid memory address).
+    
+    Later code compares the pointers to the NULL pointer so we must
+    initialize them with the NULL pointer instead of 0 to guarentee
+    code correctness.
+
+diff --git a/src/liblzma/lz/lz_encoder.c b/src/liblzma/lz/lz_encoder.c
+index dbc5c7b8..c45e193e 100644
+--- a/src/liblzma/lz/lz_encoder.c
++++ b/src/liblzma/lz/lz_encoder.c
+@@ -564,7 +564,11 @@ lzma_lz_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator,
+ 		next->update = &lz_encoder_update;
+ 		next->set_out_limit = &lz_encoder_set_out_limit;
+ 
+-		memzero((&coder->lz), sizeof(lzma_lz_encoder));
++		coder->lz.coder = NULL;
++		coder->lz.code = NULL;
++		coder->lz.end = NULL;
++		coder->lz.options_update = NULL;
++		coder->lz.set_out_limit = NULL;
+ 
+ 		// mf.size is initialized to silence Valgrind
+ 		// when used on optimized binaries (GCC may reorder

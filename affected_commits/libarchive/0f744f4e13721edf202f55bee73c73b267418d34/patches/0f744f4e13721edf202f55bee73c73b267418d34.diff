@@ -1,0 +1,73 @@
+commit 0f744f4e13721edf202f55bee73c73b267418d34
+Author: jiat75 <jiat0218@gmail.com>
+Date:   Sun Oct 3 15:23:28 2021 +0800
+
+    added missing checks for canLzip, canLzma, and canXz
+
+diff --git a/libarchive/test/test_archive_write_add_filter_by_name.c b/libarchive/test/test_archive_write_add_filter_by_name.c
+index ba8c1d04..b9173984 100644
+--- a/libarchive/test/test_archive_write_add_filter_by_name.c
++++ b/libarchive/test/test_archive_write_add_filter_by_name.c
+@@ -185,12 +185,12 @@ DEFINE_TEST(test_archive_write_add_filter_by_name_lz4)
+ 
+ DEFINE_TEST(test_archive_write_add_filter_by_name_lzip)
+ {
+-	test_filter_by_name("lzip", ARCHIVE_FILTER_LZIP, cannot);
++	test_filter_by_name("lzip", ARCHIVE_FILTER_LZIP, canLzip);
+ }
+ 
+ DEFINE_TEST(test_archive_write_add_filter_by_name_lzma)
+ {
+-	test_filter_by_name("lzma", ARCHIVE_FILTER_LZMA, cannot);
++	test_filter_by_name("lzma", ARCHIVE_FILTER_LZMA, canLzma);
+ }
+ 
+ DEFINE_TEST(test_archive_write_add_filter_by_name_lzop)
+@@ -205,7 +205,7 @@ DEFINE_TEST(test_archive_write_add_filter_by_name_uuencode)
+ 
+ DEFINE_TEST(test_archive_write_add_filter_by_name_xz)
+ {
+-	test_filter_by_name("xz", ARCHIVE_FILTER_XZ, cannot);
++	test_filter_by_name("xz", ARCHIVE_FILTER_XZ, canXz);
+ }
+ 
+ DEFINE_TEST(test_archive_write_add_filter_by_name_zstd)
+diff --git a/libarchive/test/test_read_truncated_filter.c b/libarchive/test/test_read_truncated_filter.c
+index 632638d6..4c409cc0 100644
+--- a/libarchive/test/test_read_truncated_filter.c
++++ b/libarchive/test/test_read_truncated_filter.c
+@@ -154,12 +154,12 @@ DEFINE_TEST(test_read_truncated_filter_gzip)
+ 
+ DEFINE_TEST(test_read_truncated_filter_lzip)
+ {
+-	test_truncation("lzip", archive_write_add_filter_lzip, 0);
++	test_truncation("lzip", archive_write_add_filter_lzip, canLzip());
+ }
+ 
+ DEFINE_TEST(test_read_truncated_filter_lzma)
+ {
+-	test_truncation("lzma", archive_write_add_filter_lzma, 0);
++	test_truncation("lzma", archive_write_add_filter_lzma, canLzma());
+ }
+ 
+ DEFINE_TEST(test_read_truncated_filter_lzop)
+@@ -169,5 +169,5 @@ DEFINE_TEST(test_read_truncated_filter_lzop)
+ 
+ DEFINE_TEST(test_read_truncated_filter_xz)
+ {
+-	test_truncation("xz", archive_write_add_filter_xz, 0);
++	test_truncation("xz", archive_write_add_filter_xz, canXz());
+ }
+diff --git a/test_utils/test_main.c b/test_utils/test_main.c
+index c1c03cda..48ae2628 100644
+--- a/test_utils/test_main.c
++++ b/test_utils/test_main.c
+@@ -2610,7 +2610,7 @@ canLzma(void)
+ 	static int tested = 0, value = 0;
+ 	if (!tested) {
+ 		tested = 1;
+-		if (systemf("lzma %s", redirectArgs) == 0)
++		if (systemf("lzma --help %s", redirectArgs) == 0)
+ 			value = 1;
+ 	}
+ 	return (value);

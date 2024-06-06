@@ -1,0 +1,35 @@
+commit 14af758a770c7781af18fb66d6d21ee5b1c27f04
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Wed Oct 5 20:57:16 2022 +0800
+
+    liblzma: Fix a compilation issue when encoders are disabled.
+    
+    When encoders were disabled and threading enabled, outqueue.c and
+    outqueue.h were not compiled. The multi threaded decoder required
+    these files, so compilation failed.
+
+diff --git a/src/liblzma/common/Makefile.inc b/src/liblzma/common/Makefile.inc
+index 8f0d84ec..78bc95bb 100644
+--- a/src/liblzma/common/Makefile.inc
++++ b/src/liblzma/common/Makefile.inc
+@@ -22,7 +22,10 @@ liblzma_la_SOURCES += \
+ 	common/vli_size.c
+ 
+ if COND_THREADS
+-liblzma_la_SOURCES += common/hardware_cputhreads.c
++liblzma_la_SOURCES += \
++	common/hardware_cputhreads.c \
++	common/outqueue.c \
++	common/outqueue.h
+ endif
+ 
+ if COND_MAIN_ENCODER
+@@ -50,8 +53,6 @@ liblzma_la_SOURCES += \
+ 
+ if COND_THREADS
+ liblzma_la_SOURCES += \
+-	common/outqueue.c \
+-	common/outqueue.h \
+ 	common/stream_encoder_mt.c
+ endif
+ endif

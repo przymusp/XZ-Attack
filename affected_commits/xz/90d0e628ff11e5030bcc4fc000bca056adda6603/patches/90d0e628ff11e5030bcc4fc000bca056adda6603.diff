@@ -1,0 +1,29 @@
+commit 90d0e628ff11e5030bcc4fc000bca056adda6603
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Fri Feb 10 21:38:02 2023 +0800
+
+    liblzma: Add comments for macros in delta.h.
+    
+    Document LZMA_DELTA_DIST_MIN and LZMA_DELTA_DIST_MAX for completeness
+    and to avoid Doxygen warnings.
+
+diff --git a/src/liblzma/api/lzma/delta.h b/src/liblzma/api/lzma/delta.h
+index 775647e1..8b8ae5c6 100644
+--- a/src/liblzma/api/lzma/delta.h
++++ b/src/liblzma/api/lzma/delta.h
+@@ -58,7 +58,15 @@ typedef struct {
+ 	 *  - 24-bit RGB image data: distance = 3 bytes
+ 	 */
+ 	uint32_t dist;
++
++	/**
++	 * \brief       Minimum value for the dist field in lzma_options_delta.
++	 */
+ #	define LZMA_DELTA_DIST_MIN 1
++
++	/** 
++	 * \brief       Maximum value for the dist field in lzma_options_delta.
++	 */
+ #	define LZMA_DELTA_DIST_MAX 256
+ 
+ 	/*

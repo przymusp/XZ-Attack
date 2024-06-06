@@ -1,0 +1,18 @@
+commit 78ccd93951f9e988d447bcdd70b24f6df5448d1d
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Thu Apr 20 20:15:00 2023 +0800
+
+    Update THANKS.
+
+diff --git a/THANKS b/THANKS
+index fcd1e698..cad65242 100644
+--- a/THANKS
++++ b/THANKS
+@@ -68,6 +68,7 @@ has been important. :-) In alphabetical order:
+   - Iouri Kharon
+   - Thomas Klausner
+   - Richard Koch
++  - Anton Kochkov
+   - Ville Koskinen
+   - Marcin Kowalczyk
+   - Jan Kratochvil

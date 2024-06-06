@@ -1,0 +1,18 @@
+commit 785e4121d9b2921ad36bd3af1cf61fa20a9265bd
+Author: Jia Tan <jiat0218@gmail.com>
+Date:   Mon Jul 24 23:11:45 2023 +0800
+
+    CI: Add Clang64 MSYS2 environment to Windows CI.
+
+diff --git a/.github/workflows/windows-ci.yml b/.github/workflows/windows-ci.yml
+index a8805dc5..1b018479 100644
+--- a/.github/workflows/windows-ci.yml
++++ b/.github/workflows/windows-ci.yml
+@@ -24,6 +24,7 @@ jobs:
+           - mingw64
+           - mingw32
+           - ucrt64
++          - clang64
+           - msys
+ 
+     # Set the shell to be msys2 as a default to avoid setting it for

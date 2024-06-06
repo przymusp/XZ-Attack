@@ -1,0 +1,3 @@
+[submodule "data_repositories/jiat75-logs"]
+	path = data_repositories/jiat75-logs
+	url = https://github.com/ryjones/jiat75-logs

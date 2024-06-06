@@ -1,3 +1,33 @@
 [submodule "data_repositories/jiat75-logs"]
 	path = data_repositories/jiat75-logs
 	url = https://github.com/ryjones/jiat75-logs
+[submodule "affected_repositories/.github"]
+	path = affected_repositories/.github
+	url = git@github.com:Tukaani-Project/.github
+[submodule "affected_repositories/oss-fuzz"]
+	path = affected_repositories/oss-fuzz
+	url = git@github.com:JiaT75/oss-fuzz
+[submodule "affected_repositories/xz"]
+	path = affected_repositories/xz
+	url = git@github.com:tukaani-project/xz
+[submodule "affected_repositories/seatest"]
+	path = affected_repositories/seatest
+	url = git@github.com:JiaT75/seatest
+[submodule "affected_repositories/wasmtime"]
+	path = affected_repositories/wasmtime
+	url = git@github.com:JiaT75/wasmtime
+[submodule "affected_repositories/xz-java"]
+	path = affected_repositories/xz-java
+	url = git@github.com:tukaani-project/xz-java
+[submodule "affected_repositories/libarchive"]
+	path = affected_repositories/libarchive
+	url = git@github.com:JiaT75/libarchive
+[submodule "affected_repositories/xz-embedded"]
+	path = affected_repositories/xz-embedded
+	url = git@github.com:tukaani-project/xz-embedded
+[submodule "affected_repositories/STest"]
+	path = affected_repositories/STest
+	url = git@github.com:JiaT75/STest
+[submodule "affected_repositories/cpp-docs"]
+	path = affected_repositories/cpp-docs
+	url = git@github.com:JiaT75/cpp-docs

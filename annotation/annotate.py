@@ -17,12 +17,50 @@ from languages import Languages
 from lexer import Lexer
 
 from pygments.token import Token
-from collections import Counter
+from collections import Counter, deque
 
 LANGUAGES = Languages()
 LEXER = Lexer()
 
 global_hunk_counter = Counter()
+
+def map_code_to_tokens(code, tokens):
+    tokens = deque(tokens)
+    idx_code = [i+1 for i, ltr in enumerate(code) if ltr == "\n"]
+    lines = defaultdict(list)
+    for no, idx in enumerate(idx_code):
+        while tokens:
+            token = tokens.popleft()
+            if token[0] < idx:
+                lines[no].append(token)
+            else:
+                tokens.appendleft(token)
+                break
+
+    return lines
+
+def fill_gaps_with_previous_value(d):
+    if not d:
+        return {}
+    
+    # Find the minimum and maximum keys
+    min_key = min(d.keys())
+    max_key = max(d.keys())
+
+    # Create a new dictionary to store the result
+    filled_dict = {}
+
+    # Initialize the previous value
+    previous_value = None
+
+    # Iterate through the range of keys
+    for key in range(min_key, max_key + 1):
+        if key in d:
+            previous_value = d[key]
+        filled_dict[key] = previous_value
+
+    return filled_dict
+
 
 
 def deep_update(d, u):
@@ -33,17 +71,10 @@ def deep_update(d, u):
             d[k].extend(v)
     return d
 
+
 class AnnotateHunk(object):
 
     def __init__(self, patch_file, hunk):
-        """TODO: Docstring for __init__.
-
-        :patch: TODO
-        :file: TODO
-        :line: TODO
-        :returns: TODO
-
-        """
         self.patch_file = patch_file
         self.hunk = hunk
 
@@ -62,48 +93,43 @@ class AnnotateHunk(object):
 
         purpose = self.patch_file.patch[fout]["purpose"]
 
-        # if purpose in "documentation":
-        #     return Counter({'documentation':len([l for l in hunk])})
 
-        changes_types = []
-        changes_lines = []
+        changes_types = {}
+        changes_lines = {}
+
         for i,l in enumerate(hunk):
-            changes_types.append(l.line_type)
-            changes_lines.append(l.value)
-            if purpose in "documentation":
-                line_annotation = purpose
-                ret = {'id':i, 'type': line_annotation, 'purpose': purpose}
-                if changes_types[i] == LINE_TYPE_ADDED:
-                    self.patch[ftarget]["+"].append(ret)
-                elif  changes_types[i] == LINE_TYPE_REMOVED:
-                    self.patch[fsource]["-"].append(ret)
+            if l.line_type in["+", "-"]:
+                changes_types[i] = l.line_type
+                changes_lines[i] = l.value
 
-        source = "".join(changes_lines)
+                if purpose == "documentation":
+                    line_annotation = purpose
+                    self.add_annotation(i, ftarget, fsource, changes_types[i], line_annotation, purpose)
+
+        if purpose == "documentation":
+            return self.patch
+
+        source = ''.join(str(line) for line in hunk)
 
         tokens_list = LEXER.lex(fout, source)
-       
-        lines = [[]]
-        # ret = Counter()
-        i = 0
-        for token in tokens_list:
-            lines[-1].append(token)
-            if token[1] == '\n':
-                if changes_types[i] in [LINE_TYPE_ADDED, LINE_TYPE_REMOVED]:
-                    line_annotation = 'documentation' if is_comment(lines[-1]) else 'code'
 
-                    ret = {'id':i, 'type': line_annotation, 'purpose': purpose}
 
-                    if changes_types[i] == LINE_TYPE_ADDED:
-                        self.patch[ftarget]["+"].append(ret)
-                    else:
-                        self.patch[fsource]["-"].append(ret)
+        lines = fill_gaps_with_previous_value(map_code_to_tokens(source, tokens_list))
 
-                    # ret['documentation' if is_comment(lines[-1]) else 'code']+=1
-                lines.append([])
-                i += 1
-
+        for i, line in changes_lines.items():
+            line_annotation = 'documentation' if is_comment(lines[i]) else 'code'
+            self.add_annotation(i, ftarget, fsource, changes_types[i], line_annotation, purpose)
         return self.patch
-        # return Counter(ret)
+
+    def add_annotation(self, line_no, ftarget, fsource, change_type, line_annotation, purpose):
+        ret = {'id' : line_no, 
+               'type': line_annotation, 
+               'purpose': purpose}
+
+        if change_type == LINE_TYPE_ADDED:
+            self.patch[ftarget]["+"].append(ret)
+        elif  change_type == LINE_TYPE_REMOVED:
+            self.patch[fsource]["-"].append(ret)
 
 
 def is_comment(tokens_list):
@@ -113,19 +139,15 @@ def is_comment(tokens_list):
     condition = True
 
     for t in tl:
-        if t[0] in Token.Comment:
+        if t[1] in Token.Comment:
             result = True
-        elif t[0] in Token.Text and t[1].isspace():
+        elif t[1] in Token.Text and t[2].isspace():
             # white space in line is also ok
             result = True
             # pass
         else:
             # other tokens
             condition = False
-
-    # Debug
-    # if result and not condition:
-    #     print(self.line.value, end="")
 
     if result and condition:
         return True

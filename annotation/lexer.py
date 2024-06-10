@@ -36,4 +36,4 @@ class Lexer(object):
             print("Error in lex: no lexer selected")
             return []
 
-        return list(pygments.lex(code, lexer))
+        return list(lexer.get_tokens_unprocessed(code))

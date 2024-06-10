@@ -109,7 +109,7 @@ class AnnotateHunk(object):
         if purpose == "documentation":
             return self.patch
 
-        source = ''.join(str(line) for line in hunk)
+        source = ''.join(str(line.value) for line in hunk)
 
         tokens_list = LEXER.lex(fout, source)
 

@@ -8,7 +8,7 @@ diff --git a/po4a/de.po b/po4a/de.po
 index 13fe347d..69396f70 100644
 --- a/po4a/de.po
 +++ b/po4a/de.po
-@@ -1,13 +1,15 @@
+@@ -1,3836 +1,3886 @@
 -# XZ Utils man pages German translation
 -# This file is put in the public domain.
 +# SPDX-License-Identifier: 0BSD
@@ -29,7 +29,8 @@ index 13fe347d..69396f70 100644
  "Last-Translator: Mario Blättermann <mario.blaettermann@gmail.com>\n"
  "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
  "Language: de\n"
-@@ -16,2896 +18,2902 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
  "Content-Transfer-Encoding: 8bit\n"
  "X-Bugs: Report translation errors to the Language-Team address.\n"
  "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -3515,7 +3516,9 @@ index 13fe347d..69396f70 100644
  #, no-wrap
  msgid ""
  "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
-@@ -2915,285 +2923,285 @@ msgstr ""
+ "export XZ_OPT>\n"
+ msgstr ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
  "export XZ_OPT>\n"
  
  #. type: SH
@@ -3852,7 +3855,9 @@ index 13fe347d..69396f70 100644
  #, no-wrap
  msgid ""
  "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
-@@ -3203,39 +3211,39 @@ msgstr ""
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
+ msgstr ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
  "    | xargs -0r -P4 -n16 xz -T1>\n"
  
  #. type: Plain text
@@ -3899,7 +3904,15 @@ index 13fe347d..69396f70 100644
  #, no-wrap
  msgid ""
  "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
-@@ -3251,12 +3259,12 @@ msgstr ""
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
+ msgstr ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Ihre Version von Xz ist zu alt.\"\n"
+ "fi\n"
  "unset XZ_VERSION LIBLZMA_VERSION>\n"
  
  #. type: Plain text
@@ -3914,7 +3927,17 @@ index 13fe347d..69396f70 100644
  #, no-wrap
  msgid ""
  "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
-@@ -3274,563 +3282,605 @@ msgstr ""
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
+ "fi>\n"
+ msgstr ""
+ "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
  "fi>\n"
  
  #. type: Plain text

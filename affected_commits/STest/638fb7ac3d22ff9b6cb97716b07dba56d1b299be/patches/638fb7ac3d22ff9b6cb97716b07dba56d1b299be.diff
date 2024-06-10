@@ -8,7 +8,7 @@ diff --git a/tests/stests.c b/tests/stests.c
 index 4e54e0a..d5a8b52 100644
 --- a/tests/stests.c
 +++ b/tests/stests.c
-@@ -1,15 +1,14 @@
+@@ -1,160 +1,147 @@
 -/* 
 +/*
   * Copyright (c) 2021 Jia Tan
@@ -30,7 +30,8 @@ index 4e54e0a..d5a8b52 100644
  
    assert_test_passes(assert_n_array_equal(array_1, array_1, 4));
    assert_test_passes(assert_n_array_equal(array_1, array_3, 4));
-@@ -18,8 +17,7 @@ void test_assert_n_array_equal()
+   assert_test_passes(assert_n_array_equal(array_1, array_2, 3));
+   assert_test_fails(assert_n_array_equal(array_1, array_2, 4));
    assert_test_fails(assert_n_array_equal(array_1, array_2, 0));
  }
  
@@ -40,7 +41,10 @@ index 4e54e0a..d5a8b52 100644
    assert_test_passes(assert_string_equal((char *)0, (char *)0));
    assert_test_passes(assert_string_equal("", ""));
    assert_test_passes(assert_string_equal("foo", "foo"));
-@@ -30,66 +28,60 @@ void test_assert_string_equal()
+   assert_test_fails(assert_string_equal((char *)0, "bar"));
+   assert_test_fails(assert_string_equal("foo", (char *)0));
+   assert_test_fails(assert_string_equal("foo", "bar"));
+   assert_test_fails(assert_string_equal("foo", "Foo"));
    assert_test_fails(assert_string_equal("foo", "foo\n"));
  }
  
@@ -123,7 +127,10 @@ index 4e54e0a..d5a8b52 100644
    const double delta = 0.001;
    assert_test_passes(assert_double_equal(1.0, 1.0, delta));
    assert_test_fails(assert_double_equal(1.0, 2.0, delta));
-@@ -100,38 +92,37 @@ void test_assert_double_equal(){
+   double d1 = 1.5;
+   double d2 = 2.5;
+   assert_test_passes(assert_double_equal(d2 - 1, d1, delta));
+   assert_test_passes(assert_double_equal(d1 + 1, d2, delta));
    assert_test_fails(assert_double_equal(d1, d2, delta));
  }
  
@@ -177,7 +184,14 @@ index 4e54e0a..d5a8b52 100644
    run_test(test_assert_false);
    run_test(test_assert_int_equal);
    run_test(test_assert_ulong_equal);
-@@ -146,15 +137,11 @@ void test_fixture_stest(void)
+   run_test(test_assert_string_equal);
+   run_test(test_assert_n_array_equal);
+   run_test(test_assert_fail);
+   run_test(test_assert_bit_set);
+   run_test(test_assert_bit_not_set);
+   run_test(test_assert_bit_mask_matches);
+   run_test(test_assert_double_equal);
+   run_test(test_assert_string_contains);
    run_test(test_assert_string_not_contains);
    run_test(test_assert_string_starts_with);
    run_test(test_assert_string_ends_with);
@@ -200,7 +214,7 @@ diff --git a/tests/stests.h b/tests/stests.h
 index 13bff1a..4ae1b43 100644
 --- a/tests/stests.h
 +++ b/tests/stests.h
-@@ -1,7 +1,7 @@
+@@ -1,25 +1,26 @@
 -/* 
 +/*
   * Copyright (c) 2021 Jia Tan
@@ -210,7 +224,7 @@ index 13bff1a..4ae1b43 100644
  
  #include "../src/stest.h"
  
-@@ -9,9 +9,11 @@
+ #ifndef STEST_INTERNAL_TESTS
  #error STEST_INTERNAL_TESTS must be defined when compiling tests for stest itself.
  #endif
  
@@ -222,7 +236,10 @@ index 13bff1a..4ae1b43 100644
  
  void test_assert_true(void);
  void test_assert_false(void);
-@@ -22,4 +24,3 @@ void test_assert_n_array_equal(void);
+ void test_assert_int_equal(void);
+ void test_assert_ulong_equal(void);
+ void test_assert_string_equal(void);
+ void test_assert_n_array_equal(void);
  
  void test_fixture_stest(void);
  void all_tests(void);

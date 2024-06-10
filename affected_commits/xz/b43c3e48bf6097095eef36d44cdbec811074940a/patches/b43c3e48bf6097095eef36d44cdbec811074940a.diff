@@ -8,7 +8,29 @@ diff --git a/src/liblzma/api/lzma/version.h b/src/liblzma/api/lzma/version.h
 index 9883242a..6503a0cb 100644
 --- a/src/liblzma/api/lzma/version.h
 +++ b/src/liblzma/api/lzma/version.h
-@@ -23,7 +23,7 @@
+@@ -1,135 +1,135 @@
+ /**
+  * \file        lzma/version.h
+  * \brief       Version number
+  * \note        Never include this file directly. Use <lzma.h> instead.
+  */
+ 
+ /*
+  * Author: Lasse Collin
+  *
+  * This file has been put into the public domain.
+  * You can do whatever you want with this file.
+  */
+ 
+ #ifndef LZMA_H_INTERNAL
+ #	error Never include this file directly. Use <lzma.h> instead.
+ #endif
+ 
+ 
+ /** \brief Major version number of the liblzma release. */
+ #define LZMA_VERSION_MAJOR 5
+ 
+ /** \brief Minor version number of the liblzma release. */
  #define LZMA_VERSION_MINOR 5
  
  /** \brief Patch version number of the liblzma release. */
@@ -17,11 +39,236 @@ index 9883242a..6503a0cb 100644
  
  /**
   * \brief Version stability marker
+  *
+  * This will always be one of three values:
+  *   - LZMA_VERSION_STABILITY_ALPHA
+  *   - LZMA_VERSION_STABILITY_BETA
+  *   - LZMA_VERSION_STABILITY_STABLE
+  */
+ #define LZMA_VERSION_STABILITY LZMA_VERSION_STABILITY_ALPHA
+ 
+ /** \brief Commit version number of the liblzma release */
+ #ifndef LZMA_VERSION_COMMIT
+ #	define LZMA_VERSION_COMMIT ""
+ #endif
+ 
+ 
+ /*
+  * Map symbolic stability levels to integers.
+  */
+ #define LZMA_VERSION_STABILITY_ALPHA 0
+ #define LZMA_VERSION_STABILITY_BETA 1
+ #define LZMA_VERSION_STABILITY_STABLE 2
+ 
+ 
+ /**
+  * \brief       Compile-time version number
+  *
+  * The version number is of format xyyyzzzs where
+  *  - x = major
+  *  - yyy = minor
+  *  - zzz = revision
+  *  - s indicates stability: 0 = alpha, 1 = beta, 2 = stable
+  *
+  * The same xyyyzzz triplet is never reused with different stability levels.
+  * For example, if 5.1.0alpha has been released, there will never be 5.1.0beta
+  * or 5.1.0 stable.
+  *
+  * \note        The version number of liblzma has nothing to with
+  *              the version number of Igor Pavlov's LZMA SDK.
+  */
+ #define LZMA_VERSION (LZMA_VERSION_MAJOR * UINT32_C(10000000) \
+ 		+ LZMA_VERSION_MINOR * UINT32_C(10000) \
+ 		+ LZMA_VERSION_PATCH * UINT32_C(10) \
+ 		+ LZMA_VERSION_STABILITY)
+ 
+ 
+ /*
+  * Macros to construct the compile-time version string
+  */
+ #if LZMA_VERSION_STABILITY == LZMA_VERSION_STABILITY_ALPHA
+ #	define LZMA_VERSION_STABILITY_STRING "alpha"
+ #elif LZMA_VERSION_STABILITY == LZMA_VERSION_STABILITY_BETA
+ #	define LZMA_VERSION_STABILITY_STRING "beta"
+ #elif LZMA_VERSION_STABILITY == LZMA_VERSION_STABILITY_STABLE
+ #	define LZMA_VERSION_STABILITY_STRING ""
+ #else
+ #	error Incorrect LZMA_VERSION_STABILITY
+ #endif
+ 
+ #define LZMA_VERSION_STRING_C_(major, minor, patch, stability, commit) \
+ 		#major "." #minor "." #patch stability commit
+ 
+ #define LZMA_VERSION_STRING_C(major, minor, patch, stability, commit) \
+ 		LZMA_VERSION_STRING_C_(major, minor, patch, stability, commit)
+ 
+ 
+ /**
+  * \brief       Compile-time version as a string
+  *
+  * This can be for example "4.999.5alpha", "4.999.8beta", or "5.0.0" (stable
+  * versions don't have any "stable" suffix). In future, a snapshot built
+  * from source code repository may include an additional suffix, for example
+  * "4.999.8beta-21-g1d92". The commit ID won't be available in numeric form
+  * in LZMA_VERSION macro.
+  */
+ #define LZMA_VERSION_STRING LZMA_VERSION_STRING_C( \
+ 		LZMA_VERSION_MAJOR, LZMA_VERSION_MINOR, \
+ 		LZMA_VERSION_PATCH, LZMA_VERSION_STABILITY_STRING, \
+ 		LZMA_VERSION_COMMIT)
+ 
+ 
+ /* #ifndef is needed for use with windres (MinGW-w64 or Cygwin). */
+ #ifndef LZMA_H_INTERNAL_RC
+ 
+ /**
+  * \brief       Run-time version number as an integer
+  *
+  * This allows an application to compare if it was built against the same,
+  * older, or newer version of liblzma that is currently running.
+  *
+  * \return The value of LZMA_VERSION macro at the compile time of liblzma
+  */
+ extern LZMA_API(uint32_t) lzma_version_number(void)
+ 		lzma_nothrow lzma_attr_const;
+ 
+ 
+ /**
+  * \brief       Run-time version as a string
+  *
+  * This function may be useful to display which version of liblzma an
+  * application is currently using.
+  *
+  * \return      Run-time version of liblzma
+  */
+ extern LZMA_API(const char *) lzma_version_string(void)
+ 		lzma_nothrow lzma_attr_const;
+ 
+ #endif
 diff --git a/src/liblzma/liblzma_generic.map b/src/liblzma/liblzma_generic.map
 index b251d366..670e90c5 100644
 --- a/src/liblzma/liblzma_generic.map
 +++ b/src/liblzma/liblzma_generic.map
-@@ -120,7 +120,7 @@ global:
+@@ -1,126 +1,126 @@
+ XZ_5.0 {
+ global:
+ 	lzma_alone_decoder;
+ 	lzma_alone_encoder;
+ 	lzma_auto_decoder;
+ 	lzma_block_buffer_bound;
+ 	lzma_block_buffer_decode;
+ 	lzma_block_buffer_encode;
+ 	lzma_block_compressed_size;
+ 	lzma_block_decoder;
+ 	lzma_block_encoder;
+ 	lzma_block_header_decode;
+ 	lzma_block_header_encode;
+ 	lzma_block_header_size;
+ 	lzma_block_total_size;
+ 	lzma_block_unpadded_size;
+ 	lzma_check_is_supported;
+ 	lzma_check_size;
+ 	lzma_code;
+ 	lzma_crc32;
+ 	lzma_crc64;
+ 	lzma_easy_buffer_encode;
+ 	lzma_easy_decoder_memusage;
+ 	lzma_easy_encoder;
+ 	lzma_easy_encoder_memusage;
+ 	lzma_end;
+ 	lzma_filter_decoder_is_supported;
+ 	lzma_filter_encoder_is_supported;
+ 	lzma_filter_flags_decode;
+ 	lzma_filter_flags_encode;
+ 	lzma_filter_flags_size;
+ 	lzma_filters_copy;
+ 	lzma_filters_update;
+ 	lzma_get_check;
+ 	lzma_index_append;
+ 	lzma_index_block_count;
+ 	lzma_index_buffer_decode;
+ 	lzma_index_buffer_encode;
+ 	lzma_index_cat;
+ 	lzma_index_checks;
+ 	lzma_index_decoder;
+ 	lzma_index_dup;
+ 	lzma_index_encoder;
+ 	lzma_index_end;
+ 	lzma_index_file_size;
+ 	lzma_index_hash_append;
+ 	lzma_index_hash_decode;
+ 	lzma_index_hash_end;
+ 	lzma_index_hash_init;
+ 	lzma_index_hash_size;
+ 	lzma_index_init;
+ 	lzma_index_iter_init;
+ 	lzma_index_iter_locate;
+ 	lzma_index_iter_next;
+ 	lzma_index_iter_rewind;
+ 	lzma_index_memusage;
+ 	lzma_index_memused;
+ 	lzma_index_size;
+ 	lzma_index_stream_count;
+ 	lzma_index_stream_flags;
+ 	lzma_index_stream_padding;
+ 	lzma_index_stream_size;
+ 	lzma_index_total_size;
+ 	lzma_index_uncompressed_size;
+ 	lzma_lzma_preset;
+ 	lzma_memlimit_get;
+ 	lzma_memlimit_set;
+ 	lzma_memusage;
+ 	lzma_mf_is_supported;
+ 	lzma_mode_is_supported;
+ 	lzma_physmem;
+ 	lzma_properties_decode;
+ 	lzma_properties_encode;
+ 	lzma_properties_size;
+ 	lzma_raw_buffer_decode;
+ 	lzma_raw_buffer_encode;
+ 	lzma_raw_decoder;
+ 	lzma_raw_decoder_memusage;
+ 	lzma_raw_encoder;
+ 	lzma_raw_encoder_memusage;
+ 	lzma_stream_buffer_bound;
+ 	lzma_stream_buffer_decode;
+ 	lzma_stream_buffer_encode;
+ 	lzma_stream_decoder;
+ 	lzma_stream_encoder;
+ 	lzma_stream_flags_compare;
+ 	lzma_stream_footer_decode;
+ 	lzma_stream_footer_encode;
+ 	lzma_stream_header_decode;
+ 	lzma_stream_header_encode;
+ 	lzma_version_number;
+ 	lzma_version_string;
+ 	lzma_vli_decode;
+ 	lzma_vli_encode;
+ 	lzma_vli_size;
+ 
+ local:
+ 	*;
+ };
+ 
+ XZ_5.2 {
+ global:
+ 	lzma_block_uncomp_encode;
+ 	lzma_cputhreads;
+ 	lzma_get_progress;
+ 	lzma_stream_encoder_mt;
+ 	lzma_stream_encoder_mt_memusage;
+ } XZ_5.0;
+ 
+ XZ_5.4 {
+ global:
+ 	lzma_file_info_decoder;
+ 	lzma_filters_free;
+ 	lzma_lzip_decoder;
+ 	lzma_microlzma_decoder;
+ 	lzma_microlzma_encoder;
+ 	lzma_stream_decoder_mt;
+ 	lzma_str_from_filters;
+ 	lzma_str_list_filters;
  	lzma_str_to_filters;
  } XZ_5.2;
  
@@ -34,7 +281,141 @@ diff --git a/src/liblzma/liblzma_linux.map b/src/liblzma/liblzma_linux.map
 index 25b39388..37cb835d 100644
 --- a/src/liblzma/liblzma_linux.map
 +++ b/src/liblzma/liblzma_linux.map
-@@ -135,7 +135,7 @@ global:
+@@ -1,141 +1,141 @@
+ XZ_5.0 {
+ global:
+ 	lzma_alone_decoder;
+ 	lzma_alone_encoder;
+ 	lzma_auto_decoder;
+ 	lzma_block_buffer_bound;
+ 	lzma_block_buffer_decode;
+ 	lzma_block_buffer_encode;
+ 	lzma_block_compressed_size;
+ 	lzma_block_decoder;
+ 	lzma_block_encoder;
+ 	lzma_block_header_decode;
+ 	lzma_block_header_encode;
+ 	lzma_block_header_size;
+ 	lzma_block_total_size;
+ 	lzma_block_unpadded_size;
+ 	lzma_check_is_supported;
+ 	lzma_check_size;
+ 	lzma_code;
+ 	lzma_crc32;
+ 	lzma_crc64;
+ 	lzma_easy_buffer_encode;
+ 	lzma_easy_decoder_memusage;
+ 	lzma_easy_encoder;
+ 	lzma_easy_encoder_memusage;
+ 	lzma_end;
+ 	lzma_filter_decoder_is_supported;
+ 	lzma_filter_encoder_is_supported;
+ 	lzma_filter_flags_decode;
+ 	lzma_filter_flags_encode;
+ 	lzma_filter_flags_size;
+ 	lzma_filters_copy;
+ 	lzma_filters_update;
+ 	lzma_get_check;
+ 	lzma_index_append;
+ 	lzma_index_block_count;
+ 	lzma_index_buffer_decode;
+ 	lzma_index_buffer_encode;
+ 	lzma_index_cat;
+ 	lzma_index_checks;
+ 	lzma_index_decoder;
+ 	lzma_index_dup;
+ 	lzma_index_encoder;
+ 	lzma_index_end;
+ 	lzma_index_file_size;
+ 	lzma_index_hash_append;
+ 	lzma_index_hash_decode;
+ 	lzma_index_hash_end;
+ 	lzma_index_hash_init;
+ 	lzma_index_hash_size;
+ 	lzma_index_init;
+ 	lzma_index_iter_init;
+ 	lzma_index_iter_locate;
+ 	lzma_index_iter_next;
+ 	lzma_index_iter_rewind;
+ 	lzma_index_memusage;
+ 	lzma_index_memused;
+ 	lzma_index_size;
+ 	lzma_index_stream_count;
+ 	lzma_index_stream_flags;
+ 	lzma_index_stream_padding;
+ 	lzma_index_stream_size;
+ 	lzma_index_total_size;
+ 	lzma_index_uncompressed_size;
+ 	lzma_lzma_preset;
+ 	lzma_memlimit_get;
+ 	lzma_memlimit_set;
+ 	lzma_memusage;
+ 	lzma_mf_is_supported;
+ 	lzma_mode_is_supported;
+ 	lzma_physmem;
+ 	lzma_properties_decode;
+ 	lzma_properties_encode;
+ 	lzma_properties_size;
+ 	lzma_raw_buffer_decode;
+ 	lzma_raw_buffer_encode;
+ 	lzma_raw_decoder;
+ 	lzma_raw_decoder_memusage;
+ 	lzma_raw_encoder;
+ 	lzma_raw_encoder_memusage;
+ 	lzma_stream_buffer_bound;
+ 	lzma_stream_buffer_decode;
+ 	lzma_stream_buffer_encode;
+ 	lzma_stream_decoder;
+ 	lzma_stream_encoder;
+ 	lzma_stream_flags_compare;
+ 	lzma_stream_footer_decode;
+ 	lzma_stream_footer_encode;
+ 	lzma_stream_header_decode;
+ 	lzma_stream_header_encode;
+ 	lzma_version_number;
+ 	lzma_version_string;
+ 	lzma_vli_decode;
+ 	lzma_vli_encode;
+ 	lzma_vli_size;
+ 
+ local:
+ 	*;
+ };
+ 
+ XZ_5.2 {
+ global:
+ 	lzma_block_uncomp_encode;
+ 	lzma_cputhreads;
+ 	lzma_get_progress;
+ 	lzma_stream_encoder_mt;
+ 	lzma_stream_encoder_mt_memusage;
+ } XZ_5.0;
+ 
+ XZ_5.1.2alpha {
+ global:
+ 	lzma_stream_encoder_mt;
+ 	lzma_stream_encoder_mt_memusage;
+ } XZ_5.0;
+ 
+ XZ_5.2.2 {
+ global:
+ 	lzma_block_uncomp_encode;
+ 	lzma_cputhreads;
+ 	lzma_get_progress;
+ 	lzma_stream_encoder_mt;
+ 	lzma_stream_encoder_mt_memusage;
+ } XZ_5.1.2alpha;
+ 
+ XZ_5.4 {
+ global:
+ 	lzma_file_info_decoder;
+ 	lzma_filters_free;
+ 	lzma_lzip_decoder;
+ 	lzma_microlzma_decoder;
+ 	lzma_microlzma_encoder;
+ 	lzma_stream_decoder_mt;
+ 	lzma_str_from_filters;
+ 	lzma_str_list_filters;
  	lzma_str_to_filters;
  } XZ_5.2;
  

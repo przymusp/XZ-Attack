@@ -1,0 +1,1 @@
+{"src/liblzma/check/crc_clmul.c": {"language": "C", "type": "programming", "purpose": "programming", "+": [{"id": 67, "type": "code", "purpose": "programming"}], "-": [{"id": 66, "type": "code", "purpose": "programming"}]}}

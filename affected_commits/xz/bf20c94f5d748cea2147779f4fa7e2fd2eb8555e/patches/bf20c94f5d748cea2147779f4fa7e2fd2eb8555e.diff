@@ -8,7 +8,7 @@ diff --git a/po4a/ro.po b/po4a/ro.po
 index ea9b1e10..9ad5e00f 100644
 --- a/po4a/ro.po
 +++ b/po4a/ro.po
-@@ -1,20 +1,21 @@
+@@ -1,3697 +1,3870 @@
  # Mesajele în limba română pentru pachetul xz-man.
  # This file is put in the public domain.
  #
@@ -34,7 +34,19 @@ index ea9b1e10..9ad5e00f 100644
  "Last-Translator: Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>\n"
  "Language-Team: Romanian <translation-team-ro@lists.sourceforge.net>\n"
  "Language: ro\n"
-@@ -34,8 +35,8 @@ msgstr "XZ"
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ "Plural-Forms: plural=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+ "X-Bugs: Report translation errors to the Language-Team address.\n"
+ "X-Generator: Poedit 3.2.2\n"
+ 
+ #. type: TH
+ #: ../src/xz/xz.1:9
+ #, no-wrap
+ msgid "XZ"
+ msgstr "XZ"
+ 
  #. type: TH
  #: ../src/xz/xz.1:9
  #, no-wrap
@@ -45,7 +57,90 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TH
  #: ../src/xz/xz.1:9 ../src/xzdec/xzdec.1:7 ../src/lzmainfo/lzmainfo.1:7
-@@ -126,12 +127,12 @@ msgstr "DESCRIERE"
+ #: ../src/scripts/xzdiff.1:9 ../src/scripts/xzgrep.1:9
+ #: ../src/scripts/xzless.1:10 ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "Tukaani"
+ msgstr "Tukaani"
+ 
+ #. type: TH
+ #: ../src/xz/xz.1:9 ../src/xzdec/xzdec.1:7 ../src/lzmainfo/lzmainfo.1:7
+ #: ../src/scripts/xzdiff.1:9 ../src/scripts/xzgrep.1:9
+ #: ../src/scripts/xzless.1:10 ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "XZ Utils"
+ msgstr "Utilități XZ"
+ 
+ #. type: SH
+ #: ../src/xz/xz.1:11 ../src/xzdec/xzdec.1:8 ../src/lzmainfo/lzmainfo.1:8
+ #: ../src/scripts/xzdiff.1:10 ../src/scripts/xzgrep.1:10
+ #: ../src/scripts/xzless.1:11 ../src/scripts/xzmore.1:8
+ #, no-wrap
+ msgid "NAME"
+ msgstr "NUME"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:13
+ msgid "xz, unxz, xzcat, lzma, unlzma, lzcat - Compress or decompress .xz and .lzma files"
+ msgstr "xz, unxz, xzcat, lzma, unlzma, lzcat - Comprimă sau decomprimă fișiere .xz și .lzma"
+ 
+ #. type: SH
+ #: ../src/xz/xz.1:14 ../src/xzdec/xzdec.1:10 ../src/lzmainfo/lzmainfo.1:10
+ #: ../src/scripts/xzdiff.1:12 ../src/scripts/xzgrep.1:12
+ #: ../src/scripts/xzless.1:13 ../src/scripts/xzmore.1:10
+ #, no-wrap
+ msgid "SYNOPSIS"
+ msgstr "REZUMAT"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:18
+ msgid "B<xz> [I<option...>] [I<file...>]"
+ msgstr "B<xz> [I<opțiune...>] [I<fișier...>]"
+ 
+ #. type: SH
+ #: ../src/xz/xz.1:19
+ #, no-wrap
+ msgid "COMMAND ALIASES"
+ msgstr "ALIAS COMENZI"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:23
+ msgid "B<unxz> is equivalent to B<xz --decompress>."
+ msgstr "B<unxz> este echivalent cu B<xz --decompress>."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:27
+ msgid "B<xzcat> is equivalent to B<xz --decompress --stdout>."
+ msgstr "B<xzcat> este echivalent cu B<xz --decompress --stdout>."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:31
+ msgid "B<lzma> is equivalent to B<xz --format=lzma>."
+ msgstr "B<lzma> este echivalent cu B<xz --format=lzma>."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:35
+ msgid "B<unlzma> is equivalent to B<xz --format=lzma --decompress>."
+ msgstr "B<unlzma> este echivalent cu B<xz --format=lzma --decompress>."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:39
+ msgid "B<lzcat> is equivalent to B<xz --format=lzma --decompress --stdout>."
+ msgstr "B<lzcat> este echivalent cu B<xz --format=lzma --decompress --stdout>."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:51
+ msgid "When writing scripts that need to decompress files, it is recommended to always use the name B<xz> with appropriate arguments (B<xz -d> or B<xz -dc>)  instead of the names B<unxz> and B<xzcat>."
+ msgstr "Când scrieți scripturi care trebuie să decomprime fișiere, este recomandat să folosiți întotdeauna comanda B<xz> cu argumentele adecvate (B<xz -d> sau B<xz -dc>) în loc de comenzile B<unxz> și B<xzcat>."
+ 
+ #. type: SH
+ #: ../src/xz/xz.1:52 ../src/xzdec/xzdec.1:18 ../src/lzmainfo/lzmainfo.1:15
+ #: ../src/scripts/xzdiff.1:24 ../src/scripts/xzgrep.1:33
+ #: ../src/scripts/xzless.1:19 ../src/scripts/xzmore.1:16
+ #, no-wrap
+ msgid "DESCRIPTION"
+ msgstr "DESCRIERE"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:71
  msgid "B<xz> is a general-purpose data compression tool with command line syntax similar to B<gzip>(1)  and B<bzip2>(1).  The native file format is the B<.xz> format, but the legacy B<.lzma> format used by LZMA Utils and raw compressed streams with no container format headers are also supported.  In addition, decompression of the B<.lz> format used by B<lzip> is supported."
@@ -60,7 +155,11 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:103
-@@ -143,10 +144,13 @@ msgstr "Cu excepția cazului în care este specificată opțiunea B<--stdout>, I
+ msgid "Unless B<--stdout> is specified, I<files> other than B<-> are written to a new file whose name is derived from the source I<file> name:"
+ msgstr "Cu excepția cazului în care este specificată opțiunea B<--stdout>, I<fișierele> altele decât B<-> sunt scrise într-un fișier nou al cărui nume este derivat din numele I<fișierului> sursă:"
+ 
+ #. type: IP
+ #: ../src/xz/xz.1:103 ../src/xz/xz.1:109 ../src/xz/xz.1:134 ../src/xz/xz.1:139
  #: ../src/xz/xz.1:142 ../src/xz/xz.1:145 ../src/xz/xz.1:161 ../src/xz/xz.1:422
  #: ../src/xz/xz.1:425 ../src/xz/xz.1:432 ../src/xz/xz.1:677 ../src/xz/xz.1:679
  #: ../src/xz/xz.1:778 ../src/xz/xz.1:789 ../src/xz/xz.1:798 ../src/xz/xz.1:806
@@ -78,7 +177,7 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "\\(bu"
  msgstr "\\(bu"
-@@ -154,12 +158,12 @@ msgstr "\\(bu"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:109
  msgid "When compressing, the suffix of the target file format (B<.xz> or B<.lzma>)  is appended to the source filename to get the target filename."
@@ -93,7 +192,14 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:128
-@@ -174,7 +178,7 @@ msgstr "Cu excepția cazului în care scrie la ieșirea standard, B<xz> va afiș
+ msgid "If the target file already exists, an error is displayed and the I<file> is skipped."
+ msgstr "Dacă fișierul țintă există deja, este afișată o eroare și I<fișier> este omis."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:134
+ msgid "Unless writing to standard output, B<xz> will display a warning and skip the I<file> if any of the following applies:"
+ msgstr "Cu excepția cazului în care scrie la ieșirea standard, B<xz> va afișa un avertisment și va omite I<fișier>ul dacă se aplică oricare dintre următoarele:"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:139
  msgid "I<File> is not a regular file.  Symbolic links are not followed, and thus they are not considered to be regular files."
@@ -102,7 +208,24 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:142
-@@ -199,17 +203,17 @@ msgstr "Modul de operare este stabilit la decomprimare și I<fișierul> nu are u
+ msgid "I<File> has more than one hard link."
+ msgstr "I<Fișierul> are mai mult de o legătură dură."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:145
+ msgid "I<File> has setuid, setgid, or sticky bit set."
+ msgstr "I<Fișierul> are activat bitul «setuid», «setgid» sau cel lipicios(sticky)."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:161
+ msgid "The operation mode is set to compress and the I<file> already has a suffix of the target file format (B<.xz> or B<.txz> when compressing to the B<.xz> format, and B<.lzma> or B<.tlz> when compressing to the B<.lzma> format)."
+ msgstr "Modul de operare este stabilit la comprimare și I<fișier> are deja un sufix al formatului de fișier țintă (B<.xz> sau B<.txz> când se comprimă în formatul B<.xz> și B<.lzma> sau B<.tlz> când se comprimă în formatul B<.lzma>)."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:171
+ msgid "The operation mode is set to decompress and the I<file> doesn't have a suffix of any of the supported file formats (B<.xz>, B<.txz>, B<.lzma>, B<.tlz>, or B<.lz>)."
+ msgstr "Modul de operare este stabilit la decomprimare și I<fișierul> nu are un sufix al niciunui format de fișier acceptat (B<.xz>, B<.txz>, B<.lzma>, B<.tlz>, sau B<.lz>)."
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:186
  msgid "After successfully compressing or decompressing the I<file>, B<xz> copies the owner, group, permissions, access time, and modification time from the source I<file> to the target file.  If copying the group fails, the permissions are modified so that the target file doesn't become accessible to users who didn't have permission to access the source I<file>.  B<xz> doesn't support copying other metadata like access control lists or extended attributes yet."
@@ -123,7 +246,16 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: SS
  #: ../src/xz/xz.1:209
-@@ -226,22 +230,22 @@ msgstr "Utilizarea memoriei"
+ #, no-wrap
+ msgid "Memory usage"
+ msgstr "Utilizarea memoriei"
+ 
+ # R-GC, scrie:
+ # nu am respectat forma de-a scrie procentele,
+ # ale autorilor: „5\ % to 20\ %”; pentru că noi
+ # folosim forma: „5\% la 20\%”; adică, ceea ce
+ # va vedea utilizatorul la afișarea acestui mesaj,
+ # va fi: „5% la 20%”, și nu: „5 % la 20 %”
  #. type: Plain text
  #: ../src/xz/xz.1:225
  msgid "The memory usage of B<xz> varies from a few hundred kilobytes to several gigabytes depending on the compression settings.  The settings used when compressing a file determine the memory requirements of the decompressor.  Typically the decompressor needs 5\\ % to 20\\ % of the amount of memory that the compressor needed when creating the file.  For example, decompressing a file created with B<xz -9> currently requires 65\\ MiB of memory.  Still, it is possible to have B<.xz> files that require several gigabytes of memory to decompress."
@@ -150,7 +282,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: SS
  #: ../src/xz/xz.1:279
-@@ -252,12 +256,12 @@ msgstr "Concatenare și completare (prin umplere cu octeți nuli) cu fișiere .x
+ #, no-wrap
+ msgid "Concatenation and padding with .xz files"
+ msgstr "Concatenare și completare (prin umplere cu octeți nuli) cu fișiere .xz"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:287
  msgid "It is possible to concatenate B<.xz> files as is.  B<xz> will decompress such files as if they were a single B<.xz> file."
@@ -165,7 +300,21 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:300
-@@ -279,7 +283,7 @@ msgstr "Sufixe de numere întregi și valori speciale"
+ msgid "Concatenation and padding are not allowed with B<.lzma> files or raw streams."
+ msgstr "Concatenarea și completarea nu sunt permise cu fișierele B<.lzma> sau fluxurile brute."
+ 
+ #. type: SH
+ #: ../src/xz/xz.1:301 ../src/xzdec/xzdec.1:61
+ #, no-wrap
+ msgid "OPTIONS"
+ msgstr "OPȚIUNI"
+ 
+ #. type: SS
+ #: ../src/xz/xz.1:303
+ #, no-wrap
+ msgid "Integer suffixes and special values"
+ msgstr "Sufixe de numere întregi și valori speciale"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:307
  msgid "In most places where an integer argument is expected, an optional suffix is supported to easily indicate large integers.  There must be no space between the integer and the suffix."
@@ -174,7 +323,21 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:307
-@@ -301,7 +305,7 @@ msgstr "B<MiB>"
+ #, no-wrap
+ msgid "B<KiB>"
+ msgstr "B<KiB>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:318
+ msgid "Multiply the integer by 1,024 (2^10).  B<Ki>, B<k>, B<kB>, B<K>, and B<KB> are accepted as synonyms for B<KiB>."
+ msgstr "Înmulțește numărul întreg cu 1.024 (2^10).  B<Ki>, B<k>, B<kB>, B<K> și B<KB> sunt acceptate ca sinonime pentru B<KiB>."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:318
+ #, no-wrap
+ msgid "B<MiB>"
+ msgstr "B<MiB>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:328
  msgid "Multiply the integer by 1,048,576 (2^20).  B<Mi>, B<m>, B<M>, and B<MB> are accepted as synonyms for B<MiB>."
@@ -183,7 +346,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:328
-@@ -312,7 +316,7 @@ msgstr "B<GiB>"
+ #, no-wrap
+ msgid "B<GiB>"
+ msgstr "B<GiB>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:338
  msgid "Multiply the integer by 1,073,741,824 (2^30).  B<Gi>, B<g>, B<G>, and B<GB> are accepted as synonyms for B<GiB>."
@@ -192,7 +358,26 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:343
-@@ -339,7 +343,7 @@ msgstr "B<-z>, B<--compress>"
+ msgid "The special value B<max> can be used to indicate the maximum integer value supported by the option."
+ msgstr "Valoarea specială B<max> poate fi utilizată pentru a indica valoarea maximă întreagă suportată de opțiune."
+ 
+ #. type: SS
+ #: ../src/xz/xz.1:344
+ #, no-wrap
+ msgid "Operation mode"
+ msgstr "Mod de operare"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:347
+ msgid "If multiple operation mode options are given, the last one takes effect."
+ msgstr "Dacă sunt date mai multe opțiuni de mod de funcționare, ultima dintre ele, este cea care va avea efect."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:347
+ #, no-wrap
+ msgid "B<-z>, B<--compress>"
+ msgstr "B<-z>, B<--compress>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:356
  msgid "Compress.  This is the default operation mode when no operation mode option is specified and no other operation mode is implied from the command name (for example, B<unxz> implies B<--decompress>)."
@@ -201,7 +386,21 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:356 ../src/xzdec/xzdec.1:62
-@@ -361,7 +365,7 @@ msgstr "B<-t>, B<--test>"
+ #, no-wrap
+ msgid "B<-d>, B<--decompress>, B<--uncompress>"
+ msgstr "B<-d>, B<--decompress>, B<--uncompress>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:359
+ msgid "Decompress."
+ msgstr "Decomprimare."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:359
+ #, no-wrap
+ msgid "B<-t>, B<--test>"
+ msgstr "B<-t>, B<--test>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:368
  msgid "Test the integrity of compressed I<files>.  This option is equivalent to B<--decompress --stdout> except that the decompressed data is discarded instead of being written to standard output.  No files are created or removed."
@@ -210,7 +409,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:368
-@@ -372,17 +376,17 @@ msgstr "B<-l>, B<--list>"
+ #, no-wrap
+ msgid "B<-l>, B<--list>"
+ msgstr "B<-l>, B<--list>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:377
  msgid "Print information about compressed I<files>.  No uncompressed output is produced, and no files are created or removed.  In list mode, the program cannot read the compressed data from standard input or from other unseekable sources."
@@ -231,7 +433,21 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: SS
  #: ../src/xz/xz.1:400
-@@ -404,7 +408,7 @@ msgstr "Nu șterge fișierele de intrare."
+ #, no-wrap
+ msgid "Operation modifiers"
+ msgstr "Modificatori de operare"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:401 ../src/xzdec/xzdec.1:69
+ #, no-wrap
+ msgid "B<-k>, B<--keep>"
+ msgstr "B<-k>, B<--keep>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:404
+ msgid "Don't delete the input files."
+ msgstr "Nu șterge fișierele de intrare."
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:418
  msgid "Since B<xz> 5.2.6, this option also makes B<xz> compress or decompress even if the input is a symbolic link to a regular file, has more than one hard link, or has the setuid, setgid, or sticky bit set.  The setuid, setgid, and sticky bits are not copied to the target file.  In earlier versions this was only done with B<--force>."
@@ -240,7 +456,25 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:418
-@@ -430,7 +434,7 @@ msgstr "Comprimă sau decomprimă chiar dacă intrarea este o legătură simboli
+ #, no-wrap
+ msgid "B<-f>, B<--force>"
+ msgstr "B<-f>, B<--force>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:421
+ msgid "This option has several effects:"
+ msgstr "Această opțiune are mai multe efecte:"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:425
+ msgid "If the target file already exists, delete it before compressing or decompressing."
+ msgstr "Dacă fișierul țintă există deja, îl șterge înainte de comprimare sau decomprimare."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:432
+ msgid "Compress or decompress even if the input is a symbolic link to a regular file, has more than one hard link, or has the setuid, setgid, or sticky bit set.  The setuid, setgid, and sticky bits are not copied to the target file."
+ msgstr "Comprimă sau decomprimă chiar dacă intrarea este o legătură simbolică către un fișier obișnuit, are mai mult de-o legătură dură sau are marcați biții setuid, setgid sau bitul lipicios. Biții setuid, setgid și bitul lipicios nu sunt copiați în fișierul țintă."
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:457
  msgid "When used with B<--decompress> B<--stdout> and B<xz> cannot recognize the type of the source file, copy the source file as is to standard output.  This allows B<xzcat> B<--force> to be used like B<cat>(1)  for files that have not been compressed with B<xz>.  Note that in future, B<xz> might support new compressed file formats, which may make B<xz> decompress more types of files instead of copying them as is to standard output.  B<--format=>I<format> can be used to restrict B<xz> to decompress only a single file format."
@@ -249,7 +483,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:458 ../src/xzdec/xzdec.1:76
-@@ -441,7 +445,7 @@ msgstr "B<-c>, B<--stdout>, B<--to-stdout>"
+ #, no-wrap
+ msgid "B<-c>, B<--stdout>, B<--to-stdout>"
+ msgstr "B<-c>, B<--stdout>, B<--to-stdout>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:464
  msgid "Write the compressed or decompressed data to standard output instead of a file.  This implies B<--keep>."
@@ -258,7 +495,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:464
-@@ -452,7 +456,7 @@ msgstr "B<--single-stream>"
+ #, no-wrap
+ msgid "B<--single-stream>"
+ msgstr "B<--single-stream>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:473
  msgid "Decompress only the first B<.xz> stream, and silently ignore possible remaining input data following the stream.  Normally such trailing garbage makes B<xz> display an error."
@@ -267,7 +507,20 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:482
-@@ -473,7 +477,7 @@ msgstr "B<--no-sparse>"
+ msgid "B<xz> never decompresses more than one stream from B<.lzma> files or raw streams, but this option still makes B<xz> ignore the possible trailing data after the B<.lzma> file or raw stream."
+ msgstr "B<xz> nu decomprimă niciodată mai mult de un flux din fișierele B<.lzma> sau din fluxurile brute, dar această opțiune face ca B<xz> să ignore posibilele resturi de date rămase după fișierul B<.lzma> sau fluxul brut."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:487
+ msgid "This option has no effect if the operation mode is not B<--decompress> or B<--test>."
+ msgstr "Această opțiune nu are efect dacă modul de funcționare nu este B<--decompress> sau B<--test>."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:487
+ #, no-wrap
+ msgid "B<--no-sparse>"
+ msgstr "B<--no-sparse>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:499
  msgid "Disable creation of sparse files.  By default, if decompressing into a regular file, B<xz> tries to make the file sparse if the decompressed data contains long sequences of binary zeros.  It also works when writing to standard output as long as standard output is connected to a regular file and certain additional conditions are met to make it safe.  Creating sparse files may save disk space and speed up the decompression by reducing the amount of disk I/O."
@@ -276,7 +529,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:499
-@@ -484,12 +488,12 @@ msgstr "B<-S> I<.suf>, B<--suffix=>I<.suf>"
+ #, no-wrap
+ msgid "B<-S> I<.suf>, B<--suffix=>I<.suf>"
+ msgstr "B<-S> I<.suf>, B<--suffix=>I<.suf>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:511
  msgid "When compressing, use I<.suf> as the suffix for the target file instead of B<.xz> or B<.lzma>.  If not writing to standard output and the source file already has the suffix I<.suf>, a warning is displayed and the file is skipped."
@@ -291,7 +547,15 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:531
-@@ -505,7 +509,7 @@ msgstr "B<--files>[B<=>I<fișier>]"
+ msgid "When compressing or decompressing raw streams (B<--format=raw>), the suffix must always be specified unless writing to standard output, because there is no default suffix for raw streams."
+ msgstr "La comprimarea sau decomprimarea fluxurilor brute (B<--format=raw>), sufixul trebuie să fie întotdeauna specificat, cu excepția cazului în care se scrie la ieșirea standard, deoarece nu există un sufix implicit pentru fluxurile brute."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:531
+ #, no-wrap
+ msgid "B<--files>[B<=>I<file>]"
+ msgstr "B<--files>[B<=>I<fișier>]"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:545
  msgid "Read the filenames to process from I<file>; if I<file> is omitted, filenames are read from standard input.  Filenames must be terminated with the newline character.  A dash (B<->)  is taken as a regular filename; it doesn't mean standard input.  If filenames are given also as command line arguments, they are processed before the filenames read from I<file>."
@@ -300,7 +564,38 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:545
-@@ -544,7 +548,7 @@ msgstr "B<auto>"
+ #, no-wrap
+ msgid "B<--files0>[B<=>I<file>]"
+ msgstr "B<--files0>[B<=>I<fișier>]"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:549
+ msgid "This is identical to B<--files>[B<=>I<file>] except that each filename must be terminated with the null character."
+ msgstr "Această opțiune este identică cu B<--files>[B<=>I<fișier>], cu excepția faptului că fiecare nume de fișier trebuie să fie terminat cu caracterul nul."
+ 
+ #. type: SS
+ #: ../src/xz/xz.1:550
+ #, no-wrap
+ msgid "Basic file format and compression options"
+ msgstr "Formatul de bază al fișierului și opțiunile de comprimare"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:551
+ #, no-wrap
+ msgid "B<-F> I<format>, B<--format=>I<format>"
+ msgstr "B<-F> I<format>, B<--format=>I<format>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:556
+ msgid "Specify the file I<format> to compress or decompress:"
+ msgstr "Specifică I<formatul> fișierului pentru comprimare sau decomprimare:"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:557
+ #, no-wrap
+ msgid "B<auto>"
+ msgstr "B<auto>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:569
  msgid "This is the default.  When compressing, B<auto> is equivalent to B<xz>.  When decompressing, the format of the input file is automatically detected.  Note that raw streams (created with B<--format=raw>)  cannot be auto-detected."
@@ -309,7 +604,32 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:569
-@@ -577,17 +581,17 @@ msgstr "B<lzip>"
+ #, no-wrap
+ msgid "B<xz>"
+ msgstr "B<xz>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:576
+ msgid "Compress to the B<.xz> file format, or accept only B<.xz> files when decompressing."
+ msgstr "Comprimă în formatul de fișier B<.xz> sau acceptă numai fișierele B<.xz> când decomprimă."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:576
+ #, no-wrap
+ msgid "B<lzma>, B<alone>"
+ msgstr "B<lzma>, B<alone>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:586
+ msgid "Compress to the legacy B<.lzma> file format, or accept only B<.lzma> files when decompressing.  The alternative name B<alone> is provided for backwards compatibility with LZMA Utils."
+ msgstr "Comprimă în formatul de fișier B<.lzma> vechi sau acceptă numai fișierele B<.lzma> când decomprimă.  Numele alternativ B<alone> este furnizat pentru compatibilitatea cu versiunile mai vechi de LZMA Utils."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:586
+ #, no-wrap
+ msgid "B<lzip>"
+ msgstr "B<lzip>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:592
  msgid "Accept only B<.lz> files when decompressing.  Compression is not supported."
@@ -330,7 +650,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:614
-@@ -598,7 +602,7 @@ msgstr "B<raw>"
+ #, no-wrap
+ msgid "B<raw>"
+ msgstr "B<raw>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:622
  msgid "Compress or uncompress a raw stream (no headers).  This is meant for advanced users only.  To decode raw streams, you need use B<--format=raw> and explicitly specify the filter chain, which normally would have been stored in the container headers."
@@ -339,7 +662,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:623
-@@ -609,7 +613,7 @@ msgstr "B<-C> I<verificarea>, B<--check=>I<verificarea>"
+ #, no-wrap
+ msgid "B<-C> I<check>, B<--check=>I<check>"
+ msgstr "B<-C> I<verificarea>, B<--check=>I<verificarea>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:638
  msgid "Specify the type of the integrity check.  The check is calculated from the uncompressed data and stored in the B<.xz> file.  This option has an effect only when compressing into the B<.xz> format; the B<.lzma> format doesn't support integrity checks.  The integrity check (if any) is verified when the B<.xz> file is decompressed."
@@ -348,7 +674,15 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:642
-@@ -625,7 +629,7 @@ msgstr "B<none>"
+ msgid "Supported I<check> types:"
+ msgstr "Tipuri de I<verificare> acceptate:"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:643
+ #, no-wrap
+ msgid "B<none>"
+ msgstr "B<none>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:649
  msgid "Don't calculate an integrity check at all.  This is usually a bad idea.  This can be useful when integrity of the data is verified by other means anyway."
@@ -357,7 +691,21 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:649
-@@ -647,7 +651,7 @@ msgstr "B<crc64>"
+ #, no-wrap
+ msgid "B<crc32>"
+ msgstr "B<crc32>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:652
+ msgid "Calculate CRC32 using the polynomial from IEEE-802.3 (Ethernet)."
+ msgstr "Calculează CRC32 folosind polinomul din IEEE-802.3 (Ethernet)."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:652
+ #, no-wrap
+ msgid "B<crc64>"
+ msgstr "B<crc64>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:657
  msgid "Calculate CRC64 using the polynomial from ECMA-182.  This is the default, since it is slightly better than CRC32 at detecting damaged files and the speed difference is negligible."
@@ -366,7 +714,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:657
-@@ -658,12 +662,12 @@ msgstr "B<sha256>"
+ #, no-wrap
+ msgid "B<sha256>"
+ msgstr "B<sha256>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:661
  msgid "Calculate SHA-256.  This is somewhat slower than CRC32 and CRC64."
@@ -381,7 +732,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:667
-@@ -674,12 +678,12 @@ msgstr "B<--ignore-check>"
+ #, no-wrap
+ msgid "B<--ignore-check>"
+ msgstr "B<--ignore-check>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:673
  msgid "Don't verify the integrity check of the compressed data when decompressing.  The CRC32 values in the B<.xz> headers will still be verified normally."
@@ -396,7 +750,9 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:679
-@@ -689,7 +693,7 @@ msgstr "Încercarea de a recupera datele dintr-un fișier .xz corupt."
+ msgid "Trying to recover data from a corrupt .xz file."
+ msgstr "Încercarea de a recupera datele dintr-un fișier .xz corupt."
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:685
  msgid "Speeding up decompression.  This matters mostly with SHA-256 or with files that have compressed extremely well.  It's recommended to not use this option for this purpose unless the file integrity is verified externally in some other way."
@@ -405,7 +761,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:686
-@@ -700,12 +704,12 @@ msgstr "B<-0> ... B<-9>"
+ #, no-wrap
+ msgid "B<-0> ... B<-9>"
+ msgstr "B<-0> ... B<-9>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:695
  msgid "Select a compression preset level.  The default is B<-6>.  If multiple preset levels are specified, the last one takes effect.  If a custom filter chain was already specified, setting a compression preset level clears the custom filter chain."
@@ -420,7 +779,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:711
-@@ -716,7 +720,7 @@ msgstr "B<-0> ... B<-3>"
+ #, no-wrap
+ msgid "B<-0> ... B<-3>"
+ msgstr "B<-0> ... B<-3>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:723
  msgid "These are somewhat fast presets.  B<-0> is sometimes faster than B<gzip -9> while compressing much better.  The higher ones often have speed comparable to B<bzip2>(1)  with comparable or better compression ratio, although the results depend a lot on the type of data being compressed."
@@ -429,7 +791,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:723
-@@ -727,7 +731,7 @@ msgstr "B<-4> ... B<-6>"
+ #, no-wrap
+ msgid "B<-4> ... B<-6>"
+ msgstr "B<-4> ... B<-6>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:737
  msgid "Good to very good compression while keeping decompressor memory usage reasonable even for old systems.  B<-6> is the default, which is usually a good choice for distributing files that need to be decompressible even on systems with only 16\\ MiB RAM.  (B<-5e> or B<-6e> may be worth considering too.  See B<--extreme>.)"
@@ -438,7 +803,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:737
-@@ -738,12 +742,12 @@ msgstr "B<-7 ... -9>"
+ #, no-wrap
+ msgid "B<-7 ... -9>"
+ msgstr "B<-7 ... -9>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:744
  msgid "These are like B<-6> but with higher compressor and decompressor memory requirements.  These are useful only when compressing files bigger than 8\\ MiB, 16\\ MiB, and 32\\ MiB, respectively."
@@ -453,7 +821,7 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:754
-@@ -751,7 +755,7 @@ msgid "The following table summarises the features of the presets:"
+ msgid "The following table summarises the features of the presets:"
  msgstr "Următorul tabel rezumă caracteristicile valorilor prestabilite:"
  
  #. type: tbl table
@@ -462,7 +830,11 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "Preset"
  msgstr "ValPrestab"
-@@ -763,7 +767,7 @@ msgid "DictSize"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:761 ../src/xz/xz.1:842
+ #, no-wrap
+ msgid "DictSize"
  msgstr "DimDict"
  
  #. type: tbl table
@@ -471,7 +843,17 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "CompCPU"
  msgstr "CPUComp"
-@@ -781,47 +785,46 @@ msgid "DecMem"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:761 ../src/xz/xz.1:842
+ #, no-wrap
+ msgid "CompMem"
+ msgstr "MemComp"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:761 ../src/xz/xz.1:842
+ #, no-wrap
+ msgid "DecMem"
  msgstr "MemDec"
  
  #. type: tbl table
@@ -528,7 +910,7 @@ index ea9b1e10..9ad5e00f 100644
  #: ../src/scripts/xzgrep.1:86
  #, no-wrap
  msgid "1"
-@@ -829,62 +832,62 @@ msgstr "1"
+ msgstr "1"
  
  #. type: tbl table
  #: ../src/xz/xz.1:763 ../src/xz/xz.1:767 ../src/xz/xz.1:768 ../src/xz/xz.1:848
@@ -605,7 +987,11 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "32 MiB"
  msgstr "32 MiB"
-@@ -896,94 +899,93 @@ msgid "5 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:765 ../src/xz/xz.1:766 ../src/xz/xz.1:846 ../src/xz/xz.1:847
+ #, no-wrap
+ msgid "5 MiB"
  msgstr "5 MiB"
  
  #. type: tbl table
@@ -719,7 +1105,11 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "370 MiB"
  msgstr "370 MiB"
-@@ -995,19 +997,19 @@ msgid "33 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:770 ../src/xz/xz.1:851
+ #, no-wrap
+ msgid "33 MiB"
  msgstr "33 MiB"
  
  #. type: tbl table
@@ -742,7 +1132,18 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "674 MiB"
  msgstr "674 MiB"
-@@ -1026,22 +1028,22 @@ msgstr "Descrieri coloane:"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:771 ../src/xz/xz.1:852
+ #, no-wrap
+ msgid "65 MiB"
+ msgstr "65 MiB"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:777
+ msgid "Column descriptions:"
+ msgstr "Descrieri coloane:"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:789
  msgid "DictSize is the LZMA2 dictionary size.  It is waste of memory to use a dictionary bigger than the size of the uncompressed file.  This is why it is good to avoid using the presets B<-7> ... B<-9> when there's no real need for them.  At B<-6> and lower, the amount of memory wasted is usually low enough to not matter."
@@ -769,7 +1170,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:814
-@@ -1052,12 +1054,12 @@ msgstr "B<-e>, B<--extreme>"
+ #, no-wrap
+ msgid "B<-e>, B<--extreme>"
+ msgstr "B<-e>, B<--extreme>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:823
  msgid "Use a slower variant of the selected compression preset level (B<-0> ... B<-9>)  to hopefully get a little bit better compression ratio, but with bad luck this can also make it worse.  Decompressor memory usage is not affected, but compressor memory usage increases a little at preset levels B<-0> ... B<-3>."
@@ -784,7 +1188,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: tbl table
  #: ../src/xz/xz.1:843
-@@ -1068,7 +1070,7 @@ msgstr "-0e"
+ #, no-wrap
+ msgid "-0e"
+ msgstr "-0e"
+ 
  #. type: tbl table
  #: ../src/xz/xz.1:843 ../src/xz/xz.1:844 ../src/xz/xz.1:845 ../src/xz/xz.1:847
  #: ../src/xz/xz.1:849 ../src/xz/xz.1:850 ../src/xz/xz.1:851 ../src/xz/xz.1:852
@@ -793,7 +1200,35 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "8"
  msgstr "8"
-@@ -1104,7 +1106,7 @@ msgid "-3e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:844
+ #, no-wrap
+ msgid "-1e"
+ msgstr "-1e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:844
+ #, no-wrap
+ msgid "13 MiB"
+ msgstr "13 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:845
+ #, no-wrap
+ msgid "-2e"
+ msgstr "-2e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:845
+ #, no-wrap
+ msgid "25 MiB"
+ msgstr "25 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:846
+ #, no-wrap
+ msgid "-3e"
  msgstr "-3e"
  
  #. type: tbl table
@@ -802,7 +1237,11 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "7"
  msgstr "7"
-@@ -1116,13 +1118,13 @@ msgid "-4e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:847
+ #, no-wrap
+ msgid "-4e"
  msgstr "-4e"
  
  #. type: tbl table
@@ -818,7 +1257,42 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "-6e"
  msgstr "-6e"
-@@ -1165,7 +1167,7 @@ msgstr "B<--best>"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:850
+ #, no-wrap
+ msgid "-7e"
+ msgstr "-7e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:851
+ #, no-wrap
+ msgid "-8e"
+ msgstr "-8e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:852
+ #, no-wrap
+ msgid "-9e"
+ msgstr "-9e"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:864
+ msgid "For example, there are a total of four presets that use 8\\ MiB dictionary, whose order from the fastest to the slowest is B<-5>, B<-6>, B<-5e>, and B<-6e>."
+ msgstr "De exemplu, există un total de patru nivele prestabilite care folosesc dicționarul 8Mio, a căror ordine de la cel mai rapid la cel mai lent este B<-5>, B<-6>, B<-5e> și B<-6e> ."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:864
+ #, no-wrap
+ msgid "B<--fast>"
+ msgstr "B<--fast>"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:867
+ #, no-wrap
+ msgid "B<--best>"
+ msgstr "B<--best>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:878
  msgid "These are somewhat misleading aliases for B<-0> and B<-9>, respectively.  These are provided only for backwards compatibility with LZMA Utils.  Avoid using these options."
@@ -827,7 +1301,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/xz/xz.1:878
-@@ -1176,683 +1178,763 @@ msgstr "B<--block-size=>I<dimensiunea>"
+ #, no-wrap
+ msgid "B<--block-size=>I<size>"
+ msgstr "B<--block-size=>I<dimensiunea>"
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:891
  msgid "When compressing to the B<.xz> format, split the input data into blocks of I<size> bytes.  The blocks are compressed independently from each other, which helps with multi-threading and makes limited random-access decompression possible.  This option is typically used to override the default block size in multi-threaded mode, but this option can be used in single-threaded mode too."
@@ -1788,7 +2265,7 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "32-bit or 64-bit x86"
  msgstr ""
-@@ -1860,25 +1942,25 @@ msgstr ""
+ "x86 pe 32 de biți\n"
  ";;sau 64 de biți"
  
  #. type: tbl table
@@ -1818,7 +2295,7 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid "4096-byte alignment is best"
  msgstr ""
-@@ -1886,881 +1968,961 @@ msgstr ""
+ "alinierea pe 4096-octeți\n"
  ";;este cea mai bună"
  
  #. type: tbl table
@@ -3113,7 +3590,9 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid ""
  "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
-@@ -2770,285 +2932,285 @@ msgstr ""
+ "export XZ_OPT>\n"
+ msgstr ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
  "export XZ_OPT>\n"
  
  #. type: SH
@@ -3462,7 +3941,9 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid ""
  "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
-@@ -3058,39 +3220,39 @@ msgstr ""
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
+ msgstr ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
  "    | xargs -0r -P4 -n16 xz -T1>\n"
  
  #. type: Plain text
@@ -3511,7 +3992,15 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid ""
  "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
-@@ -3106,12 +3268,12 @@ msgstr ""
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
+ msgstr ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Versiunea dumneavoastră de „xz” este prea veche!\"\n"
+ "fi\n"
  "unset XZ_VERSION LIBLZMA_VERSION>\n"
  
  #. type: Plain text
@@ -3526,7 +4015,17 @@ index ea9b1e10..9ad5e00f 100644
  #, no-wrap
  msgid ""
  "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
-@@ -3129,108 +3291,108 @@ msgstr ""
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
+ "fi>\n"
+ msgstr ""
+ "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
  "fi>\n"
  
  #. type: Plain text
@@ -3665,7 +4164,7 @@ index ea9b1e10..9ad5e00f 100644
  #: ../src/scripts/xzdiff.1:65 ../src/scripts/xzgrep.1:106
  #: ../src/scripts/xzless.1:65 ../src/scripts/xzmore.1:51
  #, no-wrap
-@@ -3238,22 +3400,22 @@ msgid "SEE ALSO"
+ msgid "SEE ALSO"
  msgstr "CONSULTAȚI ȘI"
  
  #. type: Plain text
@@ -3696,7 +4195,12 @@ index ea9b1e10..9ad5e00f 100644
  msgid "LZMA SDK: E<lt>https://7-zip.org/sdk.htmlE<gt>"
  msgstr "LZMA SDK: E<lt>https://7-zip.org/sdk.htmlE<gt>"
  
-@@ -3266,8 +3428,8 @@ msgstr "XZDEC"
+ #. type: TH
+ #: ../src/xzdec/xzdec.1:7
+ #, no-wrap
+ msgid "XZDEC"
+ msgstr "XZDEC"
+ 
  #. type: TH
  #: ../src/xzdec/xzdec.1:7
  #, no-wrap
@@ -3707,7 +4211,19 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xzdec/xzdec.1:10
-@@ -3287,37 +3449,37 @@ msgstr "B<lzmadec> [I<opțiune...>] [I<fișier...>]"
+ msgid "xzdec, lzmadec - Small .xz and .lzma decompressors"
+ msgstr "xzdec, lzmadec - Programe de decomprimare mici de fișiere .xz și .lzma"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:14
+ msgid "B<xzdec> [I<option...>] [I<file...>]"
+ msgstr "B<xzdec> [I<opțiune...>] [I<fișier...>]"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:18
+ msgid "B<lzmadec> [I<option...>] [I<file...>]"
+ msgstr "B<lzmadec> [I<opțiune...>] [I<fișier...>]"
+ 
  #. type: Plain text
  #: ../src/xzdec/xzdec.1:44
  msgid "B<xzdec> is a liblzma-based decompression-only tool for B<.xz> (and only B<.xz>)  files.  B<xzdec> is intended to work as a drop-in replacement for B<xz>(1)  in the most common situations where a script has been written to use B<xz --decompress --stdout> (and possibly a few other commonly used options) to decompress B<.xz> files.  B<lzmadec> is identical to B<xzdec> except that B<lzmadec> supports B<.lzma> files instead of B<.xz> files."
@@ -3752,7 +4268,24 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xzdec/xzdec.1:99
-@@ -3342,12 +3504,12 @@ msgstr "B<xzdec> nu are niciun mesaj de avertizare precum B<xz>(1), astfel că s
+ msgid "Display a help message and exit successfully."
+ msgstr "Afișează un mesaj de ajutor și iese cu succes."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:104
+ msgid "Display the version number of B<xzdec> and liblzma."
+ msgstr "Afișează numărul versiunii B<xzdec> și liblzma."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:108
+ msgid "All was good."
+ msgstr "Toate au fost bine."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:117
+ msgid "B<xzdec> doesn't have any warning messages like B<xz>(1)  has, thus the exit status 2 is not used by B<xzdec>."
+ msgstr "B<xzdec> nu are niciun mesaj de avertizare precum B<xz>(1), astfel că starea de ieșire 2 nu este folosită de B<xzdec>."
+ 
  #. type: Plain text
  #: ../src/xzdec/xzdec.1:131
  msgid "Use B<xz>(1)  instead of B<xzdec> or B<lzmadec> for normal everyday use.  B<xzdec> or B<lzmadec> are meant only for situations where it is important to have a smaller decompressor than the full-featured B<xz>(1)."
@@ -3767,7 +4300,31 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/xzdec/xzdec.1:145 ../src/lzmainfo/lzmainfo.1:60
-@@ -3379,12 +3541,12 @@ msgstr "B<lzmainfo> [B<--help>] [B<--version>] [I<fișier...>]"
+ msgid "B<xz>(1)"
+ msgstr "B<xz>(1)"
+ 
+ #. type: TH
+ #: ../src/lzmainfo/lzmainfo.1:7
+ #, no-wrap
+ msgid "LZMAINFO"
+ msgstr "LZMAINFO"
+ 
+ #. type: TH
+ #: ../src/lzmainfo/lzmainfo.1:7 ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "2013-06-30"
+ msgstr "30.06.2013"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:10
+ msgid "lzmainfo - show information stored in the .lzma file header"
+ msgstr "lzmainfo - afișează informațiile stocate în antetul fișierului .lzma"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:15
+ msgid "B<lzmainfo> [B<--help>] [B<--version>] [I<file...>]"
+ msgstr "B<lzmainfo> [B<--help>] [B<--version>] [I<fișier...>]"
+ 
  #. type: Plain text
  #: ../src/lzmainfo/lzmainfo.1:31
  msgid "B<lzmainfo> shows information stored in the B<.lzma> file header.  It reads the first 13 bytes from the specified I<file>, decodes the header, and prints it to standard output in human readable format.  If no I<files> are given or I<file> is B<->, standard input is read."
@@ -3782,7 +4339,15 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/lzmainfo/lzmainfo.1:44
-@@ -3400,7 +3562,7 @@ msgstr "ERORI"
+ msgid "B<lzmainfo> is included in XZ Utils primarily for backward compatibility with LZMA Utils."
+ msgstr "B<lzmainfo> este inclus în XZ Utils în primul rând pentru compatibilitatea cu LZMA Utils."
+ 
+ #. type: SH
+ #: ../src/lzmainfo/lzmainfo.1:51 ../src/scripts/xzdiff.1:74
+ #, no-wrap
+ msgid "BUGS"
+ msgstr "ERORI"
+ 
  #. type: Plain text
  #: ../src/lzmainfo/lzmainfo.1:59
  msgid "B<lzmainfo> uses B<MB> while the correct suffix would be B<MiB> (2^20 bytes).  This is to keep the output compatible with LZMA Utils."
@@ -3791,7 +4356,41 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TH
  #: ../src/scripts/xzdiff.1:9
-@@ -3442,7 +3604,7 @@ msgstr "B<lzdiff> [I<opțiuni_diferențe>] I<fișier1> [I<fișier2>]"
+ #, no-wrap
+ msgid "XZDIFF"
+ msgstr "XZDIFF"
+ 
+ #. type: TH
+ #: ../src/scripts/xzdiff.1:9
+ #, no-wrap
+ msgid "2021-06-04"
+ msgstr "04.06.2021"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:12
+ msgid "xzcmp, xzdiff, lzcmp, lzdiff - compare compressed files"
+ msgstr "xzcmp, xzdiff, lzcmp, lzdiff - compară fișierele comprimate"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:15
+ msgid "B<xzcmp> [I<cmp_options>] I<file1> [I<file2>]"
+ msgstr "B<xzcmp> [I<opțiuni_comparare>] I<fișier1> [I<fișier2>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:18
+ msgid "B<xzdiff> [I<diff_options>] I<file1> [I<file2>]"
+ msgstr "B<xzdiff> [I<opțiuni_diferențe>] I<fișier1> [I<fișier2>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:21
+ msgid "B<lzcmp> [I<cmp_options>] I<file1> [I<file2>]"
+ msgstr "B<lzcmp> [I<opțiuni_comparare>] I<fișier1> [I<fișier2>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:24
+ msgid "B<lzdiff> [I<diff_options>] I<file1> [I<file2>]"
+ msgstr "B<lzdiff> [I<opțiuni_diferențe>] I<fișier1> [I<fișier2>]"
+ 
  #. type: Plain text
  #: ../src/scripts/xzdiff.1:59
  msgid "B<xzcmp> and B<xzdiff> invoke B<cmp>(1)  or B<diff>(1)  on files compressed with B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), or B<zstd>(1).  All options specified are passed directly to B<cmp>(1)  or B<diff>(1).  If only one file is specified, then the files compared are I<file1> (which must have a suffix of a supported compression format) and I<file1> from which the compression format suffix has been stripped.  If two files are specified, then they are uncompressed if necessary and fed to B<cmp>(1)  or B<diff>(1).  The exit status from B<cmp>(1)  or B<diff>(1)  is preserved unless a decompression error occurs; then exit status is 2."
@@ -3800,7 +4399,66 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/scripts/xzdiff.1:65
-@@ -3509,27 +3671,27 @@ msgstr "B<lzfgrep> \\&..."
+ msgid "The names B<lzcmp> and B<lzdiff> are provided for backward compatibility with LZMA Utils."
+ msgstr "Numele B<lzcmp> și B<lzdiff> sunt furnizate pentru compatibilitatea cu LZMA Utils."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:74
+ msgid "B<cmp>(1), B<diff>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zdiff>(1)"
+ msgstr "B<cmp>(1), B<diff>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zdiff>(1)"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:79
+ msgid "Messages from the B<cmp>(1)  or B<diff>(1)  programs refer to temporary filenames instead of those specified."
+ msgstr "Mesajele din programele B<cmp>(1) sau B<diff>(1) se referă la nume de fișiere temporare în loc de cele specificate."
+ 
+ #. type: TH
+ #: ../src/scripts/xzgrep.1:9
+ #, no-wrap
+ msgid "XZGREP"
+ msgstr "XZGREP"
+ 
+ #. type: TH
+ #: ../src/scripts/xzgrep.1:9
+ #, no-wrap
+ msgid "2022-07-19"
+ msgstr "19.07.2022"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:12
+ msgid "xzgrep - search compressed files for a regular expression"
+ msgstr "xzgrep - caută în fișierele comprimate pentru o expresie regulată"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:18
+ msgid "B<xzgrep> [I<grep_options>] [B<-e>] I<pattern> [I<file...>]"
+ msgstr "B<xzgrep> [I<opțiuni_grep>] [B<-e>] I<model> [I<fișier...>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:21
+ msgid "B<xzegrep> \\&..."
+ msgstr "B<xzegrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:24
+ msgid "B<xzfgrep> \\&..."
+ msgstr "B<xzfgrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:27
+ msgid "B<lzgrep> \\&..."
+ msgstr "B<lzgrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:30
+ msgid "B<lzegrep> \\&..."
+ msgstr "B<lzegrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:33
+ msgid "B<lzfgrep> \\&..."
+ msgstr "B<lzfgrep> \\&..."
+ 
  #. type: Plain text
  #: ../src/scripts/xzgrep.1:49
  msgid "B<xzgrep> invokes B<grep>(1)  on I<files> which may be either uncompressed or compressed with B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), or B<zstd>(1).  All options specified are passed directly to B<grep>(1)."
@@ -3833,7 +4491,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/scripts/xzgrep.1:90
-@@ -3540,7 +3702,7 @@ msgstr "E<gt>1"
+ #, no-wrap
+ msgid "E<gt>1"
+ msgstr "E<gt>1"
+ 
  #. type: Plain text
  #: ../src/scripts/xzgrep.1:94
  msgid "One or more errors occurred.  It is unknown if matches were found."
@@ -3842,7 +4503,47 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/scripts/xzgrep.1:95
-@@ -3588,12 +3750,12 @@ msgstr "B<lzless> [I<fișier>...]"
+ #, no-wrap
+ msgid "B<GREP>"
+ msgstr "B<GREP>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:106
+ msgid "If the B<GREP> environment variable is set, B<xzgrep> uses it instead of B<grep>(1), B<grep -E>, or B<grep -F>."
+ msgstr "Dacă variabila de mediu B<GREP> este definită, B<xzgrep> o folosește în loc de B<grep>(1), B<grep -E> sau B<grep -F>."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:113
+ msgid "B<grep>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zgrep>(1)"
+ msgstr "B<grep>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zgrep>(1)"
+ 
+ #. type: TH
+ #: ../src/scripts/xzless.1:10
+ #, no-wrap
+ msgid "XZLESS"
+ msgstr "XZLESS"
+ 
+ #. type: TH
+ #: ../src/scripts/xzless.1:10
+ #, no-wrap
+ msgid "2010-09-27"
+ msgstr "27.09.2010"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:13
+ msgid "xzless, lzless - view xz or lzma compressed (text) files"
+ msgstr "xzless, lzless - vizualizează fișierele (text) comprimate xz sau lzma"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:16
+ msgid "B<xzless> [I<file>...]"
+ msgstr "B<xzless> [I<fișier>...]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:19
+ msgid "B<lzless> [I<file>...]"
+ msgstr "B<lzless> [I<fișier>...]"
+ 
  #. type: Plain text
  #: ../src/scripts/xzless.1:31
  msgid "B<xzless> is a filter that displays text from compressed files to a terminal.  It works on files compressed with B<xz>(1)  or B<lzma>(1).  If no I<files> are given, B<xzless> reads from standard input."
@@ -3857,7 +4558,15 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/scripts/xzless.1:52
-@@ -3609,7 +3771,7 @@ msgstr "B<LESSMETACHARS>"
+ msgid "The command named B<lzless> is provided for backward compatibility with LZMA Utils."
+ msgstr "Comanda numită B<lzless> este furnizată pentru compatibilitatea cu LZMA Utils."
+ 
+ #. type: TP
+ #: ../src/scripts/xzless.1:53
+ #, no-wrap
+ msgid "B<LESSMETACHARS>"
+ msgstr "B<LESSMETACHARS>"
+ 
  #. type: Plain text
  #: ../src/scripts/xzless.1:59
  msgid "A list of characters special to the shell.  Set by B<xzless> unless it is already set in the environment."
@@ -3866,7 +4575,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/scripts/xzless.1:59
-@@ -3620,7 +3782,7 @@ msgstr "B<LESSOPEN>"
+ #, no-wrap
+ msgid "B<LESSOPEN>"
+ msgstr "B<LESSOPEN>"
+ 
  #. type: Plain text
  #: ../src/scripts/xzless.1:65
  msgid "Set to a command line to invoke the B<xz>(1)  decompressor for preprocessing the input files to B<less>(1)."
@@ -3875,7 +4587,35 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/scripts/xzless.1:69
-@@ -3656,7 +3818,7 @@ msgstr "B<xzmore> este un filtru care vă permite să examinați conținutul fi
+ msgid "B<less>(1), B<xz>(1), B<xzmore>(1), B<zless>(1)"
+ msgstr "B<less>(1), B<xz>(1), B<xzmore>(1), B<zless>(1)"
+ 
+ #. type: TH
+ #: ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "XZMORE"
+ msgstr "XZMORE"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:10
+ msgid "xzmore, lzmore - view xz or lzma compressed (text) files"
+ msgstr "xzmore, lzmore - vizualizează fișierele (text) comprimate xz sau lzma"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:13
+ msgid "B<xzmore> [I<file...>]"
+ msgstr "B<xzmore> [I<fișier...>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:16
+ msgid "B<lzmore> [I<file...>]"
+ msgstr "B<lzmore> [I<fișier...>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:24
+ msgid "B<xzmore> is a filter which allows examination of B<xz>(1)  or B<lzma>(1)  compressed text files one screenful at a time on a soft-copy terminal."
+ msgstr "B<xzmore> este un filtru care vă permite să examinați conținutul fișierelor text comprimate B<xz>(1) sau B<lzma>(1), câte o pagină pe ecran, pe un terminal."
+ 
  #. type: Plain text
  #: ../src/scripts/xzmore.1:33
  msgid "To use a pager other than the default B<more,> set environment variable B<PAGER> to the name of the desired program.  The name B<lzmore> is provided for backward compatibility with LZMA Utils."
@@ -3884,7 +4624,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/scripts/xzmore.1:33
-@@ -3667,7 +3829,7 @@ msgstr "B<e> sau B<q>"
+ #, no-wrap
+ msgid "B<e> or B<q>"
+ msgstr "B<e> sau B<q>"
+ 
  #. type: Plain text
  #: ../src/scripts/xzmore.1:40
  msgid "When the prompt --More--(Next file: I<file>)  is printed, this command causes B<xzmore> to exit."
@@ -3893,7 +4636,10 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: TP
  #: ../src/scripts/xzmore.1:40
-@@ -3678,7 +3840,7 @@ msgstr "B<s>"
+ #, no-wrap
+ msgid "B<s>"
+ msgstr "B<s>"
+ 
  #. type: Plain text
  #: ../src/scripts/xzmore.1:47
  msgid "When the prompt --More--(Next file: I<file>)  is printed, this command causes B<xzmore> to skip the next file and continue."
@@ -3902,7 +4648,11 @@ index ea9b1e10..9ad5e00f 100644
  
  #. type: Plain text
  #: ../src/scripts/xzmore.1:51
-@@ -3690,6 +3852,17 @@ msgstr "Pentru lista comenzilor de la tastatură acceptate în timp ce vizualiza
+ msgid "For list of keyboard commands supported while actually viewing the content of a file, refer to manual of the pager you use, usually B<more>(1)."
+ msgstr "Pentru lista comenzilor de la tastatură acceptate în timp ce vizualizați conținutul unui fișier, consultați manualul paginatorului pe care îl utilizați, de obicei B<more>(1)."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:55
  msgid "B<more>(1), B<xz>(1), B<xzless>(1), B<zmore>(1)"
  msgstr "B<more>(1), B<xz>(1), B<xzless>(1), B<zmore>(1)"
  
@@ -3920,3 +4670,5 @@ index ea9b1e10..9ad5e00f 100644
  #~ msgid "2022-12-01"
  #~ msgstr "01.12.2022"
  
+ #~ msgid "2020-02-01"
+ #~ msgstr "01.02.2020"

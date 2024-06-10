@@ -12,7 +12,22 @@ diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
 index 76601580..85785d9f 100755
 --- a/build-aux/ci_build.sh
 +++ b/build-aux/ci_build.sh
-@@ -16,7 +16,7 @@
+@@ -1,141 +1,153 @@
+ #!/bin/sh
+ #
+ #############################################################################
+ #
+ # Script meant to be used for Continuous Integration automation for POSIX
+ # systems. On GitHub, this is used by Ubuntu and MacOS builds.
+ #
+ #############################################################################
+ #
+ # Author: Jia Tan
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ #############################################################################
  
  set -e
  
@@ -21,7 +36,14 @@ index 76601580..85785d9f 100755
  
  # Absolute path of script directory
  ABS_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
-@@ -31,9 +31,10 @@ DECODERS="y"
+ 
+ # Default CLI option values
+ BUILD_SYSTEM="autotools"
+ CHECK_TYPE="crc32,crc64,sha256"
+ BCJ="y"
+ DELTA="y"
+ ENCODERS="y"
+ DECODERS="y"
  THREADS="y"
  SRC_DIR="$ABS_DIR/../"
  DEST_DIR="$SRC_DIR/../xz_build"
@@ -33,7 +55,40 @@ index 76601580..85785d9f 100755
  	# b option can have either value "autotools" OR "cmake"
  	case ${opt} in
  	b)
-@@ -74,68 +75,79 @@ while getopts b:c:d:l:s: opt; do
+ 		case "$OPTARG" in
+ 			autotools) ;;
+ 			cmake) ;;
+ 			*) echo "Invalid build system: $OPTARG"; exit 1;;
+ 		esac
+ 		BUILD_SYSTEM="$OPTARG"
+ 	;;
+ 	# c options can be a comma separated list of check types to support
+ 	c)
+ 	for crc in $(echo $OPTARG | sed "s/,/ /g"); do 
+ 		case "$crc" in
+ 		crc32) ;;
+ 		crc64) ;;
+ 		sha256) ;;
+ 		*) echo "Invalid check type: $crc"; exit 1 ;;
+ 		esac
+ 	done
+ 	CHECK_TYPE="$OPTARG"
+ 	;;
+ 	# d options can be a comma separated list of things to disable at
+ 	# configure time
+ 	d)
+ 	for disable_arg in $(echo $OPTARG | sed "s/,/ /g"); do 
+ 		case "$disable_arg" in
+ 		encoders) ENCODERS="n" ;;
+ 		decoders) DECODERS="n" ;;
+ 		bcj) BCJ="n" ;;
+ 		delta) DELTA="n" ;;
+ 		threads) THREADS="n" ;;
+ 		*) echo "Invalid disable value: $disable_arg"; exit 1 ;;
+ 		esac
+ 	done	
+ 	;;
+ 	l) DEST_DIR="$OPTARG"
  	;;
  	s) SRC_DIR="$OPTARG"
  	;;

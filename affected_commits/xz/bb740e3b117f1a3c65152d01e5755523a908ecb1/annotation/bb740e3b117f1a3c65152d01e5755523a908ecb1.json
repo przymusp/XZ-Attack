@@ -1,0 +1,1 @@
+{"cmake/tuklib_progname.cmake": {"language": "CMake", "type": "programming", "purpose": "project", "+": [{"id": 18, "type": "code", "purpose": "project"}, {"id": 19, "type": "code", "purpose": "project"}], "-": [{"id": 15, "type": "code", "purpose": "project"}, {"id": 16, "type": "code", "purpose": "project"}, {"id": 17, "type": "code", "purpose": "project"}]}}

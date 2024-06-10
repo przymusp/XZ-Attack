@@ -13,7 +13,10 @@ diff --git a/src/liblzma/check/Makefile.inc b/src/liblzma/check/Makefile.inc
 index 7780d20d..6186e10a 100644
 --- a/src/liblzma/check/Makefile.inc
 +++ b/src/liblzma/check/Makefile.inc
-@@ -4,6 +4,8 @@
+@@ -1,56 +1,56 @@
+ ##
+ ## Author: Lasse Collin
+ ##
  ## This file has been put into the public domain.
  ## You can do whatever you want with this file.
  ##
@@ -22,7 +25,10 @@ index 7780d20d..6186e10a 100644
  
  EXTRA_DIST += \
  	check/crc32_tablegen.c \
-@@ -14,7 +16,6 @@ liblzma_la_SOURCES += \
+ 	check/crc64_tablegen.c
+ 
+ liblzma_la_SOURCES += \
+ 	check/check.c \
  	check/check.h \
  	check/crc_common.h
  
@@ -30,7 +36,16 @@ index 7780d20d..6186e10a 100644
  if COND_SMALL
  liblzma_la_SOURCES += check/crc32_small.c
  else
-@@ -31,7 +32,6 @@ liblzma_la_SOURCES += check/crc_clmul.c
+ liblzma_la_SOURCES += \
+ 	check/crc32_table.c \
+ 	check/crc32_table_le.h \
+ 	check/crc32_table_be.h
+ if COND_ASM_X86
+ liblzma_la_SOURCES += check/crc32_x86.S
+ else
+ liblzma_la_SOURCES += check/crc32_fast.c
+ if COND_CRC_CLMUL
+ liblzma_la_SOURCES += check/crc_clmul.c
  endif
  endif
  endif
@@ -38,3 +53,22 @@ index 7780d20d..6186e10a 100644
  
  if COND_CHECK_CRC64
  if COND_SMALL
+ liblzma_la_SOURCES += check/crc64_small.c
+ else
+ liblzma_la_SOURCES += \
+ 	check/crc64_table.c \
+ 	check/crc64_table_le.h \
+ 	check/crc64_table_be.h
+ if COND_ASM_X86
+ liblzma_la_SOURCES += check/crc64_x86.S
+ else
+ liblzma_la_SOURCES += check/crc64_fast.c
+ endif
+ endif
+ endif
+ 
+ if COND_CHECK_SHA256
+ if COND_INTERNAL_SHA256
+ liblzma_la_SOURCES += check/sha256.c
+ endif
+ endif

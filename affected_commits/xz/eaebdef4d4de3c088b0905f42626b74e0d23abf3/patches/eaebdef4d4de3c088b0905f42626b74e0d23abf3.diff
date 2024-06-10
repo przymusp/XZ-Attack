@@ -8,7 +8,130 @@ diff --git a/src/xz/args.c b/src/xz/args.c
 index 2732ae08..8b481c93 100644
 --- a/src/xz/args.c
 +++ b/src/xz/args.c
-@@ -124,7 +124,7 @@ parse_block_list(const char *str_const)
+@@ -1,856 +1,856 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       args.c
+ /// \brief      Argument parsing
+ ///
+ /// \note       Filter-specific options parsing is in options.c.
+ //
+ //  Authors:    Lasse Collin
+ //              Jia Tan
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ 
+ #include "getopt.h"
+ #include <ctype.h>
+ 
+ 
+ bool opt_stdout = false;
+ bool opt_force = false;
+ bool opt_keep_original = false;
+ bool opt_robot = false;
+ bool opt_ignore_check = false;
+ 
+ // We don't modify or free() this, but we need to assign it in some
+ // non-const pointers.
+ const char stdin_filename[] = "(stdin)";
+ 
+ 
+ /// Parse and set the memory usage limit for compression, decompression,
+ /// and/or multithreaded decompression.
+ static void
+ parse_memlimit(const char *name, const char *name_percentage, const char *str,
+ 		bool set_compress, bool set_decompress, bool set_mtdec)
+ {
+ 	bool is_percentage = false;
+ 	uint64_t value;
+ 
+ 	const size_t len = strlen(str);
+ 	if (len > 0 && str[len - 1] == '%') {
+ 		// Make a copy so that we can get rid of %.
+ 		//
+ 		// In the past str wasn't const and we modified it directly
+ 		// but that modified argv[] and thus affected what was visible
+ 		// in "ps auxf" or similar tools which was confusing. For
+ 		// example, --memlimit=50% would show up as --memlimit=50
+ 		// since the percent sign was overwritten here.
+ 		char *s = xstrdup(str);
+ 		s[len - 1] = '\0';
+ 		is_percentage = true;
+ 		value = str_to_uint64(name_percentage, s, 1, 100);
+ 		free(s);
+ 	} else {
+ 		// On 32-bit systems, SIZE_MAX would make more sense than
+ 		// UINT64_MAX. But use UINT64_MAX still so that scripts
+ 		// that assume > 4 GiB values don't break.
+ 		value = str_to_uint64(name, str, 0, UINT64_MAX);
+ 	}
+ 
+ 	hardware_memlimit_set(value, set_compress, set_decompress, set_mtdec,
+ 			is_percentage);
+ 	return;
+ }
+ 
+ 
+ static void
+ parse_block_list(const char *str_const)
+ {
+ 	// We need a modifiable string in the for-loop.
+ 	char *str_start = xstrdup(str_const);
+ 	char *str = str_start;
+ 
+ 	// It must be non-empty and not begin with a comma.
+ 	if (str[0] == '\0' || str[0] == ',')
+ 		message_fatal(_("%s: Invalid argument to --block-list"), str);
+ 
+ 	// Count the number of comma-separated strings.
+ 	size_t count = 1;
+ 	for (size_t i = 0; str[i] != '\0'; ++i)
+ 		if (str[i] == ',')
+ 			++count;
+ 
+ 	// Prevent an unlikely integer overflow.
+ 	if (count > SIZE_MAX / sizeof(block_list_entry) - 1)
+ 		message_fatal(_("%s: Too many arguments to --block-list"),
+ 				str);
+ 
+ 	// Allocate memory to hold all the sizes specified.
+ 	// If --block-list was specified already, its value is forgotten.
+ 	free(opt_block_list);
+ 	opt_block_list = xmalloc((count + 1) * sizeof(block_list_entry));
+ 
+ 	for (size_t i = 0; i < count; ++i) {
+ 		// Locate the next comma and replace it with \0.
+ 		char *p = strchr(str, ',');
+ 		if (p != NULL)
+ 			*p = '\0';
+ 
+ 		// Use the default filter chain unless overridden.
+ 		opt_block_list[i].filters_index = 0;
+ 
+ 		// To specify a filter chain, the block list entry may be
+ 		// prepended with "[filter-chain-number]:". The size is
+ 		// still required for every block.
+ 		// For instance:
+ 		// --block-list=2:10MiB,1:5MiB,,8MiB,0:0
+ 		//
+ 		// Translates to:
+ 		// 1. Block of 10 MiB using filter chain 2
+ 		// 2. Block of 5 MiB using filter chain 1
+ 		// 3. Block of 5 MiB using filter chain 1
+ 		// 4. Block of 8 MiB using the default filter chain
+ 		// 5. The last block uses the default filter chain
+ 		//
+ 		// The block list:
+ 		// --block-list=2:MiB,1:,0
+ 		//
+ 		// Is not allowed because the second block does not specify
+ 		// the block size, only the filter chain.
+ 		if (str[0] >= '0' && str[0] <= '9' && str[1] == ':') {
  			if (str[2] == '\0')
  				message_fatal(_("In --block-list, block "
  						"size is missing after "
@@ -17,7 +140,473 @@ index 2732ae08..8b481c93 100644
  						str[0]);
  
  			int filter_num = str[0] - '0';
-@@ -598,8 +598,8 @@ parse_real(args_info *args, int argc, char **argv)
+ 			opt_block_list[i].filters_index =
+ 					(uint32_t)filter_num;
+ 			str += 2;
+ 		}
+ 
+ 		if (str[0] == '\0') {
+ 			// There is no string, that is, a comma follows
+ 			// another comma. Use the previous value.
+ 			//
+ 			// NOTE: We checked earlier that the first char
+ 			// of the whole list cannot be a comma.
+ 			assert(i > 0);
+ 			opt_block_list[i] = opt_block_list[i - 1];
+ 		} else {
+ 			opt_block_list[i].size = str_to_uint64("block-list",
+ 					str, 0, UINT64_MAX);
+ 
+ 			// Zero indicates no more new Blocks.
+ 			if (opt_block_list[i].size == 0) {
+ 				if (i + 1 != count)
+ 					message_fatal(_("0 can only be used "
+ 							"as the last element "
+ 							"in --block-list"));
+ 
+ 				opt_block_list[i].size = UINT64_MAX;
+ 			}
+ 		}
+ 
+ 		str = p + 1;
+ 	}
+ 
+ 	// Terminate the array.
+ 	opt_block_list[count].size = 0;
+ 
+ 	free(str_start);
+ 	return;
+ }
+ 
+ 
+ static void
+ parse_real(args_info *args, int argc, char **argv)
+ {
+ 	enum {
+ 		OPT_FILTERS = INT_MIN,
+ 		OPT_FILTERS1,
+ 		OPT_FILTERS2,
+ 		OPT_FILTERS3,
+ 		OPT_FILTERS4,
+ 		OPT_FILTERS5,
+ 		OPT_FILTERS6,
+ 		OPT_FILTERS7,
+ 		OPT_FILTERS8,
+ 		OPT_FILTERS9,
+ 		OPT_FILTERS_HELP,
+ 
+ 		OPT_X86,
+ 		OPT_POWERPC,
+ 		OPT_IA64,
+ 		OPT_ARM,
+ 		OPT_ARMTHUMB,
+ 		OPT_ARM64,
+ 		OPT_SPARC,
+ 		OPT_DELTA,
+ 		OPT_LZMA1,
+ 		OPT_LZMA2,
+ 
+ 		OPT_SINGLE_STREAM,
+ 		OPT_NO_SPARSE,
+ 		OPT_FILES,
+ 		OPT_FILES0,
+ 		OPT_BLOCK_SIZE,
+ 		OPT_BLOCK_LIST,
+ 		OPT_MEM_COMPRESS,
+ 		OPT_MEM_DECOMPRESS,
+ 		OPT_MEM_MT_DECOMPRESS,
+ 		OPT_NO_ADJUST,
+ 		OPT_INFO_MEMORY,
+ 		OPT_ROBOT,
+ 		OPT_FLUSH_TIMEOUT,
+ 		OPT_IGNORE_CHECK,
+ 	};
+ 
+ 	static const char short_opts[]
+ 			= "cC:defF:hHlkM:qQrS:tT:vVz0123456789";
+ 
+ 	static const struct option long_opts[] = {
+ 		// Operation mode
+ 		{ "compress",     no_argument,       NULL,  'z' },
+ 		{ "decompress",   no_argument,       NULL,  'd' },
+ 		{ "uncompress",   no_argument,       NULL,  'd' },
+ 		{ "test",         no_argument,       NULL,  't' },
+ 		{ "list",         no_argument,       NULL,  'l' },
+ 
+ 		// Operation modifiers
+ 		{ "keep",         no_argument,       NULL,  'k' },
+ 		{ "force",        no_argument,       NULL,  'f' },
+ 		{ "stdout",       no_argument,       NULL,  'c' },
+ 		{ "to-stdout",    no_argument,       NULL,  'c' },
+ 		{ "single-stream", no_argument,      NULL,  OPT_SINGLE_STREAM },
+ 		{ "no-sparse",    no_argument,       NULL,  OPT_NO_SPARSE },
+ 		{ "suffix",       required_argument, NULL,  'S' },
+ 		// { "recursive",      no_argument,       NULL,  'r' }, // TODO
+ 		{ "files",        optional_argument, NULL,  OPT_FILES },
+ 		{ "files0",       optional_argument, NULL,  OPT_FILES0 },
+ 
+ 		// Basic compression settings
+ 		{ "format",       required_argument, NULL,  'F' },
+ 		{ "check",        required_argument, NULL,  'C' },
+ 		{ "ignore-check", no_argument,       NULL,  OPT_IGNORE_CHECK },
+ 		{ "block-size",   required_argument, NULL,  OPT_BLOCK_SIZE },
+ 		{ "block-list",  required_argument, NULL,  OPT_BLOCK_LIST },
+ 		{ "memlimit-compress",   required_argument, NULL, OPT_MEM_COMPRESS },
+ 		{ "memlimit-decompress", required_argument, NULL, OPT_MEM_DECOMPRESS },
+ 		{ "memlimit-mt-decompress", required_argument, NULL, OPT_MEM_MT_DECOMPRESS },
+ 		{ "memlimit",     required_argument, NULL,  'M' },
+ 		{ "memory",       required_argument, NULL,  'M' }, // Old alias
+ 		{ "no-adjust",    no_argument,       NULL,  OPT_NO_ADJUST },
+ 		{ "threads",      required_argument, NULL,  'T' },
+ 		{ "flush-timeout", required_argument, NULL, OPT_FLUSH_TIMEOUT },
+ 
+ 		{ "extreme",      no_argument,       NULL,  'e' },
+ 		{ "fast",         no_argument,       NULL,  '0' },
+ 		{ "best",         no_argument,       NULL,  '9' },
+ 
+ 		// Filters
+ 		{ "filters",      optional_argument, NULL,  OPT_FILTERS},
+ 		{ "filters1",     optional_argument, NULL,  OPT_FILTERS1},
+ 		{ "filters2",     optional_argument, NULL,  OPT_FILTERS2},
+ 		{ "filters3",     optional_argument, NULL,  OPT_FILTERS3},
+ 		{ "filters4",     optional_argument, NULL,  OPT_FILTERS4},
+ 		{ "filters5",     optional_argument, NULL,  OPT_FILTERS5},
+ 		{ "filters6",     optional_argument, NULL,  OPT_FILTERS6},
+ 		{ "filters7",     optional_argument, NULL,  OPT_FILTERS7},
+ 		{ "filters8",     optional_argument, NULL,  OPT_FILTERS8},
+ 		{ "filters9",     optional_argument, NULL,  OPT_FILTERS9},
+ 		{ "filters-help", optional_argument, NULL,  OPT_FILTERS_HELP},
+ 
+ 		{ "lzma1",        optional_argument, NULL,  OPT_LZMA1 },
+ 		{ "lzma2",        optional_argument, NULL,  OPT_LZMA2 },
+ 		{ "x86",          optional_argument, NULL,  OPT_X86 },
+ 		{ "powerpc",      optional_argument, NULL,  OPT_POWERPC },
+ 		{ "ia64",         optional_argument, NULL,  OPT_IA64 },
+ 		{ "arm",          optional_argument, NULL,  OPT_ARM },
+ 		{ "armthumb",     optional_argument, NULL,  OPT_ARMTHUMB },
+ 		{ "arm64",        optional_argument, NULL,  OPT_ARM64 },
+ 		{ "sparc",        optional_argument, NULL,  OPT_SPARC },
+ 		{ "delta",        optional_argument, NULL,  OPT_DELTA },
+ 
+ 		// Other options
+ 		{ "quiet",        no_argument,       NULL,  'q' },
+ 		{ "verbose",      no_argument,       NULL,  'v' },
+ 		{ "no-warn",      no_argument,       NULL,  'Q' },
+ 		{ "robot",        no_argument,       NULL,  OPT_ROBOT },
+ 		{ "info-memory",  no_argument,       NULL,  OPT_INFO_MEMORY },
+ 		{ "help",         no_argument,       NULL,  'h' },
+ 		{ "long-help",    no_argument,       NULL,  'H' },
+ 		{ "version",      no_argument,       NULL,  'V' },
+ 
+ 		{ NULL,           0,                 NULL,   0 }
+ 	};
+ 
+ 	int c;
+ 
+ 	while ((c = getopt_long(argc, argv, short_opts, long_opts, NULL))
+ 			!= -1) {
+ 		switch (c) {
+ 		// Compression preset (also for decompression if --format=raw)
+ 		case '0': case '1': case '2': case '3': case '4':
+ 		case '5': case '6': case '7': case '8': case '9':
+ 			coder_set_preset((uint32_t)(c - '0'));
+ 			break;
+ 
+ 		// --memlimit-compress
+ 		case OPT_MEM_COMPRESS:
+ 			parse_memlimit("memlimit-compress",
+ 					"memlimit-compress%", optarg,
+ 					true, false, false);
+ 			break;
+ 
+ 		// --memlimit-decompress
+ 		case OPT_MEM_DECOMPRESS:
+ 			parse_memlimit("memlimit-decompress",
+ 					"memlimit-decompress%", optarg,
+ 					false, true, false);
+ 			break;
+ 
+ 		// --memlimit-mt-decompress
+ 		case OPT_MEM_MT_DECOMPRESS:
+ 			parse_memlimit("memlimit-mt-decompress",
+ 					"memlimit-mt-decompress%", optarg,
+ 					false, false, true);
+ 			break;
+ 
+ 		// --memlimit
+ 		case 'M':
+ 			parse_memlimit("memlimit", "memlimit%", optarg,
+ 					true, true, true);
+ 			break;
+ 
+ 		// --suffix
+ 		case 'S':
+ 			suffix_set(optarg);
+ 			break;
+ 
+ 		case 'T': {
+ 			// Since xz 5.4.0: Ignore leading '+' first.
+ 			const char *s = optarg;
+ 			if (optarg[0] == '+')
+ 				++s;
+ 
+ 			// The max is from src/liblzma/common/common.h.
+ 			uint32_t t = str_to_uint64("threads", s, 0, 16384);
+ 
+ 			// If leading '+' was used then use multi-threaded
+ 			// mode even if exactly one thread was specified.
+ 			if (t == 1 && optarg[0] == '+')
+ 				t = UINT32_MAX;
+ 
+ 			hardware_threads_set(t);
+ 			break;
+ 		}
+ 
+ 		// --version
+ 		case 'V':
+ 			// This doesn't return.
+ 			message_version();
+ 
+ 		// --stdout
+ 		case 'c':
+ 			opt_stdout = true;
+ 			break;
+ 
+ 		// --decompress
+ 		case 'd':
+ 			opt_mode = MODE_DECOMPRESS;
+ 			break;
+ 
+ 		// --extreme
+ 		case 'e':
+ 			coder_set_extreme();
+ 			break;
+ 
+ 		// --force
+ 		case 'f':
+ 			opt_force = true;
+ 			break;
+ 
+ 		// --info-memory
+ 		case OPT_INFO_MEMORY:
+ 			// This doesn't return.
+ 			hardware_memlimit_show();
+ 
+ 		// --help
+ 		case 'h':
+ 			// This doesn't return.
+ 			message_help(false);
+ 
+ 		// --long-help
+ 		case 'H':
+ 			// This doesn't return.
+ 			message_help(true);
+ 
+ 		// --list
+ 		case 'l':
+ 			opt_mode = MODE_LIST;
+ 			break;
+ 
+ 		// --keep
+ 		case 'k':
+ 			opt_keep_original = true;
+ 			break;
+ 
+ 		// --quiet
+ 		case 'q':
+ 			message_verbosity_decrease();
+ 			break;
+ 
+ 		case 'Q':
+ 			set_exit_no_warn();
+ 			break;
+ 
+ 		case 't':
+ 			opt_mode = MODE_TEST;
+ 			break;
+ 
+ 		// --verbose
+ 		case 'v':
+ 			message_verbosity_increase();
+ 			break;
+ 
+ 		// --robot
+ 		case OPT_ROBOT:
+ 			opt_robot = true;
+ 
+ 			// This is to make sure that floating point numbers
+ 			// always have a dot as decimal separator.
+ 			setlocale(LC_NUMERIC, "C");
+ 			break;
+ 
+ 		case 'z':
+ 			opt_mode = MODE_COMPRESS;
+ 			break;
+ 
+ 		// --filters
+ 		case OPT_FILTERS:
+ 			coder_add_filters_from_str(optarg);
+ 			break;
+ 
+ 		// --filters1...--filters9
+ 		case OPT_FILTERS1:
+ 		case OPT_FILTERS2:
+ 		case OPT_FILTERS3:
+ 		case OPT_FILTERS4:
+ 		case OPT_FILTERS5:
+ 		case OPT_FILTERS6:
+ 		case OPT_FILTERS7:
+ 		case OPT_FILTERS8:
+ 		case OPT_FILTERS9:
+ 			coder_add_block_filters(optarg,
+ 					(size_t)(c - OPT_FILTERS));
+ 			break;
+ 
+ 		// --filters-help
+ 		case OPT_FILTERS_HELP:
+ 			// This doesn't return.
+ 			message_filters_help();
+ 			break;
+ 
+ 		case OPT_X86:
+ 			coder_add_filter(LZMA_FILTER_X86,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_POWERPC:
+ 			coder_add_filter(LZMA_FILTER_POWERPC,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_IA64:
+ 			coder_add_filter(LZMA_FILTER_IA64,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_ARM:
+ 			coder_add_filter(LZMA_FILTER_ARM,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_ARMTHUMB:
+ 			coder_add_filter(LZMA_FILTER_ARMTHUMB,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_ARM64:
+ 			coder_add_filter(LZMA_FILTER_ARM64,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_SPARC:
+ 			coder_add_filter(LZMA_FILTER_SPARC,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_DELTA:
+ 			coder_add_filter(LZMA_FILTER_DELTA,
+ 					options_delta(optarg));
+ 			break;
+ 
+ 		case OPT_LZMA1:
+ 			coder_add_filter(LZMA_FILTER_LZMA1,
+ 					options_lzma(optarg));
+ 			break;
+ 
+ 		case OPT_LZMA2:
+ 			coder_add_filter(LZMA_FILTER_LZMA2,
+ 					options_lzma(optarg));
+ 			break;
+ 
+ 		// Other
+ 
+ 		// --format
+ 		case 'F': {
+ 			// Just in case, support both "lzma" and "alone" since
+ 			// the latter was used for forward compatibility in
+ 			// LZMA Utils 4.32.x.
+ 			static const struct {
+ 				char str[8];
+ 				enum format_type format;
+ 			} types[] = {
+ 				{ "auto",   FORMAT_AUTO },
+ 				{ "xz",     FORMAT_XZ },
+ 				{ "lzma",   FORMAT_LZMA },
+ 				{ "alone",  FORMAT_LZMA },
+ #ifdef HAVE_LZIP_DECODER
+ 				{ "lzip",   FORMAT_LZIP },
+ #endif
+ 				{ "raw",    FORMAT_RAW },
+ 			};
+ 
+ 			size_t i = 0;
+ 			while (strcmp(types[i].str, optarg) != 0)
+ 				if (++i == ARRAY_SIZE(types))
+ 					message_fatal(_("%s: Unknown file "
+ 							"format type"),
+ 							optarg);
+ 
+ 			opt_format = types[i].format;
+ 			break;
+ 		}
+ 
+ 		// --check
+ 		case 'C': {
+ 			static const struct {
+ 				char str[8];
+ 				lzma_check check;
+ 			} types[] = {
+ 				{ "none",   LZMA_CHECK_NONE },
+ 				{ "crc32",  LZMA_CHECK_CRC32 },
+ 				{ "crc64",  LZMA_CHECK_CRC64 },
+ 				{ "sha256", LZMA_CHECK_SHA256 },
+ 			};
+ 
+ 			size_t i = 0;
+ 			while (strcmp(types[i].str, optarg) != 0) {
+ 				if (++i == ARRAY_SIZE(types))
+ 					message_fatal(_("%s: Unsupported "
+ 							"integrity "
+ 							"check type"), optarg);
+ 			}
+ 
+ 			// Use a separate check in case we are using different
+ 			// liblzma than what was used to compile us.
+ 			if (!lzma_check_is_supported(types[i].check))
+ 				message_fatal(_("%s: Unsupported integrity "
+ 						"check type"), optarg);
+ 
+ 			coder_set_check(types[i].check);
+ 			break;
+ 		}
+ 
+ 		case OPT_IGNORE_CHECK:
+ 			opt_ignore_check = true;
+ 			break;
+ 
+ 		case OPT_BLOCK_SIZE:
+ 			opt_block_size = str_to_uint64("block-size", optarg,
+ 					0, LZMA_VLI_MAX);
+ 			break;
+ 
+ 		case OPT_BLOCK_LIST: {
+ 			parse_block_list(optarg);
+ 			break;
+ 		}
+ 
+ 		case OPT_SINGLE_STREAM:
+ 			opt_single_stream = true;
+ 			break;
+ 
+ 		case OPT_NO_SPARSE:
+ 			io_no_sparse();
+ 			break;
+ 
+ 		case OPT_FILES:
+ 			args->files_delim = '\n';
+ 
+ 		// Fall through
+ 
  		case OPT_FILES0:
  			if (args->files_name != NULL)
  				message_fatal(_("Only one file can be "
@@ -28,11 +617,694 @@ index 2732ae08..8b481c93 100644
  
  			if (optarg == NULL) {
  				args->files_name = stdin_filename;
+ 				args->files_file = stdin;
+ 			} else {
+ 				args->files_name = optarg;
+ 				args->files_file = fopen(optarg,
+ 						c == OPT_FILES ? "r" : "rb");
+ 				if (args->files_file == NULL)
+ 					// TRANSLATORS: This is a translatable
+ 					// string because French needs a space
+ 					// before the colon ("%s : %s").
+ 					message_fatal(_("%s: %s"), optarg,
+ 							strerror(errno));
+ 			}
+ 
+ 			break;
+ 
+ 		case OPT_NO_ADJUST:
+ 			opt_auto_adjust = false;
+ 			break;
+ 
+ 		case OPT_FLUSH_TIMEOUT:
+ 			opt_flush_timeout = str_to_uint64("flush-timeout",
+ 					optarg, 0, UINT64_MAX);
+ 			break;
+ 
+ 		default:
+ 			message_try_help();
+ 			tuklib_exit(E_ERROR, E_ERROR, false);
+ 		}
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ static void
+ parse_environment(args_info *args, char *argv0, const char *varname)
+ {
+ 	char *env = getenv(varname);
+ 	if (env == NULL)
+ 		return;
+ 
+ 	// We modify the string, so make a copy of it.
+ 	env = xstrdup(env);
+ 
+ 	// Calculate the number of arguments in env. argc stats at one
+ 	// to include space for the program name.
+ 	int argc = 1;
+ 	bool prev_was_space = true;
+ 	for (size_t i = 0; env[i] != '\0'; ++i) {
+ 		// NOTE: Cast to unsigned char is needed so that correct
+ 		// value gets passed to isspace(), which expects
+ 		// unsigned char cast to int. Casting to int is done
+ 		// automatically due to integer promotion, but we need to
+ 		// force char to unsigned char manually. Otherwise 8-bit
+ 		// characters would get promoted to wrong value if
+ 		// char is signed.
+ 		if (isspace((unsigned char)env[i])) {
+ 			prev_was_space = true;
+ 		} else if (prev_was_space) {
+ 			prev_was_space = false;
+ 
+ 			// Keep argc small enough to fit into a signed int
+ 			// and to keep it usable for memory allocation.
+ 			if (++argc == my_min(
+ 					INT_MAX, SIZE_MAX / sizeof(char *)))
+ 				message_fatal(_("The environment variable "
+ 						"%s contains too many "
+ 						"arguments"), varname);
+ 		}
+ 	}
+ 
+ 	// Allocate memory to hold pointers to the arguments. Add one to get
+ 	// space for the terminating NULL (if some systems happen to need it).
+ 	char **argv = xmalloc(((size_t)(argc) + 1) * sizeof(char *));
+ 	argv[0] = argv0;
+ 	argv[argc] = NULL;
+ 
+ 	// Go through the string again. Split the arguments using '\0'
+ 	// characters and add pointers to the resulting strings to argv.
+ 	argc = 1;
+ 	prev_was_space = true;
+ 	for (size_t i = 0; env[i] != '\0'; ++i) {
+ 		if (isspace((unsigned char)env[i])) {
+ 			prev_was_space = true;
+ 			env[i] = '\0';
+ 		} else if (prev_was_space) {
+ 			prev_was_space = false;
+ 			argv[argc++] = env + i;
+ 		}
+ 	}
+ 
+ 	// Parse the argument list we got from the environment. All non-option
+ 	// arguments i.e. filenames are ignored.
+ 	parse_real(args, argc, argv);
+ 
+ 	// Reset the state of the getopt_long() so that we can parse the
+ 	// command line options too. There are two incompatible ways to
+ 	// do it.
+ #ifdef HAVE_OPTRESET
+ 	// BSD
+ 	optind = 1;
+ 	optreset = 1;
+ #else
+ 	// GNU, Solaris
+ 	optind = 0;
+ #endif
+ 
+ 	// We don't need the argument list from environment anymore.
+ 	free(argv);
+ 	free(env);
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ args_parse(args_info *args, int argc, char **argv)
+ {
+ 	// Initialize those parts of *args that we need later.
+ 	args->files_name = NULL;
+ 	args->files_file = NULL;
+ 	args->files_delim = '\0';
+ 
+ 	// Check how we were called.
+ 	{
+ 		// Remove the leading path name, if any.
+ 		const char *name = strrchr(argv[0], '/');
+ 		if (name == NULL)
+ 			name = argv[0];
+ 		else
+ 			++name;
+ 
+ 		// NOTE: It's possible that name[0] is now '\0' if argv[0]
+ 		// is weird, but it doesn't matter here.
+ 
+ 		// Look for full command names instead of substrings like
+ 		// "un", "cat", and "lz" to reduce possibility of false
+ 		// positives when the programs have been renamed.
+ 		if (strstr(name, "xzcat") != NULL) {
+ 			opt_mode = MODE_DECOMPRESS;
+ 			opt_stdout = true;
+ 		} else if (strstr(name, "unxz") != NULL) {
+ 			opt_mode = MODE_DECOMPRESS;
+ 		} else if (strstr(name, "lzcat") != NULL) {
+ 			opt_format = FORMAT_LZMA;
+ 			opt_mode = MODE_DECOMPRESS;
+ 			opt_stdout = true;
+ 		} else if (strstr(name, "unlzma") != NULL) {
+ 			opt_format = FORMAT_LZMA;
+ 			opt_mode = MODE_DECOMPRESS;
+ 		} else if (strstr(name, "lzma") != NULL) {
+ 			opt_format = FORMAT_LZMA;
+ 		}
+ 	}
+ 
+ 	// First the flags from the environment
+ 	parse_environment(args, argv[0], "XZ_DEFAULTS");
+ 	parse_environment(args, argv[0], "XZ_OPT");
+ 
+ 	// Then from the command line
+ 	parse_real(args, argc, argv);
+ 
+ 	// If encoder or decoder support was omitted at build time,
+ 	// show an error now so that the rest of the code can rely on
+ 	// that whatever is in opt_mode is also supported.
+ #ifndef HAVE_ENCODERS
+ 	if (opt_mode == MODE_COMPRESS)
+ 		message_fatal(_("Compression support was disabled "
+ 				"at build time"));
+ #endif
+ #ifndef HAVE_DECODERS
+ 	// Even MODE_LIST cannot work without decoder support so MODE_COMPRESS
+ 	// is the only valid choice.
+ 	if (opt_mode != MODE_COMPRESS)
+ 		message_fatal(_("Decompression support was disabled "
+ 				"at build time"));
+ #endif
+ 
+ #ifdef HAVE_LZIP_DECODER
+ 	if (opt_mode == MODE_COMPRESS && opt_format == FORMAT_LZIP)
+ 		message_fatal(_("Compression of lzip files (.lz) "
+ 				"is not supported"));
+ #endif
+ 
+ 	// Never remove the source file when the destination is not on disk.
+ 	// In test mode the data is written nowhere, but setting opt_stdout
+ 	// will make the rest of the code behave well.
+ 	if (opt_stdout || opt_mode == MODE_TEST) {
+ 		opt_keep_original = true;
+ 		opt_stdout = true;
+ 	}
+ 
+ 	// When compressing, if no --format flag was used, or it
+ 	// was --format=auto, we compress to the .xz format.
+ 	if (opt_mode == MODE_COMPRESS && opt_format == FORMAT_AUTO)
+ 		opt_format = FORMAT_XZ;
+ 
+ 	// Set opt_block_list to NULL if we are not compressing to the .xz
+ 	// format. This option cannot be used outside of this case, and
+ 	// simplifies the implementation later.
+ 	if ((opt_mode != MODE_COMPRESS || opt_format != FORMAT_XZ)
+ 			&& opt_block_list != NULL) {
+ 		message(V_WARNING, _("--block-list is ignored unless "
+ 				"compressing to the .xz format"));
+ 		free(opt_block_list);
+ 		opt_block_list = NULL;
+ 	}
+ 
+ 	// Compression settings need to be validated (options themselves and
+ 	// their memory usage) when compressing to any file format. It has to
+ 	// be done also when uncompressing raw data, since for raw decoding
+ 	// the options given on the command line are used to know what kind
+ 	// of raw data we are supposed to decode.
+ 	if (opt_mode == MODE_COMPRESS || (opt_format == FORMAT_RAW
+ 			&& opt_mode != MODE_LIST))
+ 		coder_set_compression_settings();
+ 
+ 	// If raw format is used and a custom suffix is not provided,
+ 	// then only stdout mode can be used when compressing or decompressing.
+ 	if (opt_format == FORMAT_RAW && !suffix_is_set() && !opt_stdout
+ 			&& (opt_mode == MODE_COMPRESS
+ 				|| opt_mode == MODE_DECOMPRESS))
+ 		message_fatal(_("With --format=raw, --suffix=.SUF is "
+ 				"required unless writing to stdout"));
+ 
+ 	// If no filenames are given, use stdin.
+ 	if (argv[optind] == NULL && args->files_name == NULL) {
+ 		// We don't modify or free() the "-" constant. The caller
+ 		// modifies this so don't make the struct itself const.
+ 		static char *names_stdin[2] = { (char *)"-", NULL };
+ 		args->arg_names = names_stdin;
+ 		args->arg_count = 1;
+ 	} else {
+ 		// We got at least one filename from the command line, or
+ 		// --files or --files0 was specified.
+ 		args->arg_names = argv + optind;
+ 		args->arg_count = (unsigned int)(argc - optind);
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ #ifndef NDEBUG
+ extern void
+ args_free(void)
+ {
+ 	free(opt_block_list);
+ 	return;
+ }
+ #endif
 diff --git a/src/xz/file_io.c b/src/xz/file_io.c
 index e6e4f158..55652c53 100644
 --- a/src/xz/file_io.c
 +++ b/src/xz/file_io.c
-@@ -433,7 +433,7 @@ io_copy_attrs(const file_pair *pair)
+@@ -1,1429 +1,1429 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       file_io.c
+ /// \brief      File opening, unlinking, and closing
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ 
+ #include <fcntl.h>
+ 
+ #ifdef TUKLIB_DOSLIKE
+ #	include <io.h>
+ #else
+ #	include <poll.h>
+ static bool warn_fchown;
+ #endif
+ 
+ #if defined(HAVE_FUTIMES) || defined(HAVE_FUTIMESAT) || defined(HAVE_UTIMES)
+ #	include <sys/time.h>
+ #elif defined(HAVE__FUTIME)
+ #	include <sys/utime.h>
+ #elif defined(HAVE_UTIME)
+ #	include <utime.h>
+ #endif
+ 
+ #ifdef HAVE_CAPSICUM
+ #	ifdef HAVE_SYS_CAPSICUM_H
+ #		include <sys/capsicum.h>
+ #	else
+ #		include <sys/capability.h>
+ #	endif
+ #endif
+ 
+ #include "tuklib_open_stdxxx.h"
+ 
+ #ifdef _MSC_VER
+ #	ifdef _WIN64
+ 		typedef __int64 ssize_t;
+ #	else
+ 		typedef int ssize_t;
+ #	endif
+ 
+ 	typedef int mode_t;
+ #	define S_IRUSR _S_IREAD
+ #	define S_IWUSR _S_IWRITE
+ 
+ #	define setmode _setmode
+ #	define open _open
+ #	define close _close
+ #	define lseek _lseeki64
+ #	define unlink _unlink
+ 
+ 	// The casts are to silence warnings.
+ 	// The sizes are known to be small enough.
+ #	define read(fd, buf, size) _read(fd, buf, (unsigned int)(size))
+ #	define write(fd, buf, size) _write(fd, buf, (unsigned int)(size))
+ 
+ #	define S_ISDIR(m) (((m) & _S_IFMT) == _S_IFDIR)
+ #	define S_ISREG(m) (((m) & _S_IFMT) == _S_IFREG)
+ #endif
+ 
+ #ifndef O_BINARY
+ #	define O_BINARY 0
+ #endif
+ 
+ #ifndef O_NOCTTY
+ #	define O_NOCTTY 0
+ #endif
+ 
+ // Using this macro to silence a warning from gcc -Wlogical-op.
+ #if EAGAIN == EWOULDBLOCK
+ #	define IS_EAGAIN_OR_EWOULDBLOCK(e) ((e) == EAGAIN)
+ #else
+ #	define IS_EAGAIN_OR_EWOULDBLOCK(e) \
+ 		((e) == EAGAIN || (e) == EWOULDBLOCK)
+ #endif
+ 
+ 
+ typedef enum {
+ 	IO_WAIT_MORE,    // Reading or writing is possible.
+ 	IO_WAIT_ERROR,   // Error or user_abort
+ 	IO_WAIT_TIMEOUT, // poll() timed out
+ } io_wait_ret;
+ 
+ 
+ /// If true, try to create sparse files when decompressing.
+ static bool try_sparse = true;
+ 
+ #ifdef ENABLE_SANDBOX
+ /// True if the conditions for sandboxing (described in main()) have been met.
+ static bool sandbox_allowed = false;
+ #endif
+ 
+ #ifndef TUKLIB_DOSLIKE
+ /// File status flags of standard input. This is used by io_open_src()
+ /// and io_close_src().
+ static int stdin_flags;
+ static bool restore_stdin_flags = false;
+ 
+ /// Original file status flags of standard output. This is used by
+ /// io_open_dest() and io_close_dest() to save and restore the flags.
+ static int stdout_flags;
+ static bool restore_stdout_flags = false;
+ 
+ /// Self-pipe used together with the user_abort variable to avoid
+ /// race conditions with signal handling.
+ static int user_abort_pipe[2];
+ #endif
+ 
+ 
+ static bool io_write_buf(file_pair *pair, const uint8_t *buf, size_t size);
+ 
+ 
+ extern void
+ io_init(void)
+ {
+ 	// Make sure that stdin, stdout, and stderr are connected to
+ 	// a valid file descriptor. Exit immediately with exit code ERROR
+ 	// if we cannot make the file descriptors valid. Maybe we should
+ 	// print an error message, but our stderr could be screwed anyway.
+ 	tuklib_open_stdxxx(E_ERROR);
+ 
+ #ifndef TUKLIB_DOSLIKE
+ 	// If fchown() fails setting the owner, we warn about it only if
+ 	// we are root.
+ 	warn_fchown = geteuid() == 0;
+ 
+ 	// Create a pipe for the self-pipe trick.
+ 	if (pipe(user_abort_pipe))
+ 		message_fatal(_("Error creating a pipe: %s"),
+ 				strerror(errno));
+ 
+ 	// Make both ends of the pipe non-blocking.
+ 	for (unsigned i = 0; i < 2; ++i) {
+ 		int flags = fcntl(user_abort_pipe[i], F_GETFL);
+ 		if (flags == -1 || fcntl(user_abort_pipe[i], F_SETFL,
+ 				flags | O_NONBLOCK) == -1)
+ 			message_fatal(_("Error creating a pipe: %s"),
+ 					strerror(errno));
+ 	}
+ #endif
+ 
+ #ifdef __DJGPP__
+ 	// Avoid doing useless things when statting files.
+ 	// This isn't important but doesn't hurt.
+ 	_djstat_flags = _STAT_EXEC_EXT | _STAT_EXEC_MAGIC | _STAT_DIRSIZE;
+ #endif
+ 
+ 	return;
+ }
+ 
+ 
+ #ifndef TUKLIB_DOSLIKE
+ extern void
+ io_write_to_user_abort_pipe(void)
+ {
+ 	// If the write() fails, it's probably due to the pipe being full.
+ 	// Failing in that case is fine. If the reason is something else,
+ 	// there's not much we can do since this is called in a signal
+ 	// handler. So ignore the errors and try to avoid warnings with
+ 	// GCC and glibc when _FORTIFY_SOURCE=2 is used.
+ 	uint8_t b = '\0';
+ 	const ssize_t ret = write(user_abort_pipe[1], &b, 1);
+ 	(void)ret;
+ 	return;
+ }
+ #endif
+ 
+ 
+ extern void
+ io_no_sparse(void)
+ {
+ 	try_sparse = false;
+ 	return;
+ }
+ 
+ 
+ #ifdef ENABLE_SANDBOX
+ extern void
+ io_allow_sandbox(void)
+ {
+ 	sandbox_allowed = true;
+ 	return;
+ }
+ 
+ 
+ /// Enables operating-system-specific sandbox if it is possible.
+ /// src_fd is the file descriptor of the input file.
+ static void
+ io_sandbox_enter(int src_fd)
+ {
+ 	if (!sandbox_allowed) {
+ 		// This message is more often annoying than useful so
+ 		// it's commented out. It can be useful when developing
+ 		// the sandboxing code.
+ 		//message(V_DEBUG, _("Sandbox is disabled due "
+ 		//		"to incompatible command line arguments"));
+ 		return;
+ 	}
+ 
+ 	const char dummy_str[] = "x";
+ 
+ 	// Try to ensure that both libc and xz locale files have been
+ 	// loaded when NLS is enabled.
+ 	snprintf(NULL, 0, "%s%s", _(dummy_str), strerror(EINVAL));
+ 
+ 	// Try to ensure that iconv data files needed for handling multibyte
+ 	// characters have been loaded. This is needed at least with glibc.
+ 	tuklib_mbstr_width(dummy_str, NULL);
+ 
+ #ifdef HAVE_CAPSICUM
+ 	// Capsicum needs FreeBSD 10.0 or later.
+ 	cap_rights_t rights;
+ 
+ 	if (cap_enter())
+ 		goto error;
+ 
+ 	if (cap_rights_limit(src_fd, cap_rights_init(&rights,
+ 			CAP_EVENT, CAP_FCNTL, CAP_LOOKUP, CAP_READ, CAP_SEEK)))
+ 		goto error;
+ 
+ 	if (src_fd != STDIN_FILENO && cap_rights_limit(
+ 			STDIN_FILENO, cap_rights_clear(&rights)))
+ 		goto error;
+ 
+ 	if (cap_rights_limit(STDOUT_FILENO, cap_rights_init(&rights,
+ 			CAP_EVENT, CAP_FCNTL, CAP_FSTAT, CAP_LOOKUP,
+ 			CAP_WRITE, CAP_SEEK)))
+ 		goto error;
+ 
+ 	if (cap_rights_limit(STDERR_FILENO, cap_rights_init(&rights,
+ 			CAP_WRITE)))
+ 		goto error;
+ 
+ 	if (cap_rights_limit(user_abort_pipe[0], cap_rights_init(&rights,
+ 			CAP_EVENT)))
+ 		goto error;
+ 
+ 	if (cap_rights_limit(user_abort_pipe[1], cap_rights_init(&rights,
+ 			CAP_WRITE)))
+ 		goto error;
+ 
+ #elif defined(HAVE_PLEDGE)
+ 	// pledge() was introduced in OpenBSD 5.9.
+ 	//
+ 	// main() unconditionally calls pledge() with fairly relaxed
+ 	// promises which work in all situations. Here we make the
+ 	// sandbox more strict.
+ 	if (pledge("stdio", ""))
+ 		goto error;
+ 
+ 	(void)src_fd;
+ 
+ #else
+ #	error ENABLE_SANDBOX is defined but no sandboxing method was found.
+ #endif
+ 
+ 	// This message is annoying in xz -lvv.
+ 	//message(V_DEBUG, _("Sandbox was successfully enabled"));
+ 	return;
+ 
+ error:
+ #ifdef HAVE_CAPSICUM
+ 	// If a kernel is configured without capability mode support or
+ 	// used in an emulator that does not implement the capability
+ 	// system calls, then the Capsicum system calls will fail and set
+ 	// errno to ENOSYS. In that case xz will silently run without
+ 	// the sandbox.
+ 	if (errno == ENOSYS)
+ 		return;
+ #endif
+ 	message_fatal(_("Failed to enable the sandbox"));
+ }
+ #endif // ENABLE_SANDBOX
+ 
+ 
+ #ifndef TUKLIB_DOSLIKE
+ /// \brief      Waits for input or output to become available or for a signal
+ ///
+ /// This uses the self-pipe trick to avoid a race condition that can occur
+ /// if a signal is caught after user_abort has been checked but before e.g.
+ /// read() has been called. In that situation read() could block unless
+ /// non-blocking I/O is used. With non-blocking I/O something like select()
+ /// or poll() is needed to avoid a busy-wait loop, and the same race condition
+ /// pops up again. There are pselect() (POSIX-1.2001) and ppoll() (not in
+ /// POSIX) but neither is portable enough in 2013. The self-pipe trick is
+ /// old and very portable.
+ static io_wait_ret
+ io_wait(file_pair *pair, int timeout, bool is_reading)
+ {
+ 	struct pollfd pfd[2];
+ 
+ 	if (is_reading) {
+ 		pfd[0].fd = pair->src_fd;
+ 		pfd[0].events = POLLIN;
+ 	} else {
+ 		pfd[0].fd = pair->dest_fd;
+ 		pfd[0].events = POLLOUT;
+ 	}
+ 
+ 	pfd[1].fd = user_abort_pipe[0];
+ 	pfd[1].events = POLLIN;
+ 
+ 	while (true) {
+ 		const int ret = poll(pfd, 2, timeout);
+ 
+ 		if (user_abort)
+ 			return IO_WAIT_ERROR;
+ 
+ 		if (ret == -1) {
+ 			if (errno == EINTR || errno == EAGAIN)
+ 				continue;
+ 
+ 			message_error(_("%s: poll() failed: %s"),
+ 					is_reading ? pair->src_name
+ 						: pair->dest_name,
+ 					strerror(errno));
+ 			return IO_WAIT_ERROR;
+ 		}
+ 
+ 		if (ret == 0)
+ 			return IO_WAIT_TIMEOUT;
+ 
+ 		if (pfd[0].revents != 0)
+ 			return IO_WAIT_MORE;
+ 	}
+ }
+ #endif
+ 
+ 
+ /// \brief      Unlink a file
+ ///
+ /// This tries to verify that the file being unlinked really is the file that
+ /// we want to unlink by verifying device and inode numbers. There's still
+ /// a small unavoidable race, but this is much better than nothing (the file
+ /// could have been moved/replaced even hours earlier).
+ static void
+ io_unlink(const char *name, const struct stat *known_st)
+ {
+ #if defined(TUKLIB_DOSLIKE)
+ 	// On DOS-like systems, st_ino is meaningless, so don't bother
+ 	// testing it. Just silence a compiler warning.
+ 	(void)known_st;
+ #else
+ 	struct stat new_st;
+ 
+ 	// If --force was used, use stat() instead of lstat(). This way
+ 	// (de)compressing symlinks works correctly. However, it also means
+ 	// that xz cannot detect if a regular file foo is renamed to bar
+ 	// and then a symlink foo -> bar is created. Because of stat()
+ 	// instead of lstat(), xz will think that foo hasn't been replaced
+ 	// with another file. Thus, xz will remove foo even though it no
+ 	// longer is the same file that xz used when it started compressing.
+ 	// Probably it's not too bad though, so this doesn't need a more
+ 	// complex fix.
+ 	const int stat_ret = opt_force
+ 			? stat(name, &new_st) : lstat(name, &new_st);
+ 
+ 	if (stat_ret
+ #	ifdef __VMS
+ 			// st_ino is an array, and we don't want to
+ 			// compare st_dev at all.
+ 			|| memcmp(&new_st.st_ino, &known_st->st_ino,
+ 				sizeof(new_st.st_ino)) != 0
+ #	else
+ 			// Typical POSIX-like system
+ 			|| new_st.st_dev != known_st->st_dev
+ 			|| new_st.st_ino != known_st->st_ino
+ #	endif
+ 			)
+ 		// TRANSLATORS: When compression or decompression finishes,
+ 		// and xz is going to remove the source file, xz first checks
+ 		// if the source file still exists, and if it does, does its
+ 		// device and inode numbers match what xz saw when it opened
+ 		// the source file. If these checks fail, this message is
+ 		// shown, %s being the filename, and the file is not deleted.
+ 		// The check for device and inode numbers is there, because
+ 		// it is possible that the user has put a new file in place
+ 		// of the original file, and in that case it obviously
+ 		// shouldn't be removed.
+ 		message_warning(_("%s: File seems to have been moved, "
+ 				"not removing"), name);
+ 	else
+ #endif
+ 		// There's a race condition between lstat() and unlink()
+ 		// but at least we have tried to avoid removing wrong file.
+ 		if (unlink(name))
+ 			message_warning(_("%s: Cannot remove: %s"),
+ 					name, strerror(errno));
+ 
+ 	return;
+ }
+ 
+ 
+ /// \brief      Copies owner/group and permissions
+ ///
+ /// \todo       ACL and EA support
+ ///
+ static void
+ io_copy_attrs(const file_pair *pair)
+ {
+ 	// Skip chown and chmod on Windows.
+ #ifndef TUKLIB_DOSLIKE
+ 	// This function is more tricky than you may think at first.
+ 	// Blindly copying permissions may permit users to access the
+ 	// destination file who didn't have permission to access the
+ 	// source file.
+ 
+ 	// Try changing the owner of the file. If we aren't root or the owner
+ 	// isn't already us, fchown() probably doesn't succeed. We warn
+ 	// about failing fchown() only if we are root.
+ 	if (fchown(pair->dest_fd, pair->src_st.st_uid, (gid_t)(-1))
+ 			&& warn_fchown)
+ 		message_warning(_("%s: Cannot set the file owner: %s"),
+ 				pair->dest_name, strerror(errno));
+ 
+ 	mode_t mode;
+ 
+ 	// With BSD semantics the new dest file may have a group that
+ 	// does not belong to the user. If the src file has the same gid
+ 	// nothing has to be done. Nevertheless OpenBSD fchown(2) fails
+ 	// in this case which seems to be POSIX compliant. As there is
+ 	// nothing to do, skip the system call.
+ 	if (pair->dest_st.st_gid != pair->src_st.st_gid
+ 			&& fchown(pair->dest_fd, (uid_t)(-1),
+ 				pair->src_st.st_gid)) {
  		message_warning(_("%s: Cannot set the file group: %s"),
  				pair->dest_name, strerror(errno));
  		// We can still safely copy some additional permissions:
@@ -41,11 +1313,1119 @@ index e6e4f158..55652c53 100644
  		// also vice versa.
  		//
  		// NOTE: After this, the owner of the source file may
+ 		// get additional permissions. This shouldn't be too bad,
+ 		// because the owner would have had permission to chmod
+ 		// the original file anyway.
+ 		mode = ((pair->src_st.st_mode & 0070) >> 3)
+ 				& (pair->src_st.st_mode & 0007);
+ 		mode = (pair->src_st.st_mode & 0700) | (mode << 3) | mode;
+ 	} else {
+ 		// Drop the setuid, setgid, and sticky bits.
+ 		mode = pair->src_st.st_mode & 0777;
+ 	}
+ 
+ 	if (fchmod(pair->dest_fd, mode))
+ 		message_warning(_("%s: Cannot set the file permissions: %s"),
+ 				pair->dest_name, strerror(errno));
+ #endif
+ 
+ 	// Copy the timestamps. We have several possible ways to do this, of
+ 	// which some are better in both security and precision.
+ 	//
+ 	// First, get the nanosecond part of the timestamps. As of writing,
+ 	// it's not standardized by POSIX, and there are several names for
+ 	// the same thing in struct stat.
+ 	long atime_nsec;
+ 	long mtime_nsec;
+ 
+ #	if defined(HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC)
+ 	// GNU and Solaris
+ 	atime_nsec = pair->src_st.st_atim.tv_nsec;
+ 	mtime_nsec = pair->src_st.st_mtim.tv_nsec;
+ 
+ #	elif defined(HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC)
+ 	// BSD
+ 	atime_nsec = pair->src_st.st_atimespec.tv_nsec;
+ 	mtime_nsec = pair->src_st.st_mtimespec.tv_nsec;
+ 
+ #	elif defined(HAVE_STRUCT_STAT_ST_ATIMENSEC)
+ 	// GNU and BSD without extensions
+ 	atime_nsec = pair->src_st.st_atimensec;
+ 	mtime_nsec = pair->src_st.st_mtimensec;
+ 
+ #	elif defined(HAVE_STRUCT_STAT_ST_UATIME)
+ 	// Tru64
+ 	atime_nsec = pair->src_st.st_uatime * 1000;
+ 	mtime_nsec = pair->src_st.st_umtime * 1000;
+ 
+ #	elif defined(HAVE_STRUCT_STAT_ST_ATIM_ST__TIM_TV_NSEC)
+ 	// UnixWare
+ 	atime_nsec = pair->src_st.st_atim.st__tim.tv_nsec;
+ 	mtime_nsec = pair->src_st.st_mtim.st__tim.tv_nsec;
+ 
+ #	else
+ 	// Safe fallback
+ 	atime_nsec = 0;
+ 	mtime_nsec = 0;
+ #	endif
+ 
+ 	// Construct a structure to hold the timestamps and call appropriate
+ 	// function to set the timestamps.
+ #if defined(HAVE_FUTIMENS)
+ 	// Use nanosecond precision.
+ 	struct timespec tv[2];
+ 	tv[0].tv_sec = pair->src_st.st_atime;
+ 	tv[0].tv_nsec = atime_nsec;
+ 	tv[1].tv_sec = pair->src_st.st_mtime;
+ 	tv[1].tv_nsec = mtime_nsec;
+ 
+ 	(void)futimens(pair->dest_fd, tv);
+ 
+ #elif defined(HAVE_FUTIMES) || defined(HAVE_FUTIMESAT) || defined(HAVE_UTIMES)
+ 	// Use microsecond precision.
+ 	struct timeval tv[2];
+ 	tv[0].tv_sec = pair->src_st.st_atime;
+ 	tv[0].tv_usec = atime_nsec / 1000;
+ 	tv[1].tv_sec = pair->src_st.st_mtime;
+ 	tv[1].tv_usec = mtime_nsec / 1000;
+ 
+ #	if defined(HAVE_FUTIMES)
+ 	(void)futimes(pair->dest_fd, tv);
+ #	elif defined(HAVE_FUTIMESAT)
+ 	(void)futimesat(pair->dest_fd, NULL, tv);
+ #	else
+ 	// Argh, no function to use a file descriptor to set the timestamp.
+ 	(void)utimes(pair->dest_name, tv);
+ #	endif
+ 
+ #elif defined(HAVE__FUTIME)
+ 	// Use one-second precision with Windows-specific _futime().
+ 	// We could use utime() too except that for some reason the
+ 	// timestamp will get reset at close(). With _futime() it works.
+ 	// This struct cannot be const as _futime() takes a non-const pointer.
+ 	struct _utimbuf buf = {
+ 		.actime = pair->src_st.st_atime,
+ 		.modtime = pair->src_st.st_mtime,
+ 	};
+ 
+ 	// Avoid warnings.
+ 	(void)atime_nsec;
+ 	(void)mtime_nsec;
+ 
+ 	(void)_futime(pair->dest_fd, &buf);
+ 
+ #elif defined(HAVE_UTIME)
+ 	// Use one-second precision. utime() doesn't support using file
+ 	// descriptor either. Some systems have broken utime() prototype
+ 	// so don't make this const.
+ 	struct utimbuf buf = {
+ 		.actime = pair->src_st.st_atime,
+ 		.modtime = pair->src_st.st_mtime,
+ 	};
+ 
+ 	// Avoid warnings.
+ 	(void)atime_nsec;
+ 	(void)mtime_nsec;
+ 
+ 	(void)utime(pair->dest_name, &buf);
+ #endif
+ 
+ 	return;
+ }
+ 
+ 
+ /// Opens the source file. Returns false on success, true on error.
+ static bool
+ io_open_src_real(file_pair *pair)
+ {
+ 	// There's nothing to open when reading from stdin.
+ 	if (pair->src_name == stdin_filename) {
+ 		pair->src_fd = STDIN_FILENO;
+ #ifdef TUKLIB_DOSLIKE
+ 		setmode(STDIN_FILENO, O_BINARY);
+ #else
+ 		// Try to set stdin to non-blocking mode. It won't work
+ 		// e.g. on OpenBSD if stdout is e.g. /dev/null. In such
+ 		// case we proceed as if stdin were non-blocking anyway
+ 		// (in case of /dev/null it will be in practice). The
+ 		// same applies to stdout in io_open_dest_real().
+ 		stdin_flags = fcntl(STDIN_FILENO, F_GETFL);
+ 		if (stdin_flags == -1) {
+ 			message_error(_("Error getting the file status flags "
+ 					"from standard input: %s"),
+ 					strerror(errno));
+ 			return true;
+ 		}
+ 
+ 		if ((stdin_flags & O_NONBLOCK) == 0
+ 				&& fcntl(STDIN_FILENO, F_SETFL,
+ 					stdin_flags | O_NONBLOCK) != -1)
+ 			restore_stdin_flags = true;
+ #endif
+ #ifdef HAVE_POSIX_FADVISE
+ 		// It will fail if stdin is a pipe and that's fine.
+ 		(void)posix_fadvise(STDIN_FILENO, 0, 0,
+ 				opt_mode == MODE_LIST
+ 					? POSIX_FADV_RANDOM
+ 					: POSIX_FADV_SEQUENTIAL);
+ #endif
+ 		return false;
+ 	}
+ 
+ 	// Symlinks are not followed unless writing to stdout or --force
+ 	// or --keep was used.
+ 	const bool follow_symlinks
+ 			= opt_stdout || opt_force || opt_keep_original;
+ 
+ 	// We accept only regular files if we are writing the output
+ 	// to disk too. bzip2 allows overriding this with --force but
+ 	// gzip and xz don't.
+ 	const bool reg_files_only = !opt_stdout;
+ 
+ 	// Flags for open()
+ 	int flags = O_RDONLY | O_BINARY | O_NOCTTY;
+ 
+ #ifndef TUKLIB_DOSLIKE
+ 	// Use non-blocking I/O:
+ 	//   - It prevents blocking when opening FIFOs and some other
+ 	//     special files, which is good if we want to accept only
+ 	//     regular files.
+ 	//   - It can help avoiding some race conditions with signal handling.
+ 	flags |= O_NONBLOCK;
+ #endif
+ 
+ #if defined(O_NOFOLLOW)
+ 	if (!follow_symlinks)
+ 		flags |= O_NOFOLLOW;
+ #elif !defined(TUKLIB_DOSLIKE)
+ 	// Some POSIX-like systems lack O_NOFOLLOW (it's not required
+ 	// by POSIX). Check for symlinks with a separate lstat() on
+ 	// these systems.
+ 	if (!follow_symlinks) {
+ 		struct stat st;
+ 		if (lstat(pair->src_name, &st)) {
+ 			message_error(_("%s: %s"), pair->src_name,
+ 					strerror(errno));
+ 			return true;
+ 
+ 		} else if (S_ISLNK(st.st_mode)) {
+ 			message_warning(_("%s: Is a symbolic link, "
+ 					"skipping"), pair->src_name);
+ 			return true;
+ 		}
+ 	}
+ #else
+ 	// Avoid warnings.
+ 	(void)follow_symlinks;
+ #endif
+ 
+ 	// Try to open the file. Signals have been blocked so EINTR shouldn't
+ 	// be possible.
+ 	pair->src_fd = open(pair->src_name, flags);
+ 
+ 	if (pair->src_fd == -1) {
+ 		// Signals (that have a signal handler) have been blocked.
+ 		assert(errno != EINTR);
+ 
+ #ifdef O_NOFOLLOW
+ 		// Give an understandable error message if the reason
+ 		// for failing was that the file was a symbolic link.
+ 		//
+ 		// Note that at least Linux, OpenBSD, Solaris, and Darwin
+ 		// use ELOOP to indicate that O_NOFOLLOW was the reason
+ 		// that open() failed. Because there may be
+ 		// directories in the pathname, ELOOP may occur also
+ 		// because of a symlink loop in the directory part.
+ 		// So ELOOP doesn't tell us what actually went wrong,
+ 		// and this stupidity went into POSIX-1.2008 too.
+ 		//
+ 		// FreeBSD associates EMLINK with O_NOFOLLOW and
+ 		// Tru64 uses ENOTSUP. We use these directly here
+ 		// and skip the lstat() call and the associated race.
+ 		// I want to hear if there are other kernels that
+ 		// fail with something else than ELOOP with O_NOFOLLOW.
+ 		bool was_symlink = false;
+ 
+ #	if defined(__FreeBSD__) || defined(__DragonFly__)
+ 		if (errno == EMLINK)
+ 			was_symlink = true;
+ 
+ #	elif defined(__digital__) && defined(__unix__)
+ 		if (errno == ENOTSUP)
+ 			was_symlink = true;
+ 
+ #	elif defined(__NetBSD__)
+ 		if (errno == EFTYPE)
+ 			was_symlink = true;
+ 
+ #	else
+ 		if (errno == ELOOP && !follow_symlinks) {
+ 			const int saved_errno = errno;
+ 			struct stat st;
+ 			if (lstat(pair->src_name, &st) == 0
+ 					&& S_ISLNK(st.st_mode))
+ 				was_symlink = true;
+ 
+ 			errno = saved_errno;
+ 		}
+ #	endif
+ 
+ 		if (was_symlink)
+ 			message_warning(_("%s: Is a symbolic link, "
+ 					"skipping"), pair->src_name);
+ 		else
+ #endif
+ 			// Something else than O_NOFOLLOW failing
+ 			// (assuming that the race conditions didn't
+ 			// confuse us).
+ 			message_error(_("%s: %s"), pair->src_name,
+ 					strerror(errno));
+ 
+ 		return true;
+ 	}
+ 
+ 	// Stat the source file. We need the result also when we copy
+ 	// the permissions, and when unlinking.
+ 	//
+ 	// NOTE: Use stat() instead of fstat() with DJGPP, because
+ 	// then we have a better chance to get st_ino value that can
+ 	// be used in io_open_dest_real() to prevent overwriting the
+ 	// source file.
+ #ifdef __DJGPP__
+ 	if (stat(pair->src_name, &pair->src_st))
+ 		goto error_msg;
+ #else
+ 	if (fstat(pair->src_fd, &pair->src_st))
+ 		goto error_msg;
+ #endif
+ 
+ 	if (S_ISDIR(pair->src_st.st_mode)) {
+ 		message_warning(_("%s: Is a directory, skipping"),
+ 				pair->src_name);
+ 		goto error;
+ 	}
+ 
+ 	if (reg_files_only && !S_ISREG(pair->src_st.st_mode)) {
+ 		message_warning(_("%s: Not a regular file, skipping"),
+ 				pair->src_name);
+ 		goto error;
+ 	}
+ 
+ #ifndef TUKLIB_DOSLIKE
+ 	if (reg_files_only && !opt_force && !opt_keep_original) {
+ 		if (pair->src_st.st_mode & (S_ISUID | S_ISGID)) {
+ 			// gzip rejects setuid and setgid files even
+ 			// when --force was used. bzip2 doesn't check
+ 			// for them, but calls fchown() after fchmod(),
+ 			// and many systems automatically drop setuid
+ 			// and setgid bits there.
+ 			//
+ 			// We accept setuid and setgid files if
+ 			// --force or --keep was used. We drop these bits
+ 			// explicitly in io_copy_attr().
+ 			message_warning(_("%s: File has setuid or "
+ 					"setgid bit set, skipping"),
+ 					pair->src_name);
+ 			goto error;
+ 		}
+ 
+ 		if (pair->src_st.st_mode & S_ISVTX) {
+ 			message_warning(_("%s: File has sticky bit "
+ 					"set, skipping"),
+ 					pair->src_name);
+ 			goto error;
+ 		}
+ 
+ 		if (pair->src_st.st_nlink > 1) {
+ 			message_warning(_("%s: Input file has more "
+ 					"than one hard link, "
+ 					"skipping"), pair->src_name);
+ 			goto error;
+ 		}
+ 	}
+ 
+ 	// If it is something else than a regular file, wait until
+ 	// there is input available. This way reading from FIFOs
+ 	// will work when open() is used with O_NONBLOCK.
+ 	if (!S_ISREG(pair->src_st.st_mode)) {
+ 		signals_unblock();
+ 		const io_wait_ret ret = io_wait(pair, -1, true);
+ 		signals_block();
+ 
+ 		if (ret != IO_WAIT_MORE)
+ 			goto error;
+ 	}
+ #endif
+ 
+ #ifdef HAVE_POSIX_FADVISE
+ 	// It will fail with some special files like FIFOs but that is fine.
+ 	(void)posix_fadvise(pair->src_fd, 0, 0,
+ 			opt_mode == MODE_LIST
+ 				? POSIX_FADV_RANDOM
+ 				: POSIX_FADV_SEQUENTIAL);
+ #endif
+ 
+ 	return false;
+ 
+ error_msg:
+ 	message_error(_("%s: %s"), pair->src_name, strerror(errno));
+ error:
+ 	(void)close(pair->src_fd);
+ 	return true;
+ }
+ 
+ 
+ extern file_pair *
+ io_open_src(const char *src_name)
+ {
+ 	if (src_name[0] == '\0') {
+ 		message_error(_("Empty filename, skipping"));
+ 		return NULL;
+ 	}
+ 
+ 	// Since we have only one file open at a time, we can use
+ 	// a statically allocated structure.
+ 	static file_pair pair;
+ 
+ 	// This implicitly also initializes src_st.st_size to zero
+ 	// which is expected to be <= 0 by default. fstat() isn't
+ 	// called when reading from standard input but src_st.st_size
+ 	// is still read.
+ 	pair = (file_pair){
+ 		.src_name = src_name,
+ 		.dest_name = NULL,
+ 		.src_fd = -1,
+ 		.dest_fd = -1,
+ 		.src_eof = false,
+ 		.src_has_seen_input = false,
+ 		.flush_needed = false,
+ 		.dest_try_sparse = false,
+ 		.dest_pending_sparse = 0,
+ 	};
+ 
+ 	// Block the signals, for which we have a custom signal handler, so
+ 	// that we don't need to worry about EINTR.
+ 	signals_block();
+ 	const bool error = io_open_src_real(&pair);
+ 	signals_unblock();
+ 
+ #ifdef ENABLE_SANDBOX
+ 	if (!error)
+ 		io_sandbox_enter(pair.src_fd);
+ #endif
+ 
+ 	return error ? NULL : &pair;
+ }
+ 
+ 
+ /// \brief      Closes source file of the file_pair structure
+ ///
+ /// \param      pair    File whose src_fd should be closed
+ /// \param      success If true, the file will be removed from the disk if
+ ///                     closing succeeds and --keep hasn't been used.
+ static void
+ io_close_src(file_pair *pair, bool success)
+ {
+ #ifndef TUKLIB_DOSLIKE
+ 	if (restore_stdin_flags) {
+ 		assert(pair->src_fd == STDIN_FILENO);
+ 
+ 		restore_stdin_flags = false;
+ 
+ 		if (fcntl(STDIN_FILENO, F_SETFL, stdin_flags) == -1)
+ 			message_error(_("Error restoring the status flags "
+ 					"to standard input: %s"),
+ 					strerror(errno));
+ 	}
+ #endif
+ 
+ 	if (pair->src_fd != STDIN_FILENO && pair->src_fd != -1) {
+ 		// Close the file before possibly unlinking it. On DOS-like
+ 		// systems this is always required since unlinking will fail
+ 		// if the file is open. On POSIX systems it usually works
+ 		// to unlink open files, but in some cases it doesn't and
+ 		// one gets EBUSY in errno.
+ 		//
+ 		// xz 5.2.2 and older unlinked the file before closing it
+ 		// (except on DOS-like systems). The old code didn't handle
+ 		// EBUSY and could fail e.g. on some CIFS shares. The
+ 		// advantage of unlinking before closing is negligible
+ 		// (avoids a race between close() and stat()/lstat() and
+ 		// unlink()), so let's keep this simple.
+ 		(void)close(pair->src_fd);
+ 
+ 		if (success && !opt_keep_original)
+ 			io_unlink(pair->src_name, &pair->src_st);
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ static bool
+ io_open_dest_real(file_pair *pair)
+ {
+ 	if (opt_stdout || pair->src_fd == STDIN_FILENO) {
+ 		// We don't modify or free() this.
+ 		pair->dest_name = (char *)"(stdout)";
+ 		pair->dest_fd = STDOUT_FILENO;
+ #ifdef TUKLIB_DOSLIKE
+ 		setmode(STDOUT_FILENO, O_BINARY);
+ #else
+ 		// Try to set O_NONBLOCK if it isn't already set.
+ 		// If it fails, we assume that stdout is non-blocking
+ 		// in practice. See the comments in io_open_src_real()
+ 		// for similar situation with stdin.
+ 		//
+ 		// NOTE: O_APPEND may be unset later in this function
+ 		// and it relies on stdout_flags being set here.
+ 		stdout_flags = fcntl(STDOUT_FILENO, F_GETFL);
+ 		if (stdout_flags == -1) {
+ 			message_error(_("Error getting the file status flags "
+ 					"from standard output: %s"),
+ 					strerror(errno));
+ 			return true;
+ 		}
+ 
+ 		if ((stdout_flags & O_NONBLOCK) == 0
+ 				&& fcntl(STDOUT_FILENO, F_SETFL,
+ 					stdout_flags | O_NONBLOCK) != -1)
+ 				restore_stdout_flags = true;
+ #endif
+ 	} else {
+ 		pair->dest_name = suffix_get_dest_name(pair->src_name);
+ 		if (pair->dest_name == NULL)
+ 			return true;
+ 
+ #ifdef __DJGPP__
+ 		struct stat st;
+ 		if (stat(pair->dest_name, &st) == 0) {
+ 			// Check that it isn't a special file like "prn".
+ 			if (st.st_dev == -1) {
+ 				message_error("%s: Refusing to write to "
+ 						"a DOS special file",
+ 						pair->dest_name);
+ 				free(pair->dest_name);
+ 				return true;
+ 			}
+ 
+ 			// Check that we aren't overwriting the source file.
+ 			if (st.st_dev == pair->src_st.st_dev
+ 					&& st.st_ino == pair->src_st.st_ino) {
+ 				message_error("%s: Output file is the same "
+ 						"as the input file",
+ 						pair->dest_name);
+ 				free(pair->dest_name);
+ 				return true;
+ 			}
+ 		}
+ #endif
+ 
+ 		// If --force was used, unlink the target file first.
+ 		if (opt_force && unlink(pair->dest_name) && errno != ENOENT) {
+ 			message_error(_("%s: Cannot remove: %s"),
+ 					pair->dest_name, strerror(errno));
+ 			free(pair->dest_name);
+ 			return true;
+ 		}
+ 
+ 		// Open the file.
+ 		int flags = O_WRONLY | O_BINARY | O_NOCTTY
+ 				| O_CREAT | O_EXCL;
+ #ifndef TUKLIB_DOSLIKE
+ 		flags |= O_NONBLOCK;
+ #endif
+ 		const mode_t mode = S_IRUSR | S_IWUSR;
+ 		pair->dest_fd = open(pair->dest_name, flags, mode);
+ 
+ 		if (pair->dest_fd == -1) {
+ 			message_error(_("%s: %s"), pair->dest_name,
+ 					strerror(errno));
+ 			free(pair->dest_name);
+ 			return true;
+ 		}
+ 	}
+ 
+ 	if (fstat(pair->dest_fd, &pair->dest_st)) {
+ 		// If fstat() really fails, we have a safe fallback here.
+ #if defined(__VMS)
+ 		pair->dest_st.st_ino[0] = 0;
+ 		pair->dest_st.st_ino[1] = 0;
+ 		pair->dest_st.st_ino[2] = 0;
+ #else
+ 		pair->dest_st.st_dev = 0;
+ 		pair->dest_st.st_ino = 0;
+ #endif
+ 	}
+ #if defined(TUKLIB_DOSLIKE) && !defined(__DJGPP__)
+ 	// Check that the output file is a regular file. We open with O_EXCL
+ 	// but that doesn't prevent open()/_open() on Windows from opening
+ 	// files like "con" or "nul".
+ 	//
+ 	// With DJGPP this check is done with stat() even before opening
+ 	// the output file. That method or a variant of it doesn't work on
+ 	// Windows because on Windows stat()/_stat64() sets st.st_mode so
+ 	// that S_ISREG(st.st_mode) will be true even for special files.
+ 	// With fstat()/_fstat64() it works.
+ 	else if (pair->dest_fd != STDOUT_FILENO
+ 			&& !S_ISREG(pair->dest_st.st_mode)) {
+ 		message_error("%s: Destination is not a regular file",
+ 				pair->dest_name);
+ 
+ 		// dest_fd needs to be reset to -1 to keep io_close() working.
+ 		(void)close(pair->dest_fd);
+ 		pair->dest_fd = -1;
+ 
+ 		free(pair->dest_name);
+ 		return true;
+ 	}
+ #elif !defined(TUKLIB_DOSLIKE)
+ 	else if (try_sparse && opt_mode == MODE_DECOMPRESS) {
+ 		// When writing to standard output, we need to be extra
+ 		// careful:
+ 		//  - It may be connected to something else than
+ 		//    a regular file.
+ 		//  - We aren't necessarily writing to a new empty file
+ 		//    or to the end of an existing file.
+ 		//  - O_APPEND may be active.
+ 		//
+ 		// TODO: I'm keeping this disabled for DOS-like systems
+ 		// for now. FAT doesn't support sparse files, but NTFS
+ 		// does, so maybe this should be enabled on Windows after
+ 		// some testing.
+ 		if (pair->dest_fd == STDOUT_FILENO) {
+ 			if (!S_ISREG(pair->dest_st.st_mode))
+ 				return false;
+ 
+ 			if (stdout_flags & O_APPEND) {
+ 				// Creating a sparse file is not possible
+ 				// when O_APPEND is active (it's used by
+ 				// shell's >> redirection). As I understand
+ 				// it, it is safe to temporarily disable
+ 				// O_APPEND in xz, because if someone
+ 				// happened to write to the same file at the
+ 				// same time, results would be bad anyway
+ 				// (users shouldn't assume that xz uses any
+ 				// specific block size when writing data).
+ 				//
+ 				// The write position may be something else
+ 				// than the end of the file, so we must fix
+ 				// it to start writing at the end of the file
+ 				// to imitate O_APPEND.
+ 				if (lseek(STDOUT_FILENO, 0, SEEK_END) == -1)
+ 					return false;
+ 
+ 				// Construct the new file status flags.
+ 				// If O_NONBLOCK was set earlier in this
+ 				// function, it must be kept here too.
+ 				int flags = stdout_flags & ~O_APPEND;
+ 				if (restore_stdout_flags)
+ 					flags |= O_NONBLOCK;
+ 
+ 				// If this fcntl() fails, we continue but won't
+ 				// try to create sparse output. The original
+ 				// flags will still be restored if needed (to
+ 				// unset O_NONBLOCK) when the file is finished.
+ 				if (fcntl(STDOUT_FILENO, F_SETFL, flags) == -1)
+ 					return false;
+ 
+ 				// Disabling O_APPEND succeeded. Mark
+ 				// that the flags should be restored
+ 				// in io_close_dest(). (This may have already
+ 				// been set when enabling O_NONBLOCK.)
+ 				restore_stdout_flags = true;
+ 
+ 			} else if (lseek(STDOUT_FILENO, 0, SEEK_CUR)
+ 					!= pair->dest_st.st_size) {
+ 				// Writing won't start exactly at the end
+ 				// of the file. We cannot use sparse output,
+ 				// because it would probably corrupt the file.
+ 				return false;
+ 			}
+ 		}
+ 
+ 		pair->dest_try_sparse = true;
+ 	}
+ #endif
+ 
+ 	return false;
+ }
+ 
+ 
+ extern bool
+ io_open_dest(file_pair *pair)
+ {
+ 	signals_block();
+ 	const bool ret = io_open_dest_real(pair);
+ 	signals_unblock();
+ 	return ret;
+ }
+ 
+ 
+ /// \brief      Closes destination file of the file_pair structure
+ ///
+ /// \param      pair    File whose dest_fd should be closed
+ /// \param      success If false, the file will be removed from the disk.
+ ///
+ /// \return     Zero if closing succeeds. On error, -1 is returned and
+ ///             error message printed.
+ static bool
+ io_close_dest(file_pair *pair, bool success)
+ {
+ #ifndef TUKLIB_DOSLIKE
+ 	// If io_open_dest() has disabled O_APPEND, restore it here.
+ 	if (restore_stdout_flags) {
+ 		assert(pair->dest_fd == STDOUT_FILENO);
+ 
+ 		restore_stdout_flags = false;
+ 
+ 		if (fcntl(STDOUT_FILENO, F_SETFL, stdout_flags) == -1) {
+ 			message_error(_("Error restoring the O_APPEND flag "
+ 					"to standard output: %s"),
+ 					strerror(errno));
+ 			return true;
+ 		}
+ 	}
+ #endif
+ 
+ 	if (pair->dest_fd == -1 || pair->dest_fd == STDOUT_FILENO)
+ 		return false;
+ 
+ 	if (close(pair->dest_fd)) {
+ 		message_error(_("%s: Closing the file failed: %s"),
+ 				pair->dest_name, strerror(errno));
+ 
+ 		// Closing destination file failed, so we cannot trust its
+ 		// contents. Get rid of junk:
+ 		io_unlink(pair->dest_name, &pair->dest_st);
+ 		free(pair->dest_name);
+ 		return true;
+ 	}
+ 
+ 	// If the operation using this file wasn't successful, we git rid
+ 	// of the junk file.
+ 	if (!success)
+ 		io_unlink(pair->dest_name, &pair->dest_st);
+ 
+ 	free(pair->dest_name);
+ 
+ 	return false;
+ }
+ 
+ 
+ extern void
+ io_close(file_pair *pair, bool success)
+ {
+ 	// Take care of sparseness at the end of the output file.
+ 	if (success && pair->dest_try_sparse
+ 			&& pair->dest_pending_sparse > 0) {
+ 		// Seek forward one byte less than the size of the pending
+ 		// hole, then write one zero-byte. This way the file grows
+ 		// to its correct size. An alternative would be to use
+ 		// ftruncate() but that isn't portable enough (e.g. it
+ 		// doesn't work with FAT on Linux; FAT isn't that important
+ 		// since it doesn't support sparse files anyway, but we don't
+ 		// want to create corrupt files on it).
+ 		if (lseek(pair->dest_fd, pair->dest_pending_sparse - 1,
+ 				SEEK_CUR) == -1) {
+ 			message_error(_("%s: Seeking failed when trying "
+ 					"to create a sparse file: %s"),
+ 					pair->dest_name, strerror(errno));
+ 			success = false;
+ 		} else {
+ 			const uint8_t zero[1] = { '\0' };
+ 			if (io_write_buf(pair, zero, 1))
+ 				success = false;
+ 		}
+ 	}
+ 
+ 	signals_block();
+ 
+ 	// Copy the file attributes. We need to skip this if destination
+ 	// file isn't open or it is standard output.
+ 	if (success && pair->dest_fd != -1 && pair->dest_fd != STDOUT_FILENO)
+ 		io_copy_attrs(pair);
+ 
+ 	// Close the destination first. If it fails, we must not remove
+ 	// the source file!
+ 	if (io_close_dest(pair, success))
+ 		success = false;
+ 
+ 	// Close the source file, and unlink it if the operation using this
+ 	// file pair was successful and we haven't requested to keep the
+ 	// source file.
+ 	io_close_src(pair, success);
+ 
+ 	signals_unblock();
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ io_fix_src_pos(file_pair *pair, size_t rewind_size)
+ {
+ 	assert(rewind_size <= IO_BUFFER_SIZE);
+ 
+ 	if (rewind_size > 0) {
+ 		// This doesn't need to work on unseekable file descriptors,
+ 		// so just ignore possible errors.
+ 		(void)lseek(pair->src_fd, -(off_t)(rewind_size), SEEK_CUR);
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ extern size_t
+ io_read(file_pair *pair, io_buf *buf, size_t size)
+ {
+ 	assert(size <= IO_BUFFER_SIZE);
+ 
+ 	size_t pos = 0;
+ 
+ 	while (pos < size) {
+ 		const ssize_t amount = read(
+ 				pair->src_fd, buf->u8 + pos, size - pos);
+ 
+ 		if (amount == 0) {
+ 			pair->src_eof = true;
+ 			break;
+ 		}
+ 
+ 		if (amount == -1) {
+ 			if (errno == EINTR) {
+ 				if (user_abort)
+ 					return SIZE_MAX;
+ 
+ 				continue;
+ 			}
+ 
+ #ifndef TUKLIB_DOSLIKE
+ 			if (IS_EAGAIN_OR_EWOULDBLOCK(errno)) {
+ 				// Disable the flush-timeout if no input has
+ 				// been seen since the previous flush and thus
+ 				// there would be nothing to flush after the
+ 				// timeout expires (avoids busy waiting).
+ 				const int timeout = pair->src_has_seen_input
+ 						? mytime_get_flush_timeout()
+ 						: -1;
+ 
+ 				switch (io_wait(pair, timeout, true)) {
+ 				case IO_WAIT_MORE:
+ 					continue;
+ 
+ 				case IO_WAIT_ERROR:
+ 					return SIZE_MAX;
+ 
+ 				case IO_WAIT_TIMEOUT:
+ 					pair->flush_needed = true;
+ 					return pos;
+ 
+ 				default:
+ 					message_bug();
+ 				}
+ 			}
+ #endif
+ 
+ 			message_error(_("%s: Read error: %s"),
+ 					pair->src_name, strerror(errno));
+ 
+ 			return SIZE_MAX;
+ 		}
+ 
+ 		pos += (size_t)(amount);
+ 
+ 		if (!pair->src_has_seen_input) {
+ 			pair->src_has_seen_input = true;
+ 			mytime_set_flush_time();
+ 		}
+ 	}
+ 
+ 	return pos;
+ }
+ 
+ 
+ extern bool
+ io_seek_src(file_pair *pair, uint64_t pos)
+ {
+ 	// Caller must not attempt to seek past the end of the input file
+ 	// (seeking to 100 in a 100-byte file is seeking to the end of
+ 	// the file, not past the end of the file, and thus that is allowed).
+ 	//
+ 	// This also validates that pos can be safely cast to off_t.
+ 	if (pos > (uint64_t)(pair->src_st.st_size))
+ 		message_bug();
+ 
+ 	if (lseek(pair->src_fd, (off_t)(pos), SEEK_SET) == -1) {
+ 		message_error(_("%s: Error seeking the file: %s"),
+ 				pair->src_name, strerror(errno));
+ 		return true;
+ 	}
+ 
+ 	pair->src_eof = false;
+ 
+ 	return false;
+ }
+ 
+ 
+ extern bool
+ io_pread(file_pair *pair, io_buf *buf, size_t size, uint64_t pos)
+ {
+ 	// Using lseek() and read() is more portable than pread() and
+ 	// for us it is as good as real pread().
+ 	if (io_seek_src(pair, pos))
+ 		return true;
+ 
+ 	const size_t amount = io_read(pair, buf, size);
+ 	if (amount == SIZE_MAX)
+ 		return true;
+ 
+ 	if (amount != size) {
+ 		message_error(_("%s: Unexpected end of file"),
+ 				pair->src_name);
+ 		return true;
+ 	}
+ 
+ 	return false;
+ }
+ 
+ 
+ static bool
+ is_sparse(const io_buf *buf)
+ {
+ 	assert(IO_BUFFER_SIZE % sizeof(uint64_t) == 0);
+ 
+ 	for (size_t i = 0; i < ARRAY_SIZE(buf->u64); ++i)
+ 		if (buf->u64[i] != 0)
+ 			return false;
+ 
+ 	return true;
+ }
+ 
+ 
+ static bool
+ io_write_buf(file_pair *pair, const uint8_t *buf, size_t size)
+ {
+ 	assert(size <= IO_BUFFER_SIZE);
+ 
+ 	while (size > 0) {
+ 		const ssize_t amount = write(pair->dest_fd, buf, size);
+ 		if (amount == -1) {
+ 			if (errno == EINTR) {
+ 				if (user_abort)
+ 					return true;
+ 
+ 				continue;
+ 			}
+ 
+ #ifndef TUKLIB_DOSLIKE
+ 			if (IS_EAGAIN_OR_EWOULDBLOCK(errno)) {
+ 				if (io_wait(pair, -1, false) == IO_WAIT_MORE)
+ 					continue;
+ 
+ 				return true;
+ 			}
+ #endif
+ 
+ 			// Handle broken pipe specially. gzip and bzip2
+ 			// don't print anything on SIGPIPE. In addition,
+ 			// gzip --quiet uses exit status 2 (warning) on
+ 			// broken pipe instead of whatever raise(SIGPIPE)
+ 			// would make it return. It is there to hide "Broken
+ 			// pipe" message on some old shells (probably old
+ 			// GNU bash).
+ 			//
+ 			// We don't do anything special with --quiet, which
+ 			// is what bzip2 does too. If we get SIGPIPE, we
+ 			// will handle it like other signals by setting
+ 			// user_abort, and get EPIPE here.
+ 			if (errno != EPIPE)
+ 				message_error(_("%s: Write error: %s"),
+ 					pair->dest_name, strerror(errno));
+ 
+ 			return true;
+ 		}
+ 
+ 		buf += (size_t)(amount);
+ 		size -= (size_t)(amount);
+ 	}
+ 
+ 	return false;
+ }
+ 
+ 
+ extern bool
+ io_write(file_pair *pair, const io_buf *buf, size_t size)
+ {
+ 	assert(size <= IO_BUFFER_SIZE);
+ 
+ 	if (pair->dest_try_sparse) {
+ 		// Check if the block is sparse (contains only zeros). If it
+ 		// sparse, we just store the amount and return. We will take
+ 		// care of actually skipping over the hole when we hit the
+ 		// next data block or close the file.
+ 		//
+ 		// Since io_close() requires that dest_pending_sparse > 0
+ 		// if the file ends with sparse block, we must also return
+ 		// if size == 0 to avoid doing the lseek().
+ 		if (size == IO_BUFFER_SIZE) {
+ 			// Even if the block was sparse, treat it as non-sparse
+ 			// if the pending sparse amount is large compared to
+ 			// the size of off_t. In practice this only matters
+ 			// on 32-bit systems where off_t isn't always 64 bits.
+ 			const off_t pending_max
+ 				= (off_t)(1) << (sizeof(off_t) * CHAR_BIT - 2);
+ 			if (is_sparse(buf) && pair->dest_pending_sparse
+ 					< pending_max) {
+ 				pair->dest_pending_sparse += (off_t)(size);
+ 				return false;
+ 			}
+ 		} else if (size == 0) {
+ 			return false;
+ 		}
+ 
+ 		// This is not a sparse block. If we have a pending hole,
+ 		// skip it now.
+ 		if (pair->dest_pending_sparse > 0) {
+ 			if (lseek(pair->dest_fd, pair->dest_pending_sparse,
+ 					SEEK_CUR) == -1) {
+ 				message_error(_("%s: Seeking failed when "
+ 						"trying to create a sparse "
+ 						"file: %s"), pair->dest_name,
+ 						strerror(errno));
+ 				return true;
+ 			}
+ 
+ 			pair->dest_pending_sparse = 0;
+ 		}
+ 	}
+ 
+ 	return io_write_buf(pair, buf->u8, size);
+ }
 diff --git a/src/xz/main.c b/src/xz/main.c
 index c9c3deca..f0c2194c 100644
 --- a/src/xz/main.c
 +++ b/src/xz/main.c
-@@ -119,8 +119,8 @@ read_name(const args_info *args)
+@@ -1,344 +1,344 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       main.c
+ /// \brief      main()
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ #include <ctype.h>
+ 
+ /// Exit status to use. This can be changed with set_exit_status().
+ static enum exit_status_type exit_status = E_SUCCESS;
+ 
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+ /// exit_status has to be protected with a critical section due to
+ /// how "signal handling" is done on Windows. See signals.c for details.
+ static CRITICAL_SECTION exit_status_cs;
+ #endif
+ 
+ /// True if --no-warn is specified. When this is true, we don't set
+ /// the exit status to E_WARNING when something worth a warning happens.
+ static bool no_warn = false;
+ 
+ 
+ extern void
+ set_exit_status(enum exit_status_type new_status)
+ {
+ 	assert(new_status == E_WARNING || new_status == E_ERROR);
+ 
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+ 	EnterCriticalSection(&exit_status_cs);
+ #endif
+ 
+ 	if (exit_status != E_ERROR)
+ 		exit_status = new_status;
+ 
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+ 	LeaveCriticalSection(&exit_status_cs);
+ #endif
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ set_exit_no_warn(void)
+ {
+ 	no_warn = true;
+ 	return;
+ }
+ 
+ 
+ static const char *
+ read_name(const args_info *args)
+ {
+ 	// FIXME: Maybe we should have some kind of memory usage limit here
+ 	// like the tool has for the actual compression and decompression.
+ 	// Giving some huge text file with --files0 makes us to read the
+ 	// whole file in RAM.
+ 	static char *name = NULL;
+ 	static size_t size = 256;
+ 
+ 	// Allocate the initial buffer. This is never freed, since after it
+ 	// is no longer needed, the program exits very soon. It is safe to
+ 	// use xmalloc() and xrealloc() in this function, because while
+ 	// executing this function, no files are open for writing, and thus
+ 	// there's no need to cleanup anything before exiting.
+ 	if (name == NULL)
+ 		name = xmalloc(size);
+ 
+ 	// Write position in name
+ 	size_t pos = 0;
+ 
+ 	// Read one character at a time into name.
+ 	while (!user_abort) {
+ 		const int c = fgetc(args->files_file);
+ 
+ 		if (ferror(args->files_file)) {
+ 			// Take care of EINTR since we have established
+ 			// the signal handlers already.
+ 			if (errno == EINTR)
+ 				continue;
+ 
+ 			message_error(_("%s: Error reading filenames: %s"),
+ 					args->files_name, strerror(errno));
+ 			return NULL;
+ 		}
+ 
+ 		if (feof(args->files_file)) {
+ 			if (pos != 0)
+ 				message_error(_("%s: Unexpected end of input "
+ 						"when reading filenames"),
+ 						args->files_name);
+ 
+ 			return NULL;
+ 		}
+ 
+ 		if (c == args->files_delim) {
+ 			// We allow consecutive newline (--files) or '\0'
+ 			// characters (--files0), and ignore such empty
+ 			// filenames.
+ 			if (pos == 0)
+ 				continue;
+ 
+ 			// A non-empty name was read. Terminate it with '\0'
+ 			// and return it.
+ 			name[pos] = '\0';
+ 			return name;
+ 		}
+ 
+ 		if (c == '\0') {
+ 			// A null character was found when using --files,
+ 			// which expects plain text input separated with
  			// newlines.
  			message_error(_("%s: Null character found when "
  					"reading filenames; maybe you meant "
@@ -56,11 +2436,1166 @@ index c9c3deca..f0c2194c 100644
  			return NULL;
  		}
  
+ 		name[pos++] = c;
+ 
+ 		// Allocate more memory if needed. There must always be space
+ 		// at least for one character to allow terminating the string
+ 		// with '\0'.
+ 		if (pos == size) {
+ 			size *= 2;
+ 			name = xrealloc(name, size);
+ 		}
+ 	}
+ 
+ 	return NULL;
+ }
+ 
+ 
+ int
+ main(int argc, char **argv)
+ {
+ #ifdef HAVE_PLEDGE
+ 	// OpenBSD's pledge(2) sandbox
+ 	//
+ 	// Unconditionally enable sandboxing with fairly relaxed promises.
+ 	// This is still way better than having no sandbox at all. :-)
+ 	// More strict promises will be made later in file_io.c if possible.
+ 	if (pledge("stdio rpath wpath cpath fattr", "")) {
+ 		// Don't translate the string or use message_fatal() as
+ 		// those haven't been initialized yet.
+ 		fprintf(stderr, "%s: Failed to enable the sandbox\n", argv[0]);
+ 		return E_ERROR;
+ 	}
+ #endif
+ 
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+ 	InitializeCriticalSection(&exit_status_cs);
+ #endif
+ 
+ 	// Set up the progname variable.
+ 	tuklib_progname_init(argv);
+ 
+ 	// Initialize the file I/O. This makes sure that
+ 	// stdin, stdout, and stderr are something valid.
+ 	io_init();
+ 
+ 	// Set up the locale and message translations.
+ 	tuklib_gettext_init(PACKAGE, LOCALEDIR);
+ 
+ 	// Initialize handling of error/warning/other messages.
+ 	message_init();
+ 
+ 	// Set hardware-dependent default values. These can be overridden
+ 	// on the command line, thus this must be done before args_parse().
+ 	hardware_init();
+ 
+ 	// Parse the command line arguments and get an array of filenames.
+ 	// This doesn't return if something is wrong with the command line
+ 	// arguments. If there are no arguments, one filename ("-") is still
+ 	// returned to indicate stdin.
+ 	args_info args;
+ 	args_parse(&args, argc, argv);
+ 
+ 	if (opt_mode != MODE_LIST && opt_robot)
+ 		message_fatal(_("Compression and decompression with --robot "
+ 			"are not supported yet."));
+ 
+ 	// Tell the message handling code how many input files there are if
+ 	// we know it. This way the progress indicator can show it.
+ 	if (args.files_name != NULL)
+ 		message_set_files(0);
+ 	else
+ 		message_set_files(args.arg_count);
+ 
+ 	// Refuse to write compressed data to standard output if it is
+ 	// a terminal.
+ 	if (opt_mode == MODE_COMPRESS) {
+ 		if (opt_stdout || (args.arg_count == 1
+ 				&& strcmp(args.arg_names[0], "-") == 0)) {
+ 			if (is_tty_stdout()) {
+ 				message_try_help();
+ 				tuklib_exit(E_ERROR, E_ERROR, false);
+ 			}
+ 		}
+ 	}
+ 
+ 	// Set up the signal handlers. We don't need these before we
+ 	// start the actual action and not in --list mode, so this is
+ 	// done after parsing the command line arguments.
+ 	//
+ 	// It's good to keep signal handlers in normal compression and
+ 	// decompression modes even when only writing to stdout, because
+ 	// we might need to restore O_APPEND flag on stdout before exiting.
+ 	// In --test mode, signal handlers aren't really needed, but let's
+ 	// keep them there for consistency with normal decompression.
+ 	if (opt_mode != MODE_LIST)
+ 		signals_init();
+ 
+ #ifdef ENABLE_SANDBOX
+ 	// Set a flag that sandboxing is allowed if all these are true:
+ 	//   - --files or --files0 wasn't used.
+ 	//   - There is exactly one input file or we are reading from stdin.
+ 	//   - We won't create any files: output goes to stdout or --test
+ 	//     or --list was used. Note that --test implies opt_stdout = true
+ 	//     but --list doesn't.
+ 	//
+ 	// This is obviously not ideal but it was easy to implement and
+ 	// it covers the most common use cases.
+ 	//
+ 	// TODO: Make sandboxing work for other situations too.
+ 	if (args.files_name == NULL && args.arg_count == 1
+ 			&& (opt_stdout || strcmp("-", args.arg_names[0]) == 0
+ 				|| opt_mode == MODE_LIST))
+ 		io_allow_sandbox();
+ #endif
+ 
+ 	// coder_run() handles compression, decompression, and testing.
+ 	// list_file() is for --list.
+ 	void (*run)(const char *filename) = &coder_run;
+ #ifdef HAVE_DECODERS
+ 	if (opt_mode == MODE_LIST)
+ 		run = &list_file;
+ #endif
+ 
+ 	// Process the files given on the command line. Note that if no names
+ 	// were given, args_parse() gave us a fake "-" filename.
+ 	for (unsigned i = 0; i < args.arg_count && !user_abort; ++i) {
+ 		if (strcmp("-", args.arg_names[i]) == 0) {
+ 			// Processing from stdin to stdout. Check that we
+ 			// aren't writing compressed data to a terminal or
+ 			// reading it from a terminal.
+ 			if (opt_mode == MODE_COMPRESS) {
+ 				if (is_tty_stdout())
+ 					continue;
+ 			} else if (is_tty_stdin()) {
+ 				continue;
+ 			}
+ 
+ 			// It doesn't make sense to compress data from stdin
+ 			// if we are supposed to read filenames from stdin
+ 			// too (enabled with --files or --files0).
+ 			if (args.files_name == stdin_filename) {
+ 				message_error(_("Cannot read data from "
+ 						"standard input when "
+ 						"reading filenames "
+ 						"from standard input"));
+ 				continue;
+ 			}
+ 
+ 			// Replace the "-" with a special pointer, which is
+ 			// recognized by coder_run() and other things.
+ 			// This way error messages get a proper filename
+ 			// string and the code still knows that it is
+ 			// handling the special case of stdin.
+ 			args.arg_names[i] = (char *)stdin_filename;
+ 		}
+ 
+ 		// Do the actual compression or decompression.
+ 		run(args.arg_names[i]);
+ 	}
+ 
+ 	// If --files or --files0 was used, process the filenames from the
+ 	// given file or stdin. Note that here we don't consider "-" to
+ 	// indicate stdin like we do with the command line arguments.
+ 	if (args.files_name != NULL) {
+ 		// read_name() checks for user_abort so we don't need to
+ 		// check it as loop termination condition.
+ 		while (true) {
+ 			const char *name = read_name(&args);
+ 			if (name == NULL)
+ 				break;
+ 
+ 			// read_name() doesn't return empty names.
+ 			assert(name[0] != '\0');
+ 			run(name);
+ 		}
+ 
+ 		if (args.files_name != stdin_filename)
+ 			(void)fclose(args.files_file);
+ 	}
+ 
+ #ifdef HAVE_DECODERS
+ 	// All files have now been handled. If in --list mode, display
+ 	// the totals before exiting. We don't have signal handlers
+ 	// enabled in --list mode, so we don't need to check user_abort.
+ 	if (opt_mode == MODE_LIST) {
+ 		assert(!user_abort);
+ 		list_totals();
+ 	}
+ #endif
+ 
+ #ifndef NDEBUG
+ 	coder_free();
+ 	args_free();
+ #endif
+ 
+ 	// If we have got a signal, raise it to kill the program instead
+ 	// of calling tuklib_exit().
+ 	signals_exit();
+ 
+ 	// Make a local copy of exit_status to keep the Windows code
+ 	// thread safe. At this point it is fine if we miss the user
+ 	// pressing C-c and don't set the exit_status to E_ERROR on
+ 	// Windows.
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+ 	EnterCriticalSection(&exit_status_cs);
+ #endif
+ 
+ 	enum exit_status_type es = exit_status;
+ 
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+ 	LeaveCriticalSection(&exit_status_cs);
+ #endif
+ 
+ 	// Suppress the exit status indicating a warning if --no-warn
+ 	// was specified.
+ 	if (es == E_WARNING && no_warn)
+ 		es = E_SUCCESS;
+ 
+ 	tuklib_exit((int)es, E_ERROR, message_verbosity_get() != V_SILENT);
+ }
 diff --git a/src/xz/message.c b/src/xz/message.c
 index 056ba5ea..c2a5d33d 100644
 --- a/src/xz/message.c
 +++ b/src/xz/message.c
-@@ -938,7 +938,7 @@ message_try_help(void)
+@@ -1,1196 +1,1196 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       message.c
+ /// \brief      Printing messages
+ //
+ //  Authors:    Lasse Collin
+ //              Jia Tan
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ 
+ #include <stdarg.h>
+ 
+ #ifdef _MSC_VER
+ #	include <io.h>
+ #	define isatty _isatty
+ #endif
+ 
+ 
+ /// Number of the current file
+ static unsigned int files_pos = 0;
+ 
+ /// Total number of input files; zero if unknown.
+ static unsigned int files_total;
+ 
+ /// Verbosity level
+ static enum message_verbosity verbosity = V_WARNING;
+ 
+ /// Filename which we will print with the verbose messages
+ static const char *filename;
+ 
+ /// True once the a filename has been printed to stderr as part of progress
+ /// message. If automatic progress updating isn't enabled, this becomes true
+ /// after the first progress message has been printed due to user sending
+ /// SIGINFO, SIGUSR1, or SIGALRM. Once this variable is true, we will print
+ /// an empty line before the next filename to make the output more readable.
+ static bool first_filename_printed = false;
+ 
+ /// This is set to true when we have printed the current filename to stderr
+ /// as part of a progress message. This variable is useful only if not
+ /// updating progress automatically: if user sends many SIGINFO, SIGUSR1, or
+ /// SIGALRM signals, we won't print the name of the same file multiple times.
+ static bool current_filename_printed = false;
+ 
+ /// True if we should print progress indicator and update it automatically
+ /// if also verbose >= V_VERBOSE.
+ static bool progress_automatic;
+ 
+ /// True if message_progress_start() has been called but
+ /// message_progress_end() hasn't been called yet.
+ static bool progress_started = false;
+ 
+ /// This is true when a progress message was printed and the cursor is still
+ /// on the same line with the progress message. In that case, a newline has
+ /// to be printed before any error messages.
+ static bool progress_active = false;
+ 
+ /// Pointer to lzma_stream used to do the encoding or decoding.
+ static lzma_stream *progress_strm;
+ 
+ /// This is true if we are in passthru mode (not actually compressing or
+ /// decompressing) and thus cannot use lzma_get_progress(progress_strm, ...).
+ /// That is, we are using coder_passthru() in coder.c.
+ static bool progress_is_from_passthru;
+ 
+ /// Expected size of the input stream is needed to show completion percentage
+ /// and estimate remaining time.
+ static uint64_t expected_in_size;
+ 
+ 
+ // Use alarm() and SIGALRM when they are supported. This has two minor
+ // advantages over the alternative of polling gettimeofday():
+ //  - It is possible for the user to send SIGINFO, SIGUSR1, or SIGALRM to
+ //    get intermediate progress information even when --verbose wasn't used
+ //    or stderr is not a terminal.
+ //  - alarm() + SIGALRM seems to have slightly less overhead than polling
+ //    gettimeofday().
+ #ifdef SIGALRM
+ 
+ const int message_progress_sigs[] = {
+ 	SIGALRM,
+ #ifdef SIGINFO
+ 	SIGINFO,
+ #endif
+ #ifdef SIGUSR1
+ 	SIGUSR1,
+ #endif
+ 	0
+ };
+ 
+ /// The signal handler for SIGALRM sets this to true. It is set back to false
+ /// once the progress message has been updated.
+ static volatile sig_atomic_t progress_needs_updating = false;
+ 
+ /// Signal handler for SIGALRM
+ static void
+ progress_signal_handler(int sig lzma_attribute((__unused__)))
+ {
+ 	progress_needs_updating = true;
+ 	return;
+ }
+ 
+ #else
+ 
+ /// This is true when progress message printing is wanted. Using the same
+ /// variable name as above to avoid some ifdefs.
+ static bool progress_needs_updating = false;
+ 
+ /// Elapsed time when the next progress message update should be done.
+ static uint64_t progress_next_update;
+ 
+ #endif
+ 
+ 
+ extern void
+ message_init(void)
+ {
+ 	// If --verbose is used, we use a progress indicator if and only
+ 	// if stderr is a terminal. If stderr is not a terminal, we print
+ 	// verbose information only after finishing the file. As a special
+ 	// exception, even if --verbose was not used, user can send SIGALRM
+ 	// to make us print progress information once without automatic
+ 	// updating.
+ 	progress_automatic = isatty(STDERR_FILENO);
+ 
+ 	// Commented out because COLUMNS is rarely exported to environment.
+ 	// Most users have at least 80 columns anyway, let's think something
+ 	// fancy here if enough people complain.
+ /*
+ 	if (progress_automatic) {
+ 		// stderr is a terminal. Check the COLUMNS environment
+ 		// variable to see if the terminal is wide enough. If COLUMNS
+ 		// doesn't exist or it has some unparsable value, we assume
+ 		// that the terminal is wide enough.
+ 		const char *columns_str = getenv("COLUMNS");
+ 		if (columns_str != NULL) {
+ 			char *endptr;
+ 			const long columns = strtol(columns_str, &endptr, 10);
+ 			if (*endptr != '\0' || columns < 80)
+ 				progress_automatic = false;
+ 		}
+ 	}
+ */
+ 
+ #ifdef SIGALRM
+ 	// Establish the signal handlers which set a flag to tell us that
+ 	// progress info should be updated.
+ 	struct sigaction sa;
+ 	sigemptyset(&sa.sa_mask);
+ 	sa.sa_flags = 0;
+ 	sa.sa_handler = &progress_signal_handler;
+ 
+ 	for (size_t i = 0; message_progress_sigs[i] != 0; ++i)
+ 		if (sigaction(message_progress_sigs[i], &sa, NULL))
+ 			message_signal_handler();
+ #endif
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_verbosity_increase(void)
+ {
+ 	if (verbosity < V_DEBUG)
+ 		++verbosity;
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_verbosity_decrease(void)
+ {
+ 	if (verbosity > V_SILENT)
+ 		--verbosity;
+ 
+ 	return;
+ }
+ 
+ 
+ extern enum message_verbosity
+ message_verbosity_get(void)
+ {
+ 	return verbosity;
+ }
+ 
+ 
+ extern void
+ message_set_files(unsigned int files)
+ {
+ 	files_total = files;
+ 	return;
+ }
+ 
+ 
+ /// Prints the name of the current file if it hasn't been printed already,
+ /// except if we are processing exactly one stream from stdin to stdout.
+ /// I think it looks nicer to not print "(stdin)" when --verbose is used
+ /// in a pipe and no other files are processed.
+ static void
+ print_filename(void)
+ {
+ 	if (!opt_robot && (files_total != 1 || filename != stdin_filename)) {
+ 		signals_block();
+ 
+ 		FILE *file = opt_mode == MODE_LIST ? stdout : stderr;
+ 
+ 		// If a file was already processed, put an empty line
+ 		// before the next filename to improve readability.
+ 		if (first_filename_printed)
+ 			fputc('\n', file);
+ 
+ 		first_filename_printed = true;
+ 		current_filename_printed = true;
+ 
+ 		// If we don't know how many files there will be due
+ 		// to usage of --files or --files0.
+ 		if (files_total == 0)
+ 			fprintf(file, "%s (%u)\n", filename,
+ 					files_pos);
+ 		else
+ 			fprintf(file, "%s (%u/%u)\n", filename,
+ 					files_pos, files_total);
+ 
+ 		signals_unblock();
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_filename(const char *src_name)
+ {
+ 	// Start numbering the files starting from one.
+ 	++files_pos;
+ 	filename = src_name;
+ 
+ 	if (verbosity >= V_VERBOSE
+ 			&& (progress_automatic || opt_mode == MODE_LIST))
+ 		print_filename();
+ 	else
+ 		current_filename_printed = false;
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_progress_start(lzma_stream *strm, bool is_passthru, uint64_t in_size)
+ {
+ 	// Store the pointer to the lzma_stream used to do the coding.
+ 	// It is needed to find out the position in the stream.
+ 	progress_strm = strm;
+ 	progress_is_from_passthru = is_passthru;
+ 
+ 	// Store the expected size of the file. If we aren't printing any
+ 	// statistics, then is will be unused. But since it is possible
+ 	// that the user sends us a signal to show statistics, we need
+ 	// to have it available anyway.
+ 	expected_in_size = in_size;
+ 
+ 	// Indicate that progress info may need to be printed before
+ 	// printing error messages.
+ 	progress_started = true;
+ 
+ 	// If progress indicator is wanted, print the filename and possibly
+ 	// the file count now.
+ 	if (verbosity >= V_VERBOSE && progress_automatic) {
+ 		// Start the timer to display the first progress message
+ 		// after one second. An alternative would be to show the
+ 		// first message almost immediately, but delaying by one
+ 		// second looks better to me, since extremely early
+ 		// progress info is pretty much useless.
+ #ifdef SIGALRM
+ 		// First disable a possibly existing alarm.
+ 		alarm(0);
+ 		progress_needs_updating = false;
+ 		alarm(1);
+ #else
+ 		progress_needs_updating = true;
+ 		progress_next_update = 1000;
+ #endif
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ /// Make the string indicating completion percentage.
+ static const char *
+ progress_percentage(uint64_t in_pos)
+ {
+ 	// If the size of the input file is unknown or the size told us is
+ 	// clearly wrong since we have processed more data than the alleged
+ 	// size of the file, show a static string indicating that we have
+ 	// no idea of the completion percentage.
+ 	if (expected_in_size == 0 || in_pos > expected_in_size)
+ 		return "--- %";
+ 
+ 	// Never show 100.0 % before we actually are finished.
+ 	double percentage = (double)(in_pos) / (double)(expected_in_size)
+ 			* 99.9;
+ 
+ 	// Use big enough buffer to hold e.g. a multibyte decimal point.
+ 	static char buf[16];
+ 	snprintf(buf, sizeof(buf), "%.1f %%", percentage);
+ 
+ 	return buf;
+ }
+ 
+ 
+ /// Make the string containing the amount of input processed, amount of
+ /// output produced, and the compression ratio.
+ static const char *
+ progress_sizes(uint64_t compressed_pos, uint64_t uncompressed_pos, bool final)
+ {
+ 	// Use big enough buffer to hold e.g. a multibyte thousand separators.
+ 	static char buf[128];
+ 	char *pos = buf;
+ 	size_t left = sizeof(buf);
+ 
+ 	// Print the sizes. If this the final message, use more reasonable
+ 	// units than MiB if the file was small.
+ 	const enum nicestr_unit unit_min = final ? NICESTR_B : NICESTR_MIB;
+ 	my_snprintf(&pos, &left, "%s / %s",
+ 			uint64_to_nicestr(compressed_pos,
+ 				unit_min, NICESTR_TIB, false, 0),
+ 			uint64_to_nicestr(uncompressed_pos,
+ 				unit_min, NICESTR_TIB, false, 1));
+ 
+ 	// Avoid division by zero. If we cannot calculate the ratio, set
+ 	// it to some nice number greater than 10.0 so that it gets caught
+ 	// in the next if-clause.
+ 	const double ratio = uncompressed_pos > 0
+ 			? (double)(compressed_pos) / (double)(uncompressed_pos)
+ 			: 16.0;
+ 
+ 	// If the ratio is very bad, just indicate that it is greater than
+ 	// 9.999. This way the length of the ratio field stays fixed.
+ 	if (ratio > 9.999)
+ 		snprintf(pos, left, " > %.3f", 9.999);
+ 	else
+ 		snprintf(pos, left, " = %.3f", ratio);
+ 
+ 	return buf;
+ }
+ 
+ 
+ /// Make the string containing the processing speed of uncompressed data.
+ static const char *
+ progress_speed(uint64_t uncompressed_pos, uint64_t elapsed)
+ {
+ 	// Don't print the speed immediately, since the early values look
+ 	// somewhat random.
+ 	if (elapsed < 3000)
+ 		return "";
+ 
+ 	// The first character of KiB/s, MiB/s, or GiB/s:
+ 	static const char unit[] = { 'K', 'M', 'G' };
+ 
+ 	size_t unit_index = 0;
+ 
+ 	// Calculate the speed as KiB/s.
+ 	double speed = (double)(uncompressed_pos)
+ 			/ ((double)(elapsed) * (1024.0 / 1000.0));
+ 
+ 	// Adjust the unit of the speed if needed.
+ 	while (speed > 999.0) {
+ 		speed /= 1024.0;
+ 		if (++unit_index == ARRAY_SIZE(unit))
+ 			return ""; // Way too fast ;-)
+ 	}
+ 
+ 	// Use decimal point only if the number is small. Examples:
+ 	//  - 0.1 KiB/s
+ 	//  - 9.9 KiB/s
+ 	//  - 99 KiB/s
+ 	//  - 999 KiB/s
+ 	// Use big enough buffer to hold e.g. a multibyte decimal point.
+ 	static char buf[16];
+ 	snprintf(buf, sizeof(buf), "%.*f %ciB/s",
+ 			speed > 9.9 ? 0 : 1, speed, unit[unit_index]);
+ 	return buf;
+ }
+ 
+ 
+ /// Make a string indicating elapsed time. The format is either
+ /// M:SS or H:MM:SS depending on if the time is an hour or more.
+ static const char *
+ progress_time(uint64_t mseconds)
+ {
+ 	// 9999 hours = 416 days
+ 	static char buf[sizeof("9999:59:59")];
+ 
+ 	// 32-bit variable is enough for elapsed time (136 years).
+ 	uint32_t seconds = (uint32_t)(mseconds / 1000);
+ 
+ 	// Don't show anything if the time is zero or ridiculously big.
+ 	if (seconds == 0 || seconds > ((9999 * 60) + 59) * 60 + 59)
+ 		return "";
+ 
+ 	uint32_t minutes = seconds / 60;
+ 	seconds %= 60;
+ 
+ 	if (minutes >= 60) {
+ 		const uint32_t hours = minutes / 60;
+ 		minutes %= 60;
+ 		snprintf(buf, sizeof(buf),
+ 				"%" PRIu32 ":%02" PRIu32 ":%02" PRIu32,
+ 				hours, minutes, seconds);
+ 	} else {
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 ":%02" PRIu32,
+ 				minutes, seconds);
+ 	}
+ 
+ 	return buf;
+ }
+ 
+ 
+ /// Return a string containing estimated remaining time when
+ /// reasonably possible.
+ static const char *
+ progress_remaining(uint64_t in_pos, uint64_t elapsed)
+ {
+ 	// Don't show the estimated remaining time when it wouldn't
+ 	// make sense:
+ 	//  - Input size is unknown.
+ 	//  - Input has grown bigger since we started (de)compressing.
+ 	//  - We haven't processed much data yet, so estimate would be
+ 	//    too inaccurate.
+ 	//  - Only a few seconds has passed since we started (de)compressing,
+ 	//    so estimate would be too inaccurate.
+ 	if (expected_in_size == 0 || in_pos > expected_in_size
+ 			|| in_pos < (UINT64_C(1) << 19) || elapsed < 8000)
+ 		return "";
+ 
+ 	// Calculate the estimate. Don't give an estimate of zero seconds,
+ 	// since it is possible that all the input has been already passed
+ 	// to the library, but there is still quite a bit of output pending.
+ 	uint32_t remaining = (uint32_t)((double)(expected_in_size - in_pos)
+ 			* ((double)(elapsed) / 1000.0) / (double)(in_pos));
+ 	if (remaining < 1)
+ 		remaining = 1;
+ 
+ 	static char buf[sizeof("9 h 55 min")];
+ 
+ 	// Select appropriate precision for the estimated remaining time.
+ 	if (remaining <= 10) {
+ 		// A maximum of 10 seconds remaining.
+ 		// Show the number of seconds as is.
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " s", remaining);
+ 
+ 	} else if (remaining <= 50) {
+ 		// A maximum of 50 seconds remaining.
+ 		// Round up to the next multiple of five seconds.
+ 		remaining = (remaining + 4) / 5 * 5;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " s", remaining);
+ 
+ 	} else if (remaining <= 590) {
+ 		// A maximum of 9 minutes and 50 seconds remaining.
+ 		// Round up to the next multiple of ten seconds.
+ 		remaining = (remaining + 9) / 10 * 10;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " min %" PRIu32 " s",
+ 				remaining / 60, remaining % 60);
+ 
+ 	} else if (remaining <= 59 * 60) {
+ 		// A maximum of 59 minutes remaining.
+ 		// Round up to the next multiple of a minute.
+ 		remaining = (remaining + 59) / 60;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " min", remaining);
+ 
+ 	} else if (remaining <= 9 * 3600 + 50 * 60) {
+ 		// A maximum of 9 hours and 50 minutes left.
+ 		// Round up to the next multiple of ten minutes.
+ 		remaining = (remaining + 599) / 600 * 10;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " h %" PRIu32 " min",
+ 				remaining / 60, remaining % 60);
+ 
+ 	} else if (remaining <= 23 * 3600) {
+ 		// A maximum of 23 hours remaining.
+ 		// Round up to the next multiple of an hour.
+ 		remaining = (remaining + 3599) / 3600;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " h", remaining);
+ 
+ 	} else if (remaining <= 9 * 24 * 3600 + 23 * 3600) {
+ 		// A maximum of 9 days and 23 hours remaining.
+ 		// Round up to the next multiple of an hour.
+ 		remaining = (remaining + 3599) / 3600;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " d %" PRIu32 " h",
+ 				remaining / 24, remaining % 24);
+ 
+ 	} else if (remaining <= 999 * 24 * 3600) {
+ 		// A maximum of 999 days remaining. ;-)
+ 		// Round up to the next multiple of a day.
+ 		remaining = (remaining + 24 * 3600 - 1) / (24 * 3600);
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " d", remaining);
+ 
+ 	} else {
+ 		// The estimated remaining time is too big. Don't show it.
+ 		return "";
+ 	}
+ 
+ 	return buf;
+ }
+ 
+ 
+ /// Get how much uncompressed and compressed data has been processed.
+ static void
+ progress_pos(uint64_t *in_pos,
+ 		uint64_t *compressed_pos, uint64_t *uncompressed_pos)
+ {
+ 	uint64_t out_pos;
+ 	if (progress_is_from_passthru) {
+ 		// In passthru mode the progress info is in total_in/out but
+ 		// the *progress_strm itself isn't initialized and thus we
+ 		// cannot use lzma_get_progress().
+ 		*in_pos = progress_strm->total_in;
+ 		out_pos = progress_strm->total_out;
+ 	} else {
+ 		lzma_get_progress(progress_strm, in_pos, &out_pos);
+ 	}
+ 
+ 	// It cannot have processed more input than it has been given.
+ 	assert(*in_pos <= progress_strm->total_in);
+ 
+ 	// It cannot have produced more output than it claims to have ready.
+ 	assert(out_pos >= progress_strm->total_out);
+ 
+ 	if (opt_mode == MODE_COMPRESS) {
+ 		*compressed_pos = out_pos;
+ 		*uncompressed_pos = *in_pos;
+ 	} else {
+ 		*compressed_pos = *in_pos;
+ 		*uncompressed_pos = out_pos;
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_progress_update(void)
+ {
+ 	if (!progress_needs_updating)
+ 		return;
+ 
+ 	// Calculate how long we have been processing this file.
+ 	const uint64_t elapsed = mytime_get_elapsed();
+ 
+ #ifndef SIGALRM
+ 	if (progress_next_update > elapsed)
+ 		return;
+ 
+ 	progress_next_update = elapsed + 1000;
+ #endif
+ 
+ 	// Get our current position in the stream.
+ 	uint64_t in_pos;
+ 	uint64_t compressed_pos;
+ 	uint64_t uncompressed_pos;
+ 	progress_pos(&in_pos, &compressed_pos, &uncompressed_pos);
+ 
+ 	// Block signals so that fprintf() doesn't get interrupted.
+ 	signals_block();
+ 
+ 	// Print the filename if it hasn't been printed yet.
+ 	if (!current_filename_printed)
+ 		print_filename();
+ 
+ 	// Print the actual progress message. The idea is that there is at
+ 	// least three spaces between the fields in typical situations, but
+ 	// even in rare situations there is at least one space.
+ 	const char *cols[5] = {
+ 		progress_percentage(in_pos),
+ 		progress_sizes(compressed_pos, uncompressed_pos, false),
+ 		progress_speed(uncompressed_pos, elapsed),
+ 		progress_time(elapsed),
+ 		progress_remaining(in_pos, elapsed),
+ 	};
+ 	fprintf(stderr, "\r %*s %*s   %*s %10s   %10s\r",
+ 			tuklib_mbstr_fw(cols[0], 6), cols[0],
+ 			tuklib_mbstr_fw(cols[1], 35), cols[1],
+ 			tuklib_mbstr_fw(cols[2], 9), cols[2],
+ 			cols[3],
+ 			cols[4]);
+ 
+ #ifdef SIGALRM
+ 	// Updating the progress info was finished. Reset
+ 	// progress_needs_updating to wait for the next SIGALRM.
+ 	//
+ 	// NOTE: This has to be done before alarm(1) or with (very) bad
+ 	// luck we could be setting this to false after the alarm has already
+ 	// been triggered.
+ 	progress_needs_updating = false;
+ 
+ 	if (verbosity >= V_VERBOSE && progress_automatic) {
+ 		// Mark that the progress indicator is active, so if an error
+ 		// occurs, the error message gets printed cleanly.
+ 		progress_active = true;
+ 
+ 		// Restart the timer so that progress_needs_updating gets
+ 		// set to true after about one second.
+ 		alarm(1);
+ 	} else {
+ 		// The progress message was printed because user had sent us
+ 		// SIGALRM. In this case, each progress message is printed
+ 		// on its own line.
+ 		fputc('\n', stderr);
+ 	}
+ #else
+ 	// When SIGALRM isn't supported and we get here, it's always due to
+ 	// automatic progress update. We set progress_active here too like
+ 	// described above.
+ 	assert(verbosity >= V_VERBOSE);
+ 	assert(progress_automatic);
+ 	progress_active = true;
+ #endif
+ 
+ 	signals_unblock();
+ 
+ 	return;
+ }
+ 
+ 
+ static void
+ progress_flush(bool finished)
+ {
+ 	if (!progress_started || verbosity < V_VERBOSE)
+ 		return;
+ 
+ 	uint64_t in_pos;
+ 	uint64_t compressed_pos;
+ 	uint64_t uncompressed_pos;
+ 	progress_pos(&in_pos, &compressed_pos, &uncompressed_pos);
+ 
+ 	// Avoid printing intermediate progress info if some error occurs
+ 	// in the beginning of the stream. (If something goes wrong later in
+ 	// the stream, it is sometimes useful to tell the user where the
+ 	// error approximately occurred, especially if the error occurs
+ 	// after a time-consuming operation.)
+ 	if (!finished && !progress_active
+ 			&& (compressed_pos == 0 || uncompressed_pos == 0))
+ 		return;
+ 
+ 	progress_active = false;
+ 
+ 	const uint64_t elapsed = mytime_get_elapsed();
+ 
+ 	signals_block();
+ 
+ 	// When using the auto-updating progress indicator, the final
+ 	// statistics are printed in the same format as the progress
+ 	// indicator itself.
+ 	if (progress_automatic) {
+ 		const char *cols[5] = {
+ 			finished ? "100 %" : progress_percentage(in_pos),
+ 			progress_sizes(compressed_pos, uncompressed_pos, true),
+ 			progress_speed(uncompressed_pos, elapsed),
+ 			progress_time(elapsed),
+ 			finished ? "" : progress_remaining(in_pos, elapsed),
+ 		};
+ 		fprintf(stderr, "\r %*s %*s   %*s %10s   %10s\n",
+ 				tuklib_mbstr_fw(cols[0], 6), cols[0],
+ 				tuklib_mbstr_fw(cols[1], 35), cols[1],
+ 				tuklib_mbstr_fw(cols[2], 9), cols[2],
+ 				cols[3],
+ 				cols[4]);
+ 	} else {
+ 		// The filename is always printed.
+ 		fprintf(stderr, _("%s: "), filename);
+ 
+ 		// Percentage is printed only if we didn't finish yet.
+ 		if (!finished) {
+ 			// Don't print the percentage when it isn't known
+ 			// (starts with a dash).
+ 			const char *percentage = progress_percentage(in_pos);
+ 			if (percentage[0] != '-')
+ 				fprintf(stderr, "%s, ", percentage);
+ 		}
+ 
+ 		// Size information is always printed.
+ 		fprintf(stderr, "%s", progress_sizes(
+ 				compressed_pos, uncompressed_pos, true));
+ 
+ 		// The speed and elapsed time aren't always shown.
+ 		const char *speed = progress_speed(uncompressed_pos, elapsed);
+ 		if (speed[0] != '\0')
+ 			fprintf(stderr, ", %s", speed);
+ 
+ 		const char *elapsed_str = progress_time(elapsed);
+ 		if (elapsed_str[0] != '\0')
+ 			fprintf(stderr, ", %s", elapsed_str);
+ 
+ 		fputc('\n', stderr);
+ 	}
+ 
+ 	signals_unblock();
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_progress_end(bool success)
+ {
+ 	assert(progress_started);
+ 	progress_flush(success);
+ 	progress_started = false;
+ 	return;
+ }
+ 
+ 
+ static void
+ vmessage(enum message_verbosity v, const char *fmt, va_list ap)
+ {
+ 	if (v <= verbosity) {
+ 		signals_block();
+ 
+ 		progress_flush(false);
+ 
+ 		// TRANSLATORS: This is the program name in the beginning
+ 		// of the line in messages. Usually it becomes "xz: ".
+ 		// This is a translatable string because French needs
+ 		// a space before a colon.
+ 		fprintf(stderr, _("%s: "), progname);
+ 
+ #ifdef __clang__
+ #	pragma GCC diagnostic push
+ #	pragma GCC diagnostic ignored "-Wformat-nonliteral"
+ #endif
+ 		vfprintf(stderr, fmt, ap);
+ #ifdef __clang__
+ #	pragma GCC diagnostic pop
+ #endif
+ 
+ 		fputc('\n', stderr);
+ 
+ 		signals_unblock();
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message(enum message_verbosity v, const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+ 	vmessage(v, fmt, ap);
+ 	va_end(ap);
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_warning(const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+ 	vmessage(V_WARNING, fmt, ap);
+ 	va_end(ap);
+ 
+ 	set_exit_status(E_WARNING);
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_error(const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+ 	vmessage(V_ERROR, fmt, ap);
+ 	va_end(ap);
+ 
+ 	set_exit_status(E_ERROR);
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_fatal(const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+ 	vmessage(V_ERROR, fmt, ap);
+ 	va_end(ap);
+ 
+ 	tuklib_exit(E_ERROR, E_ERROR, false);
+ }
+ 
+ 
+ extern void
+ message_bug(void)
+ {
+ 	message_fatal(_("Internal error (bug)"));
+ }
+ 
+ 
+ extern void
+ message_signal_handler(void)
+ {
+ 	message_fatal(_("Cannot establish signal handlers"));
+ }
+ 
+ 
+ extern const char *
+ message_strm(lzma_ret code)
+ {
+ 	switch (code) {
+ 	case LZMA_NO_CHECK:
+ 		return _("No integrity check; not verifying file integrity");
+ 
+ 	case LZMA_UNSUPPORTED_CHECK:
+ 		return _("Unsupported type of integrity check; "
+ 				"not verifying file integrity");
+ 
+ 	case LZMA_MEM_ERROR:
+ 		return strerror(ENOMEM);
+ 
+ 	case LZMA_MEMLIMIT_ERROR:
+ 		return _("Memory usage limit reached");
+ 
+ 	case LZMA_FORMAT_ERROR:
+ 		return _("File format not recognized");
+ 
+ 	case LZMA_OPTIONS_ERROR:
+ 		return _("Unsupported options");
+ 
+ 	case LZMA_DATA_ERROR:
+ 		return _("Compressed data is corrupt");
+ 
+ 	case LZMA_BUF_ERROR:
+ 		return _("Unexpected end of input");
+ 
+ 	case LZMA_OK:
+ 	case LZMA_STREAM_END:
+ 	case LZMA_GET_CHECK:
+ 	case LZMA_PROG_ERROR:
+ 	case LZMA_SEEK_NEEDED:
+ 	case LZMA_RET_INTERNAL1:
+ 	case LZMA_RET_INTERNAL2:
+ 	case LZMA_RET_INTERNAL3:
+ 	case LZMA_RET_INTERNAL4:
+ 	case LZMA_RET_INTERNAL5:
+ 	case LZMA_RET_INTERNAL6:
+ 	case LZMA_RET_INTERNAL7:
+ 	case LZMA_RET_INTERNAL8:
+ 		// Without "default", compiler will warn if new constants
+ 		// are added to lzma_ret, it is not too easy to forget to
+ 		// add the new constants to this function.
+ 		break;
+ 	}
+ 
+ 	return _("Internal error (bug)");
+ }
+ 
+ 
+ extern void
+ message_mem_needed(enum message_verbosity v, uint64_t memusage)
+ {
+ 	if (v > verbosity)
+ 		return;
+ 
+ 	// Convert memusage to MiB, rounding up to the next full MiB.
+ 	// This way the user can always use the displayed usage as
+ 	// the new memory usage limit. (If we rounded to the nearest,
+ 	// the user might need to +1 MiB to get high enough limit.)
+ 	memusage = round_up_to_mib(memusage);
+ 
+ 	uint64_t memlimit = hardware_memlimit_get(opt_mode);
+ 
+ 	// Handle the case when there is no memory usage limit.
+ 	// This way we don't print a weird message with a huge number.
+ 	if (memlimit == UINT64_MAX) {
+ 		message(v, _("%s MiB of memory is required. "
+ 				"The limiter is disabled."),
+ 				uint64_to_str(memusage, 0));
+ 		return;
+ 	}
+ 
+ 	// With US-ASCII:
+ 	// 2^64 with thousand separators + " MiB" suffix + '\0' = 26 + 4 + 1
+ 	// But there may be multibyte chars so reserve enough space.
+ 	char memlimitstr[128];
+ 
+ 	// Show the memory usage limit as MiB unless it is less than 1 MiB.
+ 	// This way it's easy to notice errors where one has typed
+ 	// --memory=123 instead of --memory=123MiB.
+ 	if (memlimit < (UINT32_C(1) << 20)) {
+ 		snprintf(memlimitstr, sizeof(memlimitstr), "%s B",
+ 				uint64_to_str(memlimit, 1));
+ 	} else {
+ 		// Round up just like with memusage. If this function is
+ 		// called for informational purposes (to just show the
+ 		// current usage and limit), we should never show that
+ 		// the usage is higher than the limit, which would give
+ 		// a false impression that the memory usage limit isn't
+ 		// properly enforced.
+ 		snprintf(memlimitstr, sizeof(memlimitstr), "%s MiB",
+ 				uint64_to_str(round_up_to_mib(memlimit), 1));
+ 	}
+ 
+ 	message(v, _("%s MiB of memory is required. The limit is %s."),
+ 			uint64_to_str(memusage, 0), memlimitstr);
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_filters_show(enum message_verbosity v, const lzma_filter *filters)
+ {
+ 	if (v > verbosity)
+ 		return;
+ 
+ 	char *buf;
+ 	const lzma_ret ret = lzma_str_from_filters(&buf, filters,
+ 			LZMA_STR_ENCODER | LZMA_STR_GETOPT_LONG, NULL);
+ 	if (ret != LZMA_OK)
+ 		message_fatal("%s", message_strm(ret));
+ 
+ 	fprintf(stderr, _("%s: Filter chain: %s\n"), progname, buf);
+ 	free(buf);
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_try_help(void)
  {
  	// Print this with V_WARNING instead of V_ERROR to prevent it from
  	// showing up when --quiet has been specified.
@@ -69,7 +3604,61 @@ index 056ba5ea..c2a5d33d 100644
  			progname);
  	return;
  }
-@@ -1000,7 +1000,7 @@ message_help(bool long_help)
+ 
+ 
+ extern void
+ message_version(void)
+ {
+ 	// It is possible that liblzma version is different than the command
+ 	// line tool version, so print both.
+ 	if (opt_robot) {
+ 		printf("XZ_VERSION=%" PRIu32 "\nLIBLZMA_VERSION=%" PRIu32 "\n",
+ 				LZMA_VERSION, lzma_version_number());
+ 	} else {
+ 		printf("xz (" PACKAGE_NAME ") " LZMA_VERSION_STRING "\n");
+ 		printf("liblzma %s\n", lzma_version_string());
+ 	}
+ 
+ 	tuklib_exit(E_SUCCESS, E_ERROR, verbosity != V_SILENT);
+ }
+ 
+ 
+ extern void
+ message_help(bool long_help)
+ {
+ 	printf(_("Usage: %s [OPTION]... [FILE]...\n"
+ 			"Compress or decompress FILEs in the .xz format.\n\n"),
+ 			progname);
+ 
+ 	// NOTE: The short help doesn't currently have options that
+ 	// take arguments.
+ 	if (long_help)
+ 		puts(_("Mandatory arguments to long options are mandatory "
+ 				"for short options too.\n"));
+ 
+ 	if (long_help)
+ 		puts(_(" Operation mode:\n"));
+ 
+ 	puts(_(
+ "  -z, --compress      force compression\n"
+ "  -d, --decompress    force decompression\n"
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"));
+ 
+ 	if (long_help)
+ 		puts(_("\n Operation modifiers:\n"));
+ 
+ 	puts(_(
+ "  -k, --keep          keep (don't delete) input files\n"
+ "  -f, --force         force overwrite of output file and (de)compress links\n"
+ "  -c, --stdout        write to standard output and don't delete input files"));
+ 	// NOTE: --to-stdout isn't included above because it's not
+ 	// the recommended spelling. It was copied from gzip but other
+ 	// compressors with gzip-like syntax don't support it.
+ 
+ 	if (long_help) {
+ 		puts(_(
+ "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"));
  		puts(_(
  "      --no-sparse     do not create sparse files when decompressing\n"
@@ -78,7 +3667,10 @@ index 056ba5ea..c2a5d33d 100644
  "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
  "                      omitted, filenames are read from the standard input;\n"
  "                      filenames must be terminated with the newline character\n"
-@@ -1011,9 +1011,9 @@ message_help(bool long_help)
+ "      --files0[=FILE] like --files but use the null character as terminator"));
+ 	}
+ 
+ 	if (long_help) {
  		puts(_("\n Basic file format and compression options:\n"));
  		puts(_(
  "  -F, --format=FMT    file format to encode or decode; possible values are\n"
@@ -91,7 +3683,25 @@ index 056ba5ea..c2a5d33d 100644
  		puts(_(
  "      --ignore-check  don't verify the integrity check when decompressing"));
  	}
-@@ -1039,7 +1039,7 @@ message_help(bool long_help)
+ 
+ 	puts(_(
+ "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
+ "                      decompressor memory usage into account before using 7-9!"));
+ 
+ 	puts(_(
+ "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
+ "                      does not affect decompressor memory requirements"));
+ 
+ 	puts(_(
+ "  -T, --threads=NUM   use at most NUM threads; the default is 1; set to 0\n"
+ "                      to use as many threads as there are processor cores"));
+ 
+ 	if (long_help) {
+ 		puts(_(
+ "      --block-size=SIZE\n"
+ "                      start a new .xz block after every SIZE bytes of input;\n"
+ "                      use this to set the block size for threaded compression"));
+ 		puts(_(
  "      --block-list=BLOCKS\n"
  "                      start a new .xz block after the given comma-separated\n"
  "                      intervals of uncompressed data; optionally, specify a\n"
@@ -100,7 +3710,143 @@ index 056ba5ea..c2a5d33d 100644
  "                      uncompressed data size"));
  		puts(_(
  "      --flush-timeout=TIMEOUT\n"
-@@ -1183,7 +1183,7 @@ message_filters_help(void)
+ "                      when compressing, if more than TIMEOUT milliseconds has\n"
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ 		));
+ 		puts(_( // xgettext:no-c-format
+ "      --memlimit-compress=LIMIT\n"
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"));
+ 
+ 		puts(_(
+ "      --no-adjust     if compression settings exceed the memory usage limit,\n"
+ "                      give an error instead of adjusting the settings downwards"));
+ 	}
+ 
+ 	if (long_help) {
+ 		puts(_(
+ "\n Custom filter chain for compression (alternative for using presets):"));
+ 
+ 		puts(_(
+ "\n"
+ "  --filters=FILTERS   set the filter chain using the liblzma filter string\n"
+ "                      syntax; use --filters-help for more information"
+ 		));
+ 
+ 		puts(_(
+ "  --filters1=FILTERS ... --filters9=FILTERS\n"
+ "                      set additional filter chains using the liblzma filter\n"
+ "                      string syntax to use with --block-list"
+ 		));
+ 
+ 		puts(_(
+ "  --filters-help      display more information about the liblzma filter string\n"
+ "                      syntax and exit."
+ 		));
+ 
+ #if defined(HAVE_ENCODER_LZMA1) || defined(HAVE_DECODER_LZMA1) \
+ 		|| defined(HAVE_ENCODER_LZMA2) || defined(HAVE_DECODER_LZMA2)
+ 		// TRANSLATORS: The word "literal" in "literal context bits"
+ 		// means how many "context bits" to use when encoding
+ 		// literals. A literal is a single 8-bit byte. It doesn't
+ 		// mean "literally" here.
+ 		puts(_(
+ "\n"
+ "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"));
+ #endif
+ 
+ 		puts(_(
+ "\n"
+ "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
+ "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
+ "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
+ "  --sparc[=OPTS]      SPARC BCJ filter\n"
+ "                      Valid OPTS for all BCJ filters:\n"
+ "                        start=NUM  start offset for conversions (default=0)"));
+ 
+ #if defined(HAVE_ENCODER_DELTA) || defined(HAVE_DECODER_DELTA)
+ 		puts(_(
+ "\n"
+ "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"));
+ #endif
+ 	}
+ 
+ 	if (long_help)
+ 		puts(_("\n Other options:\n"));
+ 
+ 	puts(_(
+ "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
+ "  -v, --verbose       be verbose; specify twice for even more verbose"));
+ 
+ 	if (long_help) {
+ 		puts(_(
+ "  -Q, --no-warn       make warnings not affect the exit status"));
+ 		puts(_(
+ "      --robot         use machine-parsable messages (useful for scripts)"));
+ 		puts("");
+ 		puts(_(
+ "      --info-memory   display the total amount of RAM and the currently active\n"
+ "                      memory usage limits, and exit"));
+ 		puts(_(
+ "  -h, --help          display the short help (lists only the basic options)\n"
+ "  -H, --long-help     display this long help and exit"));
+ 	} else {
+ 		puts(_(
+ "  -h, --help          display this short help and exit\n"
+ "  -H, --long-help     display the long help (lists also the advanced options)"));
+ 	}
+ 
+ 	puts(_(
+ "  -V, --version       display the version number and exit"));
+ 
+ 	puts(_("\nWith no FILE, or when FILE is -, read standard input.\n"));
+ 
+ 	// TRANSLATORS: This message indicates the bug reporting address
+ 	// for this package. Please add _another line_ saying
+ 	// "Report translation bugs to <...>\n" with the email or WWW
+ 	// address for translation bugs. Thanks.
+ 	printf(_("Report bugs to <%s> (in English or Finnish).\n"),
+ 			PACKAGE_BUGREPORT);
+ 	printf(_("%s home page: <%s>\n"), PACKAGE_NAME, PACKAGE_URL);
+ 
+ #if LZMA_VERSION_STABILITY != LZMA_VERSION_STABILITY_STABLE
+ 	puts(_(
+ "THIS IS A DEVELOPMENT VERSION NOT INTENDED FOR PRODUCTION USE."));
+ #endif
+ 
+ 	tuklib_exit(E_SUCCESS, E_ERROR, verbosity != V_SILENT);
+ }
+ 
+ 
+ extern void
+ message_filters_help(void)
+ {
+ 	char *encoder_options;
+ 	if (lzma_str_list_filters(&encoder_options, LZMA_VLI_UNKNOWN,
+ 			LZMA_STR_ENCODER, NULL) != LZMA_OK)
+ 		message_bug();
+ 
+ 	if (!opt_robot) {
  		puts(_(
  "Filter chains are set using the --filters=FILTERS or\n"
  "--filters1=FILTERS ... --filters9=FILTERS options. Each filter in the chain\n"
@@ -109,11 +3855,100 @@ index 056ba5ea..c2a5d33d 100644
  "specified instead of a filter chain.\n"
  		));
  
+ 		puts(_("The supported filters and their options are:"));
+ 	}
+ 
+ 	puts(encoder_options);
+ 
+ 	tuklib_exit(E_SUCCESS, E_ERROR, verbosity != V_SILENT);
+ }
 diff --git a/src/xz/options.c b/src/xz/options.c
 index 4d5e899c..618a50f7 100644
 --- a/src/xz/options.c
 +++ b/src/xz/options.c
-@@ -83,7 +83,7 @@ parse_options(const char *str, const option_map *opts,
+@@ -1,359 +1,359 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       options.c
+ /// \brief      Parser for filter-specific options
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ 
+ 
+ ///////////////////
+ // Generic stuff //
+ ///////////////////
+ 
+ typedef struct {
+ 	const char *name;
+ 	uint64_t id;
+ } name_id_map;
+ 
+ 
+ typedef struct {
+ 	const char *name;
+ 	const name_id_map *map;
+ 	uint64_t min;
+ 	uint64_t max;
+ } option_map;
+ 
+ 
+ /// Parses option=value pairs that are separated with commas:
+ /// opt=val,opt=val,opt=val
+ ///
+ /// Each option is a string, that is converted to an integer using the
+ /// index where the option string is in the array.
+ ///
+ /// Value can be
+ ///  - a string-id map mapping a list of possible string values to integers
+ ///    (opts[i].map != NULL, opts[i].min and opts[i].max are ignored);
+ ///  - a number with minimum and maximum value limit
+ ///    (opts[i].map == NULL && opts[i].min != UINT64_MAX);
+ ///  - a string that will be parsed by the filter-specific code
+ ///    (opts[i].map == NULL && opts[i].min == UINT64_MAX, opts[i].max ignored)
+ ///
+ /// When parsing both option and value succeed, a filter-specific function
+ /// is called, which should update the given value to filter-specific
+ /// options structure.
+ ///
+ /// This returns only if no errors occur.
+ ///
+ /// \param      str     String containing the options from the command line
+ /// \param      opts    Filter-specific option map
+ /// \param      set     Filter-specific function to update filter_options
+ /// \param      filter_options  Pointer to filter-specific options structure
+ ///
+ static void
+ parse_options(const char *str, const option_map *opts,
+ 		void (*set)(void *filter_options,
+ 			unsigned key, uint64_t value, const char *valuestr),
+ 		void *filter_options)
+ {
+ 	if (str == NULL || str[0] == '\0')
+ 		return;
+ 
+ 	char *s = xstrdup(str);
+ 	char *name = s;
+ 
+ 	while (*name != '\0') {
+ 		if (*name == ',') {
+ 			++name;
+ 			continue;
+ 		}
+ 
+ 		char *split = strchr(name, ',');
+ 		if (split != NULL)
+ 			*split = '\0';
+ 
+ 		char *value = strchr(name, '=');
+ 		if (value != NULL)
  			*value++ = '\0';
  
  		if (value == NULL || value[0] == '\0')
@@ -122,11 +3957,464 @@ index 4d5e899c..618a50f7 100644
  					"pairs separated with commas"), str);
  
  		// Look for the option name from the option map.
+ 		unsigned i = 0;
+ 		while (true) {
+ 			if (opts[i].name == NULL)
+ 				message_fatal(_("%s: Invalid option name"),
+ 						name);
+ 
+ 			if (strcmp(name, opts[i].name) == 0)
+ 				break;
+ 
+ 			++i;
+ 		}
+ 
+ 		// Option was found from the map. See how we should handle it.
+ 		if (opts[i].map != NULL) {
+ 			// value is a string which we should map
+ 			// to an integer.
+ 			unsigned j;
+ 			for (j = 0; opts[i].map[j].name != NULL; ++j) {
+ 				if (strcmp(opts[i].map[j].name, value) == 0)
+ 					break;
+ 			}
+ 
+ 			if (opts[i].map[j].name == NULL)
+ 				message_fatal(_("%s: Invalid option value"),
+ 						value);
+ 
+ 			set(filter_options, i, opts[i].map[j].id, value);
+ 
+ 		} else if (opts[i].min == UINT64_MAX) {
+ 			// value is a special string that will be
+ 			// parsed by set().
+ 			set(filter_options, i, 0, value);
+ 
+ 		} else {
+ 			// value is an integer.
+ 			const uint64_t v = str_to_uint64(name, value,
+ 					opts[i].min, opts[i].max);
+ 			set(filter_options, i, v, value);
+ 		}
+ 
+ 		// Check if it was the last option.
+ 		if (split == NULL)
+ 			break;
+ 
+ 		name = split + 1;
+ 	}
+ 
+ 	free(s);
+ 	return;
+ }
+ 
+ 
+ ///////////
+ // Delta //
+ ///////////
+ 
+ enum {
+ 	OPT_DIST,
+ };
+ 
+ 
+ static void
+ set_delta(void *options, unsigned key, uint64_t value,
+ 		const char *valuestr lzma_attribute((__unused__)))
+ {
+ 	lzma_options_delta *opt = options;
+ 	switch (key) {
+ 	case OPT_DIST:
+ 		opt->dist = value;
+ 		break;
+ 	}
+ }
+ 
+ 
+ extern lzma_options_delta *
+ options_delta(const char *str)
+ {
+ 	static const option_map opts[] = {
+ 		{ "dist",     NULL,  LZMA_DELTA_DIST_MIN,
+ 		                     LZMA_DELTA_DIST_MAX },
+ 		{ NULL,       NULL,  0, 0 }
+ 	};
+ 
+ 	lzma_options_delta *options = xmalloc(sizeof(lzma_options_delta));
+ 	*options = (lzma_options_delta){
+ 		// It's hard to give a useful default for this.
+ 		.type = LZMA_DELTA_TYPE_BYTE,
+ 		.dist = LZMA_DELTA_DIST_MIN,
+ 	};
+ 
+ 	parse_options(str, opts, &set_delta, options);
+ 
+ 	return options;
+ }
+ 
+ 
+ /////////
+ // BCJ //
+ /////////
+ 
+ enum {
+ 	OPT_START_OFFSET,
+ };
+ 
+ 
+ static void
+ set_bcj(void *options, unsigned key, uint64_t value,
+ 		const char *valuestr lzma_attribute((__unused__)))
+ {
+ 	lzma_options_bcj *opt = options;
+ 	switch (key) {
+ 	case OPT_START_OFFSET:
+ 		opt->start_offset = value;
+ 		break;
+ 	}
+ }
+ 
+ 
+ extern lzma_options_bcj *
+ options_bcj(const char *str)
+ {
+ 	static const option_map opts[] = {
+ 		{ "start",    NULL,  0, UINT32_MAX },
+ 		{ NULL,       NULL,  0, 0 }
+ 	};
+ 
+ 	lzma_options_bcj *options = xmalloc(sizeof(lzma_options_bcj));
+ 	*options = (lzma_options_bcj){
+ 		.start_offset = 0,
+ 	};
+ 
+ 	parse_options(str, opts, &set_bcj, options);
+ 
+ 	return options;
+ }
+ 
+ 
+ //////////
+ // LZMA //
+ //////////
+ 
+ enum {
+ 	OPT_PRESET,
+ 	OPT_DICT,
+ 	OPT_LC,
+ 	OPT_LP,
+ 	OPT_PB,
+ 	OPT_MODE,
+ 	OPT_NICE,
+ 	OPT_MF,
+ 	OPT_DEPTH,
+ };
+ 
+ 
+ tuklib_attr_noreturn
+ static void
+ error_lzma_preset(const char *valuestr)
+ {
+ 	message_fatal(_("Unsupported LZMA1/LZMA2 preset: %s"), valuestr);
+ }
+ 
+ 
+ static void
+ set_lzma(void *options, unsigned key, uint64_t value, const char *valuestr)
+ {
+ 	lzma_options_lzma *opt = options;
+ 
+ 	switch (key) {
+ 	case OPT_PRESET: {
+ 		if (valuestr[0] < '0' || valuestr[0] > '9')
+ 			error_lzma_preset(valuestr);
+ 
+ 		uint32_t preset = (uint32_t)(valuestr[0] - '0');
+ 
+ 		// Currently only "e" is supported as a modifier,
+ 		// so keep this simple for now.
+ 		if (valuestr[1] != '\0') {
+ 			if (valuestr[1] == 'e')
+ 				preset |= LZMA_PRESET_EXTREME;
+ 			else
+ 				error_lzma_preset(valuestr);
+ 
+ 			if (valuestr[2] != '\0')
+ 				error_lzma_preset(valuestr);
+ 		}
+ 
+ 		if (lzma_lzma_preset(options, preset))
+ 			error_lzma_preset(valuestr);
+ 
+ 		break;
+ 	}
+ 
+ 	case OPT_DICT:
+ 		opt->dict_size = value;
+ 		break;
+ 
+ 	case OPT_LC:
+ 		opt->lc = value;
+ 		break;
+ 
+ 	case OPT_LP:
+ 		opt->lp = value;
+ 		break;
+ 
+ 	case OPT_PB:
+ 		opt->pb = value;
+ 		break;
+ 
+ 	case OPT_MODE:
+ 		opt->mode = value;
+ 		break;
+ 
+ 	case OPT_NICE:
+ 		opt->nice_len = value;
+ 		break;
+ 
+ 	case OPT_MF:
+ 		opt->mf = value;
+ 		break;
+ 
+ 	case OPT_DEPTH:
+ 		opt->depth = value;
+ 		break;
+ 	}
+ }
+ 
+ 
+ extern lzma_options_lzma *
+ options_lzma(const char *str)
+ {
+ 	static const name_id_map modes[] = {
+ 		{ "fast",   LZMA_MODE_FAST },
+ 		{ "normal", LZMA_MODE_NORMAL },
+ 		{ NULL,     0 }
+ 	};
+ 
+ 	static const name_id_map mfs[] = {
+ 		{ "hc3", LZMA_MF_HC3 },
+ 		{ "hc4", LZMA_MF_HC4 },
+ 		{ "bt2", LZMA_MF_BT2 },
+ 		{ "bt3", LZMA_MF_BT3 },
+ 		{ "bt4", LZMA_MF_BT4 },
+ 		{ NULL,  0 }
+ 	};
+ 
+ 	static const option_map opts[] = {
+ 		{ "preset", NULL,   UINT64_MAX, 0 },
+ 		{ "dict",   NULL,   LZMA_DICT_SIZE_MIN,
+ 				(UINT32_C(1) << 30) + (UINT32_C(1) << 29) },
+ 		{ "lc",     NULL,   LZMA_LCLP_MIN, LZMA_LCLP_MAX },
+ 		{ "lp",     NULL,   LZMA_LCLP_MIN, LZMA_LCLP_MAX },
+ 		{ "pb",     NULL,   LZMA_PB_MIN, LZMA_PB_MAX },
+ 		{ "mode",   modes,  0, 0 },
+ 		{ "nice",   NULL,   2, 273 },
+ 		{ "mf",     mfs,    0, 0 },
+ 		{ "depth",  NULL,   0, UINT32_MAX },
+ 		{ NULL,     NULL,   0, 0 }
+ 	};
+ 
+ 	lzma_options_lzma *options = xmalloc(sizeof(lzma_options_lzma));
+ 	if (lzma_lzma_preset(options, LZMA_PRESET_DEFAULT))
+ 		message_bug();
+ 
+ 	parse_options(str, opts, &set_lzma, options);
+ 
+ 	if (options->lc + options->lp > LZMA_LCLP_MAX)
+ 		message_fatal(_("The sum of lc and lp must not exceed 4"));
+ 
+ 	return options;
+ }
 diff --git a/src/xz/suffix.c b/src/xz/suffix.c
 index 2df2b8c8..f2541831 100644
 --- a/src/xz/suffix.c
 +++ b/src/xz/suffix.c
-@@ -184,7 +184,7 @@ uncompressed_name(const char *src_name, const size_t src_len)
+@@ -1,407 +1,407 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       suffix.c
+ /// \brief      Checks filename suffix and creates the destination filename
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ 
+ #ifdef __DJGPP__
+ #	include <fcntl.h>
+ #endif
+ 
+ // For case-insensitive filename suffix on case-insensitive systems
+ #if defined(TUKLIB_DOSLIKE) || defined(__VMS)
+ #	ifdef HAVE_STRINGS_H
+ #		include <strings.h>
+ #	endif
+ #	ifdef _MSC_VER
+ #		define suffix_strcmp _stricmp
+ #	else
+ #		define suffix_strcmp strcasecmp
+ #	endif
+ #else
+ #	define suffix_strcmp strcmp
+ #endif
+ 
+ 
+ static char *custom_suffix = NULL;
+ 
+ 
+ /// \brief      Test if the char is a directory separator
+ static bool
+ is_dir_sep(char c)
+ {
+ #ifdef TUKLIB_DOSLIKE
+ 	return c == '/' || c == '\\' || c == ':';
+ #else
+ 	return c == '/';
+ #endif
+ }
+ 
+ 
+ /// \brief      Test if the string contains a directory separator
+ static bool
+ has_dir_sep(const char *str)
+ {
+ #ifdef TUKLIB_DOSLIKE
+ 	return strpbrk(str, "/\\:") != NULL;
+ #else
+ 	return strchr(str, '/') != NULL;
+ #endif
+ }
+ 
+ 
+ #ifdef __DJGPP__
+ /// \brief      Test for special suffix used for 8.3 short filenames (SFN)
+ ///
+ /// \return     If str matches *.?- or *.??-, true is returned. Otherwise
+ ///             false is returned.
+ static bool
+ has_sfn_suffix(const char *str, size_t len)
+ {
+ 	if (len >= 4 && str[len - 1] == '-' && str[len - 2] != '.'
+ 			&& !is_dir_sep(str[len - 2])) {
+ 		// *.?-
+ 		if (str[len - 3] == '.')
+ 			return !is_dir_sep(str[len - 4]);
+ 
+ 		// *.??-
+ 		if (len >= 5 && !is_dir_sep(str[len - 3])
+ 				&& str[len - 4] == '.')
+ 			return !is_dir_sep(str[len - 5]);
+ 	}
+ 
+ 	return false;
+ }
+ #endif
+ 
+ 
+ /// \brief      Checks if src_name has given compressed_suffix
+ ///
+ /// \param      suffix      Filename suffix to look for
+ /// \param      src_name    Input filename
+ /// \param      src_len     strlen(src_name)
+ ///
+ /// \return     If src_name has the suffix, src_len - strlen(suffix) is
+ ///             returned. It's always a positive integer. Otherwise zero
+ ///             is returned.
+ static size_t
+ test_suffix(const char *suffix, const char *src_name, size_t src_len)
+ {
+ 	const size_t suffix_len = strlen(suffix);
+ 
+ 	// The filename must have at least one character in addition to
+ 	// the suffix. src_name may contain path to the filename, so we
+ 	// need to check for directory separator too.
+ 	if (src_len <= suffix_len
+ 			|| is_dir_sep(src_name[src_len - suffix_len - 1]))
+ 		return 0;
+ 
+ 	if (suffix_strcmp(suffix, src_name + src_len - suffix_len) == 0)
+ 		return src_len - suffix_len;
+ 
+ 	return 0;
+ }
+ 
+ 
+ /// \brief      Removes the filename suffix of the compressed file
+ ///
+ /// \return     Name of the uncompressed file, or NULL if file has unknown
+ ///             suffix.
+ static char *
+ uncompressed_name(const char *src_name, const size_t src_len)
+ {
+ 	static const struct {
+ 		const char *compressed;
+ 		const char *uncompressed;
+ 	} suffixes[] = {
+ 		{ ".xz",    "" },
+ 		{ ".txz",   ".tar" }, // .txz abbreviation for .txt.gz is rare.
+ 		{ ".lzma",  "" },
+ #ifdef __DJGPP__
+ 		{ ".lzm",   "" },
+ #endif
+ 		{ ".tlz",   ".tar" }, // Both .tar.lzma and .tar.lz
+ #ifdef HAVE_LZIP_DECODER
+ 		{ ".lz",    "" },
+ #endif
+ 	};
+ 
+ 	const char *new_suffix = "";
+ 	size_t new_len = 0;
+ 
+ 	if (opt_format != FORMAT_RAW) {
+ 		for (size_t i = 0; i < ARRAY_SIZE(suffixes); ++i) {
+ 			new_len = test_suffix(suffixes[i].compressed,
+ 					src_name, src_len);
+ 			if (new_len != 0) {
+ 				new_suffix = suffixes[i].uncompressed;
+ 				break;
+ 			}
+ 		}
+ 
+ #ifdef __DJGPP__
+ 		// Support also *.?- -> *.? and *.??- -> *.?? on DOS.
+ 		// This is done also when long filenames are available
+ 		// to keep it easy to decompress files created when
+ 		// long filename support wasn't available.
+ 		if (new_len == 0 && has_sfn_suffix(src_name, src_len)) {
+ 			new_suffix = "";
+ 			new_len = src_len - 1;
+ 		}
+ #endif
+ 	}
+ 
+ 	if (new_len == 0 && custom_suffix != NULL)
+ 		new_len = test_suffix(custom_suffix, src_name, src_len);
+ 
+ 	if (new_len == 0) {
+ 		message_warning(_("%s: Filename has an unknown suffix, "
+ 				"skipping"), src_name);
+ 		return NULL;
+ 	}
+ 
+ 	const size_t new_suffix_len = strlen(new_suffix);
+ 	char *dest_name = xmalloc(new_len + new_suffix_len + 1);
+ 
+ 	memcpy(dest_name, src_name, new_len);
+ 	memcpy(dest_name + new_len, new_suffix, new_suffix_len);
+ 	dest_name[new_len + new_suffix_len] = '\0';
+ 
+ 	return dest_name;
+ }
+ 
+ 
+ /// This message is needed in multiple places in compressed_name(),
+ /// so the message has been put into its own function.
  static void
  msg_suffix(const char *src_name, const char *suffix)
  {
@@ -135,11 +4423,380 @@ index 2df2b8c8..f2541831 100644
  			src_name, suffix);
  	return;
  }
+ 
+ 
+ /// \brief      Appends suffix to src_name
+ ///
+ /// In contrast to uncompressed_name(), we check only suffixes that are valid
+ /// for the specified file format.
+ static char *
+ compressed_name(const char *src_name, size_t src_len)
+ {
+ 	// The order of these must match the order in args.h.
+ 	static const char *const all_suffixes[][4] = {
+ 		{
+ 			".xz",
+ 			".txz",
+ 			NULL
+ 		}, {
+ 			".lzma",
+ #ifdef __DJGPP__
+ 			".lzm",
+ #endif
+ 			".tlz",
+ 			NULL
+ #ifdef HAVE_LZIP_DECODER
+ 		// This is needed to keep the table indexing in sync with
+ 		// enum format_type from coder.h.
+ 		}, {
+ /*
+ 			".lz",
+ */
+ 			NULL
+ #endif
+ 		}, {
+ 			// --format=raw requires specifying the suffix
+ 			// manually or using stdout.
+ 			NULL
+ 		}
+ 	};
+ 
+ 	// args.c ensures these.
+ 	assert(opt_format != FORMAT_AUTO);
+ #ifdef HAVE_LZIP_DECODER
+ 	assert(opt_format != FORMAT_LZIP);
+ #endif
+ 
+ 	const size_t format = opt_format - 1;
+ 	const char *const *suffixes = all_suffixes[format];
+ 
+ 	// Look for known filename suffixes and refuse to compress them.
+ 	for (size_t i = 0; suffixes[i] != NULL; ++i) {
+ 		if (test_suffix(suffixes[i], src_name, src_len) != 0) {
+ 			msg_suffix(src_name, suffixes[i]);
+ 			return NULL;
+ 		}
+ 	}
+ 
+ #ifdef __DJGPP__
+ 	// Recognize also the special suffix that is used when long
+ 	// filename (LFN) support isn't available. This suffix is
+ 	// recognized on LFN systems too.
+ 	if (opt_format == FORMAT_XZ && has_sfn_suffix(src_name, src_len)) {
+ 		msg_suffix(src_name, "-");
+ 		return NULL;
+ 	}
+ #endif
+ 
+ 	if (custom_suffix != NULL) {
+ 		if (test_suffix(custom_suffix, src_name, src_len) != 0) {
+ 			msg_suffix(src_name, custom_suffix);
+ 			return NULL;
+ 		}
+ 	}
+ 
+ 	const char *suffix = custom_suffix != NULL
+ 			? custom_suffix : suffixes[0];
+ 	size_t suffix_len = strlen(suffix);
+ 
+ #ifdef __DJGPP__
+ 	if (!_use_lfn(src_name)) {
+ 		// Long filename (LFN) support isn't available and we are
+ 		// limited to 8.3 short filenames (SFN).
+ 		//
+ 		// Look for suffix separator from the filename, and make sure
+ 		// that it is in the filename, not in a directory name.
+ 		const char *sufsep = strrchr(src_name, '.');
+ 		if (sufsep == NULL || sufsep[1] == '\0'
+ 				|| has_dir_sep(sufsep)) {
+ 			// src_name has no filename extension.
+ 			//
+ 			// Examples:
+ 			// xz foo         -> foo.xz
+ 			// xz -F lzma foo -> foo.lzm
+ 			// xz -S x foo    -> foox
+ 			// xz -S x foo.   -> foo.x
+ 			// xz -S x.y foo  -> foox.y
+ 			// xz -S .x foo   -> foo.x
+ 			// xz -S .x foo.  -> foo.x
+ 			//
+ 			// Avoid double dots:
+ 			if (sufsep != NULL && sufsep[1] == '\0'
+ 					&& suffix[0] == '.')
+ 				--src_len;
+ 
+ 		} else if (custom_suffix == NULL
+ 				&& strcasecmp(sufsep, ".tar") == 0) {
+ 			// ".tar" is handled specially.
+ 			//
+ 			// Examples:
+ 			// xz foo.tar          -> foo.txz
+ 			// xz -F lzma foo.tar  -> foo.tlz
+ 			static const char *const tar_suffixes[] = {
+ 				".txz", // .tar.xz
+ 				".tlz", // .tar.lzma
+ /*
+ 				".tlz", // .tar.lz
+ */
+ 			};
+ 			suffix = tar_suffixes[format];
+ 			suffix_len = 4;
+ 			src_len -= 4;
+ 
+ 		} else {
+ 			if (custom_suffix == NULL && opt_format == FORMAT_XZ) {
+ 				// Instead of the .xz suffix, use a single
+ 				// character at the end of the filename
+ 				// extension. This is to minimize name
+ 				// conflicts when compressing multiple files
+ 				// with the same basename. E.g. foo.txt and
+ 				// foo.exe become foo.tx- and foo.ex-. Dash
+ 				// is rare as the last character of the
+ 				// filename extension, so it seems to be
+ 				// quite safe choice and it stands out better
+ 				// in directory listings than e.g. x. For
+ 				// comparison, gzip uses z.
+ 				suffix = "-";
+ 				suffix_len = 1;
+ 			}
+ 
+ 			if (suffix[0] == '.') {
+ 				// The first character of the suffix is a dot.
+ 				// Throw away the original filename extension
+ 				// and replace it with the new suffix.
+ 				//
+ 				// Examples:
+ 				// xz -F lzma foo.txt  -> foo.lzm
+ 				// xz -S .x  foo.txt   -> foo.x
+ 				src_len = sufsep - src_name;
+ 
+ 			} else {
+ 				// The first character of the suffix is not
+ 				// a dot. Preserve the first 0-2 characters
+ 				// of the original filename extension.
+ 				//
+ 				// Examples:
+ 				// xz foo.txt         -> foo.tx-
+ 				// xz -S x  foo.c     -> foo.cx
+ 				// xz -S ab foo.c     -> foo.cab
+ 				// xz -S ab foo.txt   -> foo.tab
+ 				// xz -S abc foo.txt  -> foo.abc
+ 				//
+ 				// Truncate the suffix to three chars:
+ 				if (suffix_len > 3)
+ 					suffix_len = 3;
+ 
+ 				// If needed, overwrite 1-3 characters.
+ 				if (strlen(sufsep) > 4 - suffix_len)
+ 					src_len = sufsep - src_name
+ 							+ 4 - suffix_len;
+ 			}
+ 		}
+ 	}
+ #endif
+ 
+ 	char *dest_name = xmalloc(src_len + suffix_len + 1);
+ 
+ 	memcpy(dest_name, src_name, src_len);
+ 	memcpy(dest_name + src_len, suffix, suffix_len);
+ 	dest_name[src_len + suffix_len] = '\0';
+ 
+ 	return dest_name;
+ }
+ 
+ 
+ extern char *
+ suffix_get_dest_name(const char *src_name)
+ {
+ 	assert(src_name != NULL);
+ 
+ 	// Length of the name is needed in all cases to locate the end of
+ 	// the string to compare the suffix, so calculate the length here.
+ 	const size_t src_len = strlen(src_name);
+ 
+ 	return opt_mode == MODE_COMPRESS
+ 			? compressed_name(src_name, src_len)
+ 			: uncompressed_name(src_name, src_len);
+ }
+ 
+ 
+ extern void
+ suffix_set(const char *suffix)
+ {
+ 	// Empty suffix and suffixes having a directory separator are
+ 	// rejected. Such suffixes would break things later.
+ 	if (suffix[0] == '\0' || has_dir_sep(suffix))
+ 		message_fatal(_("%s: Invalid filename suffix"), suffix);
+ 
+ 	// Replace the old custom_suffix (if any) with the new suffix.
+ 	free(custom_suffix);
+ 	custom_suffix = xstrdup(suffix);
+ 	return;
+ }
+ 
+ 
+ extern bool
+ suffix_is_set(void)
+ {
+ 	return custom_suffix != NULL;
+ }
 diff --git a/src/xz/util.c b/src/xz/util.c
 index df6fd709..45d3085e 100644
 --- a/src/xz/util.c
 +++ b/src/xz/util.c
-@@ -153,8 +153,8 @@ str_to_uint64(const char *name, const char *value, uint64_t min, uint64_t max)
+@@ -1,292 +1,292 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       util.c
+ /// \brief      Miscellaneous utility functions
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ #include <stdarg.h>
+ 
+ #ifdef _MSC_VER
+ #	include <io.h>
+ #	define isatty _isatty
+ #endif
+ 
+ 
+ /// Buffers for uint64_to_str() and uint64_to_nicestr()
+ static char bufs[4][128];
+ 
+ 
+ // Thousand separator support in uint64_to_str() and uint64_to_nicestr():
+ //
+ // DJGPP 2.05 added support for thousands separators but it's broken
+ // at least under WinXP with Finnish locale that uses a non-breaking space
+ // as the thousands separator. Workaround by disabling thousands separators
+ // for DJGPP builds.
+ //
+ // MSVC doesn't support thousand separators.
+ #if defined(__DJGPP__) || defined(_MSC_VER)
+ #	define FORMAT_THOUSAND_SEP(prefix, suffix) prefix suffix
+ #	define check_thousand_sep(slot) do { } while (0)
+ #else
+ #	define FORMAT_THOUSAND_SEP(prefix, suffix) ((thousand == WORKS) \
+ 			? prefix "'" suffix \
+ 			: prefix suffix)
+ 
+ static enum { UNKNOWN, WORKS, BROKEN } thousand = UNKNOWN;
+ 
+ /// Check if thousands separator is supported. Run-time checking is easiest
+ /// because it seems to be sometimes lacking even on a POSIXish system.
+ /// Note that trying to use thousands separators when snprintf() doesn't
+ /// support them results in undefined behavior. This just has happened to
+ /// work well enough in practice.
+ ///
+ /// This must be called before using the FORMAT_THOUSAND_SEP macro.
+ static void
+ check_thousand_sep(uint32_t slot)
+ {
+ 	if (thousand == UNKNOWN) {
+ 		bufs[slot][0] = '\0';
+ 		snprintf(bufs[slot], sizeof(bufs[slot]), "%'u", 1U);
+ 		thousand = bufs[slot][0] == '1' ? WORKS : BROKEN;
+ 	}
+ 
+ 	return;
+ }
+ #endif
+ 
+ 
+ extern void *
+ xrealloc(void *ptr, size_t size)
+ {
+ 	assert(size > 0);
+ 
+ 	// Save ptr so that we can free it if realloc fails.
+ 	// The point is that message_fatal ends up calling stdio functions
+ 	// which in some libc implementations might allocate memory from
+ 	// the heap. Freeing ptr improves the chances that there's free
+ 	// memory for stdio functions if they need it.
+ 	void *p = ptr;
+ 	ptr = realloc(ptr, size);
+ 
+ 	if (ptr == NULL) {
+ 		const int saved_errno = errno;
+ 		free(p);
+ 		message_fatal("%s", strerror(saved_errno));
+ 	}
+ 
+ 	return ptr;
+ }
+ 
+ 
+ extern char *
+ xstrdup(const char *src)
+ {
+ 	assert(src != NULL);
+ 	const size_t size = strlen(src) + 1;
+ 	char *dest = xmalloc(size);
+ 	return memcpy(dest, src, size);
+ }
+ 
+ 
+ extern uint64_t
+ str_to_uint64(const char *name, const char *value, uint64_t min, uint64_t max)
+ {
+ 	uint64_t result = 0;
+ 
+ 	// Skip blanks.
+ 	while (*value == ' ' || *value == '\t')
+ 		++value;
+ 
+ 	// Accept special value "max". Supporting "min" doesn't seem useful.
+ 	if (strcmp(value, "max") == 0)
+ 		return max;
+ 
+ 	if (*value < '0' || *value > '9')
+ 		message_fatal(_("%s: Value is not a non-negative "
+ 				"decimal integer"), value);
+ 
+ 	do {
+ 		// Don't overflow.
+ 		if (result > UINT64_MAX / 10)
+ 			goto error;
+ 
+ 		result *= 10;
+ 
+ 		// Another overflow check
+ 		const uint32_t add = (uint32_t)(*value - '0');
+ 		if (UINT64_MAX - add < result)
+ 			goto error;
+ 
+ 		result += add;
+ 		++value;
+ 	} while (*value >= '0' && *value <= '9');
+ 
+ 	if (*value != '\0') {
+ 		// Look for suffix. Originally this supported both base-2
+ 		// and base-10, but since there seems to be little need
+ 		// for base-10 in this program, treat everything as base-2
+ 		// and also be more relaxed about the case of the first
+ 		// letter of the suffix.
+ 		uint64_t multiplier = 0;
+ 		if (*value == 'k' || *value == 'K')
+ 			multiplier = UINT64_C(1) << 10;
+ 		else if (*value == 'm' || *value == 'M')
+ 			multiplier = UINT64_C(1) << 20;
+ 		else if (*value == 'g' || *value == 'G')
+ 			multiplier = UINT64_C(1) << 30;
+ 
+ 		++value;
+ 
+ 		// Allow also e.g. Ki, KiB, and KB.
+ 		if (*value != '\0' && strcmp(value, "i") != 0
+ 				&& strcmp(value, "iB") != 0
+ 				&& strcmp(value, "B") != 0)
+ 			multiplier = 0;
+ 
  		if (multiplier == 0) {
  			message(V_ERROR, _("%s: Invalid multiplier suffix"),
  					value - 1);
@@ -150,7 +4807,15 @@ index df6fd709..45d3085e 100644
  		}
  
  		// Don't overflow here either.
-@@ -170,7 +170,7 @@ str_to_uint64(const char *name, const char *value, uint64_t min, uint64_t max)
+ 		if (result > UINT64_MAX / multiplier)
+ 			goto error;
+ 
+ 		result *= multiplier;
+ 	}
+ 
+ 	if (result < min || result > max)
+ 		goto error;
+ 
  	return result;
  
  error:
@@ -158,4 +4823,120 @@ index df6fd709..45d3085e 100644
 +	message_fatal(_("Value of the option '%s' must be in the range "
  				"[%" PRIu64 ", %" PRIu64 "]"),
  				name, min, max);
+ }
+ 
+ 
+ extern uint64_t
+ round_up_to_mib(uint64_t n)
+ {
+ 	return (n >> 20) + ((n & ((UINT32_C(1) << 20) - 1)) != 0);
+ }
+ 
+ 
+ extern const char *
+ uint64_to_str(uint64_t value, uint32_t slot)
+ {
+ 	assert(slot < ARRAY_SIZE(bufs));
+ 
+ 	check_thousand_sep(slot);
+ 
+ 	snprintf(bufs[slot], sizeof(bufs[slot]),
+ 			FORMAT_THOUSAND_SEP("%", PRIu64), value);
+ 
+ 	return bufs[slot];
+ }
+ 
+ 
+ extern const char *
+ uint64_to_nicestr(uint64_t value, enum nicestr_unit unit_min,
+ 		enum nicestr_unit unit_max, bool always_also_bytes,
+ 		uint32_t slot)
+ {
+ 	assert(unit_min <= unit_max);
+ 	assert(unit_max <= NICESTR_TIB);
+ 	assert(slot < ARRAY_SIZE(bufs));
+ 
+ 	check_thousand_sep(slot);
+ 
+ 	enum nicestr_unit unit = NICESTR_B;
+ 	char *pos = bufs[slot];
+ 	size_t left = sizeof(bufs[slot]);
+ 
+ 	if ((unit_min == NICESTR_B && value < 10000)
+ 			|| unit_max == NICESTR_B) {
+ 		// The value is shown as bytes.
+ 		my_snprintf(&pos, &left, FORMAT_THOUSAND_SEP("%", "u"),
+ 				(unsigned int)value);
+ 	} else {
+ 		// Scale the value to a nicer unit. Unless unit_min and
+ 		// unit_max limit us, we will show at most five significant
+ 		// digits with one decimal place.
+ 		double d = (double)(value);
+ 		do {
+ 			d /= 1024.0;
+ 			++unit;
+ 		} while (unit < unit_min || (d > 9999.9 && unit < unit_max));
+ 
+ 		my_snprintf(&pos, &left, FORMAT_THOUSAND_SEP("%", ".1f"), d);
+ 	}
+ 
+ 	static const char suffix[5][4] = { "B", "KiB", "MiB", "GiB", "TiB" };
+ 	my_snprintf(&pos, &left, " %s", suffix[unit]);
+ 
+ 	if (always_also_bytes && value >= 10000)
+ 		snprintf(pos, left, FORMAT_THOUSAND_SEP(" (%", PRIu64 " B)"),
+ 				value);
+ 
+ 	return bufs[slot];
+ }
+ 
+ 
+ extern void
+ my_snprintf(char **pos, size_t *left, const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+ 	const int len = vsnprintf(*pos, *left, fmt, ap);
+ 	va_end(ap);
+ 
+ 	// If an error occurred, we want the caller to think that the whole
+ 	// buffer was used. This way no more data will be written to the
+ 	// buffer. We don't need better error handling here, although it
+ 	// is possible that the result looks garbage on the terminal if
+ 	// e.g. an UTF-8 character gets split. That shouldn't (easily)
+ 	// happen though, because the buffers used have some extra room.
+ 	if (len < 0 || (size_t)(len) >= *left) {
+ 		*left = 0;
+ 	} else {
+ 		*pos += len;
+ 		*left -= (size_t)(len);
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ extern bool
+ is_tty_stdin(void)
+ {
+ 	const bool ret = isatty(STDIN_FILENO);
+ 
+ 	if (ret)
+ 		message_error(_("Compressed data cannot be read from "
+ 				"a terminal"));
+ 
+ 	return ret;
+ }
+ 
+ 
+ extern bool
+ is_tty_stdout(void)
+ {
+ 	const bool ret = isatty(STDOUT_FILENO);
+ 
+ 	if (ret)
+ 		message_error(_("Compressed data cannot be written to "
+ 				"a terminal"));
+ 
+ 	return ret;
  }

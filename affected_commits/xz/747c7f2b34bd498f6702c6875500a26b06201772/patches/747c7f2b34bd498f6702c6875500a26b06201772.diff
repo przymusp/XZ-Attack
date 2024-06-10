@@ -12,7 +12,32 @@ diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
 index d86c696c..4a46e256 100644
 --- a/.github/workflows/ci.yml
 +++ b/.github/workflows/ci.yml
-@@ -26,17 +26,54 @@ jobs:
+@@ -1,72 +1,143 @@
+ #############################################################################
+ #
+ # Author: Jia Tan
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ #############################################################################
+ 
+ name: CI
+ 
+ on:
+   # Triggers the workflow on push or pull request events but only for the master branch
+   push:
+     branches: [ master ]
+   pull_request:
+     branches: [ master ]
+ 
+   # Allows running workflow manually
+   workflow_dispatch:
+ 
+ jobs:
+   # When CMake can support disabling check types and
+   # encoders/decoders/threads, it will be combined to one Linux job
+   # and another matrix list.
    Linux-Autotools:
      # Just run on latest ubuntu
      runs-on: ubuntu-latest
@@ -73,7 +98,12 @@ index d86c696c..4a46e256 100644
  
    Linux-CMake:
      runs-on: ubuntu-latest
-@@ -49,17 +86,51 @@ jobs:
+     steps:
+       - uses: actions/checkout@v2
+       - name: Install Dependencies
+         run: sudo apt-get install -y build-essential cmake
+       - name: Build
+         run: ./build-aux/ci_build.sh -b cmake
  
    MacOS-Autotools:
      runs-on: macos-latest
@@ -131,3 +161,11 @@ index d86c696c..4a46e256 100644
  
    MacOS-CMake:
      runs-on: macos-latest
+     steps:
+       - uses: actions/checkout@v2
+       - name: Install Dependencies
+         run: brew install cmake
+       - name: Build
+         run: ./build-aux/ci_build.sh -b cmake
+     
+\ No newline at end of file

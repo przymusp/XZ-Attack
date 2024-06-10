@@ -8,7 +8,15 @@ diff --git a/src/org/tukaani/xz/CountingInputStream.java b/src/org/tukaani/xz/Co
 index 8599f97..7c1ddc6 100644
 --- a/src/org/tukaani/xz/CountingInputStream.java
 +++ b/src/org/tukaani/xz/CountingInputStream.java
-@@ -9,7 +9,6 @@
+@@ -1,47 +1,46 @@
+ /*
+  * CountingInputStream
+  *
+  * Author: Lasse Collin <lasse.collin@tukaani.org>
+  *
+  * This file has been put into the public domain.
+  * You can do whatever you want with this file.
+  */
  
  package org.tukaani.xz;
  
@@ -16,11 +24,51 @@ index 8599f97..7c1ddc6 100644
  import java.io.InputStream;
  import java.io.IOException;
  
+ /**
+  * Counts the number of bytes read from an input stream.
+  * The <code>close()</code> method does nothing, that is, the underlying
+  * <code>InputStream</code> isn't closed.
+  */
+ class CountingInputStream extends CloseIgnoringInputStream {
+     private long size = 0;
+ 
+     public CountingInputStream(InputStream in) {
+         super(in);
+     }
+ 
+     public int read() throws IOException {
+         int ret = in.read();
+         if (ret != -1 && size >= 0)
+             ++size;
+ 
+         return ret;
+     }
+ 
+     public int read(byte[] b, int off, int len) throws IOException {
+         int ret = in.read(b, off, len);
+         if (ret > 0 && size >= 0)
+             size += ret;
+ 
+         return ret;
+     }
+ 
+     public long getSize() {
+         return size;
+     }
+ }
 diff --git a/src/org/tukaani/xz/index/BlockInfo.java b/src/org/tukaani/xz/index/BlockInfo.java
 index babae7f..5321c35 100644
 --- a/src/org/tukaani/xz/index/BlockInfo.java
 +++ b/src/org/tukaani/xz/index/BlockInfo.java
-@@ -9,8 +9,6 @@
+@@ -1,38 +1,36 @@
+ /*
+  * BlockInfo
+  *
+  * Author: Lasse Collin <lasse.collin@tukaani.org>
+  *
+  * This file has been put into the public domain.
+  * You can do whatever you want with this file.
+  */
  
  package org.tukaani.xz.index;
  
@@ -29,11 +77,44 @@ index babae7f..5321c35 100644
  public class BlockInfo {
      public int blockNumber = -1;
      public long compressedOffset = -1;
+     public long uncompressedOffset = -1;
+     public long unpaddedSize = -1;
+     public long uncompressedSize = -1;
+ 
+     IndexDecoder index;
+ 
+     public BlockInfo(IndexDecoder indexOfFirstStream) {
+         index = indexOfFirstStream;
+     }
+ 
+     public int getCheckType() {
+         return index.getStreamFlags().checkType;
+     }
+ 
+     public boolean hasNext() {
+         return index.hasRecord(blockNumber + 1);
+     }
+ 
+     public void setNext() {
+         index.setBlockInfo(this, blockNumber + 1);
+     }
+ }
 diff --git a/src/org/tukaani/xz/index/IndexEncoder.java b/src/org/tukaani/xz/index/IndexEncoder.java
 index 3028802..83e2760 100644
 --- a/src/org/tukaani/xz/index/IndexEncoder.java
 +++ b/src/org/tukaani/xz/index/IndexEncoder.java
-@@ -12,7 +12,6 @@ package org.tukaani.xz.index;
+@@ -1,59 +1,58 @@
+ /*
+  * IndexEncoder
+  *
+  * Author: Lasse Collin <lasse.collin@tukaani.org>
+  *
+  * This file has been put into the public domain.
+  * You can do whatever you want with this file.
+  */
+ 
+ package org.tukaani.xz.index;
+ 
  import java.io.OutputStream;
  import java.io.IOException;
  import java.util.ArrayList;
@@ -41,3 +122,44 @@ index 3028802..83e2760 100644
  import java.util.zip.CheckedOutputStream;
  import org.tukaani.xz.common.EncoderUtil;
  import org.tukaani.xz.XZIOException;
+ 
+ public class IndexEncoder extends IndexBase {
+     private final ArrayList<IndexRecord> records
+             = new ArrayList<IndexRecord>();
+ 
+     public IndexEncoder() {
+         super(new XZIOException("XZ Stream or its Index has grown too big"));
+     }
+ 
+     public void add(long unpaddedSize, long uncompressedSize)
+             throws XZIOException {
+         super.add(unpaddedSize, uncompressedSize);
+         records.add(new IndexRecord(unpaddedSize, uncompressedSize));
+     }
+ 
+     public void encode(OutputStream out) throws IOException {
+         java.util.zip.CRC32 crc32 = new java.util.zip.CRC32();
+         CheckedOutputStream outChecked = new CheckedOutputStream(out, crc32);
+ 
+         // Index Indicator
+         outChecked.write(0x00);
+ 
+         // Number of Records
+         EncoderUtil.encodeVLI(outChecked, recordCount);
+ 
+         // List of Records
+         for (IndexRecord record : records) {
+             EncoderUtil.encodeVLI(outChecked, record.unpadded);
+             EncoderUtil.encodeVLI(outChecked, record.uncompressed);
+         }
+ 
+         // Index Padding
+         for (int i = getIndexPaddingSize(); i > 0; --i)
+             outChecked.write(0x00);
+ 
+         // CRC32
+         long value = crc32.getValue();
+         for (int i = 0; i < 4; ++i)
+             out.write((byte)(value >>> (i * 8)));
+     }
+ }

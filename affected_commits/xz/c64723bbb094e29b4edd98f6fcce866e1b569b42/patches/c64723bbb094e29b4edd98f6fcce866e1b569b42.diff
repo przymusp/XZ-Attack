@@ -8,7 +8,7 @@ diff --git a/po4a/uk.po b/po4a/uk.po
 index 3914b345..2c53e8ff 100644
 --- a/po4a/uk.po
 +++ b/po4a/uk.po
-@@ -1,13 +1,15 @@
+@@ -1,3844 +1,3880 @@
 +# SPDX-License-Identifier: 0BSD
 +#
  # Ukrainian translation for xz-man.
@@ -30,7 +30,11 @@ index 3914b345..2c53e8ff 100644
  "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
  "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
  "Language: uk\n"
-@@ -19,1925 +21,1930 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ "X-Bugs: Report translation errors to the Language-Team address.\n"
+ "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
  "X-Generator: Lokalize 23.04.1\n"
  
  #. type: TH
@@ -2357,7 +2361,7 @@ index 3914b345..2c53e8ff 100644
  #, no-wrap
  msgid "4096-byte alignment is best"
  msgstr ""
-@@ -1945,961 +1952,962 @@ msgstr ""
+ "Найкращим є вирівнювання за\n"
  ";;4096 байтами"
  
  #. type: tbl table
@@ -3506,7 +3510,9 @@ index 3914b345..2c53e8ff 100644
  #, no-wrap
  msgid ""
  "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
-@@ -2909,285 +2917,285 @@ msgstr ""
+ "export XZ_OPT>\n"
+ msgstr ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
  "export XZ_OPT>\n"
  
  #. type: SH
@@ -3843,7 +3849,9 @@ index 3914b345..2c53e8ff 100644
  #, no-wrap
  msgid ""
  "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
-@@ -3197,39 +3205,39 @@ msgstr ""
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
+ msgstr ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
  "    | xargs -0r -P4 -n16 xz -T1>\n"
  
  #. type: Plain text
@@ -3890,7 +3898,15 @@ index 3914b345..2c53e8ff 100644
  #, no-wrap
  msgid ""
  "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
-@@ -3245,12 +3253,12 @@ msgstr ""
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
+ msgstr ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
  "unset XZ_VERSION LIBLZMA_VERSION>\n"
  
  #. type: Plain text
@@ -3905,7 +3921,17 @@ index 3914b345..2c53e8ff 100644
  #, no-wrap
  msgid ""
  "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
-@@ -3268,577 +3276,605 @@ msgstr ""
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
+ "fi>\n"
+ msgstr ""
+ "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
  "fi>\n"
  
  #. type: Plain text

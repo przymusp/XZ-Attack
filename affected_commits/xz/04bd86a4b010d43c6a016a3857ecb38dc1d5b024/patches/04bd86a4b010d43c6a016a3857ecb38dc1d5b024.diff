@@ -15,7 +15,7 @@ diff --git a/lib/getopt.c b/lib/getopt.c
 index 36c28318..8de50991 100644
 --- a/lib/getopt.c
 +++ b/lib/getopt.c
-@@ -1,24 +1,21 @@
+@@ -1,1201 +1,821 @@
  /* Getopt for GNU.
 -   NOTE: getopt is now part of the C library, so if you don't know what
 -   "Keep this file name-space clean" means, talk to drepper@gnu.org
@@ -55,7 +55,16 @@ index 36c28318..8de50991 100644
  
  #ifndef _LIBC
  # ifdef HAVE_CONFIG_H
-@@ -35,65 +32,80 @@
+ #  include <config.h>
+ # endif
+ #endif
+ 
+ #include "getopt.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #ifndef _MSC_VER
  # include <unistd.h>
  #endif
  
@@ -173,7 +182,19 @@ index 36c28318..8de50991 100644
     how much of ARGV has been scanned so far.  */
  
  /* 1003.2 says this must be 1 before any call.  */
-@@ -113,49 +125,14 @@ int optopt = '?';
+ int optind = 1;
+ 
+ /* Callers store zero here to inhibit the error message
+    for unrecognized options.  */
+ 
+ int opterr = 1;
+ 
+ /* Set to an option character which was unrecognized.
+    This must be initialized on some systems to avoid linking in the
+    system's own getopt implementation.  */
+ 
+ int optopt = '?';
+ 
  /* Keep a global copy of all internal members of getopt_data.  */
  
  static struct _getopt_data getopt_data;
@@ -224,7 +245,15 @@ index 36c28318..8de50991 100644
     the new indices of the non-options in ARGV after they are moved.  */
  
  static void
-@@ -171,35 +148,13 @@ exchange (char **argv, struct _getopt_data *d)
+ exchange (char **argv, struct _getopt_data *d)
+ {
+   int bottom = d->__first_nonopt;
+   int middle = d->__last_nonopt;
+   int top = d->optind;
+   char *tem;
+ 
+   /* Exchange the shorter segment with the far end of the longer segment.
+      That puts the shorter segment into the right place.
       It leaves the longer segment in the right place overall,
       but it consists of two parts that need to be swapped next.  */
  
@@ -261,7 +290,7 @@ index 36c28318..8de50991 100644
  
  	  /* Swap it with the top part of the top segment.  */
  	  for (i = 0; i < len; i++)
-@@ -207,7 +162,6 @@ exchange (char **argv, struct _getopt_data *d)
+ 	    {
  	      tem = argv[bottom + i];
  	      argv[bottom + i] = argv[top - (middle - bottom) + i];
  	      argv[top - (middle - bottom) + i] = tem;
@@ -269,7 +298,8 @@ index 36c28318..8de50991 100644
  	    }
  	  /* Exclude the moved bottom segment from further swapping.  */
  	  top -= len;
-@@ -216,7 +170,7 @@ exchange (char **argv, struct _getopt_data *d)
+ 	}
+       else
  	{
  	  /* Top segment is the short one.  */
  	  int len = top - middle;
@@ -278,7 +308,7 @@ index 36c28318..8de50991 100644
  
  	  /* Swap it with the bottom part of the bottom segment.  */
  	  for (i = 0; i < len; i++)
-@@ -224,7 +178,6 @@ exchange (char **argv, struct _getopt_data *d)
+ 	    {
  	      tem = argv[bottom + i];
  	      argv[bottom + i] = argv[middle + i];
  	      argv[middle + i] = tem;
@@ -286,7 +316,12 @@ index 36c28318..8de50991 100644
  	    }
  	  /* Exclude the moved top segment from further swapping.  */
  	  bottom += len;
-@@ -237,24 +190,218 @@ exchange (char **argv, struct _getopt_data *d)
+ 	}
+     }
+ 
+   /* Update records for the slots the non-options now occupy.  */
+ 
+   d->__first_nonopt += (d->optind - d->__last_nonopt);
    d->__last_nonopt = d->optind;
  }
  
@@ -512,7 +547,10 @@ index 36c28318..8de50991 100644
    if (optstring[0] == '-')
      {
        d->__ordering = RETURN_IN_ORDER;
-@@ -265,41 +412,12 @@ _getopt_initialize (int argc, char **argv, const char *optstring,
+       ++optstring;
+     }
+   else if (optstring[0] == '+')
+     {
        d->__ordering = REQUIRE_ORDER;
        ++optstring;
      }
@@ -556,7 +594,8 @@ index 36c28318..8de50991 100644
    return optstring;
  }
  
-@@ -308,44 +426,48 @@ _getopt_initialize (int argc, char **argv, const char *optstring,
+ /* Scan elements of ARGV (whose length is ARGC) for option characters
+    given in OPTSTRING.
  
     If an element of ARGV starts with '-', and is not exactly "-" or "--",
     then it is an option element.  The characters of this element
@@ -620,7 +659,7 @@ index 36c28318..8de50991 100644
     element containing a name which is zero.
  
     LONGIND returns the index in LONGOPT of the long-named option found.
-@@ -353,19 +475,14 @@ _getopt_initialize (int argc, char **argv, const char *optstring,
+    It is only valid when a long-named option has been found by the most
     recent call.
  
     If LONG_ONLY is nonzero, '-' as well as '--' can introduce
@@ -642,7 +681,7 @@ index 36c28318..8de50991 100644
  
    if (argc < 1)
      return -1;
-@@ -373,25 +490,15 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
+ 
    d->optarg = NULL;
  
    if (d->optind == 0 || !d->__initialized)
@@ -676,7 +715,19 @@ index 36c28318..8de50991 100644
  
    if (d->__nextchar == NULL || *d->__nextchar == '\0')
      {
-@@ -411,7 +518,7 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
+       /* Advance to the next ARGV-element.  */
+ 
+       /* Give FIRST_NONOPT & LAST_NONOPT rational values if OPTIND has been
+ 	 moved back by the user (who may also have changed the arguments).  */
+       if (d->__last_nonopt > d->optind)
+ 	d->__last_nonopt = d->optind;
+       if (d->__first_nonopt > d->optind)
+ 	d->__first_nonopt = d->optind;
+ 
+       if (d->__ordering == PERMUTE)
+ 	{
+ 	  /* If we have just processed some options following some non-options,
+ 	     exchange them so that the options come first.  */
  
  	  if (d->__first_nonopt != d->__last_nonopt
  	      && d->__last_nonopt != d->optind)
@@ -685,7 +736,11 @@ index 36c28318..8de50991 100644
  	  else if (d->__last_nonopt != d->optind)
  	    d->__first_nonopt = d->optind;
  
-@@ -423,7 +530,7 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
+ 	  /* Skip any additional non-options
+ 	     and extend the range of non-options previously skipped.  */
+ 
+ 	  while (d->optind < argc && NONOPTION_P)
+ 	    d->optind++;
  	  d->__last_nonopt = d->optind;
  	}
  
@@ -694,7 +749,10 @@ index 36c28318..8de50991 100644
  	 Skip it like a null option,
  	 then exchange with previous non-options as if it were an option,
  	 then skip everything else like a non-option.  */
-@@ -434,7 +541,7 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
+ 
+       if (d->optind != argc && !strcmp (argv[d->optind], "--"))
+ 	{
+ 	  d->optind++;
  
  	  if (d->__first_nonopt != d->__last_nonopt
  	      && d->__last_nonopt != d->optind)
@@ -703,7 +761,31 @@ index 36c28318..8de50991 100644
  	  else if (d->__first_nonopt == d->__last_nonopt)
  	    d->__first_nonopt = d->optind;
  	  d->__last_nonopt = argc;
-@@ -466,395 +573,79 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
+ 
+ 	  d->optind = argc;
+ 	}
+ 
+       /* If we have done all the ARGV-elements, stop the scan
+ 	 and back over any non-options that we skipped and permuted.  */
+ 
+       if (d->optind == argc)
+ 	{
+ 	  /* Set the next-arg-index to point at the non-options
+ 	     that we previously skipped, so the caller will digest them.  */
+ 	  if (d->__first_nonopt != d->__last_nonopt)
+ 	    d->optind = d->__first_nonopt;
+ 	  return -1;
+ 	}
+ 
+       /* If we have come to a non-option and did not permute it,
+ 	 either stop the scan or describe it to the caller and pass it by.  */
+ 
+       if (NONOPTION_P)
+ 	{
+ 	  if (d->__ordering == REQUIRE_ORDER)
+ 	    return -1;
+ 	  d->optarg = argv[d->optind++];
+ 	  return 1;
  	}
  
        /* We have found another option-ARGV-element.
@@ -1139,7 +1221,8 @@ index 36c28318..8de50991 100644
  	    d->optopt = c;
  	    if (optstring[0] == ':')
  	      c = ':';
-@@ -863,165 +654,12 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
+ 	    else
+ 	      c = '?';
  	    return c;
  	  }
  	else
@@ -1310,7 +1393,28 @@ index 36c28318..8de50991 100644
        }
      if (temp[1] == ':')
        {
-@@ -1050,33 +688,10 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
+ 	if (temp[2] == ':')
+ 	  {
+ 	    /* This is an option that accepts an argument optionally.  */
+ 	    if (*d->__nextchar != '\0')
+ 	      {
+ 		d->optarg = d->__nextchar;
+ 		d->optind++;
+ 	      }
+ 	    else
+ 	      d->optarg = NULL;
+ 	    d->__nextchar = NULL;
+ 	  }
+ 	else
+ 	  {
+ 	    /* This is an option that requires an argument.  */
+ 	    if (*d->__nextchar != '\0')
+ 	      {
+ 		d->optarg = d->__nextchar;
+ 		/* If we end this ARGV-element by taking the rest as an arg,
+ 		   we must advance to the next element now.  */
+ 		d->optind++;
+ 	      }
  	    else if (d->optind == argc)
  	      {
  		if (print_errors)
@@ -1347,7 +1451,7 @@ index 36c28318..8de50991 100644
  		d->optopt = c;
  		if (optstring[0] == ':')
  		  c = ':';
-@@ -1084,7 +699,7 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
+ 		else
  		  c = '?';
  	      }
  	    else
@@ -1356,7 +1460,11 @@ index 36c28318..8de50991 100644
  		 increment it again when taking next ARGV-elt as argument.  */
  	      d->optarg = argv[d->optind++];
  	    d->__nextchar = NULL;
-@@ -1096,16 +711,17 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
+ 	  }
+       }
+     return c;
+   }
+ }
  
  int
  _getopt_internal (int argc, char **argv, const char *optstring,
@@ -1378,7 +1486,8 @@ index 36c28318..8de50991 100644
  
    optind = getopt_data.optind;
    optarg = getopt_data.optarg;
-@@ -1114,26 +730,30 @@ _getopt_internal (int argc, char **argv, const char *optstring,
+   optopt = getopt_data.optopt;
+ 
    return result;
  }
  
@@ -1422,7 +1531,42 @@ index 36c28318..8de50991 100644
  
  int
  main (int argc, char **argv)
-@@ -1176,7 +796,7 @@ main (int argc, char **argv)
+ {
+   int c;
+   int digit_optind = 0;
+ 
+   while (1)
+     {
+       int this_option_optind = optind ? optind : 1;
+ 
+       c = getopt (argc, argv, "abc:d:0123456789");
+       if (c == -1)
+ 	break;
+ 
+       switch (c)
+ 	{
+ 	case '0':
+ 	case '1':
+ 	case '2':
+ 	case '3':
+ 	case '4':
+ 	case '5':
+ 	case '6':
+ 	case '7':
+ 	case '8':
+ 	case '9':
+ 	  if (digit_optind != 0 && digit_optind != this_option_optind)
+ 	    printf ("digits occur in two different argv-elements.\n");
+ 	  digit_optind = this_option_optind;
+ 	  printf ("option %c\n", c);
+ 	  break;
+ 
+ 	case 'a':
+ 	  printf ("option a\n");
+ 	  break;
+ 
+ 	case 'b':
+ 	  printf ("option b\n");
  	  break;
  
  	case 'c':
@@ -1431,3 +1575,22 @@ index 36c28318..8de50991 100644
  	  break;
  
  	case '?':
+ 	  break;
+ 
+ 	default:
+ 	  printf ("?? getopt returned character code 0%o ??\n", c);
+ 	}
+     }
+ 
+   if (optind < argc)
+     {
+       printf ("non-option ARGV-elements: ");
+       while (optind < argc)
+ 	printf ("%s ", argv[optind++]);
+       printf ("\n");
+     }
+ 
+   exit (0);
+ }
+ 
+ #endif /* TEST */

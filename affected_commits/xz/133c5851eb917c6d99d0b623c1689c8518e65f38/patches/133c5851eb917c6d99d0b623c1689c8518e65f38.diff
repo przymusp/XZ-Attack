@@ -8,7 +8,7 @@ diff --git a/po/fr.po b/po/fr.po
 index 27f62616..3e4ecdb4 100644
 --- a/po/fr.po
 +++ b/po/fr.po
-@@ -1,116 +1,148 @@
+@@ -1,1000 +1,1108 @@
  # XZ Utils French Translation
  # This file is put in the public domain.
  # Adrien Nader <adrien@notk.org>, 2011-2014.
@@ -186,7 +186,9 @@ index 27f62616..3e4ecdb4 100644
  #, c-format
  msgid "Adjusted LZMA%c dictionary size from %s MiB to %s MiB to not exceed the memory usage limit of %s MiB"
  msgstr "Taille du dictionnaire LZMA%c réduite de %s MiB à %s MiB pour ne pas dépasser la limite d'utilisation mémoire de %s MiB"
-@@ -120,19 +152,11 @@ msgstr "Taille du dictionnaire LZMA%c réduite de %s MiB à %s MiB pour ne pas d
+ 
+ #: src/xz/file_io.c:110 src/xz/file_io.c:118
+ #, c-format
  msgid "Error creating a pipe: %s"
  msgstr "Impossible de créer un tube anonyme (pipe) : %s"
  
@@ -208,7 +210,14 @@ index 27f62616..3e4ecdb4 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s : L'appel à la fonction poll() a échoué : %s"
-@@ -147,27 +171,27 @@ msgstr "%s : L'appel à la fonction poll() a échoué : %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -241,7 +250,12 @@ index 27f62616..3e4ecdb4 100644
  #, c-format
  msgid "%s: Cannot set the file permissions: %s"
  msgstr "%s : Impossible de modifier les permissions du fichier : %s"
-@@ -180,172 +204,308 @@ msgstr "%s : Impossible de modifier les permissions du fichier : %s"
+ 
+ # Note from translator on "file status flags".
+ # The following entry is kept un-translated on purpose. It is difficult to
+ # translate and should only happen in exceptional circumstances which means
+ # that translating would:
+ # - lose some of the meaning
  # - make it more difficult to look up in search engines; it might happen one in
  # a million times, if we dilute the error message in 20 languages, it will be
  # almost impossible to find an explanation and support for the error.
@@ -597,7 +611,8 @@ index 27f62616..3e4ecdb4 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s : Trop petit pour être un fichier xz valide."
-@@ -354,125 +514,41 @@ msgstr "%s : Trop petit pour être un fichier xz valide."
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -731,7 +746,18 @@ index 27f62616..3e4ecdb4 100644
  msgid "--list does not support reading from standard input"
  msgstr "--list est incompatible avec la lecture sur l'entrée standard"
  
-@@ -491,11 +567,11 @@ msgstr "%s : Fin des données inattendue lors de la lecture des noms de fichiers
+ #: src/xz/main.c:89
+ #, c-format
+ msgid "%s: Error reading filenames: %s"
+ msgstr "%s : Erreur lors de la lecture des noms de fichiers : %s"
+ 
+ #: src/xz/main.c:96
+ #, c-format
+ msgid "%s: Unexpected end of input when reading filenames"
+ msgstr "%s : Fin des données inattendue lors de la lecture des noms de fichiers"
+ 
+ #: src/xz/main.c:120
+ #, c-format
  msgid "%s: Null character found when reading filenames; maybe you meant to use `--files0' instead of `--files'?"
  msgstr "%s : Caractère NULL détecté lors de la lecture des noms de fichiers ; peut-être pensiez-vous à `--files0' plutot qu'a `--files' ?"
  
@@ -745,7 +771,7 @@ index 27f62616..3e4ecdb4 100644
  msgid "Cannot read data from standard input when reading filenames from standard input"
  msgstr "Impossible de lire à la fois les données et les noms de fichiers depuis l'entrée standard"
  
-@@ -503,68 +579,68 @@ msgstr "Impossible de lire à la fois les données et les noms de fichiers depui
+ #. TRANSLATORS: This is the program name in the beginning
  #. of the line in messages. Usually it becomes "xz: ".
  #. This is a translatable string because French needs
  #. a space before a colon.
@@ -829,7 +855,10 @@ index 27f62616..3e4ecdb4 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -575,17 +651,17 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Utilisation : %s [OPTION]... [FICHIER]...\n"
  "Compresse ou decompresse FICHIER(s) au format .xz.\n"
  "\n"
  
@@ -850,7 +879,11 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -597,7 +673,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      forcer le mode compression\n"
+ "  -d, --decompress    forcer le mode décompression\n"
  "  -t, --test          tester l'intégrité du fichier compressé\n"
  "  -l, --list          lister les informations sur les fichiers .xz"
  
@@ -859,7 +892,7 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -605,7 +681,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Modificateurs :\n"
  
@@ -868,7 +901,11 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -617,7 +693,7 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          ne pas supprimer les fichiers d'entrée\n"
+ "  -f, --force         forcer l'écrasement éventuel du fichier de sortie et\n"
+ "                      (dé)compresser les liens symboliques\n"
  "  -c, --stdout        écrire sur la sortie standard et ne pas supprimer les\n"
  "                      fichiers d'entrée"
  
@@ -877,7 +914,7 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
-@@ -625,7 +701,7 @@ msgstr ""
+ msgstr ""
  "      --single-stream décompresser uniquement le premier flux et ignorer\n"
  "                      silencieusement les données éventuellement restantes"
  
@@ -886,7 +923,15 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "      --no-sparse     do not create sparse files when decompressing\n"
  "  -S, --suffix=.SUF   use the suffix `.SUF' on compressed files\n"
-@@ -641,7 +717,7 @@ msgstr ""
+ "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
+ "                      omitted, filenames are read from the standard input;\n"
+ "                      filenames must be terminated with the newline character\n"
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     ne pas créer de 'sparse file' lors de la décompression\n"
+ "  -S, --suffix=.SUF   utiliser le suffixe `.SUF' pour les fichiers compressés\n"
+ "      --files[=FILE]  lire les fichiers sur lesquels opérer depuis FILE ; si\n"
+ "                      FILE est omis, ceux-ci sont lus depuis l'entrée standard\n"
  "                      et doivent être suivis d'un caractère retour à la ligne\n"
  "      --files0[=FILE] comme --files mais avec un caractère null comme séparateur"
  
@@ -895,7 +940,7 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -649,10 +725,11 @@ msgstr ""
+ msgstr ""
  "\n"
  " Options basiques de format de fichier et de compression :\n"
  
@@ -909,7 +954,8 @@ index 27f62616..3e4ecdb4 100644
  "  -C, --check=CHECK   integrity check type: `none' (use with caution),\n"
  "                      `crc32', `crc64' (default), or `sha256'"
  msgstr ""
-@@ -661,13 +738,13 @@ msgstr ""
+ "  -F, --format=FMT    format du fichier à encoder ou décoder ; sont acceptés :\n"
+ "                      `auto' (par défaut), `xz', `lzma' et `raw'\n"
  "  -C, --check=CHECK   type de vérification d'intégrité : `none' (à utiliser avec\n"
  "                      précaution), `crc32', `crc64' (par défaut) ou `sha256'"
  
@@ -925,7 +971,8 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -676,7 +753,7 @@ msgstr ""
+ msgstr ""
+ "  -0 ... -9           préréglage de compression : 6 par défaut ; pensez à\n"
  "                      l'utilisation mémoire du compresseur *et* du décompresseur\n"
  "                      avant d'utiliser 7, 8 ou 9 !"
  
@@ -934,7 +981,8 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -685,7 +762,7 @@ msgstr ""
+ msgstr ""
+ "  -e, --extreme       essayer d'améliorer la compression en utilisant davantage\n"
  "                      de temps processeur ;\n"
  "                      n'affecte pas les besoins mémoire du décompresseur"
  
@@ -943,7 +991,8 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "  -T, --threads=NUM   use at most NUM threads; the default is 1; set to 0\n"
  "                      to use as many threads as there are processor cores"
-@@ -694,7 +771,7 @@ msgstr ""
+ msgstr ""
+ "  -T, --threads=NB    créer au plus NB fils de compression (1 par défault) ; la\n"
  "                      valeur 0 est spéciale et équivaut au nombre de processeurs\n"
  "                      de la machine"
  
@@ -952,7 +1001,9 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "      --block-size=SIZE\n"
  "                      start a new .xz block after every SIZE bytes of input;\n"
-@@ -704,7 +781,7 @@ msgstr ""
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=TAILLE\n"
  "                      débuter un bloc XZ après chaque TAILLE octets de données\n"
  "                      d'entrée ; ce réglage sert pour la compression paralléle"
  
@@ -961,7 +1012,9 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "      --block-list=SIZES\n"
  "                      start a new .xz block after the given comma-separated\n"
-@@ -714,7 +791,7 @@ msgstr ""
+ "                      intervals of uncompressed data"
+ msgstr ""
+ "      --block-list=TAILLES\n"
  "                      débuter des blocs XZ après les TAILLES octets de données\n"
  "                      spécifiées avec des virgules pour séparateur"
  
@@ -970,7 +1023,9 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -724,16 +801,18 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
  "      --flush-timeout=TIMEOUT\n"
  "                      pendant la compression, si plus de TIMEOUT ms ont passées\n"
  "                      depuis le dernier flush et que la lecture est bloquée,\n"
@@ -993,7 +1048,8 @@ index 27f62616..3e4ecdb4 100644
  msgstr ""
  "      --memlimit-compress=LIMIT\n"
  "      --memlimit-decompress=LIMIT\n"
-@@ -742,7 +821,7 @@ msgstr ""
+ "  -M, --memlimit=LIMIT\n"
+ "                      règle la limite d'utilisation mémoire pour la compression,\n"
  "                      décompression ou les deux ; LIMIT est en octets,\n"
  "                      pourcentage de RAM, ou 0 pour la valeur par défaut"
  
@@ -1002,7 +1058,8 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -751,7 +830,7 @@ msgstr ""
+ msgstr ""
+ "      --no-adjust     si les réglages de compression dépassent la limite\n"
  "                      d'utilisation mémoire, renvoyer une erreur plutôt que de\n"
  "                      diminuer les réglages"
  
@@ -1011,7 +1068,7 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -759,7 +838,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Chaîne de filtres de compression personnalisée (en lieu des préréglages) :"
  
@@ -1020,7 +1077,28 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -788,14 +867,16 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=OPTS]      LZMA1/2 ; OPTS est une liste d'options parmi les suivantes\n"
+ "  --lzma2[=OPTS]      (entre parenthèses : valeurs valides et par défaut) :\n"
+ "                        preset=PRE remettre les options à un préréglage (0-9[e])\n"
+ "                        dict=NUM   taille dictionnaire (4KiB - 1536MiB ; 8MiB)\n"
+ "                        lc=NUM     nombre de 'literal context bits' (0-4 ; 3)\n"
+ "                        lp=NUM     nombre de 'literal position bits' (0-4 ; 0)\n"
+ "                        pb=NUM     nombre de 'position bits' (0-4 ; 2)\n"
+ "                        mode=MODE  mode de compression (fast, normal ; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    'match finder' (hc3, hc4, bt2, bt3, bt4; bt4)\n"
  "                        depth=NUM  profondeur de recherche maximale ;\n"
  "                                      0=automatique (par défaut)"
  
@@ -1040,7 +1118,14 @@ index 27f62616..3e4ecdb4 100644
  "  --sparc[=OPTS]      SPARC BCJ filter\n"
  "                      Valid OPTS for all BCJ filters:\n"
  "                        start=NUM  start offset for conversions (default=0)"
-@@ -810,7 +891,7 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "  --x86[=OPTS]        filtre BCJ x86 (32-bit et 64-bit)\n"
+ "  --powerpc[=OPTS]    filtre BCJ PowerPC ('big endian' uniquement)\n"
+ "  --ia64[=OPTS]       filtre BCJ IA-64 (Itanium)\n"
+ "  --arm[=OPTS]        filtre BCJ ARM ('little endian' uniquement)\n"
+ "  --armthumb[=OPTS]   filtre BCJ ARM-Thumb ('little endian' uniquement)\n"
+ "  --sparc[=OPTS]      filtre BCJ SPARC\n"
  "                      OPTS valides pour tous les filtres BCJ :\n"
  "                        start=NUM  position de début de la conversion (défaut=0)"
  
@@ -1049,7 +1134,11 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -822,7 +903,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=OPTS]      Filtre delta ; OPTS valides (vals. valides ; par défaut) :\n"
  "                        dist=NUM   distance entre les octets soustraits les\n"
  "                                   uns aux autres (1-256 ; 1)"
  
@@ -1058,7 +1147,7 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -830,7 +911,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Autres options :\n"
  
@@ -1067,7 +1156,8 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -839,17 +920,17 @@ msgstr ""
+ msgstr ""
+ "  -q, --quiet         masquer les avertissements ; spécifier deux fois pour\n"
  "                      aussi masquer les erreurs\n"
  "  -v, --verbose       être bavard ; spécifier deux fois pour l'être davantage"
  
@@ -1088,7 +1178,7 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "      --info-memory   display the total amount of RAM and the currently active\n"
  "                      memory usage limits, and exit"
-@@ -857,7 +938,7 @@ msgstr ""
+ msgstr ""
  "      --info-memory   afficher la quantité totale de RAM ainsi que la limite\n"
  "                      actuelle d'utilisation mémoire puis quitter"
  
@@ -1097,7 +1187,7 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "  -h, --help          display the short help (lists only the basic options)\n"
  "  -H, --long-help     display this long help and exit"
-@@ -865,7 +946,7 @@ msgstr ""
+ msgstr ""
  "  -h, --help          afficher l'aide courte (ne liste que les options de base)\n"
  "  -H, --long-help     afficher l'aide longue (ceci) puis quitter"
  
@@ -1106,7 +1196,7 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "  -h, --help          display this short help and exit\n"
  "  -H, --long-help     display the long help (lists also the advanced options)"
-@@ -873,11 +954,11 @@ msgstr ""
+ msgstr ""
  "  -h, --help          afficher l'aide courte (ceci) puis quitter\n"
  "  -H, --long-help     afficher l'aide longue (liste aussi les options avancées)"
  
@@ -1120,7 +1210,11 @@ index 27f62616..3e4ecdb4 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -889,19 +970,19 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "Sans FILE ou quand FILE est -, lire l'entrée standard.\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -1143,7 +1237,27 @@ index 27f62616..3e4ecdb4 100644
  msgid "THIS IS A DEVELOPMENT VERSION NOT INTENDED FOR PRODUCTION USE."
  msgstr "CECI EST UNE VERSION DE DEVELOPPEMENT QUI NE DOIT PAS ÊTRE UTILISEE EN PRODUCTION."
  
-@@ -929,27 +1010,17 @@ msgstr "Préréglage LZMA1/LZMA2 non reconnu : %s"
+ #: src/xz/options.c:86
+ #, c-format
+ msgid "%s: Options must be `name=value' pairs separated with commas"
+ msgstr "%s: Les options doivent être des paires `nom=valeur' séparées par des virgules"
+ 
+ #: src/xz/options.c:93
+ #, c-format
+ msgid "%s: Invalid option name"
+ msgstr "%s : Nom d'option invalide"
+ 
+ #: src/xz/options.c:113
+ #, c-format
+ msgid "%s: Invalid option value"
+ msgstr "%s : Valeur d'option invalide"
+ 
+ #: src/xz/options.c:247
+ #, c-format
+ msgid "Unsupported LZMA1/LZMA2 preset: %s"
+ msgstr "Préréglage LZMA1/LZMA2 non reconnu : %s"
+ 
+ #: src/xz/options.c:355
  msgid "The sum of lc and lp must not exceed 4"
  msgstr "La somme de lc et lp ne doit pas dépasser 4"
  
@@ -1174,7 +1288,23 @@ index 27f62616..3e4ecdb4 100644
  #, c-format
  msgid "%s: Invalid filename suffix"
  msgstr "%s: Suffixe de nom de fichier invalide"
-@@ -973,28 +1044,65 @@ msgstr "Les suffixes valides sont 'KiB' (2^10), 'MiB' (2^20) et 'GiB' (2^30)."
+ 
+ #: src/xz/util.c:71
+ #, c-format
+ msgid "%s: Value is not a non-negative decimal integer"
+ msgstr "%s : La valeur n'est pas un entier décimal non négatif"
+ 
+ #: src/xz/util.c:113
+ #, c-format
+ msgid "%s: Invalid multiplier suffix"
+ msgstr "%s : Suffixe multiplicateur invalide"
+ 
+ #: src/xz/util.c:115
+ msgid "Valid suffixes are `KiB' (2^10), `MiB' (2^20), and `GiB' (2^30)."
+ msgstr "Les suffixes valides sont 'KiB' (2^10), 'MiB' (2^20) et 'GiB' (2^30)."
+ 
+ #: src/xz/util.c:132
+ #, c-format
  msgid "Value of the option `%s' must be in the range [%<PRIu64>, %<PRIu64>]"
  msgstr "La valeur de l'option '%s' doit être inclue entre %<PRIu64> et %<PRIu64>"
  

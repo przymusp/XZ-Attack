@@ -8,7 +8,7 @@ diff --git a/po/zh_CN.po b/po/zh_CN.po
 index 44cfe94f..32dd3892 100644
 --- a/po/zh_CN.po
 +++ b/po/zh_CN.po
-@@ -1,14 +1,14 @@
+@@ -1,1059 +1,1171 @@
  # Chinese translations for xz package
  # xz 软件包的简体中文翻译。
  # This file is put in the public domain.
@@ -27,7 +27,8 @@ index 44cfe94f..32dd3892 100644
  "Last-Translator: Boyuan Yang <073plan@gmail.com>\n"
  "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
  "Language: zh_CN\n"
-@@ -17,144 +17,181 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
  "Content-Transfer-Encoding: 8bit\n"
  "Plural-Forms: nplurals=1; plural=0;\n"
  "X-Bugs: Report translation errors to the Language-Team address.\n"
@@ -247,7 +248,14 @@ index 44cfe94f..32dd3892 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s：poll() 失败：%s"
-@@ -169,111 +206,111 @@ msgstr "%s：poll() 失败：%s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -381,7 +389,218 @@ index 44cfe94f..32dd3892 100644
  #, c-format
  msgid "%s: Write error: %s"
  msgstr "%s：写入错误：%s"
-@@ -492,63 +529,63 @@ msgstr "%s：过小而不是有效的 .xz 文件"
+ 
+ #: src/xz/hardware.c:238
+ msgid "Disabled"
+ msgstr "已禁用"
+ 
+ #: src/xz/hardware.c:269
+ msgid "Amount of physical memory (RAM):"
+ msgstr "物理内存（RAM）用量："
+ 
+ #: src/xz/hardware.c:270
+ msgid "Number of processor threads:"
+ msgstr "处理器线程数："
+ 
+ #: src/xz/hardware.c:271
+ msgid "Compression:"
+ msgstr "压缩："
+ 
+ #: src/xz/hardware.c:272
+ msgid "Decompression:"
+ msgstr "解压缩："
+ 
+ #: src/xz/hardware.c:273
+ msgid "Multi-threaded decompression:"
+ msgstr "多线程解压缩："
+ 
+ #: src/xz/hardware.c:274
+ msgid "Default for -T0:"
+ msgstr "-T0 的默认值："
+ 
+ #: src/xz/hardware.c:292
+ msgid "Hardware information:"
+ msgstr "硬件信息："
+ 
+ #: src/xz/hardware.c:299
+ msgid "Memory usage limits:"
+ msgstr "内存使用限制："
+ 
+ #: src/xz/list.c:68
+ msgid "Streams:"
+ msgstr "流："
+ 
+ #: src/xz/list.c:69
+ msgid "Blocks:"
+ msgstr "块："
+ 
+ #: src/xz/list.c:70
+ msgid "Compressed size:"
+ msgstr "压缩后大小："
+ 
+ #: src/xz/list.c:71
+ msgid "Uncompressed size:"
+ msgstr "解压缩大小："
+ 
+ #: src/xz/list.c:72
+ msgid "Ratio:"
+ msgstr "比例："
+ 
+ #: src/xz/list.c:73
+ msgid "Check:"
+ msgstr "校验："
+ 
+ #: src/xz/list.c:74
+ msgid "Stream Padding:"
+ msgstr "流填充大小："
+ 
+ #: src/xz/list.c:75
+ msgid "Memory needed:"
+ msgstr "所需内存："
+ 
+ #: src/xz/list.c:76
+ msgid "Sizes in headers:"
+ msgstr "头部存放大小："
+ 
+ #: src/xz/list.c:79
+ msgid "Number of files:"
+ msgstr "文件数量："
+ 
+ #: src/xz/list.c:122
+ msgid "Stream"
+ msgstr "流"
+ 
+ #: src/xz/list.c:123
+ msgid "Block"
+ msgstr "块"
+ 
+ #: src/xz/list.c:124
+ msgid "Blocks"
+ msgstr "块"
+ 
+ #: src/xz/list.c:125
+ msgid "CompOffset"
+ msgstr "压缩偏移量"
+ 
+ #: src/xz/list.c:126
+ msgid "UncompOffset"
+ msgstr "解压偏移量"
+ 
+ #: src/xz/list.c:127
+ msgid "CompSize"
+ msgstr "压缩后大小"
+ 
+ #: src/xz/list.c:128
+ msgid "UncompSize"
+ msgstr "解压缩大小"
+ 
+ #: src/xz/list.c:129
+ msgid "TotalSize"
+ msgstr "总大小"
+ 
+ #: src/xz/list.c:130
+ msgid "Ratio"
+ msgstr "比例"
+ 
+ #: src/xz/list.c:131
+ msgid "Check"
+ msgstr "校验"
+ 
+ #: src/xz/list.c:132
+ msgid "CheckVal"
+ msgstr "校验值"
+ 
+ #: src/xz/list.c:133
+ msgid "Padding"
+ msgstr "填充"
+ 
+ #: src/xz/list.c:134
+ msgid "Header"
+ msgstr "头部"
+ 
+ #: src/xz/list.c:135
+ msgid "Flags"
+ msgstr "标志"
+ 
+ #: src/xz/list.c:136
+ msgid "MemUsage"
+ msgstr "内存用量"
+ 
+ #: src/xz/list.c:137
+ msgid "Filters"
+ msgstr "过滤器"
+ 
+ #. TRANSLATORS: Indicates that there is no integrity check.
+ #. This string is used in tables. In older xz version this
+ #. string was limited to ten columns in a fixed-width font, but
+ #. nowadays there is no strict length restriction anymore.
+ #: src/xz/list.c:169
+ msgid "None"
+ msgstr "无"
+ 
+ #. TRANSLATORS: Indicates that integrity check name is not known,
+ #. but the Check ID is known (here 2). In older xz version these
+ #. strings were limited to ten columns in a fixed-width font, but
+ #. nowadays there is no strict length restriction anymore.
+ #: src/xz/list.c:175
+ msgid "Unknown-2"
+ msgstr "未知-2"
+ 
+ #: src/xz/list.c:176
+ msgid "Unknown-3"
+ msgstr "未知-3"
+ 
+ #: src/xz/list.c:178
+ msgid "Unknown-5"
+ msgstr "未知-5"
+ 
+ #: src/xz/list.c:179
+ msgid "Unknown-6"
+ msgstr "未知-6"
+ 
+ #: src/xz/list.c:180
+ msgid "Unknown-7"
+ msgstr "未知-7"
+ 
+ #: src/xz/list.c:181
+ msgid "Unknown-8"
+ msgstr "未知-8"
+ 
+ #: src/xz/list.c:182
+ msgid "Unknown-9"
+ msgstr "未知-9"
+ 
+ #: src/xz/list.c:184
+ msgid "Unknown-11"
+ msgstr "未知-11"
+ 
+ #: src/xz/list.c:185
+ msgid "Unknown-12"
+ msgstr "未知-12"
+ 
+ #: src/xz/list.c:186
+ msgid "Unknown-13"
+ msgstr "未知-13"
+ 
+ #: src/xz/list.c:187
+ msgid "Unknown-14"
+ msgstr "未知-14"
+ 
+ #: src/xz/list.c:188
+ msgid "Unknown-15"
+ msgstr "未知-15"
+ 
+ #: src/xz/list.c:351
+ #, c-format
+ msgid "%s: File is empty"
+ msgstr "%s：文件为空"
+ 
+ #: src/xz/list.c:356
+ #, c-format
+ msgid "%s: Too small to be a valid .xz file"
+ msgstr "%s：过小而不是有效的 .xz 文件"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -460,7 +679,7 @@ index 44cfe94f..32dd3892 100644
  msgid "Cannot read data from standard input when reading filenames from standard input"
  msgstr "无法同时从标准输入读取数据和文件名列表"
  
-@@ -556,68 +593,68 @@ msgstr "无法同时从标准输入读取数据和文件名列表"
+ #. TRANSLATORS: This is the program name in the beginning
  #. of the line in messages. Usually it becomes "xz: ".
  #. This is a translatable string because French needs
  #. a space before a colon.
@@ -546,7 +765,10 @@ index 44cfe94f..32dd3892 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -628,15 +665,15 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "用法：%s [选项]... [文件]...\n"
  "使用 .xz 格式压缩或解压缩文件。\n"
  "\n"
  
@@ -565,7 +787,11 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -648,7 +685,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      强制压缩\n"
+ "  -d, --decompress    强制解压缩\n"
  "  -t, --test          测试压缩文件完整性\n"
  "  -l, --list          列出 .xz 文件的信息"
  
@@ -574,7 +800,7 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -656,7 +693,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " 操作修饰符：\n"
  
@@ -583,7 +809,9 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -666,16 +703,24 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          保留（不要删除）输入文件\n"
  "  -f, --force         强制覆写输出文件和（解）压缩链接\n"
  "  -c, --stdout        向标准输出写入，同时不要删除输入文件"
  
@@ -611,7 +839,11 @@ index 44cfe94f..32dd3892 100644
  "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
  "                      omitted, filenames are read from the standard input;\n"
  "                      filenames must be terminated with the newline character\n"
-@@ -687,7 +732,7 @@ msgstr ""
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     解压缩时不要创建稀疏文件\n"
+ "  -S, --suffix=.SUF   压缩文件使用指定的“.SUF”后缀名\n"
+ "      --files[=文件]  从指定文件读取要处理的文件名列表；如果省略了指定文件名，\n"
  "                      将从标准输入读取文件名列表；文件名必须使用换行符分隔\n"
  "      --files0[=文件] 类似 --files，但使用空字符进行分隔"
  
@@ -620,7 +852,7 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -695,12 +740,18 @@ msgstr ""
+ msgstr ""
  "\n"
  " 基本文件格式和压缩选项：\n"
  
@@ -643,7 +875,7 @@ index 44cfe94f..32dd3892 100644
  msgstr ""
  "  -F, --format=格式   要编码或解码的文件格式；可能的值包括\n"
  "                      “auto”（默认）、“xz”、“lzma”、\n"
-@@ -708,11 +759,11 @@ msgstr ""
+ "                      “lzip”和“raw”\n"
  "  -C, --check=类型    完整性检查类型：“none”（请谨慎使用）、\n"
  "                      “crc32”、“crc64”（默认）或“sha256”"
  
@@ -657,7 +889,7 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -720,7 +771,7 @@ msgstr ""
+ msgstr ""
  "  -0 ... -9           压缩预设等级；默认为 6；使用 7-9 的等级之前，请先考虑\n"
  "                      压缩和解压缩所需的内存用量！（会占用大量内存空间）"
  
@@ -666,7 +898,7 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -728,15 +779,19 @@ msgstr ""
+ msgstr ""
  "  -e, --extreme       尝试使用更多 CPU 时间来改进压缩比率；\n"
  "                      不会影响解压缩的内存需求量"
  
@@ -690,7 +922,9 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "      --block-size=SIZE\n"
  "                      start a new .xz block after every SIZE bytes of input;\n"
-@@ -746,17 +801,24 @@ msgstr ""
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=块大小\n"
  "                      输入每读取指定块大小的数据后即开始一个新的 .xz 块；\n"
  "                      使用该选项可以设置多线程压缩中的块大小"
  
@@ -719,7 +953,10 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -767,7 +829,7 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
+ "      --flush-timeout=超时时间\n"
  "                      进行压缩时，如果从上次刷洗输出之后经过了指定的超时时间\n"
  "                      且读取更多数据会被阻塞，则刷洗输出所有缓冲数据"
  
@@ -728,7 +965,18 @@ index 44cfe94f..32dd3892 100644
  #, no-c-format
  msgid ""
  "      --memlimit-compress=LIMIT\n"
-@@ -786,13 +848,13 @@ msgstr ""
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"
+ msgstr ""
+ "      --memlimit-compress=限制用量\n"
+ "      --memlimit-decompress=限制用量\n"
+ "      --memlimit-mt-decompress=限制用量\n"
+ "  -M, --memlimit=限制用量\n"
+ "                      设置压缩、解压缩、多线程解压缩或者共同的内存用量限制；\n"
  "                      所指定限制量单位为字节，或以百分号 % 结尾表示内存比例，\n"
  "                      或者指定 0 取软件默认值"
  
@@ -744,7 +992,7 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -800,7 +862,27 @@ msgstr ""
+ msgstr ""
  "\n"
  " 用于压缩的自定义过滤器链（不使用预设等级时的备选用法）："
  
@@ -773,7 +1021,28 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -829,7 +911,19 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=选项]      LZMA1 或 LZMA2；指定选项是用逗号分隔的下列选项的组合，\n"
+ "  --lzma2[=选项]      值应当为零或大于零（有效值；默认值）：\n"
+ "                        preset=PRE 将选项重置为预设配置 (0-9[e])\n"
+ "                        dict=数字  字典大小 (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=数字    literal context 位的数量 (0-4; 3)\n"
+ "                        lp=数字    literal position 位的数量 (0-4; 0)\n"
+ "                        pb=数字    position 位的数量 (0-4; 2)\n"
+ "                        mode=模式  压缩模式 (fast, normal; normal)\n"
+ "                        nice=数字  匹配的 nice 值 (2-273; 64)\n"
+ "                        mf=名称    匹配搜索器 match finder\n"
  "                                   (hc3, hc4, bt2, bt3, bt4; bt4)\n"
  "                        depth=数字 最大搜索深度； 0=自动（默认）"
  
@@ -794,7 +1063,9 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "\n"
  "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
-@@ -839,6 +933,7 @@ msgid ""
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
  "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
  "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
  "  --sparc[=OPTS]      SPARC BCJ filter\n"
@@ -802,7 +1073,14 @@ index 44cfe94f..32dd3892 100644
  "                      Valid OPTS for all BCJ filters:\n"
  "                        start=NUM  start offset for conversions (default=0)"
  msgstr ""
-@@ -853,7 +948,7 @@ msgstr ""
+ "\n"
+ "  --x86[=选项]        x86 BCJ 过滤器（32 位和 64 位）\n"
+ "  --arm[=选项]        ARM BCJ 过滤器\n"
+ "  --armthumb[=选项]   ARM-Thumb BCJ 过滤器\n"
+ "  --arm64[=选项]      ARM64 BCJ 过滤器\n"
+ "  --powerpc[=选项]    PowerPC BCJ 过滤器（仅大端序）\n"
+ "  --ia64[=选项]       IA-64 (Itanium，安腾) BCJ 过滤器\n"
+ "  --sparc[=选项]      SPARC BCJ 过滤器\n"
  "                      所有过滤器可用选项：\n"
  "                        start=数字  转换的起始偏移量（默认=0）"
  
@@ -811,7 +1089,10 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -864,7 +959,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
  "  --delta[=选项]      增量过滤器；有效选项（有效值；默认值）：\n"
  "                        dist=NUM   相减的字节之间的距离 (1-256; 1)"
  
@@ -820,7 +1101,7 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -872,7 +967,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " 其它选项：\n"
  
@@ -829,7 +1110,7 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -880,21 +975,21 @@ msgstr ""
+ msgstr ""
  "  -q, --quiet         不显示警告信息；指定两次可不显示错误信息\n"
  "  -v, --verbose       输出详细信息；指定两次可以输出更详细的信息"
  
@@ -855,7 +1136,7 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "  -h, --help          display the short help (lists only the basic options)\n"
  "  -H, --long-help     display this long help and exit"
-@@ -902,7 +997,7 @@ msgstr ""
+ msgstr ""
  "  -h, --help          显示短帮助信息（仅列出基本选项）\n"
  "  -H, --long-help     显示本长帮助信息"
  
@@ -864,7 +1145,7 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "  -h, --help          display this short help and exit\n"
  "  -H, --long-help     display the long help (lists also the advanced options)"
-@@ -910,11 +1005,11 @@ msgstr ""
+ msgstr ""
  "  -h, --help          显示本短帮助信息并退出\n"
  "  -H, --long-help     显示长帮助信息（同时列出高级选项）"
  
@@ -878,7 +1159,11 @@ index 44cfe94f..32dd3892 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -926,7 +1021,7 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "如果没有指定文件，或者文件为\"-\"，则从标准输入读取。\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -887,7 +1172,7 @@ index 44cfe94f..32dd3892 100644
  #, c-format
  msgid "Report bugs to <%s> (in English or Finnish).\n"
  msgstr ""
-@@ -934,19 +1029,33 @@ msgstr ""
+ "请使用英文或芬兰语向 <%s> 报告软件错误。\n"
  "请使用中文向 TP 简体中文翻译团队 <i18n-zh@googlegroups.com>\n"
  "报告软件的简体中文翻译错误。\n"
  
@@ -925,7 +1210,11 @@ index 44cfe94f..32dd3892 100644
  
  #: src/xz/options.c:93
  #, c-format
-@@ -958,54 +1067,57 @@ msgstr "%s：无效的选项名称"
+ msgid "%s: Invalid option name"
+ msgstr "%s：无效的选项名称"
+ 
+ #: src/xz/options.c:113
+ #, c-format
  msgid "%s: Invalid option value"
  msgstr "%s：无效的选项值"
  
@@ -999,3 +1288,51 @@ index 44cfe94f..32dd3892 100644
  msgid "Compressed data cannot be written to a terminal"
  msgstr "压缩数据不能向终端写入"
  
+ #: src/common/tuklib_exit.c:40
+ msgid "Writing to standard output failed"
+ msgstr "写入标准输出失败"
+ 
+ #: src/common/tuklib_exit.c:43
+ msgid "Unknown error"
+ msgstr "未知错误"
+ 
+ #~ msgid "The selected match finder requires at least nice=%<PRIu32>"
+ #~ msgstr "所选中的匹配搜索器（match finder）至少需要 nice=%<PRIu32>"
+ 
+ #~ msgid "Sandbox is disabled due to incompatible command line arguments"
+ #~ msgstr "沙盒已因不兼容的命令行参数而禁用"
+ 
+ #~ msgid "Sandbox was successfully enabled"
+ #~ msgstr "已成功启用沙盒"
+ 
+ #~ msgid "Memory usage limit for compression:    "
+ #~ msgstr "用于压缩的内存用量限制：  "
+ 
+ #~ msgid "  Streams:            %s\n"
+ #~ msgstr "  流：                %s\n"
+ 
+ #~ msgid "  Blocks:             %s\n"
+ #~ msgstr "  块：                %s\n"
+ 
+ #~ msgid "  Ratio:              %s\n"
+ #~ msgstr "  压缩比：            %s\n"
+ 
+ #~ msgid "  Check:              %s\n"
+ #~ msgstr "  校验方式：          %s\n"
+ 
+ #~ msgid ""
+ #~ "  Streams:\n"
+ #~ "    Stream    Blocks      CompOffset    UncompOffset        CompSize      UncompSize  Ratio  Check      Padding"
+ #~ msgstr ""
+ #~ "  流：\n"
+ #~ "       流         块      压缩偏移量      解压偏移量        压缩大小        解压大小   比例   校验         填充"
+ 
+ #~ msgid ""
+ #~ "  Blocks:\n"
+ #~ "    Stream     Block      CompOffset    UncompOffset       TotalSize      UncompSize  Ratio  Check"
+ #~ msgstr ""
+ #~ "  块：\n"
+ #~ "        流        块      压缩偏移量      解压偏移量        总计大小        解压大小   比例   校验"
+ 
+ #~ msgid "      CheckVal %*s Header  Flags        CompSize    MemUsage  Filters"
+ #~ msgstr "      CheckVal %*s   头部   标记        压缩大小    内存使用   过滤器"

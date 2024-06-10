@@ -8,7 +8,7 @@ diff --git a/po/sv.po b/po/sv.po
 index 6faea0d6..9f908f52 100644
 --- a/po/sv.po
 +++ b/po/sv.po
-@@ -1,14 +1,14 @@
+@@ -1,1076 +1,1073 @@
  # Swedish messages for xz.
  # This file is put in the public domain.
  # Sebastian Rasmussen <sebras@gmail.com>, 2019.
@@ -28,7 +28,8 @@ index 6faea0d6..9f908f52 100644
  "Last-Translator: Luna Jernberg <droidbittin@gmail.com>\n"
  "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
  "Language: sv\n"
-@@ -17,54 +17,58 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
  "Content-Transfer-Encoding: 8bit\n"
  "Plural-Forms: nplurals=2; plural=(n != 1);\n"
  "X-Bugs: Report translation errors to the Language-Team address.\n"
@@ -98,7 +99,71 @@ index 6faea0d6..9f908f52 100644
  #: src/xz/coder.c:115
  msgid "Maximum number of filters is four"
  msgstr "Maximalt antal filter är fyra"
-@@ -136,11 +140,11 @@ msgstr "Justerade storlek för LZMA%c-lexikon från %s MiB till %s MiB för att
+ 
+ #: src/xz/coder.c:134
+ msgid "Memory usage limit is too low for the given filter setup."
+ msgstr "Begränsning av minnesanvändning är allt för låg för den angivna filteruppsättningen."
+ 
+ #: src/xz/coder.c:169
+ msgid "Using a preset in raw mode is discouraged."
+ msgstr "Det avråds från att använda en förinställning i rått läge."
+ 
+ #: src/xz/coder.c:171
+ msgid "The exact options of the presets may vary between software versions."
+ msgstr "De exakta flaggorna för förinställningar kan variera mellan programversioner."
+ 
+ #: src/xz/coder.c:194
+ msgid "The .lzma format supports only the LZMA1 filter"
+ msgstr "Formatet .lzma har endast stöd för LZMA1-filtret"
+ 
+ #: src/xz/coder.c:202
+ msgid "LZMA1 cannot be used with the .xz format"
+ msgstr "LZMA1 kan inte användas tillsammans med .xz-formatet"
+ 
+ #: src/xz/coder.c:219
+ msgid "The filter chain is incompatible with --flush-timeout"
+ msgstr "Filterkedjan är inkompatibel med --flush-timeout"
+ 
+ #: src/xz/coder.c:225
+ msgid "Switching to single-threaded mode due to --flush-timeout"
+ msgstr "Växlar till entrådsläge på grund av --flush-timeout"
+ 
+ #: src/xz/coder.c:249
+ #, c-format
+ msgid "Using up to %<PRIu32> threads."
+ msgstr "Använder upp till %<PRIu32> trådar."
+ 
+ #: src/xz/coder.c:265
+ msgid "Unsupported filter chain or filter options"
+ msgstr "Filterkedja eller filterflaggor stöds inte"
+ 
+ #: src/xz/coder.c:277
+ #, c-format
+ msgid "Decompression will need %s MiB of memory."
+ msgstr "Dekomprimering kommer att kräva %s MiB minne."
+ 
+ #: src/xz/coder.c:309
+ #, c-format
+ msgid "Reduced the number of threads from %s to %s to not exceed the memory usage limit of %s MiB"
+ msgstr "Reducerade antalet trådar från %s till %s för att inte överstiga begränsningen av minnesanvändning på %s MiB"
+ 
+ #: src/xz/coder.c:329
+ #, c-format
+ msgid "Reduced the number of threads from %s to one. The automatic memory usage limit of %s MiB is still being exceeded. %s MiB of memory is required. Continuing anyway."
+ msgstr "Reducerade antalet trådar från %s till en. Den automatiska minnesanvändningsgränsen på %s MiB överskrids fortfarande. %s MiB minne krävs. Fortsätter i alla fall."
+ 
+ #: src/xz/coder.c:356
+ #, c-format
+ msgid "Switching to single-threaded mode to not exceed the memory usage limit of %s MiB"
+ msgstr "Ändrar till enkeltrådat läge för att inte överskrida minnesanvändningsgränsen på %s MiB"
+ 
+ #: src/xz/coder.c:411
+ #, c-format
+ msgid "Adjusted LZMA%c dictionary size from %s MiB to %s MiB to not exceed the memory usage limit of %s MiB"
+ msgstr "Justerade storlek för LZMA%c-lexikon från %s MiB till %s MiB för att inte överstiga begränsningen av minnesanvändning på %s MiB"
+ 
+ #: src/xz/file_io.c:110 src/xz/file_io.c:118
+ #, c-format
  msgid "Error creating a pipe: %s"
  msgstr "Fel vid skapande av rörledning: %s"
  
@@ -112,7 +177,14 @@ index 6faea0d6..9f908f52 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s: poll() misslyckades: %s"
-@@ -155,252 +159,252 @@ msgstr "%s: poll() misslyckades: %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -422,7 +494,7 @@ index 6faea0d6..9f908f52 100644
  msgid "Filters"
  msgstr "Filters"
  
-@@ -408,7 +412,7 @@ msgstr "Filters"
+ #. TRANSLATORS: Indicates that there is no integrity check.
  #. This string is used in tables. In older xz version this
  #. string was limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -431,7 +503,7 @@ index 6faea0d6..9f908f52 100644
  msgid "None"
  msgstr "Ingen"
  
-@@ -416,60 +420,60 @@ msgstr "Ingen"
+ #. TRANSLATORS: Indicates that integrity check name is not known,
  #. but the Check ID is known (here 2). In older xz version these
  #. strings were limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -506,7 +578,8 @@ index 6faea0d6..9f908f52 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s: För lite för att vara en giltig xz-fil"
-@@ -478,41 +482,41 @@ msgstr "%s: För lite för att vara en giltig xz-fil"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -556,7 +629,35 @@ index 6faea0d6..9f908f52 100644
  msgid "--list does not support reading from standard input"
  msgstr "--list saknar stöd för att läsa från standard in"
  
-@@ -548,63 +552,63 @@ msgstr "Kan inte läsa data från standard in när filnamn läses från standard
+ #: src/xz/main.c:89
+ #, c-format
+ msgid "%s: Error reading filenames: %s"
+ msgstr "%s: Fel vid läsning av filnamn: %s"
+ 
+ #: src/xz/main.c:96
+ #, c-format
+ msgid "%s: Unexpected end of input when reading filenames"
+ msgstr "%s: Oväntat slut av indata vid läsning av filnamn"
+ 
+ #: src/xz/main.c:120
+ #, c-format
+ msgid "%s: Null character found when reading filenames; maybe you meant to use `--files0' instead of `--files'?"
+ msgstr "%s: Null-tecken hittat vid läsning av filnamn; kanske menade du att använda ”--files0” istället för ”--files”?"
+ 
+ #: src/xz/main.c:188
+ msgid "Compression and decompression with --robot are not supported yet."
+ msgstr "Komprimering och dekomprimering med --robot stöds inte än."
+ 
+ #: src/xz/main.c:266
+ msgid "Cannot read data from standard input when reading filenames from standard input"
+ msgstr "Kan inte läsa data från standard in när filnamn läses från standard in"
+ 
+ #. TRANSLATORS: This is the program name in the beginning
+ #. of the line in messages. Usually it becomes "xz: ".
+ #. This is a translatable string because French needs
+ #. a space before a colon.
+ #: src/xz/message.c:725
+ #, c-format
  msgid "%s: "
  msgstr "%s: "
  
@@ -634,7 +735,10 @@ index 6faea0d6..9f908f52 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -615,15 +619,15 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Användning: %s [FLAGGA]… [FIL]…\n"
  "Komprimera eller dekomprimera FILer i .xz-formatet.\n"
  "\n"
  
@@ -653,7 +757,11 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -635,7 +639,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      tvinga komprimering\n"
+ "  -d, --decompress    tvinga dekomprimering\n"
  "  -t, --test          testa integritet för komprimerad fil\n"
  "  -l, --list          lista information om .xz-filer"
  
@@ -662,7 +770,7 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -643,7 +647,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Operationsmodifierare:\n"
  
@@ -671,7 +779,10 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -654,7 +658,7 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          behåll (ta inte bort) indatafiler\n"
+ "  -f, --force         tvinga överskrivning av utdatafil och (de)komprimera\n"
  "                      länkar\n"
  "  -c, --stdout        skriv till standard ut och ta inte bort indatafiler"
  
@@ -680,7 +791,7 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
-@@ -662,7 +666,7 @@ msgstr ""
+ msgstr ""
  "      --single-stream dekomprimera endast den första strömmen och hoppa\n"
  "                      tyst över eventuellt återstående indata"
  
@@ -689,7 +800,15 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "      --no-sparse     do not create sparse files when decompressing\n"
  "  -S, --suffix=.SUF   use the suffix `.SUF' on compressed files\n"
-@@ -678,7 +682,7 @@ msgstr ""
+ "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
+ "                      omitted, filenames are read from the standard input;\n"
+ "                      filenames must be terminated with the newline character\n"
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     skapa inte glesa filer vid dekomprimering\n"
+ "  -S, --suffix=.SUF   använd ändelse ”.SUF” för komprimerade filer\n"
+ "      --files[=FIL]   läs filnamn från FIL; om FIL utelämnas\n"
+ "                      kommer filnamn att läsas från standard in;\n"
  "                      filnamn måste avslutas med nyradstecken\n"
  "      --files0[=FIL]  som --files men null-tecknet måste användas"
  
@@ -698,7 +817,7 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -686,7 +690,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Grundläggande filformat och komprimeringsflaggor:\n"
  
@@ -707,7 +826,11 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "  -F, --format=FMT    file format to encode or decode; possible values are\n"
  "                      `auto' (default), `xz', `lzma', `lzip', and `raw'\n"
-@@ -698,11 +702,11 @@ msgstr ""
+ "  -C, --check=CHECK   integrity check type: `none' (use with caution),\n"
+ "                      `crc32', `crc64' (default), or `sha256'"
+ msgstr ""
+ "  -F, --format=FMT    filformat att koda eller avkoda; möjliga värden är\n"
+ "                      ”auto” (standard), ”xz”, ”lzma”, ”lzip” och ”raw”\n"
  "  -C, --check=CHECK   typ av integritetskontroll: ”none” (använd med\n"
  "                      försiktighet), ”crc32”, ”crc64” (standard), eller ”sha256”"
  
@@ -721,7 +844,8 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -711,7 +715,7 @@ msgstr ""
+ msgstr ""
+ "  -0 ... -9           kompressionsförinställning; standard är 6; ta\n"
  "                      minnesanvändning för komprimerare *och* dekomprimerare\n"
  "                      i beaktande innan du använder 7-9!"
  
@@ -730,7 +854,8 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -720,7 +724,7 @@ msgstr ""
+ msgstr ""
+ "  -e, --extreme       försök att förbättra komprimeringsförhållande genom att\n"
  "                      använda mer CPU-tid; påverkar inte minnesanvändning för\n"
  "                      dekomprimerare"
  
@@ -739,7 +864,8 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "  -T, --threads=NUM   use at most NUM threads; the default is 1; set to 0\n"
  "                      to use as many threads as there are processor cores"
-@@ -729,7 +733,7 @@ msgstr ""
+ msgstr ""
+ "  -T, --threads=NUM   använd som mest NUM trådar; standard är 1; sätt till 0\n"
  "                      för att använda så många trådar som det finns\n"
  "                      processorkärnor"
  
@@ -748,7 +874,10 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "      --block-size=SIZE\n"
  "                      start a new .xz block after every SIZE bytes of input;\n"
-@@ -740,7 +744,7 @@ msgstr ""
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=STORLEK\n"
+ "                      påbörja ett nytt .xz-block efter STORLEK byte indata;\n"
  "                      använd detta för att sätta blockstorleken för trådad\n"
  "                      komprimering"
  
@@ -757,7 +886,9 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "      --block-list=SIZES\n"
  "                      start a new .xz block after the given comma-separated\n"
-@@ -750,7 +754,7 @@ msgstr ""
+ "                      intervals of uncompressed data"
+ msgstr ""
+ "      --block-list=STORLEKAR\n"
  "                      påbörja ett nytt .xz-block efter de angivna\n"
  "                      komma-separerade intervallen av okomprimerad data"
  
@@ -766,7 +897,12 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -763,7 +767,7 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
+ "      --flush-timeout=TIDSGRÄNS\n"
+ "                      vid komprimering, om mer än TIDSGRÄNS millisekunder har\n"
+ "                      passerat sedan den föregående spolningen och läsning av\n"
  "                      mer indata skulle blockera, så kommer all väntande data\n"
  "                      att spolas ut"
  
@@ -775,7 +911,18 @@ index 6faea0d6..9f908f52 100644
  #, no-c-format
  msgid ""
  "      --memlimit-compress=LIMIT\n"
-@@ -782,7 +786,7 @@ msgstr ""
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"
+ msgstr ""
+ "      --memlimit-compress=BEGR\n"
+ "      --memlimit-decompress=BEGR\n"
+ "      --memlimit-mt-decompress=BEGR\n"
+ "  -M, --memlimit=BEGR\n"
+ "                      sätt begränsning av minnesanvändning för komprimering,\n"
  "                      dekomprimering, trådad dekomprimering, eller alla av\n"
  "                      dessa; BEGR är i byte, % RAM, eller 0 för standardvärden"
  
@@ -784,7 +931,8 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -791,7 +795,7 @@ msgstr ""
+ msgstr ""
+ "      --no-adjust     om komprimeringsinställningar överstiger begränsningen av\n"
  "                      minnesanvändning, ge ett fel istället för att justera ner\n"
  "                      inställningarna"
  
@@ -793,7 +941,8 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -800,7 +804,7 @@ msgstr ""
+ msgstr ""
+ "\n"
  " Anpassad filterkedja för komprimering (alternativ till att använda\n"
  " förinställningar):"
  
@@ -802,7 +951,30 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -831,7 +835,7 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=FLAGGOR]   LZMA1 eller LZMA2; FLAGGOR är en kommaseparerad lista av\n"
+ "                      noll eller\n"
+ "  --lzma2[=FLAGGOR]   fler av följande flaggor (giltiga värden; standard):\n"
+ "                        preset=FÖR återställ flaggor till en förinställning\n"
+ "                                   (0-9[e])\n"
+ "                        dict=NUM   lexikonstorlek (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     antal bitar för bokstavligkontext (0-4; 3)\n"
+ "                        lp=NUM     antal bitar för bokstavligposition (0-4; 0)\n"
+ "                        pb=NUM     antal bitar för position (0-4; 2)\n"
+ "                        mode=LÄGE  komprimeringsläge (fast, normal; normal)\n"
+ "                        nice=NUM   bra längd för en matchning (2-273; 64)\n"
+ "                        mf=NAMN    matchningshittare (hc3, hc4, bt2, bt3, bt4;\n"
  "                                   bt4)\n"
  "                        depth=NUM  maximalt sökdjup; 0=automatisk (standard)"
  
@@ -811,7 +983,24 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "\n"
  "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
-@@ -856,7 +860,7 @@ msgstr ""
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
+ "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
+ "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
+ "  --sparc[=OPTS]      SPARC BCJ filter\n"
+ "                      Valid OPTS for all BCJ filters:\n"
+ "                        start=NUM  start offset for conversions (default=0)"
+ msgstr ""
+ "\n"
+ "  --x86[=FLAGGOR]      x86 BCJ-filter (32- och 64-bitar)\n"
+ "  --arm[=FLAGGOR]      ARM BCJ-filter\n"
+ "  --armthumb[=FLAGGOR] ARM-Thumb BCJ-filter\n"
+ "  --arm64[=FLAGGOR]    ARM64 BCJ-filter\n"
+ "  --powerpc[=FLAGGOR]  PowerPC BCJ-filter (endast rak byteordning)\n"
+ "  --ia64[=FLAGGOR]     IA-64 (Itanium) BCJ-filter\n"
+ "  --sparc[=FLAGGOR]    SPARC BCJ-filter\n"
+ "                       Giltiga FLAGGOR för alla BCJ-filter:\n"
  "                         start=NUM  startposition för konverteringar\n"
  "                                    (standard=0)"
  
@@ -820,7 +1009,11 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -868,7 +872,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=FLAGGOR]   Deltafilter; giltiga FLAGGOR (giltiga värden; standard):\n"
  "                        dist=NUM   avstånd mellan byte som subtraheras\n"
  "                                   från varandra (1-256; 1)"
  
@@ -829,7 +1022,7 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -876,7 +880,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Andra flaggor:\n"
  
@@ -838,7 +1031,8 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -885,17 +889,17 @@ msgstr ""
+ msgstr ""
+ "  -q, --quiet         undertryck varningar; ange två gånger för att också\n"
  "                      undertrycka fel\n"
  "  -v, --verbose       var utförlig; ange två gånger för än mer utförlig"
  
@@ -859,7 +1053,7 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "      --info-memory   display the total amount of RAM and the currently active\n"
  "                      memory usage limits, and exit"
-@@ -903,7 +907,7 @@ msgstr ""
+ msgstr ""
  "      --info-memory   visa den totala mängden RAM och den för närvarande aktiva\n"
  "                      begränsningen av minnesanvändning och avsluta"
  
@@ -868,7 +1062,8 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "  -h, --help          display the short help (lists only the basic options)\n"
  "  -H, --long-help     display this long help and exit"
-@@ -912,7 +916,7 @@ msgstr ""
+ msgstr ""
+ "  -h, --help          visa den korta hjälpen (listar endast de grundläggande\n"
  "                      flaggorna)\n"
  "  -H, --long-help     visar denna långa hjälp av avsluta"
  
@@ -877,7 +1072,8 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "  -h, --help          display this short help and exit\n"
  "  -H, --long-help     display the long help (lists also the advanced options)"
-@@ -921,11 +925,11 @@ msgstr ""
+ msgstr ""
+ "  -h, --help          visa denna korta hjälp och avsluta\n"
  "  -H, --long-help     visa den långa hjälpen (listar också de avancerade\n"
  "                      flaggorna)"
  
@@ -891,7 +1087,11 @@ index 6faea0d6..9f908f52 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -937,19 +941,19 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "Med FIL, eller när FIL är -, läs standard in.\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -914,7 +1114,18 @@ index 6faea0d6..9f908f52 100644
  msgid "THIS IS A DEVELOPMENT VERSION NOT INTENDED FOR PRODUCTION USE."
  msgstr "DETTA ÄR EN UTVECKLINGSVERSION SOM INTE ÄR AVSEDD FÖR PRODUKTIONSANVÄNDNING."
  
-@@ -968,36 +972,26 @@ msgstr "%s: Ogiltigt flaggnamn"
+ #: src/xz/options.c:86
+ #, c-format
+ msgid "%s: Options must be `name=value' pairs separated with commas"
+ msgstr "%s: Flaggor måste vara ”namn=värde”-par separerade med kommatecken"
+ 
+ #: src/xz/options.c:93
+ #, c-format
+ msgid "%s: Invalid option name"
+ msgstr "%s: Ogiltigt flaggnamn"
+ 
+ #: src/xz/options.c:113
+ #, c-format
  msgid "%s: Invalid option value"
  msgstr "%s: Ogiltigt flaggvärde"
  
@@ -956,7 +1167,39 @@ index 6faea0d6..9f908f52 100644
  #, c-format
  msgid "%s: Invalid filename suffix"
  msgstr "%s: Ogiltig filnamnsändelse"
-@@ -1037,6 +1031,9 @@ msgstr "Skrivning till standard ut misslyckades"
+ 
+ #: src/xz/util.c:71
+ #, c-format
+ msgid "%s: Value is not a non-negative decimal integer"
+ msgstr "%s: Värdet är inte ett icke-negativt, decimalt heltal"
+ 
+ #: src/xz/util.c:113
+ #, c-format
+ msgid "%s: Invalid multiplier suffix"
+ msgstr "%s: Ogiltig multipeländelse"
+ 
+ #: src/xz/util.c:115
+ msgid "Valid suffixes are `KiB' (2^10), `MiB' (2^20), and `GiB' (2^30)."
+ msgstr "Giltiga ändelser är ”KiB” (2^10), ”MiB” (2^20) och ”GiB” (2^30)."
+ 
+ #: src/xz/util.c:132
+ #, c-format
+ msgid "Value of the option `%s' must be in the range [%<PRIu64>, %<PRIu64>]"
+ msgstr "Värdet för flaggan ”%s” måste vara inom intervallet [%<PRIu64>, %<PRIu64>]"
+ 
+ #: src/xz/util.c:269
+ msgid "Compressed data cannot be read from a terminal"
+ msgstr "Komprimerad data kan inte läsas från en terminal"
+ 
+ #: src/xz/util.c:282
+ msgid "Compressed data cannot be written to a terminal"
+ msgstr "Komprimerad data kan inte skrivas till en terminal"
+ 
+ #: src/common/tuklib_exit.c:40
+ msgid "Writing to standard output failed"
+ msgstr "Skrivning till standard ut misslyckades"
+ 
+ #: src/common/tuklib_exit.c:43
  msgid "Unknown error"
  msgstr "Okänt fel"
  
@@ -966,3 +1209,37 @@ index 6faea0d6..9f908f52 100644
  #~ msgid "Sandbox is disabled due to incompatible command line arguments"
  #~ msgstr "Sandlåda inaktiverad på grund av inkompatibla kommandoradsargument"
  
+ #~ msgid "Sandbox was successfully enabled"
+ #~ msgstr "Sandlåda aktiverades framgångsrikt"
+ 
+ #~ msgid "Memory usage limit for compression:    "
+ #~ msgstr "Begränsning av minnesanvändning för komprimering:    "
+ 
+ #~ msgid "  Streams:            %s\n"
+ #~ msgstr "  Strömmar:              %s\n"
+ 
+ #~ msgid "  Blocks:             %s\n"
+ #~ msgstr "  Block:                 %s\n"
+ 
+ #~ msgid "  Ratio:              %s\n"
+ #~ msgstr "  Förhållande:           %s\n"
+ 
+ #~ msgid "  Check:              %s\n"
+ #~ msgstr "  Kontroll:              %s\n"
+ 
+ #~ msgid ""
+ #~ "  Streams:\n"
+ #~ "    Stream    Blocks      CompOffset    UncompOffset        CompSize      UncompSize  Ratio  Check      Padding"
+ #~ msgstr ""
+ #~ "  Strömmar:\n"
+ #~ "    Ström     Block       KompPos       OkompPos            KompStrl      OkompStrl   Förh.  Kontroll   Fyllnad"
+ 
+ #~ msgid ""
+ #~ "  Blocks:\n"
+ #~ "    Stream     Block      CompOffset    UncompOffset       TotalSize      UncompSize  Ratio  Check"
+ #~ msgstr ""
+ #~ "  Block:\n"
+ #~ "    Ström      Block      KompPos       OkompPos           TotalStrl      OkompStrl   Förh.  Kontroll"
+ 
+ #~ msgid "      CheckVal %*s Header  Flags        CompSize    MemUsage  Filters"
+ #~ msgstr "      KntrlVär %*s Huvud   Flaggor      KompStrl    Minne     Filter"

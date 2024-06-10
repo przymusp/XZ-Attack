@@ -8,7 +8,7 @@ diff --git a/po/vi.po b/po/vi.po
 index 7c5db7e6..8c42229d 100644
 --- a/po/vi.po
 +++ b/po/vi.po
-@@ -1,116 +1,134 @@
+@@ -1,990 +1,1068 @@
  # Vietnamese translations for xz package
  # Bản dịch tiếng Việt cho gói xz.
  # This file is put in the public domain.
@@ -175,7 +175,9 @@ index 7c5db7e6..8c42229d 100644
  #, c-format
  msgid "Adjusted LZMA%c dictionary size from %s MiB to %s MiB to not exceed the memory usage limit of %s MiB"
  msgstr "Chỉnh cỡ từ điển LZMA%c từ %s MiB thành %s MiB để không vượt quá giới hạn tiêu dùng bộ nhớ là %s MiB"
-@@ -120,19 +138,11 @@ msgstr "Chỉnh cỡ từ điển LZMA%c từ %s MiB thành %s MiB để không
+ 
+ #: src/xz/file_io.c:110 src/xz/file_io.c:118
+ #, c-format
  msgid "Error creating a pipe: %s"
  msgstr "Gặp lỗi khi tạo một ống dẫn: %s"
  
@@ -198,7 +200,14 @@ index 7c5db7e6..8c42229d 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s: hàm poll() bị lỗi: %s"
-@@ -147,195 +157,321 @@ msgstr "%s: hàm poll() bị lỗi: %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -574,7 +583,8 @@ index 7c5db7e6..8c42229d 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s: Là quá nhỏ đối với tập tin .xz hợp lệ"
-@@ -344,124 +480,40 @@ msgstr "%s: Là quá nhỏ đối với tập tin .xz hợp lệ"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -707,7 +717,18 @@ index 7c5db7e6..8c42229d 100644
  msgid "--list does not support reading from standard input"
  msgstr "--list không hỗ trợ đọc từ đầu vào tiêu chuẩn"
  
-@@ -480,11 +532,11 @@ msgstr "%s: Gặp kết thúc đầu vào bất ngờ khi đọc các tên tập
+ #: src/xz/main.c:89
+ #, c-format
+ msgid "%s: Error reading filenames: %s"
+ msgstr "%s: Gặp lỗi khi đọc tên tập tin: %s"
+ 
+ #: src/xz/main.c:96
+ #, c-format
+ msgid "%s: Unexpected end of input when reading filenames"
+ msgstr "%s: Gặp kết thúc đầu vào bất ngờ khi đọc các tên tập tin"
+ 
+ #: src/xz/main.c:120
+ #, c-format
  msgid "%s: Null character found when reading filenames; maybe you meant to use `--files0' instead of `--files'?"
  msgstr "%s: Gặp ký hiệu Null khi đọc tên tập tin; có lẽ ý bạn muốn là dùng “--files0” chứ không phải “--files'?"
  
@@ -721,7 +742,7 @@ index 7c5db7e6..8c42229d 100644
  msgid "Cannot read data from standard input when reading filenames from standard input"
  msgstr "Không thể đọc dữ liệu từ đầu vào tiêu chuẩn khi đọc tập tin từ đầu vào tiêu chuẩn"
  
-@@ -492,68 +544,68 @@ msgstr "Không thể đọc dữ liệu từ đầu vào tiêu chuẩn khi đọ
+ #. TRANSLATORS: This is the program name in the beginning
  #. of the line in messages. Usually it becomes "xz: ".
  #. This is a translatable string because French needs
  #. a space before a colon.
@@ -805,7 +826,10 @@ index 7c5db7e6..8c42229d 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -564,15 +616,15 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Cách dùng: %s [TÙY CHỌN]... [TẬP TIN]...\n"
  "Nén hoặc giải nén các TẬP TIN có định dạng .xz.\n"
  "\n"
  
@@ -824,7 +848,11 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -584,7 +636,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      ép buộc nén\n"
+ "  -d, --decompress    ép buộc giải nén\n"
  "  -t, --test          kiểm tra tính toàn vẹn của tập tin nén\n"
  "  -l, --list          liệt kê các thông tin về tập tin .xz"
  
@@ -833,7 +861,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -592,7 +644,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Bộ chỉnh sửa thao tác:\n"
  
@@ -842,7 +870,9 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -602,7 +654,7 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          giữ lại (đừng xóa) tập tin đầu vào\n"
  "  -f, --force         buộc ghi đè tập tin đầu ra và (giải) nén các liên kết\n"
  "  -c, --stdout        ghi ra đầu ra tiêu chuẩn và không xóa tập tin đầu vào"
  
@@ -851,7 +881,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
-@@ -610,7 +662,7 @@ msgstr ""
+ msgstr ""
  "      --single-stream chỉ giải nén luồng dữ liệu đầu, và bỏ qua\n"
  "                      dữ liệu đầu vào còn lại có thể"
  
@@ -860,7 +890,15 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "      --no-sparse     do not create sparse files when decompressing\n"
  "  -S, --suffix=.SUF   use the suffix `.SUF' on compressed files\n"
-@@ -626,7 +678,7 @@ msgstr ""
+ "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
+ "                      omitted, filenames are read from the standard input;\n"
+ "                      filenames must be terminated with the newline character\n"
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     đừng tạo các tập tin rải rác khi giải nén\n"
+ "  -S, --suffix=.ĐUÔI  dùng hậu tố “.ĐUÔI” trên các tập tin nén\n"
+ "      --files[=TẬP-TIN]  đọc các tập tin cần xử lý từ TẬP-TIN; nếu không có\n"
+ "                      TẬP-TIN thì tên tập tin sẽ được đọc vào từ đầu vào tiêu\n"
  "                      chuẩn; chúng phải được kết thúc bằng ký tự dòng mới\n"
  "      --files0[=TẬP-TIN] giống --files nhưng ký tự kết thúc là null"
  
@@ -869,7 +907,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -634,23 +686,23 @@ msgstr ""
+ msgstr ""
  "\n"
  " Các tùy chọn về định dạng và nén cơ bản:\n"
  
@@ -898,7 +936,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -658,7 +710,7 @@ msgstr ""
+ msgstr ""
  "  -0 ... -9           đặt mức nén; mặc định là 6; tiêu dùng nhiều bộ nhớ khi nén\n"
  "                      và giải nén, nên tính toán trước khi dùng 7-9!"
  
@@ -907,7 +945,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -666,7 +718,7 @@ msgstr ""
+ msgstr ""
  "  -e, --extreme       cố gắng nâng cao mức nén bằng cách dùng nhiều CPU hơn;\n"
  "                      nhưng không yêu cần nhiều bộ nhớ khi giải nén"
  
@@ -916,7 +954,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "  -T, --threads=NUM   use at most NUM threads; the default is 1; set to 0\n"
  "                      to use as many threads as there are processor cores"
-@@ -674,7 +726,7 @@ msgstr ""
+ msgstr ""
  "  -T, --threads=SỐ    dùng tối đa là SỐ tuyến trình; mặc định là 1; đặt\n"
  "                      thành 0 để dùng số lượng bằng số lõi vi xử lý"
  
@@ -925,7 +963,9 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "      --block-size=SIZE\n"
  "                      start a new .xz block after every SIZE bytes of input;\n"
-@@ -684,7 +736,7 @@ msgstr ""
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=CỠ\n"
  "                      bắt đầu một khối .xz mới sau mỗi CỠ byte của đầu vào;\n"
  "                      dùng tùy chọn này để đặt cỡ khối cho nén tuyến trình"
  
@@ -934,7 +974,9 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "      --block-list=SIZES\n"
  "                      start a new .xz block after the given comma-separated\n"
-@@ -694,7 +746,7 @@ msgstr ""
+ "                      intervals of uncompressed data"
+ msgstr ""
+ "      --block-list=CỠ\n"
  "                      bắt đầu một khối .xz mới sau một danh sách ngăn\n"
  "                      cách bằng dấu phẩy nhịp dữ của dữ liệu chưa nén"
  
@@ -943,7 +985,11 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -706,23 +758,26 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
+ "      --flush-timeout=THỜI_GIAN_CHỜ\n"
+ "                      khi đang nén, nếu đã trải qua hơn THỜI_GIAN_CHỜ milli-giây\n"
  "                      kể từ lần đẩy dữ liệu lên đĩa trước đó và đang đọc thêm\n"
  "                      khối nữa, mọi dữ liệu đang chờ sẽ được ghi lên đĩa"
  
@@ -975,7 +1021,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -730,7 +785,7 @@ msgstr ""
+ msgstr ""
  "      --no-adjust     nếu các cài đặt nén vượt quá giới hạn dùng bộ nhớ,\n"
  "                      đưa ra một lỗi thay vì sửa đổi các cài đặt xuống"
  
@@ -984,7 +1030,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -738,7 +793,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Móc xích lọc tùy chỉnh cho nén (thay cho việc dùng chỉnh trước):"
  
@@ -993,7 +1039,27 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -766,29 +821,31 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=CTC]       LZMA1 hay LZMA2; CÁC-TÙY-CHỌN là danh sách của không hoặc\n"
+ "  --lzma2[=CTC]       hơn các tùy chọn sau đây (giá trị hợp lệ; mặc định):\n"
+ "                        preset=PRE các tùy chọn tối ưu nén (0-9[e])\n"
+ "                        dict=SỐ    cỡ từ điển (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=SỐ      số bít ngữ cảnh văn bản (0-4; 3)\n"
+ "                        lp=SỐ      số bít vị trí văn bản (0-4; 0)\n"
+ "                        pb=SỐ      số bít vị trí (0-4; 2)\n"
+ "                        mode=CHẾ_ĐỘ  chế độ nén (fast, normal; normal)\n"
+ "                        nice=SỐ    chiều dài “tốt” của khớp (2-273; 64)\n"
  "                        mf=TÊN     bộ tìm khớp (hc3, hc4, bt2, bt3, bt4; bt4)\n"
  "                        depth=SỐ   mức sâu tìm kiếm tối đa; 0=tự động (mặc định)"
  
@@ -1032,7 +1098,12 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -801,7 +858,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=OPTS]      bộ lọc Delta;\n"
+ "                      CÁC-TÙY-CHỌN hợp lệ (giá trị hợp lệ; mặc định):\n"
  "                        dist=SỐ    khoảng cách giữa các byte được trừ từ\n"
  "                                   những cái khác (1-256; 1)"
  
@@ -1041,7 +1112,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -809,7 +866,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Tùy chọn khác:\n"
  
@@ -1050,7 +1121,8 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -818,17 +875,17 @@ msgstr ""
+ msgstr ""
+ "  -q, --quiet         không xuất các cảnh báo;\n"
  "                      chỉ định hai lần nến bạn muốn chặn cả báo lỗi\n"
  "  -v, --verbose       thông báo chi tiết; dùng hai lần nếu muốn chi tiết hơn"
  
@@ -1071,7 +1143,7 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "      --info-memory   display the total amount of RAM and the currently active\n"
  "                      memory usage limits, and exit"
-@@ -836,7 +893,7 @@ msgstr ""
+ msgstr ""
  "      --info-memory   hiển thị tổng lượng RAM và mức giới hạn tiêu dùng\n"
  "                      bộ nhớ hiện tại, rồi thoát"
  
@@ -1080,7 +1152,8 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "  -h, --help          display the short help (lists only the basic options)\n"
  "  -H, --long-help     display this long help and exit"
-@@ -845,7 +902,7 @@ msgstr ""
+ msgstr ""
+ "  -h, --help          hiển thị trợ giúp dạng ngắn gọn\n"
  "                      (chỉ liệt kê các tùy chọn cơ bản)\n"
  "  -H, --long-help     hiển thị trợ giúp đầy đủ rồi thoát"
  
@@ -1089,7 +1162,8 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "  -h, --help          display this short help and exit\n"
  "  -H, --long-help     display the long help (lists also the advanced options)"
-@@ -854,11 +911,11 @@ msgstr ""
+ msgstr ""
+ "  -h, --help          hiển thị trợ giúp dạng ngắn gọn rồi thoát\n"
  "  -H, --long-help     hiển thị trợ giúp đầy đủ\n"
  "                      (liệt kê cả những tùy chọn cấp cao)"
  
@@ -1103,7 +1177,11 @@ index 7c5db7e6..8c42229d 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -870,19 +927,19 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "Không có TẬP_TIN, hoặc TẬP_TIN là “-”, thì đọc đầu vào tiêu chuẩn.\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -1126,7 +1204,27 @@ index 7c5db7e6..8c42229d 100644
  msgid "THIS IS A DEVELOPMENT VERSION NOT INTENDED FOR PRODUCTION USE."
  msgstr "ĐÂY LÀ PHIÊN BẢN PHÁT TRIỂN VÀ NÓ KHÔNG PHÙ HỢP VỚI MỤC ĐÍCH SẢN XUẤT."
  
-@@ -910,27 +967,17 @@ msgstr "Hiện nay chưa hỗ trợ LZMA1/LZMA2: %s"
+ #: src/xz/options.c:86
+ #, c-format
+ msgid "%s: Options must be `name=value' pairs separated with commas"
+ msgstr "%s: Các tùy chọn phải là các cặp “name=value” ngăn cách nhau bằng dấu phẩy"
+ 
+ #: src/xz/options.c:93
+ #, c-format
+ msgid "%s: Invalid option name"
+ msgstr "%s: Tên tùy chọn không hợp lệ"
+ 
+ #: src/xz/options.c:113
+ #, c-format
+ msgid "%s: Invalid option value"
+ msgstr "%s: Giá trị của tùy chọn không hợp lệ"
+ 
+ #: src/xz/options.c:247
+ #, c-format
+ msgid "Unsupported LZMA1/LZMA2 preset: %s"
+ msgstr "Hiện nay chưa hỗ trợ LZMA1/LZMA2: %s"
+ 
+ #: src/xz/options.c:355
  msgid "The sum of lc and lp must not exceed 4"
  msgstr "Tổng số lượng lc và lp không được vượt quá 4"
  
@@ -1157,7 +1255,23 @@ index 7c5db7e6..8c42229d 100644
  #, c-format
  msgid "%s: Invalid filename suffix"
  msgstr "%s: Hậu tố tên tập tin không hợp lệ"
-@@ -954,26 +1001,57 @@ msgstr "Các hậu tố hợp lệ là “KiB” (2^10), “MiB” (2^20), và 
+ 
+ #: src/xz/util.c:71
+ #, c-format
+ msgid "%s: Value is not a non-negative decimal integer"
+ msgstr "%s: Giá trị không phải là số thập phân nguyên không âm"
+ 
+ #: src/xz/util.c:113
+ #, c-format
+ msgid "%s: Invalid multiplier suffix"
+ msgstr "%s: Hậu tố nhân tố không hợp lệ"
+ 
+ #: src/xz/util.c:115
+ msgid "Valid suffixes are `KiB' (2^10), `MiB' (2^20), and `GiB' (2^30)."
+ msgstr "Các hậu tố hợp lệ là “KiB” (2^10), “MiB” (2^20), và “GiB” (2^30)."
+ 
+ #: src/xz/util.c:132
+ #, c-format
  msgid "Value of the option `%s' must be in the range [%<PRIu64>, %<PRIu64>]"
  msgstr "Giá trị cuả tùy chọn “%s” phải nằm trong vùng [%<PRIu64>, %<PRIu64>]"
  
@@ -1223,3 +1337,14 @@ index 7c5db7e6..8c42229d 100644
  #~ msgid "Error setting O_NONBLOCK on standard input: %s"
  #~ msgstr "Lỗi cài đặt O_NONBLOCK trên đầu vào tiêu chuẩn: %s"
  
+ #~ msgid "Error setting O_NONBLOCK on standard output: %s"
+ #~ msgstr "Lỗi cài đặt O_NONBLOCK trên đầu ra tiêu chuẩn: %s"
+ 
+ #~ msgid ""
+ #~ "      --block-size=SIZE\n"
+ #~ "                      when compressing to the .xz format, start a new block\n"
+ #~ "                      after every SIZE bytes of input; 0=disabled (default)"
+ #~ msgstr ""
+ #~ "      --block-size=CỠ\n"
+ #~ "                      khi nén thành định dạng .xz, bắt đầu khối mới\n"
+ #~ "                      sau mỗi SỐ byte đầu vào; 0=tắt (mặc định)"

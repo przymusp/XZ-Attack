@@ -1,0 +1,1 @@
+{"src/liblzma/common/stream_encoder_mt.c": {"language": "C", "type": "programming", "purpose": "programming", "+": [{"id": 746, "type": "code", "purpose": "programming"}], "-": [{"id": 745, "type": "code", "purpose": "programming"}]}}

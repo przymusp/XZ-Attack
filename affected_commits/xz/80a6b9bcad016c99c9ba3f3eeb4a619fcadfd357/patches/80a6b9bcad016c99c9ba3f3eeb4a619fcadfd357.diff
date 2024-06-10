@@ -8,7 +8,7 @@ diff --git a/po/zh_TW.po b/po/zh_TW.po
 index 52c2fa8e..6c7f8825 100644
 --- a/po/zh_TW.po
 +++ b/po/zh_TW.po
-@@ -1,117 +1,135 @@
+@@ -1,956 +1,1051 @@
  # Chinese translations for xz package.
  # This file is put in the public domain.
  #
@@ -177,7 +177,9 @@ index 52c2fa8e..6c7f8825 100644
  #, c-format
  msgid "Adjusted LZMA%c dictionary size from %s MiB to %s MiB to not exceed the memory usage limit of %s MiB"
  msgstr "已將 LZMA%c 的字典大小從 %s MiB 調整至 %s MiB，以不超過記憶體用量的 %s MiB 限制"
-@@ -121,19 +139,11 @@ msgstr "已將 LZMA%c 的字典大小從 %s MiB 調整至 %s MiB，以不超過
+ 
+ #: src/xz/file_io.c:110 src/xz/file_io.c:118
+ #, c-format
  msgid "Error creating a pipe: %s"
  msgstr "建立管線時發生錯誤：%s"
  
@@ -199,7 +201,14 @@ index 52c2fa8e..6c7f8825 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s：poll() 失敗：%s"
-@@ -148,195 +158,321 @@ msgstr "%s：poll() 失敗：%s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -575,7 +584,8 @@ index 52c2fa8e..6c7f8825 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s：因過小而不認為是個有效 .xz 檔"
-@@ -345,127 +481,40 @@ msgstr "%s：因過小而不認為是個有效 .xz 檔"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -713,7 +723,18 @@ index 52c2fa8e..6c7f8825 100644
  msgid "--list does not support reading from standard input"
  msgstr "--list 不支援從標準輸入讀取"
  
-@@ -484,11 +533,11 @@ msgstr "%s：讀取檔名時遇到非預期的輸入結尾"
+ #: src/xz/main.c:89
+ #, c-format
+ msgid "%s: Error reading filenames: %s"
+ msgstr "%s：讀取檔名時發生錯誤：%s"
+ 
+ #: src/xz/main.c:96
+ #, c-format
+ msgid "%s: Unexpected end of input when reading filenames"
+ msgstr "%s：讀取檔名時遇到非預期的輸入結尾"
+ 
+ #: src/xz/main.c:120
+ #, c-format
  msgid "%s: Null character found when reading filenames; maybe you meant to use `--files0' instead of `--files'?"
  msgstr "%s：讀取檔名時發現空字元；或許您想使用「--files0」而非「--files」？"
  
@@ -727,7 +748,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid "Cannot read data from standard input when reading filenames from standard input"
  msgstr "從標準輸入讀取檔名時，無法從標準輸入讀取資料"
  
-@@ -496,68 +545,68 @@ msgstr "從標準輸入讀取檔名時，無法從標準輸入讀取資料"
+ #. TRANSLATORS: This is the program name in the beginning
  #. of the line in messages. Usually it becomes "xz: ".
  #. This is a translatable string because French needs
  #. a space before a colon.
@@ -811,7 +832,10 @@ index 52c2fa8e..6c7f8825 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -568,15 +617,15 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "用法：%s [選項]... [檔案]...\n"
  "用 .xz 格式壓縮，或解壓縮 .xz 格式中的 <檔案>。\n"
  "\n"
  
@@ -830,7 +854,11 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -588,7 +637,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      強制壓縮\n"
+ "  -d, --decompress    強制解壓縮\n"
  "  -t, --test          測試壓縮檔完整性\n"
  "  -l, --list          列出 .xz 檔的資訊"
  
@@ -839,7 +867,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -596,7 +645,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " 操作修飾詞：\n"
  
@@ -848,7 +876,9 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -606,7 +655,7 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          保留（不刪除）輸入檔\n"
  "  -f, --force         強制覆寫輸出檔並（解）壓縮連結\n"
  "  -c, --stdout        寫入標準輸出並不刪除輸入檔"
  
@@ -857,7 +887,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
-@@ -614,7 +663,7 @@ msgstr ""
+ msgstr ""
  "      --single-stream 僅解壓縮第一個串流，再\n"
  "                      安靜地忽略可能剩餘的輸入檔"
  
@@ -866,7 +896,14 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "      --no-sparse     do not create sparse files when decompressing\n"
  "  -S, --suffix=.SUF   use the suffix `.SUF' on compressed files\n"
-@@ -629,7 +678,7 @@ msgstr ""
+ "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
+ "                      omitted, filenames are read from the standard input;\n"
+ "                      filenames must be terminated with the newline character\n"
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     不在解壓縮時建立疏鬆檔案\n"
+ "  -S, --suffix=.SUF   在壓縮檔加上後綴「.SUF」\n"
+ "      --files[=檔案]  讀取檔案名稱以處理 <檔案>；如省略 <檔案>\n"
  "                      則從標準輸入讀取檔名；檔名必須以換行字元作為結尾\n"
  "      --files0[=檔案] 類似 --files 但是以 null 空字元作結尾"
  
@@ -875,7 +912,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -637,23 +686,23 @@ msgstr ""
+ msgstr ""
  "\n"
  " 基本檔案格式與壓縮選項：\n"
  
@@ -906,7 +943,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -661,7 +710,7 @@ msgstr ""
+ msgstr ""
  "  -0 ... -9           壓縮設定檔；預設值為 6；使用 7-9 前請考慮\n"
  "                      壓縮和解壓縮所使用的記憶體！"
  
@@ -915,7 +952,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -669,7 +718,7 @@ msgstr ""
+ msgstr ""
  "  -e, --extreme       使用更多 CPU 時間以嘗試改善壓縮比；\n"
  "                      不影響解壓縮器的記憶體需求"
  
@@ -924,7 +961,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "  -T, --threads=NUM   use at most NUM threads; the default is 1; set to 0\n"
  "                      to use as many threads as there are processor cores"
-@@ -677,47 +726,57 @@ msgstr ""
+ msgstr ""
  "  -T, --threads=NUM   使用最多 NUM 個執行緒；預設為 1；設成 0 則使用所有的\n"
  "                      處理機核心"
  
@@ -995,7 +1032,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -725,7 +784,7 @@ msgstr ""
+ msgstr ""
  "      --no-adjust     若壓縮設定超過記憶體用量上限，請給出\n"
  "                      錯誤而非下調設定"
  
@@ -1004,7 +1041,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -733,7 +792,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " 自訂壓縮篩選鏈（使用設定檔時選用）："
  
@@ -1013,7 +1050,27 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -761,37 +820,43 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=操作]      LZMA1 或 LZMA2；<操作> 是以下選項中的 0 個或以上選項\n"
+ "  --lzma2[=操作]      （有效值; 預設）：\n"
+ "                        preset=PRE 將選項重設至某設定檔的選項 (0-9[e])\n"
+ "                        dict=NUM   字典大小 (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     文字內文位元數 (0-4; 3)\n"
+ "                        lp=NUM     文字位置位元數 (0-4; 0)\n"
+ "                        pb=NUM     位置位元數    (0-4; 2)\n"
+ "                        mode=模式  壓縮模式 (fast, normal; normal)\n"
+ "                        nice=NUM   符合項目的 nice 長度 (2-273; 64)\n"
  "                        mf=名稱    尋找符合搜尋器 (hc3, hc4, bt2, bt3, bt4; bt4)\n"
  "                        depth=NUM  最大搜尋深度；0=自動（預設）"
  
@@ -1064,7 +1121,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -799,7 +864,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " 其他選項：\n"
  
@@ -1073,7 +1130,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -807,21 +872,21 @@ msgstr ""
+ msgstr ""
  "  -q, --quiet         隱藏警告訊息；指定兩次也一併隱藏錯誤訊息\n"
  "  -v, --verbose       輸出較詳細內容；指定兩次更詳細輸出"
  
@@ -1099,7 +1156,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "  -h, --help          display the short help (lists only the basic options)\n"
  "  -H, --long-help     display this long help and exit"
-@@ -829,7 +894,7 @@ msgstr ""
+ msgstr ""
  "  -h, --help          顯示較短說明（僅列出基本選項）\n"
  "  -H, --long-help     顯示較長說明後退出"
  
@@ -1108,7 +1165,7 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "  -h, --help          display this short help and exit\n"
  "  -H, --long-help     display the long help (lists also the advanced options)"
-@@ -837,11 +902,11 @@ msgstr ""
+ msgstr ""
  "  -h, --help          顯示較短說明後退出\n"
  "  -H, --long-help     顯示較長說明（也列出進階選項）"
  
@@ -1122,7 +1179,11 @@ index 52c2fa8e..6c7f8825 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -853,17 +918,17 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "如果未指定 <檔案>，或 <檔案> 是 -，則從標準輸入讀取。\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -1143,7 +1204,27 @@ index 52c2fa8e..6c7f8825 100644
  msgid "THIS IS A DEVELOPMENT VERSION NOT INTENDED FOR PRODUCTION USE."
  msgstr "此為開發版本，不打算在生產環境使用。"
  
-@@ -891,27 +956,17 @@ msgstr "不支援的 LZMA1/LZMA2 設定檔：%s"
+ #: src/xz/options.c:86
+ #, c-format
+ msgid "%s: Options must be `name=value' pairs separated with commas"
+ msgstr "%s：選項形式必須為以逗號分隔的「name=value」值對"
+ 
+ #: src/xz/options.c:93
+ #, c-format
+ msgid "%s: Invalid option name"
+ msgstr "%s：選項名稱無效"
+ 
+ #: src/xz/options.c:113
+ #, c-format
+ msgid "%s: Invalid option value"
+ msgstr "%s：選項值無效"
+ 
+ #: src/xz/options.c:247
+ #, c-format
+ msgid "Unsupported LZMA1/LZMA2 preset: %s"
+ msgstr "不支援的 LZMA1/LZMA2 設定檔：%s"
+ 
+ #: src/xz/options.c:355
  msgid "The sum of lc and lp must not exceed 4"
  msgstr "lc 和 lp 的總和不能超過 4"
  
@@ -1174,7 +1255,23 @@ index 52c2fa8e..6c7f8825 100644
  #, c-format
  msgid "%s: Invalid filename suffix"
  msgstr "%s：檔名後綴無效"
-@@ -935,22 +990,62 @@ msgstr "有效的後綴有「KiB」(2^10)、「MiB」(2^20) 及「GiB」(2^30)
+ 
+ #: src/xz/util.c:71
+ #, c-format
+ msgid "%s: Value is not a non-negative decimal integer"
+ msgstr "%s：數值不是非負數十進位整數"
+ 
+ #: src/xz/util.c:113
+ #, c-format
+ msgid "%s: Invalid multiplier suffix"
+ msgstr "%s：乘數後綴無效"
+ 
+ #: src/xz/util.c:115
+ msgid "Valid suffixes are `KiB' (2^10), `MiB' (2^20), and `GiB' (2^30)."
+ msgstr "有效的後綴有「KiB」(2^10)、「MiB」(2^20) 及「GiB」(2^30)。"
+ 
+ #: src/xz/util.c:132
+ #, c-format
  msgid "Value of the option `%s' must be in the range [%<PRIu64>, %<PRIu64>]"
  msgstr "選項「%s」的數值必須在 [%<PRIu64>, %<PRIu64>] 範圍內"
  

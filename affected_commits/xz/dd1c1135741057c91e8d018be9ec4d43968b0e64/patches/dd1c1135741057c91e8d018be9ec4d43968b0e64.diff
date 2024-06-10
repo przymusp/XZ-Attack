@@ -11,7 +11,164 @@ diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
 index e2c09cdb..2d0f8643 100755
 --- a/build-aux/ci_build.sh
 +++ b/build-aux/ci_build.sh
-@@ -158,7 +158,7 @@ if [ "$PHASE" = "all" ] || [ "$PHASE" = "build" ]; then
+@@ -1,187 +1,187 @@
+ #!/bin/sh
+ #
+ #############################################################################
+ #
+ # Script meant to be used for Continuous Integration automation for POSIX
+ # systems. On GitHub, this is used by Ubuntu and MacOS builds.
+ #
+ #############################################################################
+ #
+ # Author: Jia Tan
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ #############################################################################
+ 
+ set -e
+ 
+ USAGE="Usage: $0
+   -b [autotools|cmake]
+   -c [crc32|crc64|sha256]
+   -d [encoders|decoders|bcj|delta|threads|shared|nls]
+   -l [destdir]
+   -s [srcdir]
+   -p [all|build|test]
+   -f [CFLAGS]"
+ 
+ # Absolute path of script directory
+ ABS_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
+ 
+ # Default CLI option values
+ BUILD_SYSTEM="autotools"
+ CHECK_TYPE="crc32,crc64,sha256"
+ BCJ="y"
+ DELTA="y"
+ ENCODERS="y"
+ DECODERS="y"
+ THREADS="y"
+ SHARED="y"
+ NATIVE_LANG_SUPPORT="y"
+ SRC_DIR="$ABS_DIR/../"
+ DEST_DIR="$SRC_DIR/../xz_build"
+ PHASE="all"
+ 
+ # Parse arguments
+ while getopts b:c:d:l:s:p:f:h opt; do
+ 	# b option can have either value "autotools" OR "cmake"
+ 	case ${opt} in
+ 	h)
+ 		echo "$USAGE"
+ 		exit 0
+ 	;;
+ 	b)
+ 		case "$OPTARG" in
+ 			autotools) ;;
+ 			cmake) ;;
+ 			*) echo "Invalid build system: $OPTARG"; exit 1;;
+ 		esac
+ 		BUILD_SYSTEM="$OPTARG"
+ 	;;
+ 	# c options can be a comma separated list of check types to support
+ 	c)
+ 	for crc in $(echo $OPTARG | sed "s/,/ /g"); do 
+ 		case "$crc" in
+ 		crc32) ;;
+ 		crc64) ;;
+ 		sha256) ;;
+ 		*) echo "Invalid check type: $crc"; exit 1 ;;
+ 		esac
+ 	done
+ 	CHECK_TYPE="$OPTARG"
+ 	;;
+ 	# d options can be a comma separated list of things to disable at
+ 	# configure time
+ 	d)
+ 	for disable_arg in $(echo $OPTARG | sed "s/,/ /g"); do 
+ 		case "$disable_arg" in
+ 		encoders) ENCODERS="n" ;;
+ 		decoders) DECODERS="n" ;;
+ 		bcj) BCJ="n" ;;
+ 		delta) DELTA="n" ;;
+ 		threads) THREADS="n" ;;
+ 		shared) SHARED="n";;
+ 		nls) NATIVE_LANG_SUPPORT="n";;
+ 		*) echo "Invalid disable value: $disable_arg"; exit 1 ;;
+ 		esac
+ 	done	
+ 	;;
+ 	l) DEST_DIR="$OPTARG"
+ 	;;
+ 	s) SRC_DIR="$OPTARG"
+ 	;;
+ 	p) PHASE="$OPTARG"
+ 	;;
+ 	f) 
+ 	CFLAGS="$OPTARG"
+ 	export CFLAGS
+ 	;;
+ 	esac
+ done
+ 
+ if [ "$PHASE" = "all" ] || [ "$PHASE" = "build" ]; then
+ 	# Build based on arguments
+ 	mkdir -p "$DEST_DIR"
+ 	case $BUILD_SYSTEM in
+ 		autotools)
+ 		cd "$SRC_DIR"
+ 
+ 		# Run autogen.sh script if not already run
+ 		if [ ! -f configure ]
+ 		then 
+ 			"./autogen.sh"
+ 		fi
+ 
+ 		cd "$DEST_DIR"
+ 
+ 		# Generate configure option values
+ 		EXTRA_OPTIONS=""
+ 		FILTER_LIST="lzma1,lzma2"
+ 
+ 		if [ "$BCJ" = "y" ]
+ 		then
+ 			FILTER_LIST="$FILTER_LIST,x86,powerpc,ia64,arm,armthumb,arm64,sparc"
+ 		fi
+ 
+ 		if [ "$DELTA" = "y" ]
+ 		then
+ 			FILTER_LIST="$FILTER_LIST,delta"
+ 		fi
+ 
+ 		if [ "$ENCODERS" = "y" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --enable-encoders=$FILTER_LIST"
+ 		else
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-encoders"
+ 		fi
+ 
+ 		if [ "$DECODERS" = "y" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --enable-decoders=$FILTER_LIST"
+ 		else
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-decoders"
+ 		fi
+ 
+ 		if [ "$THREADS" = "n" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-threads"
+ 		fi
+ 
+ 		if [ "$SHARED" = "n" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-shared"
+ 		fi
+ 
+ 		if [ "$NATIVE_LANG_SUPPORT" = "n" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-nls"
  		fi
  
  		# Run configure script
@@ -20,3 +177,27 @@ index e2c09cdb..2d0f8643 100755
  
  		# Build the project
  		make
+ 		;;
+ 		cmake)
+ 		# CMake currently does not support disabling encoders, decoders,
+ 		# threading, or check types. For now, just run the full build.
+ 		cd "$DEST_DIR"
+ 		cmake "$SRC_DIR/CMakeLists.txt" -B "$DEST_DIR"
+ 		make
+ 		;;
+ 	esac
+ fi
+ 
+ if [ "$PHASE" = "all" ] || [ "$PHASE" = "test" ]; then
+ 	case $BUILD_SYSTEM in
+ 		autotools)
+ 			cd "$DEST_DIR"
+ 			make check
+ 		;;
+ 		cmake)
+ 			cd "$DEST_DIR"
+ 			make "test"
+ 		;;
+ 	esac
+ fi
+\ No newline at end of file

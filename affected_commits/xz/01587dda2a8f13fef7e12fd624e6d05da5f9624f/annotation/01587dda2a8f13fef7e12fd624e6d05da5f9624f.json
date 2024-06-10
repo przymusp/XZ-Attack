@@ -1,0 +1,1 @@
+{"src/xz/file_io.c": {"language": "C", "type": "programming", "purpose": "programming", "+": [{"id": 247, "type": "documentation", "purpose": "programming"}, {"id": 249, "type": "documentation", "purpose": "programming"}], "-": [{"id": 245, "type": "documentation", "purpose": "programming"}, {"id": 246, "type": "documentation", "purpose": "programming"}]}}

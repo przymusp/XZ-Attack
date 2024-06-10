@@ -8,7 +8,10 @@ diff --git a/po4a/ko.po b/po4a/ko.po
 index 7d4331b0..c9e6b66b 100644
 --- a/po4a/ko.po
 +++ b/po4a/ko.po
-@@ -4,9 +4,9 @@
+@@ -1,3673 +1,3676 @@
+ # Korean translation for the xz-man
+ # This file is put in the public domain.
+ # Seong-ho Cho <darkcircle.0426@gmail.com>, 2023.
  #
  msgid ""
  msgstr ""
@@ -21,7 +24,11 @@ index 7d4331b0..c9e6b66b 100644
  "Last-Translator: Seong-ho Cho <darkcircle.0426@gmail.com>\n"
  "Language-Team: Korean <translation-team-ko@googlegroups.com>\n"
  "Language: ko\n"
-@@ -18,19 +18,19 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ "Plural-Forms: nplurals=1; plural=0;\n"
+ "X-Bugs: Report translation errors to the Language-Team address.\n"
  "X-Generator: Poedit 3.0.1\n"
  
  #. type: TH
@@ -46,7 +53,7 @@ index 7d4331b0..c9e6b66b 100644
  #: ../src/scripts/xzdiff.1:9 ../src/scripts/xzgrep.1:9
  #: ../src/scripts/xzless.1:10 ../src/scripts/xzmore.1:7
  #, no-wrap
-@@ -38,7 +38,7 @@ msgid "Tukaani"
+ msgid "Tukaani"
  msgstr "Tukaani"
  
  #. type: TH
@@ -55,7 +62,7 @@ index 7d4331b0..c9e6b66b 100644
  #: ../src/scripts/xzdiff.1:9 ../src/scripts/xzgrep.1:9
  #: ../src/scripts/xzless.1:10 ../src/scripts/xzmore.1:7
  #, no-wrap
-@@ -46,7 +46,7 @@ msgid "XZ Utils"
+ msgid "XZ Utils"
  msgstr "XZ 유틸리티"
  
  #. type: SH
@@ -64,7 +71,7 @@ index 7d4331b0..c9e6b66b 100644
  #: ../src/scripts/xzdiff.1:10 ../src/scripts/xzgrep.1:10
  #: ../src/scripts/xzless.1:11 ../src/scripts/xzmore.1:8
  #, no-wrap
-@@ -54,12 +54,12 @@ msgid "NAME"
+ msgid "NAME"
  msgstr "이름"
  
  #. type: Plain text
@@ -79,7 +86,7 @@ index 7d4331b0..c9e6b66b 100644
  #: ../src/scripts/xzdiff.1:12 ../src/scripts/xzgrep.1:12
  #: ../src/scripts/xzless.1:13 ../src/scripts/xzmore.1:10
  #, no-wrap
-@@ -67,48 +67,48 @@ msgid "SYNOPSIS"
+ msgid "SYNOPSIS"
  msgstr "요약"
  
  #. type: Plain text
@@ -137,7 +144,7 @@ index 7d4331b0..c9e6b66b 100644
  #: ../src/scripts/xzdiff.1:24 ../src/scripts/xzgrep.1:33
  #: ../src/scripts/xzless.1:19 ../src/scripts/xzmore.1:16
  #, no-wrap
-@@ -116,2633 +116,2633 @@ msgid "DESCRIPTION"
+ msgid "DESCRIPTION"
  msgstr "설명"
  
  #. type: Plain text
@@ -3292,7 +3299,9 @@ index 7d4331b0..c9e6b66b 100644
  #, no-wrap
  msgid ""
  "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
-@@ -2752,285 +2752,285 @@ msgstr ""
+ "export XZ_OPT>\n"
+ msgstr ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
  "export XZ_OPT>\n"
  
  #. type: SH
@@ -3629,7 +3638,9 @@ index 7d4331b0..c9e6b66b 100644
  #, no-wrap
  msgid ""
  "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
-@@ -3040,39 +3040,39 @@ msgstr ""
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
+ msgstr ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
  "    | xargs -0r -P4 -n16 xz -T1>\n"
  
  #. type: Plain text
@@ -3676,7 +3687,15 @@ index 7d4331b0..c9e6b66b 100644
  #, no-wrap
  msgid ""
  "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
-@@ -3088,12 +3088,12 @@ msgstr ""
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
+ msgstr ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
  "unset XZ_VERSION LIBLZMA_VERSION>\n"
  
  #. type: Plain text
@@ -3691,7 +3710,17 @@ index 7d4331b0..c9e6b66b 100644
  #, no-wrap
  msgid ""
  "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
-@@ -3111,108 +3111,108 @@ msgstr ""
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
+ "fi>\n"
+ msgstr ""
+ "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
  "fi>\n"
  
  #. type: Plain text
@@ -3820,7 +3849,7 @@ index 7d4331b0..c9e6b66b 100644
  #: ../src/scripts/xzdiff.1:65 ../src/scripts/xzgrep.1:106
  #: ../src/scripts/xzless.1:65 ../src/scripts/xzmore.1:51
  #, no-wrap
-@@ -3220,22 +3220,22 @@ msgid "SEE ALSO"
+ msgid "SEE ALSO"
  msgstr "추가 참조"
  
  #. type: Plain text
@@ -3847,7 +3876,435 @@ index 7d4331b0..c9e6b66b 100644
  msgid "LZMA SDK: E<lt>https://7-zip.org/sdk.htmlE<gt>"
  msgstr "LZMA SDK: E<lt>https://7-zip.org/sdk.htmlE<gt>"
  
-@@ -3671,3 +3671,6 @@ msgstr "파일 내용을 실제로 보는 동안 지원하는 키보드 명령 
+ #. type: TH
+ #: ../src/xzdec/xzdec.1:7
+ #, no-wrap
+ msgid "XZDEC"
+ msgstr "XZDEC"
+ 
+ #. type: TH
+ #: ../src/xzdec/xzdec.1:7
+ #, no-wrap
+ msgid "2017-04-19"
+ msgstr "2017-04-19"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:10
+ msgid "xzdec, lzmadec - Small .xz and .lzma decompressors"
+ msgstr "xzdec, lzmadec - .xz와 .lzma용 작은 압축 해제 프로그램"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:14
+ msgid "B<xzdec> [I<option...>] [I<file...>]"
+ msgstr "B<xzdec> [I<<옵션>...>] [I<E<lt>파일E<gt>...>]"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:18
+ msgid "B<lzmadec> [I<option...>] [I<file...>]"
+ msgstr "B<lzmadec> [I<<옵션>...>] [I<E<lt>파일E<gt>...>]"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:44
+ msgid "B<xzdec> is a liblzma-based decompression-only tool for B<.xz> (and only B<.xz>)  files.  B<xzdec> is intended to work as a drop-in replacement for B<xz>(1)  in the most common situations where a script has been written to use B<xz --decompress --stdout> (and possibly a few other commonly used options) to decompress B<.xz> files.  B<lzmadec> is identical to B<xzdec> except that B<lzmadec> supports B<.lzma> files instead of B<.xz> files."
+ msgstr "B<xzdec>은 liblzma 기반 B<.xz> (그리고 B<.xz> 확장자만) 파일 압축 해제 전용 도구 프로그램입니다.  B<xzdec> 은 B<xz>(1)  명령을 활용하여 B<.xz> 파일의 압축을 해제할 때 쓰던 B<xz --decompress --stdout> (그리고 일반적으로 쓰던 몇가지 다른 옵션도 같이) 명령을 작성하던 일상적인 경우를 대신하려 만든 결과물입니다.  B<lzmadec> 는 B<.xz> 파일 대신 B<.lzma> 파일을 지원하는 점만 다르며, 나머지는 B<xzdec>과 동일합니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:61
+ msgid "To reduce the size of the executable, B<xzdec> doesn't support multithreading or localization, and doesn't read options from B<XZ_DEFAULTS> and B<XZ_OPT> environment variables.  B<xzdec> doesn't support displaying intermediate progress information: sending B<SIGINFO> to B<xzdec> does nothing, but sending B<SIGUSR1> terminates the process instead of displaying progress information."
+ msgstr "실행 파일 크기를 줄이려는 목적으로, B<xzdec> 에서는 다중-스레드 실행 또는 현지 언어 표기를 지원하지 않으며 B<XZ_DEFAULTS> 환경 변수와 B<XZ_OPT> 환경 변수의 옵션 값을 읽지 않습니다.  B<xzdec>은 단계별 진행 정보를 표시하지 않습니다. B<xzdec> 명령어로 B<SIGINFO> 시그널을 보내면 아무 동작도 취하지 않지만, B<SIGUSR1> 시그널을 보내면 프 정보를 표시하는 대신 프로세스를 끝냅니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:69
+ msgid "Ignored for B<xz>(1)  compatibility.  B<xzdec> supports only decompression."
+ msgstr "B<xz>(1)  호환성을 문제로 무시합니다.  B<xzdec>은 압축 해제 기능만 지원합니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:76
+ msgid "Ignored for B<xz>(1)  compatibility.  B<xzdec> never creates or removes any files."
+ msgstr "B<xz>(1)  호환성을 문제로 무시합니다.  B<xzdec>은 어떤 파일도 만들거나 제거하지 않습니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:83
+ msgid "Ignored for B<xz>(1)  compatibility.  B<xzdec> always writes the decompressed data to standard output."
+ msgstr "B<xz>(1)  호환성을 문제로 무시합니다.  B<xzdec>은 항상 압축 해제한 데이터를 표준 출력으로만 기록합니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:89
+ msgid "Specifying this once does nothing since B<xzdec> never displays any warnings or notices.  Specify this twice to suppress errors."
+ msgstr "이 옵션을 한번 지정하면 B<xzdec>에서 어떤 경고나 알림을 표시하지 않기 때문에 아무런 동작도 취하지 않습니다.  오류 메시지를 표시하지 않으려면 이 옵션을 두번 지정하십시오."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:96
+ msgid "Ignored for B<xz>(1)  compatibility.  B<xzdec> never uses the exit status 2."
+ msgstr "B<xz>(1)  호환성을 문제로 무시합니다.  B<xzdec>은 종료 코드 2번을 사용하지 않습니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:99
+ msgid "Display a help message and exit successfully."
+ msgstr "도움말 메시지를 나타내고 무사히 나갑니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:104
+ msgid "Display the version number of B<xzdec> and liblzma."
+ msgstr "B<xzdec>과 liblzma의 버전 번호를 나타냅니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:108
+ msgid "All was good."
+ msgstr "모든 상태 양호."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:117
+ msgid "B<xzdec> doesn't have any warning messages like B<xz>(1)  has, thus the exit status 2 is not used by B<xzdec>."
+ msgstr "B<xzdec> 은 B<xz>에 있는 경고 메시지를 출력하지 않기 때문에 B<xzdec> 에서는 종료 코드 2번을 사용하지 않습니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:131
+ msgid "Use B<xz>(1)  instead of B<xzdec> or B<lzmadec> for normal everyday use.  B<xzdec> or B<lzmadec> are meant only for situations where it is important to have a smaller decompressor than the full-featured B<xz>(1)."
+ msgstr "보통 매일 사용하실 목적이라면 B<xzdec> 또는 B<lzmadec> 대신 B<xz> 명령을 사용하십시오.  B<xzdec> 또는 B<lzmadec>은 완전한 기능을 갖춘 B<xz>(1) 보다는 작은 압축 해제 프로그램을 사용해야 할 경우에만 사용하라고 있는 명령입니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:143
+ msgid "B<xzdec> and B<lzmadec> are not really that small.  The size can be reduced further by dropping features from liblzma at compile time, but that shouldn't usually be done for executables distributed in typical non-embedded operating system distributions.  If you need a truly small B<.xz> decompressor, consider using XZ Embedded."
+ msgstr "B<xzdec> 과 B<lzmadec>  은 실제로 그렇게 작은건 아닙니다.  컴파일 시간에 liblzma에서 얼마나 기능을 떨궈내느냐에 따라 더 줄어들 수도 있습니다만, 보통 임베디드 운영체제 배포판이 아닌 경우는 이렇게 할 수가 없습니다.  실제로 작은 B<.xz> 압축 해제 프로그램이 필요하다면 XZ 임베디드 사용을 고려하십시오."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:145 ../src/lzmainfo/lzmainfo.1:60
+ msgid "B<xz>(1)"
+ msgstr "B<xz>(1)"
+ 
+ #. type: TH
+ #: ../src/lzmainfo/lzmainfo.1:7
+ #, no-wrap
+ msgid "LZMAINFO"
+ msgstr "LZMAINFO"
+ 
+ #. type: TH
+ #: ../src/lzmainfo/lzmainfo.1:7 ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "2013-06-30"
+ msgstr "2013-06-30"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:10
+ msgid "lzmainfo - show information stored in the .lzma file header"
+ msgstr "lzmainfo - .lzma 파일 헤더에 들어있는 정보를 보여줍니다"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:15
+ msgid "B<lzmainfo> [B<--help>] [B<--version>] [I<file...>]"
+ msgstr "B<lzmainfo> [B<--help>] [B<--version>] [I<E<lt>파일E<gt>...>]"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:31
+ msgid "B<lzmainfo> shows information stored in the B<.lzma> file header.  It reads the first 13 bytes from the specified I<file>, decodes the header, and prints it to standard output in human readable format.  If no I<files> are given or I<file> is B<->, standard input is read."
+ msgstr "B<lzmainfo> 는 B<.lzma> 파일 헤더에 들어있는 정보를 보여줍니다.  지정 I<E<lt>파일E<gt>>에서 13바이트를 우선 읽어 헤더를 디코딩한 후, 가독 형식으로 표준 출력에 보여줍니다.  I<E<lt>파일E<gt>>을 지정하지 않거나 I<E<lt>파일E<gt>> 값이 I<-> 이면 표준 입력을 읽습니다."
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:40
+ msgid "Usually the most interesting information is the uncompressed size and the dictionary size.  Uncompressed size can be shown only if the file is in the non-streamed B<.lzma> format variant.  The amount of memory required to decompress the file is a few dozen kilobytes plus the dictionary size."
+ msgstr "보통 대부분 관심있는 정보는 압축 해제 용량과 딕서너리 크기입니다.  압축 해제 용량의 경우 파일이 비스트림 B<.lzma> 형식 계열인 경우에만 나타납니다.  파일 압축 해제 필요 메모리 용량은 수십 킬로바이트에 딕셔너리 크기를 합친 값입니다."
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:44
+ msgid "B<lzmainfo> is included in XZ Utils primarily for backward compatibility with LZMA Utils."
+ msgstr "B<lzmainfo> 는 LZMA 유틸리티 하위 호환성을 목적으로 XZ 유틸리티에 기본으로 들어있습니다."
+ 
+ #. type: SH
+ #: ../src/lzmainfo/lzmainfo.1:51 ../src/scripts/xzdiff.1:74
+ #, no-wrap
+ msgid "BUGS"
+ msgstr "버그"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:59
+ msgid "B<lzmainfo> uses B<MB> while the correct suffix would be B<MiB> (2^20 bytes).  This is to keep the output compatible with LZMA Utils."
+ msgstr "B<lzmainfo> 프로그램은 B<MiB> (2^20 바이트) 용량 단위인데 (실제로) B<MB>를 사용합니다.  LZMA 유틸리티 출력 호환 유지가 목적입니다."
+ 
+ #. type: TH
+ #: ../src/scripts/xzdiff.1:9
+ #, no-wrap
+ msgid "XZDIFF"
+ msgstr "XZDIFF"
+ 
+ #. type: TH
+ #: ../src/scripts/xzdiff.1:9
+ #, no-wrap
+ msgid "2021-06-04"
+ msgstr "2021-06-04"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:12
+ msgid "xzcmp, xzdiff, lzcmp, lzdiff - compare compressed files"
+ msgstr "xzcmp, xzdiff, lzcmp, lzdiff - 압축 파일을 비교합니다"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:15
+ msgid "B<xzcmp> [I<cmp_options>] I<file1> [I<file2>]"
+ msgstr "B<xzcmp> [I<E<lt>비교_옵션E<gt>>] I<E<lt>파일1E<gt>> [I<E<lt>파일2E<gt>>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:18
+ msgid "B<xzdiff> [I<diff_options>] I<file1> [I<file2>]"
+ msgstr "B<xzdiff> [I<차이_옵션>] I<E<lt>파일1E<gt>> [I<E<lt>파일2E<gt>>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:21
+ msgid "B<lzcmp> [I<cmp_options>] I<file1> [I<file2>]"
+ msgstr "B<lzcmp> [I<E<lt>비교_옵션E<gt>>] I<E<lt>파일1E<gt>> [I<E<lt>파일2E<gt>>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:24
+ msgid "B<lzdiff> [I<diff_options>] I<file1> [I<file2>]"
+ msgstr "B<lzdiff> [I<E<lt>차이_옵션E<gt>>] I<E<lt>파일1E<gt>> [I<E<lt>파일2E<gt>>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:59
+ msgid "B<xzcmp> and B<xzdiff> invoke B<cmp>(1)  or B<diff>(1)  on files compressed with B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), or B<zstd>(1).  All options specified are passed directly to B<cmp>(1)  or B<diff>(1).  If only one file is specified, then the files compared are I<file1> (which must have a suffix of a supported compression format) and I<file1> from which the compression format suffix has been stripped.  If two files are specified, then they are uncompressed if necessary and fed to B<cmp>(1)  or B<diff>(1).  The exit status from B<cmp>(1)  or B<diff>(1)  is preserved unless a decompression error occurs; then exit status is 2."
+ msgstr "B<xzcmp> 와 B<xzdiff> 는 B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1) 로 압축한 파일에 대해 B<cmp>(1)  또는 B<diff>(1) 명령을 실행합니다. 지정한 모든 옵션은 직접 B<cmp>(1)  또는 B<diff>(1) 명령에 전달합니다.  파일 하나만 지정했을 경우 I<E<lt>파일1E<gt>>만 비교(지원 압축 형식 접미사를 넣어야 함)하며, I<E<lt>파일1E<gt>>의 지원 압축 형식 접미사는 빠집니다.  파일 둘을 지정하면, 필요한 경우 압축 해제하며, B<cmp>(1)  또는 B<diff>(1) 명령으로 전달합니다.  B<cmp>(1)  또는 B<diff>(1) 명령의 종료 상태는 압축 해제 오류가 나타나지 않는 한 보존됩니다. 압축 해제 오류가 나타나면 종료 상태는 2가 됩니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:65
+ msgid "The names B<lzcmp> and B<lzdiff> are provided for backward compatibility with LZMA Utils."
+ msgstr "B<lzcmp> 와 B<lzdiff> 명령은 LZMA 유틸리티 하위 호환성을 목적으로 제공합니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:74
+ msgid "B<cmp>(1), B<diff>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zdiff>(1)"
+ msgstr "B<cmp>(1), B<diff>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zdiff>(1)"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:79
+ msgid "Messages from the B<cmp>(1)  or B<diff>(1)  programs refer to temporary filenames instead of those specified."
+ msgstr "B<cmp>(1)  프로그램 또는 B<diff>(1)  프로그램에서 온 메시지는 지정한 파일 이름 대신 임시 파일 이름을 참조합니다."
+ 
+ #. type: TH
+ #: ../src/scripts/xzgrep.1:9
+ #, no-wrap
+ msgid "XZGREP"
+ msgstr "XZGREP"
+ 
+ #. type: TH
+ #: ../src/scripts/xzgrep.1:9
+ #, no-wrap
+ msgid "2022-07-19"
+ msgstr "2022-07-19"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:12
+ msgid "xzgrep - search compressed files for a regular expression"
+ msgstr "xzgrep - 정규 표현식을 활용하여 압축 파일을 검색합니다"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:18
+ msgid "B<xzgrep> [I<grep_options>] [B<-e>] I<pattern> [I<file...>]"
+ msgstr "B<xzgrep> [I<grep_options>] [B<-e>] I<E<lt>패턴E<gt>> [I<E<lt>파일E<gt>...>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:21
+ msgid "B<xzegrep> \\&..."
+ msgstr "B<xzegrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:24
+ msgid "B<xzfgrep> \\&..."
+ msgstr "B<xzfgrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:27
+ msgid "B<lzgrep> \\&..."
+ msgstr "B<lzgrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:30
+ msgid "B<lzegrep> \\&..."
+ msgstr "B<lzegrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:33
+ msgid "B<lzfgrep> \\&..."
+ msgstr "B<lzfgrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:49
+ msgid "B<xzgrep> invokes B<grep>(1)  on I<files> which may be either uncompressed or compressed with B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), or B<zstd>(1).  All options specified are passed directly to B<grep>(1)."
+ msgstr "B<xzgrep> 명령은 B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1) 로 압축을 했거나 하지 않은 I<E<lt>파일E<gt>>에 대해 B<grep>(1) 명령을 실행합니다.  모든 지정 옵션은 B<grep>(1)에 바로 전달합니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:62
+ msgid "If no I<file> is specified, then standard input is decompressed if necessary and fed to B<grep>(1).  When reading from standard input, B<gzip>(1), B<bzip2>(1), B<lzop>(1), and B<zstd>(1)  compressed files are not supported."
+ msgstr "지정한 I<E<lt>파일E<gt>>이 없다면, 필요에 따라 표준 입력 데이터 압축을 풀어내어 B<grep>(1)  에 전달합니다.  표준 입력에서 읽을 떄, B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1) 압축 파일은 지원하지 않습니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:81
+ msgid "If B<xzgrep> is invoked as B<xzegrep> or B<xzfgrep> then B<grep -E> or B<grep -F> is used instead of B<grep>(1).  The same applies to names B<lzgrep>, B<lzegrep>, and B<lzfgrep>, which are provided for backward compatibility with LZMA Utils."
+ msgstr "B<xzgrep>을 B<xzegrep> 또는 B<xzfgrep> 으로 실행하면 B<grep>(1)  대신  B<grep -E> 또는 B<grep -F> 명령을 활용합니다.  LZMA 유틸리티와 하위 호환성을 가진 B<lzgrep>, B<lzegrep>, B<lzfgrep> 명령에도 동일합니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:86
+ msgid "At least one match was found from at least one of the input files.  No errors occurred."
+ msgstr "최소한 하나 이상의 파일에서 하나 이상의 일치하는 결과를 찾았습니다.  오류가 없습니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:90
+ msgid "No matches were found from any of the input files.  No errors occurred."
+ msgstr "어떤 입력 파일에서든 일치하는 내용이 없습니다.  오류가 없습니다."
+ 
+ #. type: TP
+ #: ../src/scripts/xzgrep.1:90
+ #, no-wrap
+ msgid "E<gt>1"
+ msgstr "E<gt>1"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:94
+ msgid "One or more errors occurred.  It is unknown if matches were found."
+ msgstr "하나 이상의 오류가 나타납니다.  일치하는 항목을 찾아낼 지 여부는 알 수 없습니다."
+ 
+ #. type: TP
+ #: ../src/scripts/xzgrep.1:95
+ #, no-wrap
+ msgid "B<GREP>"
+ msgstr "B<GREP>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:106
+ msgid "If the B<GREP> environment variable is set, B<xzgrep> uses it instead of B<grep>(1), B<grep -E>, or B<grep -F>."
+ msgstr "B<GREP> 환경 변수를 설정하면, B<xzgrep>을 B<grep>(1), B<grep -E>, B<grep -F> 환경 변수 대신 활용합니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:113
+ msgid "B<grep>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zgrep>(1)"
+ msgstr "B<grep>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zgrep>(1)"
+ 
+ #. type: TH
+ #: ../src/scripts/xzless.1:10
+ #, no-wrap
+ msgid "XZLESS"
+ msgstr "XZLESS"
+ 
+ #. type: TH
+ #: ../src/scripts/xzless.1:10
+ #, no-wrap
+ msgid "2010-09-27"
+ msgstr "2010-09-27"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:13
+ msgid "xzless, lzless - view xz or lzma compressed (text) files"
+ msgstr "xzless, lzless - xz 또는 lzma 압축 (텍스트) 파일을 봅니다"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:16
+ msgid "B<xzless> [I<file>...]"
+ msgstr "B<xzless> [I<E<lt>파일E<gt>>...]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:19
+ msgid "B<lzless> [I<file>...]"
+ msgstr "B<lzless> [I<E<lt>파일E<gt>>...]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:31
+ msgid "B<xzless> is a filter that displays text from compressed files to a terminal.  It works on files compressed with B<xz>(1)  or B<lzma>(1).  If no I<files> are given, B<xzless> reads from standard input."
+ msgstr "B<xzless> 는 압축 파일을 터미널에 나타내는 필터 프로그램입니다.  B<xz>(1)  또는 B<lzma>(1) 프로그램으로 압축한 파일에 대해 동작합니다.  주어진 I<E<lt>파일E<gt>> 값이 없다면, B<xzless> 는 표준 입력을 읽어들입니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:48
+ msgid "B<xzless> uses B<less>(1)  to present its output.  Unlike B<xzmore>, its choice of pager cannot be altered by setting an environment variable.  Commands are based on both B<more>(1)  and B<vi>(1)  and allow back and forth movement and searching.  See the B<less>(1)  manual for more information."
+ msgstr "B<xzless> 는 B<less>(1)  를 사용하여 출력을 막습니다.  B<xzmore>  와는 다르게, 환경 변수 설정으로 선택한 페이저를 바꿀 수 없습니다.  명령은 B<more>(1)  와 B<vi>(1)  가 기반이며, 앞뒤로 움직이고 검색할 수 있습니다.  자세한 정보는 B<less>(1)  설명서를 참고하십시오."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:52
+ msgid "The command named B<lzless> is provided for backward compatibility with LZMA Utils."
+ msgstr "B<lzless> 명령은 LZMA 유틸리티 하위 호환용으로 제공합니다."
+ 
+ #. type: TP
+ #: ../src/scripts/xzless.1:53
+ #, no-wrap
+ msgid "B<LESSMETACHARS>"
+ msgstr "B<LESSMETACHARS>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:59
+ msgid "A list of characters special to the shell.  Set by B<xzless> unless it is already set in the environment."
+ msgstr "셸에서 동작할 수도 있는 특수 문자 목록입니다.  환경에 미리 설정해두지 않았다면 B<xzless>에서 설정합니다."
+ 
+ #. type: TP
+ #: ../src/scripts/xzless.1:59
+ #, no-wrap
+ msgid "B<LESSOPEN>"
+ msgstr "B<LESSOPEN>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:65
+ msgid "Set to a command line to invoke the B<xz>(1)  decompressor for preprocessing the input files to B<less>(1)."
+ msgstr "입력 파일을 B<less>(1)  에 전달하기 전에 B<xz>(1)  압축 해제 프로그램을 실행해서 미리 처리하는 명령행을 설정합니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:69
+ msgid "B<less>(1), B<xz>(1), B<xzmore>(1), B<zless>(1)"
+ msgstr "B<less>(1), B<xz>(1), B<xzmore>(1), B<zless>(1)"
+ 
+ #. type: TH
+ #: ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "XZMORE"
+ msgstr "XZMORE"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:10
+ msgid "xzmore, lzmore - view xz or lzma compressed (text) files"
+ msgstr "xzmore, lzmore - xz 압축 (텍스트) 파일 또는 lzma 압축 (텍스트) 파일을 봅니다"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:13
+ msgid "B<xzmore> [I<file...>]"
+ msgstr "B<xzmore> [I<E<lt>파일E<gt>...>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:16
+ msgid "B<lzmore> [I<file...>]"
+ msgstr "B<lzmore> [I<E<lt>파일E<gt>...>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:24
+ msgid "B<xzmore> is a filter which allows examination of B<xz>(1)  or B<lzma>(1)  compressed text files one screenful at a time on a soft-copy terminal."
+ msgstr "B<xzmore> 는 B<xz>(1)  또는 B<lzma>(1)  형식으로 압축한 텍스트 파일을 한 번에 한 화면만큼 소프트-복제 터미널에 표시하는 필터입니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:33
+ msgid "To use a pager other than the default B<more,> set environment variable B<PAGER> to the name of the desired program.  The name B<lzmore> is provided for backward compatibility with LZMA Utils."
+ msgstr "기본 B<more> 대신 다른 페이저 프로그램을 사용하려면,  B<PAGER> 환경 변수에 원하는 프로그램 이름을 넣으십시오.  B<lzmore>의 이름은 LZMA 유틸리티의 하위 호환성을 목적으로 제공합니다."
+ 
+ #. type: TP
+ #: ../src/scripts/xzmore.1:33
+ #, no-wrap
+ msgid "B<e> or B<q>"
+ msgstr "B<e> 또는 B<q>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:40
+ msgid "When the prompt --More--(Next file: I<file>)  is printed, this command causes B<xzmore> to exit."
+ msgstr "--More--(다음 파일: I<E<lt>파일E<gt>>)  프롬프트가 뜨면, 이 명령은 B<xzmore>를 빠져나가게 합니다."
+ 
+ #. type: TP
+ #: ../src/scripts/xzmore.1:40
+ #, no-wrap
+ msgid "B<s>"
+ msgstr "B<s>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:47
+ msgid "When the prompt --More--(Next file: I<file>)  is printed, this command causes B<xzmore> to skip the next file and continue."
+ msgstr "--More--(다음 파일: I<E<lt>파일E<gt>>)  프롬프트가 뜨면, 이 명령은 B<xzmore>에서 다음 파일로 건너뛰어 계속 실행하게 합니다."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:51
+ msgid "For list of keyboard commands supported while actually viewing the content of a file, refer to manual of the pager you use, usually B<more>(1)."
+ msgstr "파일 내용을 실제로 보는 동안 지원하는 키보드 명령 목록을 보려면, B<more>(1)  와 같은 사용하는 페이저의 설명서를 참고하십시오."
+ 
+ #. type: Plain text
  #: ../src/scripts/xzmore.1:55
  msgid "B<more>(1), B<xz>(1), B<xzless>(1), B<zmore>(1)"
  msgstr "B<more>(1), B<xz>(1), B<xzless>(1), B<zmore>(1)"

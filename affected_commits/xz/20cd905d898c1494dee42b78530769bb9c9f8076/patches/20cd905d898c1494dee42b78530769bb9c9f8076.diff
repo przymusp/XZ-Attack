@@ -13,7 +13,26 @@ diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
 index 8ce082d7..1691b5a8 100644
 --- a/.github/workflows/ci.yml
 +++ b/.github/workflows/ci.yml
-@@ -20,18 +20,43 @@ on:
+@@ -1,184 +1,125 @@
+ #############################################################################
+ #
+ # Author: Jia Tan
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ #############################################################################
+ 
+ name: CI
+ 
+ on:
+   # Triggers the workflow on push or pull request events but only for the master branch
+   push:
+     branches: [ master ]
+   pull_request:
+     branches: [ master ]
+ 
+   # Allows running workflow manually
    workflow_dispatch:
  
  jobs:
@@ -64,7 +83,7 @@ index 8ce082d7..1691b5a8 100644
        # -b specifies the build system to use.
        # -p specifies the phase (build or test) to help narrow down an error
        #    if one occurs.
-@@ -39,146 +64,62 @@ jobs:
+       #
        # Start with the 32-bit build because the autoconf cache must be reset
        # after the build because the 32-bit build sets the CFLAGS env variable.
        # By starting with the 32-bit build, we only have to clear the

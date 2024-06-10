@@ -8,7 +8,7 @@ diff --git a/po/uk.po b/po/uk.po
 index 9ae8f914..bd75a8dd 100644
 --- a/po/uk.po
 +++ b/po/uk.po
-@@ -1,13 +1,13 @@
+@@ -1,1086 +1,1083 @@
  # Ukrainian translation for xz.
  # This file is put in the public domain.
  #
@@ -27,7 +27,10 @@ index 9ae8f914..bd75a8dd 100644
  "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
  "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
  "Language: uk\n"
-@@ -18,51 +18,57 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ "X-Bugs: Report translation errors to the Language-Team address.\n"
  "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
  "X-Generator: Lokalize 20.12.0\n"
  
@@ -95,7 +98,71 @@ index 9ae8f914..bd75a8dd 100644
  #: src/xz/coder.c:115
  msgid "Maximum number of filters is four"
  msgstr "Максимальна кількість фільтрів — чотири"
-@@ -134,11 +140,11 @@ msgstr "Скориговано розмір словника LZMA%c з %s МіБ
+ 
+ #: src/xz/coder.c:134
+ msgid "Memory usage limit is too low for the given filter setup."
+ msgstr "Обмеження на використання пам'яті є надто жорстким для вказаного налаштування фільтрів."
+ 
+ #: src/xz/coder.c:169
+ msgid "Using a preset in raw mode is discouraged."
+ msgstr "Не варто користуватися визначенням рівня у режимі без обробки."
+ 
+ #: src/xz/coder.c:171
+ msgid "The exact options of the presets may vary between software versions."
+ msgstr "Точний перелік параметрів рівнів може залежати від версій програмного забезпечення."
+ 
+ #: src/xz/coder.c:194
+ msgid "The .lzma format supports only the LZMA1 filter"
+ msgstr "У форматі .lzma передбачено підтримку лише фільтра LZMA1"
+ 
+ #: src/xz/coder.c:202
+ msgid "LZMA1 cannot be used with the .xz format"
+ msgstr "LZMA1 не можна використовувати разом із визначенням формату .xz"
+ 
+ #: src/xz/coder.c:219
+ msgid "The filter chain is incompatible with --flush-timeout"
+ msgstr "Ланцюжок фільтрування є несумісним із параметром --flush-timeout"
+ 
+ #: src/xz/coder.c:225
+ msgid "Switching to single-threaded mode due to --flush-timeout"
+ msgstr "Перемикаємося на однопотоковий режим через використання --flush-timeout"
+ 
+ #: src/xz/coder.c:249
+ #, c-format
+ msgid "Using up to %<PRIu32> threads."
+ msgstr "Використовуємо до %<PRIu32> потоків обробки."
+ 
+ #: src/xz/coder.c:265
+ msgid "Unsupported filter chain or filter options"
+ msgstr "Непідтримуваний ланцюжок фільтрування або непідтримувані параметри фільтрування"
+ 
+ #: src/xz/coder.c:277
+ #, c-format
+ msgid "Decompression will need %s MiB of memory."
+ msgstr "Для розпаковування знадобляться %s МіБ пам'яті."
+ 
+ #: src/xz/coder.c:309
+ #, c-format
+ msgid "Reduced the number of threads from %s to %s to not exceed the memory usage limit of %s MiB"
+ msgstr "Зменшено кількість потоків обробки з %s до %s, щоб не перевищувати обмеження щодо використання пам'яті у %s МіБ"
+ 
+ #: src/xz/coder.c:329
+ #, c-format
+ msgid "Reduced the number of threads from %s to one. The automatic memory usage limit of %s MiB is still being exceeded. %s MiB of memory is required. Continuing anyway."
+ msgstr "Кількість потоків обробки зменшено з %s до одного. Автоматичне обмеження використання пам'яті у %s МіБ усе ще перевищено. Потрібно %s МіБ пам'яті. Продовжуємо роботу попри це."
+ 
+ #: src/xz/coder.c:356
+ #, c-format
+ msgid "Switching to single-threaded mode to not exceed the memory usage limit of %s MiB"
+ msgstr "Перемикаємося на однопотоковий режим, щоб не перевищувати обмеження щодо використання пам'яті у %s МіБ"
+ 
+ #: src/xz/coder.c:411
+ #, c-format
+ msgid "Adjusted LZMA%c dictionary size from %s MiB to %s MiB to not exceed the memory usage limit of %s MiB"
+ msgstr "Скориговано розмір словника LZMA%c з %s МіБ до %s МіБ, щоб не перевищувати обмеження на використання пам'яті у %s МіБ"
+ 
+ #: src/xz/file_io.c:110 src/xz/file_io.c:118
+ #, c-format
  msgid "Error creating a pipe: %s"
  msgstr "Помилка під час створення каналу: %s"
  
@@ -109,7 +176,14 @@ index 9ae8f914..bd75a8dd 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s: помилка poll(): %s"
-@@ -153,252 +159,252 @@ msgstr "%s: помилка poll(): %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -419,7 +493,7 @@ index 9ae8f914..bd75a8dd 100644
  msgid "Filters"
  msgstr "Фільтри"
  
-@@ -406,7 +412,7 @@ msgstr "Фільтри"
+ #. TRANSLATORS: Indicates that there is no integrity check.
  #. This string is used in tables. In older xz version this
  #. string was limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -428,7 +502,7 @@ index 9ae8f914..bd75a8dd 100644
  msgid "None"
  msgstr "Немає"
  
-@@ -414,60 +420,60 @@ msgstr "Немає"
+ #. TRANSLATORS: Indicates that integrity check name is not known,
  #. but the Check ID is known (here 2). In older xz version these
  #. strings were limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -503,7 +577,8 @@ index 9ae8f914..bd75a8dd 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s: є надто малим для коректного файла .xz"
-@@ -476,26 +482,26 @@ msgstr "%s: є надто малим для коректного файла .xz"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -535,7 +610,7 @@ index 9ae8f914..bd75a8dd 100644
  #, c-format
  msgid "%s file\n"
  msgid_plural "%s files\n"
-@@ -503,15 +509,15 @@ msgstr[0] "%s файл\n"
+ msgstr[0] "%s файл\n"
  msgstr[1] "%s файли\n"
  msgstr[2] "%s файлів\n"
  
@@ -554,7 +629,35 @@ index 9ae8f914..bd75a8dd 100644
  msgid "--list does not support reading from standard input"
  msgstr "Використання --list скасовує підтримку читання зі стандартного джерела вхідних даних"
  
-@@ -547,63 +553,63 @@ msgstr "Читання даних зі стандартного джерела 
+ #: src/xz/main.c:89
+ #, c-format
+ msgid "%s: Error reading filenames: %s"
+ msgstr "%s: помилка під час читання назв файлів: %s"
+ 
+ #: src/xz/main.c:96
+ #, c-format
+ msgid "%s: Unexpected end of input when reading filenames"
+ msgstr "%s: неочікуваний кінець вхідних даних під час читання назв файлів"
+ 
+ #: src/xz/main.c:120
+ #, c-format
+ msgid "%s: Null character found when reading filenames; maybe you meant to use `--files0' instead of `--files'?"
+ msgstr "%s: під час читання назв файлів виявлено нуль-символ; можливо, ви хотіли скористатися --files0, а не --files?"
+ 
+ #: src/xz/main.c:188
+ msgid "Compression and decompression with --robot are not supported yet."
+ msgstr "У поточній версії ще не передбачено підтримки стискання або розпаковування з параметром --robot."
+ 
+ #: src/xz/main.c:266
+ msgid "Cannot read data from standard input when reading filenames from standard input"
+ msgstr "Читання даних зі стандартного джерела вхідних даних неможливе, якщо зі стандартного джерела даних виконується читання назв файлів standard input"
+ 
+ #. TRANSLATORS: This is the program name in the beginning
+ #. of the line in messages. Usually it becomes "xz: ".
+ #. This is a translatable string because French needs
+ #. a space before a colon.
+ #: src/xz/message.c:725
+ #, c-format
  msgid "%s: "
  msgstr "%s: "
  
@@ -632,7 +735,10 @@ index 9ae8f914..bd75a8dd 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -614,17 +620,17 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Користування: %s [ПАРАМЕТР]... [ФАЙЛ]...\n"
  "Стиснути або розпакувати файли у форматі .xz.\n"
  "\n"
  
@@ -653,7 +759,11 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -636,7 +642,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      примусово стиснути\n"
+ "  -d, --decompress    примусово розпакувати\n"
  "  -t, --test          перевірити цілісність стиснених файлів\n"
  "  -l, --list          вивести дані щодо файлів .xz"
  
@@ -662,7 +772,7 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -644,7 +650,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Модифікатори дій:\n"
  
@@ -671,7 +781,11 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -656,7 +662,7 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          зберігати (не вилучати) вхідні файли\n"
+ "  -f, --force         примусово перезаписувати вихідний файл і (роз)пакувати\n"
+ "                      посилання\n"
  "  -c, --stdout        записувати дані до стандартного виведення і не вилучати\n"
  "                      вхідні файли"
  
@@ -680,7 +794,7 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
-@@ -664,7 +670,7 @@ msgstr ""
+ msgstr ""
  "      --single-stream розпакувати лише перший потік і без запитань\n"
  "                      ігнорувати решту вхідних даних"
  
@@ -689,7 +803,17 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "      --no-sparse     do not create sparse files when decompressing\n"
  "  -S, --suffix=.SUF   use the suffix `.SUF' on compressed files\n"
-@@ -682,7 +688,7 @@ msgstr ""
+ "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
+ "                      omitted, filenames are read from the standard input;\n"
+ "                      filenames must be terminated with the newline character\n"
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     не створювати розріджених файлів під час розпаковування\n"
+ "  -S, --suffix=.SUF   використовувати суфікс .SUF для стиснених файлів\n"
+ "      --files[=ФАЙЛ]  прочитати назви файлів для обробки з файла ФАЙЛ; якщо\n"
+ "                      ФАЙЛ не вказано, назви файлів буде прочитано зі\n"
+ "                      стандартного джерела введення; список назв файлів має\n"
+ "                      бути завершено символом нового рядка\n"
  "      --files0[=ФАЙЛ] подібний до --files, але список файлів завершується\n"
  "                      нуль-символом"
  
@@ -698,7 +822,7 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -690,7 +696,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Базові параметри формату файлів і стискання:\n"
  
@@ -707,7 +831,11 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "  -F, --format=FMT    file format to encode or decode; possible values are\n"
  "                      `auto' (default), `xz', `lzma', `lzip', and `raw'\n"
-@@ -702,11 +708,11 @@ msgstr ""
+ "  -C, --check=CHECK   integrity check type: `none' (use with caution),\n"
+ "                      `crc32', `crc64' (default), or `sha256'"
+ msgstr ""
+ "  -F, --format=ФОРМАТ формат файлів для кодування або декодування; можливими\n"
+ "                      є значення auto (типове), xz, lzma, lzip та raw\n"
  "  -C, --check=ТИП     тип перевірки цілісності: none («немає», будьте обережні),\n"
  "                      crc32, crc64 (типовий) або sha256"
  
@@ -721,7 +849,8 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -715,7 +721,7 @@ msgstr ""
+ msgstr ""
+ "  -0 ... -9           рівень стискання; типовим є 6; візьміть до уваги\n"
  "                      параметри використання пам'яті для пакування і\n"
  "                      розпакування, перш ніж використовувати рівні 7-9!"
  
@@ -730,7 +859,8 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -724,7 +730,7 @@ msgstr ""
+ msgstr ""
+ "  -e, --extreme       спробувати поліпшити рівень стискання ширшим використанням\n"
  "                      процесора; не впливає на вимоги щодо пам'яті для\n"
  "                      розпаковування"
  
@@ -739,7 +869,9 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "  -T, --threads=NUM   use at most NUM threads; the default is 1; set to 0\n"
  "                      to use as many threads as there are processor cores"
-@@ -734,7 +740,7 @@ msgstr ""
+ msgstr ""
+ "  -T, --threads=N     використовувати не більше N потоків; типовим є\n"
+ "                      значення 1; встановіть значення 0, щоб програма\n"
  "                      використовувала стільки потоків, скільки є ядер\n"
  "                      у процесора"
  
@@ -748,7 +880,11 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "      --block-size=SIZE\n"
  "                      start a new .xz block after every SIZE bytes of input;\n"
-@@ -746,7 +752,7 @@ msgstr ""
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=РОЗМІР\n"
+ "                      розпочинати новий файл .xz кожні РОЗМІР байтів вхідних\n"
+ "                      даних; цим параметром слід користуватися для\n"
  "                      встановлення розміру блоку для пакування у декілька\n"
  "                      потоків"
  
@@ -757,7 +893,9 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "      --block-list=SIZES\n"
  "                      start a new .xz block after the given comma-separated\n"
-@@ -756,7 +762,7 @@ msgstr ""
+ "                      intervals of uncompressed data"
+ msgstr ""
+ "      --block-list=РОЗМІРИ\n"
  "                      розпочинати нові блоки .xz після вказаних інтервалів\n"
  "                      нестиснених даних; записи відокремлюються комами"
  
@@ -766,7 +904,12 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -769,7 +775,7 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
+ "      --flush-timeout=ЧАС_ОЧІКУВАННЯ\n"
+ "                      під час стискання, якщо з часу попереднього спорожнення\n"
+ "                      буфера і читання додаткового блоку вхідних даних\n"
  "                      минуло більше за ЧАС_ОЧІКУВАННЯ мілісекунд, витерти\n"
  "                      усі дані у черзі"
  
@@ -775,7 +918,18 @@ index 9ae8f914..bd75a8dd 100644
  #, no-c-format
  msgid ""
  "      --memlimit-compress=LIMIT\n"
-@@ -788,7 +794,7 @@ msgstr ""
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"
+ msgstr ""
+ "      --memlimit-compress=ОБМЕЖЕННЯ\n"
+ "      --memlimit-decompress=ОБМЕЖЕННЯ\n"
+ "  -M, --memlimit=ОБМЕЖЕННЯ\n"
+ "                      встановити обмеження на використання пам'яті для\n"
+ "                      стискання, розпаковування, потокового розпаковування\n"
  "                      або усіх режимів; ОБМЕЖЕННЯ слід вказувати у байтах,\n"
  "                      % RAM або вказати 0 (типове значення)"
  
@@ -784,7 +938,8 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -797,7 +803,7 @@ msgstr ""
+ msgstr ""
+ "      --no-adjust     якщо параметри стискання призводять до перевищення\n"
  "                      обмежень на пам'ять, вивести помилку і не коригувати\n"
  "                      параметри"
  
@@ -793,7 +948,8 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -806,7 +812,7 @@ msgstr ""
+ msgstr ""
+ "\n"
  " Нетиповий ланцюжок фільтрування для стискання (альтернатива використання\n"
  " рівнів):"
  
@@ -802,7 +958,30 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -837,7 +843,7 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=ПАРАМЕТРИ]   LZMA1 або LZMA2; ПАРАМЕТРИ — відокремлений комами список\n"
+ "  --lzma2[=ПАРАМЕТРИ]   нуля або декількох параметрів (коректні значення;\n"
+ "                        типове):\n"
+ "                          preset=РІВ скинути параметри до рівня (0-9[e])\n"
+ "                          dict=N     розмір словника (4KiB - 1536MiB; 8MiB)\n"
+ "                          lc=N       кількість буквальних контекстних бітів\n"
+ "                                     (0-4; 3)\n"
+ "                          lp=N       кількість буквальних бітів позицій (0-4; 0)\n"
+ "                          pb=N       кількість бітів позицій (0-4; 2)\n"
+ "                          mode=РЕЖИМ режим стискання (fast, normal; normal)\n"
+ "                          nice=N     довжина відповідності nice (2-273; 64)\n"
+ "                          mf=НАЗВА   пошук відповідності (hc3, hc4, bt2, bt3,\n"
  "                                     bt4; bt4)\n"
  "                          depth=N    макс. глибина пошуку; 0=авто (типова)"
  
@@ -811,7 +990,23 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "\n"
  "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
-@@ -861,7 +867,7 @@ msgstr ""
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
+ "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
+ "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
+ "  --sparc[=OPTS]      SPARC BCJ filter\n"
+ "                      Valid OPTS for all BCJ filters:\n"
+ "                        start=NUM  start offset for conversions (default=0)"
+ msgstr ""
+ "\n"
+ "  --x86[=ПАРАМ]      фільтр BCJ x86 (32-бітовий і 64-бітовий)\n"
+ "  --arm[=ПАРАМ]      фільтр BCJ ARM\n"
+ "  --armthumb[=ПАРАМ] фільтр BCJ ARM-Thumb\n"
+ "  --arm64[=ПАРАМ]    фільтр BCJ ARM64\n"
+ "  --powerpc[=ПАРАМ]  фільтр BCJ PowerPC (лише зворотний порядок байтів)\n"
+ "  --ia64[=ПАРАМ]     фільтр BCJ IA-64 (Itanium)\n"
+ "  --sparc[=ПАРАМ]    фільтр BCJ SPARC\n"
  "                     Коректні значення ПАРАМЕТРИ для усіх фільтрів BCJ:\n"
  "                      start=N початковий зсув для перетворень (типовий=0)"
  
@@ -820,7 +1015,11 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -873,7 +879,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=ПАРАМЕТРИ]    дельта-фільтр; коректні ПАРАМЕТРИ (значення; типове):\n"
  "                           dist=N  відстань між байтами, які віднімаються\n"
  "                                   один від одного (1-256; 1)"
  
@@ -829,7 +1028,7 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -881,7 +887,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Інші параметри:\n"
  
@@ -838,7 +1037,9 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -891,17 +897,17 @@ msgstr ""
+ msgstr ""
+ "  -q, --quiet         придушити попередження; вкажіть двічі, щоб придушити\n"
+ "                      помилки\n"
  "  -v, --verbose       режим докладних повідомлень; вкажіть двічі, щоб підвищити\n"
  "                      докладність"
  
@@ -859,7 +1060,7 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "      --info-memory   display the total amount of RAM and the currently active\n"
  "                      memory usage limits, and exit"
-@@ -909,7 +915,7 @@ msgstr ""
+ msgstr ""
  "      --info-memory   вивести загальні дані щодо оперативної пам'яті і поточних\n"
  "                      обмежень щодо її використання, потім завершити роботу"
  
@@ -868,7 +1069,9 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "  -h, --help          display the short help (lists only the basic options)\n"
  "  -H, --long-help     display this long help and exit"
-@@ -919,7 +925,7 @@ msgstr ""
+ msgstr ""
+ "  -h, --help          вивести коротке довідкове повідомлення (лише базові\n"
+ "                      параметри)\n"
  "  -H, --long-help     вивести це розширене довідкове повідомлення і завершити\n"
  "                      роботу"
  
@@ -877,7 +1080,8 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "  -h, --help          display this short help and exit\n"
  "  -H, --long-help     display the long help (lists also the advanced options)"
-@@ -928,11 +934,11 @@ msgstr ""
+ msgstr ""
+ "  -h, --help          показати цю коротку довідку і завершити роботу\n"
  "  -H, --long-help     показати розгорнуту довідку (із усіма додатковими\n"
  "                      параметрами)"
  
@@ -891,7 +1095,12 @@ index 9ae8f914..bd75a8dd 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -945,19 +951,19 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "Якщо вхідний файл не вказаний, або якщо вказано символ -,\n"
+ "використовується стандартний ввід.\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -914,7 +1123,18 @@ index 9ae8f914..bd75a8dd 100644
  msgid "THIS IS A DEVELOPMENT VERSION NOT INTENDED FOR PRODUCTION USE."
  msgstr "ЦЕ ТЕСТОВА ВЕРСІЯ, ЯКУ НЕ ПРИЗНАЧЕНО ДЛЯ ПРОМИСЛОВОГО ВИКОРИСТАННЯ."
  
-@@ -976,38 +982,26 @@ msgstr "%s: некоректна назва параметра"
+ #: src/xz/options.c:86
+ #, c-format
+ msgid "%s: Options must be `name=value' pairs separated with commas"
+ msgstr "%s: параметри -- пари «назва=значення», відокремлені комами"
+ 
+ #: src/xz/options.c:93
+ #, c-format
+ msgid "%s: Invalid option name"
+ msgstr "%s: некоректна назва параметра"
+ 
+ #: src/xz/options.c:113
+ #, c-format
  msgid "%s: Invalid option value"
  msgstr "%s: некоректне значення параметра"
  
@@ -958,7 +1178,39 @@ index 9ae8f914..bd75a8dd 100644
  #, c-format
  msgid "%s: Invalid filename suffix"
  msgstr "%s: некоректний суфікс назви файла"
-@@ -1047,6 +1041,9 @@ msgstr "Не вдалося записати дані до стандартно
+ 
+ #: src/xz/util.c:71
+ #, c-format
+ msgid "%s: Value is not a non-negative decimal integer"
+ msgstr "%s: значення не є невід'ємним десятковим цілим"
+ 
+ #: src/xz/util.c:113
+ #, c-format
+ msgid "%s: Invalid multiplier suffix"
+ msgstr "%s: некоректний суфікс множника"
+ 
+ #: src/xz/util.c:115
+ msgid "Valid suffixes are `KiB' (2^10), `MiB' (2^20), and `GiB' (2^30)."
+ msgstr "Коректними є суфікси «KiB» (2^10), «MiB» (2^20) та «GiB» (2^30)."
+ 
+ #: src/xz/util.c:132
+ #, c-format
+ msgid "Value of the option `%s' must be in the range [%<PRIu64>, %<PRIu64>]"
+ msgstr "Значення параметра «%s» має належати до діапазону [%<PRIu64>, %<PRIu64>]"
+ 
+ #: src/xz/util.c:269
+ msgid "Compressed data cannot be read from a terminal"
+ msgstr "Стиснені дані неможливо прочитати з термінала"
+ 
+ #: src/xz/util.c:282
+ msgid "Compressed data cannot be written to a terminal"
+ msgstr "Стиснені дані неможливо записати до термінала"
+ 
+ #: src/common/tuklib_exit.c:40
+ msgid "Writing to standard output failed"
+ msgstr "Не вдалося записати дані до стандартного виведення"
+ 
+ #: src/common/tuklib_exit.c:43
  msgid "Unknown error"
  msgstr "Невідома помилка"
  
@@ -968,3 +1220,37 @@ index 9ae8f914..bd75a8dd 100644
  #~ msgid "Memory usage limit for compression:    "
  #~ msgstr "Обмеження пам'яті для пакування:        "
  
+ #~ msgid "  Streams:            %s\n"
+ #~ msgstr "  Потоки:                  %s\n"
+ 
+ #~ msgid "  Blocks:             %s\n"
+ #~ msgstr "  Блоки:                   %s\n"
+ 
+ #~ msgid "  Ratio:              %s\n"
+ #~ msgstr "  Коефіцієнт:              %s\n"
+ 
+ #~ msgid "  Check:              %s\n"
+ #~ msgstr "  Перевірка:               %s\n"
+ 
+ #~ msgid ""
+ #~ "  Streams:\n"
+ #~ "    Stream    Blocks      CompOffset    UncompOffset        CompSize      UncompSize  Ratio  Check      Padding"
+ #~ msgstr ""
+ #~ "  Потоки:\n"
+ #~ "     Потік     Блоки      ЗсувСтисн.    ЗсувНестисн.      РозмСтисн.     РозмНестисн  Коеф.  Перевірка  Доповнення"
+ 
+ #~ msgid ""
+ #~ "  Blocks:\n"
+ #~ "    Stream     Block      CompOffset    UncompOffset       TotalSize      UncompSize  Ratio  Check"
+ #~ msgstr ""
+ #~ "  Блоки:\n"
+ #~ "     Потік      Блок      ЗсувСтисн.    ЗсувНестисн.        ЗагРозм.     РозмНестисн  Коеф.  Перевірка"
+ 
+ #~ msgid "      CheckVal %*s Header  Flags        CompSize    MemUsage  Filters"
+ #~ msgstr "  ЗначПер %*s  Загол.  Прапорці    РозмСтисн      ВикПам  Фільтри"
+ 
+ #~ msgid "Sandbox is disabled due to incompatible command line arguments"
+ #~ msgstr "Пісочницю вимкнено через несумісні параметри у рядку команди"
+ 
+ #~ msgid "Sandbox was successfully enabled"
+ #~ msgstr "Пісочницю успішно увімкнено"

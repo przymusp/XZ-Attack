@@ -8,7 +8,11 @@ diff --git a/src/xz/args.c b/src/xz/args.c
 index 7af3e850..8b943530 100644
 --- a/src/xz/args.c
 +++ b/src/xz/args.c
-@@ -5,7 +5,8 @@
+@@ -1,852 +1,853 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       args.c
+ /// \brief      Argument parsing
  ///
  /// \note       Filter-specific options parsing is in options.c.
  //
@@ -18,11 +22,854 @@ index 7af3e850..8b943530 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ 
+ #include "getopt.h"
+ #include <ctype.h>
+ 
+ 
+ bool opt_stdout = false;
+ bool opt_force = false;
+ bool opt_keep_original = false;
+ bool opt_robot = false;
+ bool opt_ignore_check = false;
+ 
+ // We don't modify or free() this, but we need to assign it in some
+ // non-const pointers.
+ const char stdin_filename[] = "(stdin)";
+ 
+ 
+ /// Parse and set the memory usage limit for compression, decompression,
+ /// and/or multithreaded decompression.
+ static void
+ parse_memlimit(const char *name, const char *name_percentage, const char *str,
+ 		bool set_compress, bool set_decompress, bool set_mtdec)
+ {
+ 	bool is_percentage = false;
+ 	uint64_t value;
+ 
+ 	const size_t len = strlen(str);
+ 	if (len > 0 && str[len - 1] == '%') {
+ 		// Make a copy so that we can get rid of %.
+ 		//
+ 		// In the past str wasn't const and we modified it directly
+ 		// but that modified argv[] and thus affected what was visible
+ 		// in "ps auxf" or similar tools which was confusing. For
+ 		// example, --memlimit=50% would show up as --memlimit=50
+ 		// since the percent sign was overwritten here.
+ 		char *s = xstrdup(str);
+ 		s[len - 1] = '\0';
+ 		is_percentage = true;
+ 		value = str_to_uint64(name_percentage, s, 1, 100);
+ 		free(s);
+ 	} else {
+ 		// On 32-bit systems, SIZE_MAX would make more sense than
+ 		// UINT64_MAX. But use UINT64_MAX still so that scripts
+ 		// that assume > 4 GiB values don't break.
+ 		value = str_to_uint64(name, str, 0, UINT64_MAX);
+ 	}
+ 
+ 	hardware_memlimit_set(value, set_compress, set_decompress, set_mtdec,
+ 			is_percentage);
+ 	return;
+ }
+ 
+ 
+ static void
+ parse_block_list(const char *str_const)
+ {
+ 	// We need a modifiable string in the for-loop.
+ 	char *str_start = xstrdup(str_const);
+ 	char *str = str_start;
+ 
+ 	// It must be non-empty and not begin with a comma.
+ 	if (str[0] == '\0' || str[0] == ',')
+ 		message_fatal(_("%s: Invalid argument to --block-list"), str);
+ 
+ 	// Count the number of comma-separated strings.
+ 	size_t count = 1;
+ 	for (size_t i = 0; str[i] != '\0'; ++i)
+ 		if (str[i] == ',')
+ 			++count;
+ 
+ 	// Prevent an unlikely integer overflow.
+ 	if (count > SIZE_MAX / sizeof(block_list_entry) - 1)
+ 		message_fatal(_("%s: Too many arguments to --block-list"),
+ 				str);
+ 
+ 	// Allocate memory to hold all the sizes specified.
+ 	// If --block-list was specified already, its value is forgotten.
+ 	free(opt_block_list);
+ 	opt_block_list = xmalloc((count + 1) * sizeof(block_list_entry));
+ 
+ 	for (size_t i = 0; i < count; ++i) {
+ 		// Locate the next comma and replace it with \0.
+ 		char *p = strchr(str, ',');
+ 		if (p != NULL)
+ 			*p = '\0';
+ 
+ 		// Use the default filter chain unless overridden.
+ 		opt_block_list[i].filters_index = 0;
+ 
+ 		// To specify a filter chain, the block list entry may be
+ 		// prepended with "[filter-chain-number]:". The size is
+ 		// still required for every block.
+ 		// For instance:
+ 		// --block-list=2:10MiB,1:5MiB,,8MiB,0:0
+ 		//
+ 		// Translates to:
+ 		// 1. Block of 10 MiB using filter chain 2
+ 		// 2. Block of 5 MiB using filter chain 1
+ 		// 3. Block of 5 MiB using filter chain 1
+ 		// 4. Block of 8 MiB using the default filter chain
+ 		// 5. The last block uses the default filter chain
+ 		//
+ 		// The block list:
+ 		// --block-list=2:MiB,1:,0
+ 		//
+ 		// Is not allowed because the second block does not specify
+ 		// the block size, only the filter chain.
+ 		if (str[0] >= '0' && str[0] <= '9' && str[1] == ':') {
+ 			if (str[2] == '\0')
+ 				message_fatal(_("In --block-list, block "
+ 						"size is missing after "
+ 						"filter chain number `%c:'"),
+ 						str[0]);
+ 
+ 			int filter_num = str[0] - '0';
+ 			opt_block_list[i].filters_index =
+ 					(uint32_t)filter_num;
+ 			str += 2;
+ 		}
+ 
+ 		if (str[0] == '\0') {
+ 			// There is no string, that is, a comma follows
+ 			// another comma. Use the previous value.
+ 			//
+ 			// NOTE: We checked earlier that the first char
+ 			// of the whole list cannot be a comma.
+ 			assert(i > 0);
+ 			opt_block_list[i] = opt_block_list[i - 1];
+ 		} else {
+ 			opt_block_list[i].size = str_to_uint64("block-list",
+ 					str, 0, UINT64_MAX);
+ 
+ 			// Zero indicates no more new Blocks.
+ 			if (opt_block_list[i].size == 0) {
+ 				if (i + 1 != count)
+ 					message_fatal(_("0 can only be used "
+ 							"as the last element "
+ 							"in --block-list"));
+ 
+ 				opt_block_list[i].size = UINT64_MAX;
+ 			}
+ 		}
+ 
+ 		str = p + 1;
+ 	}
+ 
+ 	// Terminate the array.
+ 	opt_block_list[count].size = 0;
+ 
+ 	free(str_start);
+ 	return;
+ }
+ 
+ 
+ static void
+ parse_real(args_info *args, int argc, char **argv)
+ {
+ 	enum {
+ 		OPT_FILTERS = INT_MIN,
+ 		OPT_FILTERS1,
+ 		OPT_FILTERS2,
+ 		OPT_FILTERS3,
+ 		OPT_FILTERS4,
+ 		OPT_FILTERS5,
+ 		OPT_FILTERS6,
+ 		OPT_FILTERS7,
+ 		OPT_FILTERS8,
+ 		OPT_FILTERS9,
+ 		OPT_FILTERS_HELP,
+ 
+ 		OPT_X86,
+ 		OPT_POWERPC,
+ 		OPT_IA64,
+ 		OPT_ARM,
+ 		OPT_ARMTHUMB,
+ 		OPT_ARM64,
+ 		OPT_SPARC,
+ 		OPT_DELTA,
+ 		OPT_LZMA1,
+ 		OPT_LZMA2,
+ 
+ 		OPT_SINGLE_STREAM,
+ 		OPT_NO_SPARSE,
+ 		OPT_FILES,
+ 		OPT_FILES0,
+ 		OPT_BLOCK_SIZE,
+ 		OPT_BLOCK_LIST,
+ 		OPT_MEM_COMPRESS,
+ 		OPT_MEM_DECOMPRESS,
+ 		OPT_MEM_MT_DECOMPRESS,
+ 		OPT_NO_ADJUST,
+ 		OPT_INFO_MEMORY,
+ 		OPT_ROBOT,
+ 		OPT_FLUSH_TIMEOUT,
+ 		OPT_IGNORE_CHECK,
+ 	};
+ 
+ 	static const char short_opts[]
+ 			= "cC:defF:hHlkM:qQrS:tT:vVz0123456789";
+ 
+ 	static const struct option long_opts[] = {
+ 		// Operation mode
+ 		{ "compress",     no_argument,       NULL,  'z' },
+ 		{ "decompress",   no_argument,       NULL,  'd' },
+ 		{ "uncompress",   no_argument,       NULL,  'd' },
+ 		{ "test",         no_argument,       NULL,  't' },
+ 		{ "list",         no_argument,       NULL,  'l' },
+ 
+ 		// Operation modifiers
+ 		{ "keep",         no_argument,       NULL,  'k' },
+ 		{ "force",        no_argument,       NULL,  'f' },
+ 		{ "stdout",       no_argument,       NULL,  'c' },
+ 		{ "to-stdout",    no_argument,       NULL,  'c' },
+ 		{ "single-stream", no_argument,      NULL,  OPT_SINGLE_STREAM },
+ 		{ "no-sparse",    no_argument,       NULL,  OPT_NO_SPARSE },
+ 		{ "suffix",       required_argument, NULL,  'S' },
+ 		// { "recursive",      no_argument,       NULL,  'r' }, // TODO
+ 		{ "files",        optional_argument, NULL,  OPT_FILES },
+ 		{ "files0",       optional_argument, NULL,  OPT_FILES0 },
+ 
+ 		// Basic compression settings
+ 		{ "format",       required_argument, NULL,  'F' },
+ 		{ "check",        required_argument, NULL,  'C' },
+ 		{ "ignore-check", no_argument,       NULL,  OPT_IGNORE_CHECK },
+ 		{ "block-size",   required_argument, NULL,  OPT_BLOCK_SIZE },
+ 		{ "block-list",  required_argument, NULL,  OPT_BLOCK_LIST },
+ 		{ "memlimit-compress",   required_argument, NULL, OPT_MEM_COMPRESS },
+ 		{ "memlimit-decompress", required_argument, NULL, OPT_MEM_DECOMPRESS },
+ 		{ "memlimit-mt-decompress", required_argument, NULL, OPT_MEM_MT_DECOMPRESS },
+ 		{ "memlimit",     required_argument, NULL,  'M' },
+ 		{ "memory",       required_argument, NULL,  'M' }, // Old alias
+ 		{ "no-adjust",    no_argument,       NULL,  OPT_NO_ADJUST },
+ 		{ "threads",      required_argument, NULL,  'T' },
+ 		{ "flush-timeout", required_argument, NULL, OPT_FLUSH_TIMEOUT },
+ 
+ 		{ "extreme",      no_argument,       NULL,  'e' },
+ 		{ "fast",         no_argument,       NULL,  '0' },
+ 		{ "best",         no_argument,       NULL,  '9' },
+ 
+ 		// Filters
+ 		{ "filters",      optional_argument, NULL,  OPT_FILTERS},
+ 		{ "filters1",     optional_argument, NULL,  OPT_FILTERS1},
+ 		{ "filters2",     optional_argument, NULL,  OPT_FILTERS2},
+ 		{ "filters3",     optional_argument, NULL,  OPT_FILTERS3},
+ 		{ "filters4",     optional_argument, NULL,  OPT_FILTERS4},
+ 		{ "filters5",     optional_argument, NULL,  OPT_FILTERS5},
+ 		{ "filters6",     optional_argument, NULL,  OPT_FILTERS6},
+ 		{ "filters7",     optional_argument, NULL,  OPT_FILTERS7},
+ 		{ "filters8",     optional_argument, NULL,  OPT_FILTERS8},
+ 		{ "filters9",     optional_argument, NULL,  OPT_FILTERS9},
+ 		{ "filters-help", optional_argument, NULL,  OPT_FILTERS_HELP},
+ 
+ 		{ "lzma1",        optional_argument, NULL,  OPT_LZMA1 },
+ 		{ "lzma2",        optional_argument, NULL,  OPT_LZMA2 },
+ 		{ "x86",          optional_argument, NULL,  OPT_X86 },
+ 		{ "powerpc",      optional_argument, NULL,  OPT_POWERPC },
+ 		{ "ia64",         optional_argument, NULL,  OPT_IA64 },
+ 		{ "arm",          optional_argument, NULL,  OPT_ARM },
+ 		{ "armthumb",     optional_argument, NULL,  OPT_ARMTHUMB },
+ 		{ "arm64",        optional_argument, NULL,  OPT_ARM64 },
+ 		{ "sparc",        optional_argument, NULL,  OPT_SPARC },
+ 		{ "delta",        optional_argument, NULL,  OPT_DELTA },
+ 
+ 		// Other options
+ 		{ "quiet",        no_argument,       NULL,  'q' },
+ 		{ "verbose",      no_argument,       NULL,  'v' },
+ 		{ "no-warn",      no_argument,       NULL,  'Q' },
+ 		{ "robot",        no_argument,       NULL,  OPT_ROBOT },
+ 		{ "info-memory",  no_argument,       NULL,  OPT_INFO_MEMORY },
+ 		{ "help",         no_argument,       NULL,  'h' },
+ 		{ "long-help",    no_argument,       NULL,  'H' },
+ 		{ "version",      no_argument,       NULL,  'V' },
+ 
+ 		{ NULL,           0,                 NULL,   0 }
+ 	};
+ 
+ 	int c;
+ 
+ 	while ((c = getopt_long(argc, argv, short_opts, long_opts, NULL))
+ 			!= -1) {
+ 		switch (c) {
+ 		// Compression preset (also for decompression if --format=raw)
+ 		case '0': case '1': case '2': case '3': case '4':
+ 		case '5': case '6': case '7': case '8': case '9':
+ 			coder_set_preset((uint32_t)(c - '0'));
+ 			break;
+ 
+ 		// --memlimit-compress
+ 		case OPT_MEM_COMPRESS:
+ 			parse_memlimit("memlimit-compress",
+ 					"memlimit-compress%", optarg,
+ 					true, false, false);
+ 			break;
+ 
+ 		// --memlimit-decompress
+ 		case OPT_MEM_DECOMPRESS:
+ 			parse_memlimit("memlimit-decompress",
+ 					"memlimit-decompress%", optarg,
+ 					false, true, false);
+ 			break;
+ 
+ 		// --memlimit-mt-decompress
+ 		case OPT_MEM_MT_DECOMPRESS:
+ 			parse_memlimit("memlimit-mt-decompress",
+ 					"memlimit-mt-decompress%", optarg,
+ 					false, false, true);
+ 			break;
+ 
+ 		// --memlimit
+ 		case 'M':
+ 			parse_memlimit("memlimit", "memlimit%", optarg,
+ 					true, true, true);
+ 			break;
+ 
+ 		// --suffix
+ 		case 'S':
+ 			suffix_set(optarg);
+ 			break;
+ 
+ 		case 'T': {
+ 			// Since xz 5.4.0: Ignore leading '+' first.
+ 			const char *s = optarg;
+ 			if (optarg[0] == '+')
+ 				++s;
+ 
+ 			// The max is from src/liblzma/common/common.h.
+ 			uint32_t t = str_to_uint64("threads", s, 0, 16384);
+ 
+ 			// If leading '+' was used then use multi-threaded
+ 			// mode even if exactly one thread was specified.
+ 			if (t == 1 && optarg[0] == '+')
+ 				t = UINT32_MAX;
+ 
+ 			hardware_threads_set(t);
+ 			break;
+ 		}
+ 
+ 		// --version
+ 		case 'V':
+ 			// This doesn't return.
+ 			message_version();
+ 
+ 		// --stdout
+ 		case 'c':
+ 			opt_stdout = true;
+ 			break;
+ 
+ 		// --decompress
+ 		case 'd':
+ 			opt_mode = MODE_DECOMPRESS;
+ 			break;
+ 
+ 		// --extreme
+ 		case 'e':
+ 			coder_set_extreme();
+ 			break;
+ 
+ 		// --force
+ 		case 'f':
+ 			opt_force = true;
+ 			break;
+ 
+ 		// --info-memory
+ 		case OPT_INFO_MEMORY:
+ 			// This doesn't return.
+ 			hardware_memlimit_show();
+ 
+ 		// --help
+ 		case 'h':
+ 			// This doesn't return.
+ 			message_help(false);
+ 
+ 		// --long-help
+ 		case 'H':
+ 			// This doesn't return.
+ 			message_help(true);
+ 
+ 		// --list
+ 		case 'l':
+ 			opt_mode = MODE_LIST;
+ 			break;
+ 
+ 		// --keep
+ 		case 'k':
+ 			opt_keep_original = true;
+ 			break;
+ 
+ 		// --quiet
+ 		case 'q':
+ 			message_verbosity_decrease();
+ 			break;
+ 
+ 		case 'Q':
+ 			set_exit_no_warn();
+ 			break;
+ 
+ 		case 't':
+ 			opt_mode = MODE_TEST;
+ 			break;
+ 
+ 		// --verbose
+ 		case 'v':
+ 			message_verbosity_increase();
+ 			break;
+ 
+ 		// --robot
+ 		case OPT_ROBOT:
+ 			opt_robot = true;
+ 
+ 			// This is to make sure that floating point numbers
+ 			// always have a dot as decimal separator.
+ 			setlocale(LC_NUMERIC, "C");
+ 			break;
+ 
+ 		case 'z':
+ 			opt_mode = MODE_COMPRESS;
+ 			break;
+ 
+ 		// --filters
+ 		case OPT_FILTERS:
+ 			coder_add_filters_from_str(optarg);
+ 			break;
+ 
+ 		// --filters1...--filters9
+ 		case OPT_FILTERS1:
+ 		case OPT_FILTERS2:
+ 		case OPT_FILTERS3:
+ 		case OPT_FILTERS4:
+ 		case OPT_FILTERS5:
+ 		case OPT_FILTERS6:
+ 		case OPT_FILTERS7:
+ 		case OPT_FILTERS8:
+ 		case OPT_FILTERS9:
+ 			coder_add_block_filters(optarg,
+ 					(size_t)(c - OPT_FILTERS));
+ 			break;
+ 
+ 		// --filters-help
+ 		case OPT_FILTERS_HELP:
+ 			// This doesn't return.
+ 			message_filters_help();
+ 			break;
+ 
+ 		case OPT_X86:
+ 			coder_add_filter(LZMA_FILTER_X86,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_POWERPC:
+ 			coder_add_filter(LZMA_FILTER_POWERPC,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_IA64:
+ 			coder_add_filter(LZMA_FILTER_IA64,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_ARM:
+ 			coder_add_filter(LZMA_FILTER_ARM,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_ARMTHUMB:
+ 			coder_add_filter(LZMA_FILTER_ARMTHUMB,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_ARM64:
+ 			coder_add_filter(LZMA_FILTER_ARM64,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_SPARC:
+ 			coder_add_filter(LZMA_FILTER_SPARC,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_DELTA:
+ 			coder_add_filter(LZMA_FILTER_DELTA,
+ 					options_delta(optarg));
+ 			break;
+ 
+ 		case OPT_LZMA1:
+ 			coder_add_filter(LZMA_FILTER_LZMA1,
+ 					options_lzma(optarg));
+ 			break;
+ 
+ 		case OPT_LZMA2:
+ 			coder_add_filter(LZMA_FILTER_LZMA2,
+ 					options_lzma(optarg));
+ 			break;
+ 
+ 		// Other
+ 
+ 		// --format
+ 		case 'F': {
+ 			// Just in case, support both "lzma" and "alone" since
+ 			// the latter was used for forward compatibility in
+ 			// LZMA Utils 4.32.x.
+ 			static const struct {
+ 				char str[8];
+ 				enum format_type format;
+ 			} types[] = {
+ 				{ "auto",   FORMAT_AUTO },
+ 				{ "xz",     FORMAT_XZ },
+ 				{ "lzma",   FORMAT_LZMA },
+ 				{ "alone",  FORMAT_LZMA },
+ #ifdef HAVE_LZIP_DECODER
+ 				{ "lzip",   FORMAT_LZIP },
+ #endif
+ 				{ "raw",    FORMAT_RAW },
+ 			};
+ 
+ 			size_t i = 0;
+ 			while (strcmp(types[i].str, optarg) != 0)
+ 				if (++i == ARRAY_SIZE(types))
+ 					message_fatal(_("%s: Unknown file "
+ 							"format type"),
+ 							optarg);
+ 
+ 			opt_format = types[i].format;
+ 			break;
+ 		}
+ 
+ 		// --check
+ 		case 'C': {
+ 			static const struct {
+ 				char str[8];
+ 				lzma_check check;
+ 			} types[] = {
+ 				{ "none",   LZMA_CHECK_NONE },
+ 				{ "crc32",  LZMA_CHECK_CRC32 },
+ 				{ "crc64",  LZMA_CHECK_CRC64 },
+ 				{ "sha256", LZMA_CHECK_SHA256 },
+ 			};
+ 
+ 			size_t i = 0;
+ 			while (strcmp(types[i].str, optarg) != 0) {
+ 				if (++i == ARRAY_SIZE(types))
+ 					message_fatal(_("%s: Unsupported "
+ 							"integrity "
+ 							"check type"), optarg);
+ 			}
+ 
+ 			// Use a separate check in case we are using different
+ 			// liblzma than what was used to compile us.
+ 			if (!lzma_check_is_supported(types[i].check))
+ 				message_fatal(_("%s: Unsupported integrity "
+ 						"check type"), optarg);
+ 
+ 			coder_set_check(types[i].check);
+ 			break;
+ 		}
+ 
+ 		case OPT_IGNORE_CHECK:
+ 			opt_ignore_check = true;
+ 			break;
+ 
+ 		case OPT_BLOCK_SIZE:
+ 			opt_block_size = str_to_uint64("block-size", optarg,
+ 					0, LZMA_VLI_MAX);
+ 			break;
+ 
+ 		case OPT_BLOCK_LIST: {
+ 			parse_block_list(optarg);
+ 			break;
+ 		}
+ 
+ 		case OPT_SINGLE_STREAM:
+ 			opt_single_stream = true;
+ 			break;
+ 
+ 		case OPT_NO_SPARSE:
+ 			io_no_sparse();
+ 			break;
+ 
+ 		case OPT_FILES:
+ 			args->files_delim = '\n';
+ 
+ 		// Fall through
+ 
+ 		case OPT_FILES0:
+ 			if (args->files_name != NULL)
+ 				message_fatal(_("Only one file can be "
+ 						"specified with `--files' "
+ 						"or `--files0'."));
+ 
+ 			if (optarg == NULL) {
+ 				args->files_name = stdin_filename;
+ 				args->files_file = stdin;
+ 			} else {
+ 				args->files_name = optarg;
+ 				args->files_file = fopen(optarg,
+ 						c == OPT_FILES ? "r" : "rb");
+ 				if (args->files_file == NULL)
+ 					message_fatal("%s: %s", optarg,
+ 							strerror(errno));
+ 			}
+ 
+ 			break;
+ 
+ 		case OPT_NO_ADJUST:
+ 			opt_auto_adjust = false;
+ 			break;
+ 
+ 		case OPT_FLUSH_TIMEOUT:
+ 			opt_flush_timeout = str_to_uint64("flush-timeout",
+ 					optarg, 0, UINT64_MAX);
+ 			break;
+ 
+ 		default:
+ 			message_try_help();
+ 			tuklib_exit(E_ERROR, E_ERROR, false);
+ 		}
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ static void
+ parse_environment(args_info *args, char *argv0, const char *varname)
+ {
+ 	char *env = getenv(varname);
+ 	if (env == NULL)
+ 		return;
+ 
+ 	// We modify the string, so make a copy of it.
+ 	env = xstrdup(env);
+ 
+ 	// Calculate the number of arguments in env. argc stats at one
+ 	// to include space for the program name.
+ 	int argc = 1;
+ 	bool prev_was_space = true;
+ 	for (size_t i = 0; env[i] != '\0'; ++i) {
+ 		// NOTE: Cast to unsigned char is needed so that correct
+ 		// value gets passed to isspace(), which expects
+ 		// unsigned char cast to int. Casting to int is done
+ 		// automatically due to integer promotion, but we need to
+ 		// force char to unsigned char manually. Otherwise 8-bit
+ 		// characters would get promoted to wrong value if
+ 		// char is signed.
+ 		if (isspace((unsigned char)env[i])) {
+ 			prev_was_space = true;
+ 		} else if (prev_was_space) {
+ 			prev_was_space = false;
+ 
+ 			// Keep argc small enough to fit into a signed int
+ 			// and to keep it usable for memory allocation.
+ 			if (++argc == my_min(
+ 					INT_MAX, SIZE_MAX / sizeof(char *)))
+ 				message_fatal(_("The environment variable "
+ 						"%s contains too many "
+ 						"arguments"), varname);
+ 		}
+ 	}
+ 
+ 	// Allocate memory to hold pointers to the arguments. Add one to get
+ 	// space for the terminating NULL (if some systems happen to need it).
+ 	char **argv = xmalloc(((size_t)(argc) + 1) * sizeof(char *));
+ 	argv[0] = argv0;
+ 	argv[argc] = NULL;
+ 
+ 	// Go through the string again. Split the arguments using '\0'
+ 	// characters and add pointers to the resulting strings to argv.
+ 	argc = 1;
+ 	prev_was_space = true;
+ 	for (size_t i = 0; env[i] != '\0'; ++i) {
+ 		if (isspace((unsigned char)env[i])) {
+ 			prev_was_space = true;
+ 			env[i] = '\0';
+ 		} else if (prev_was_space) {
+ 			prev_was_space = false;
+ 			argv[argc++] = env + i;
+ 		}
+ 	}
+ 
+ 	// Parse the argument list we got from the environment. All non-option
+ 	// arguments i.e. filenames are ignored.
+ 	parse_real(args, argc, argv);
+ 
+ 	// Reset the state of the getopt_long() so that we can parse the
+ 	// command line options too. There are two incompatible ways to
+ 	// do it.
+ #ifdef HAVE_OPTRESET
+ 	// BSD
+ 	optind = 1;
+ 	optreset = 1;
+ #else
+ 	// GNU, Solaris
+ 	optind = 0;
+ #endif
+ 
+ 	// We don't need the argument list from environment anymore.
+ 	free(argv);
+ 	free(env);
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ args_parse(args_info *args, int argc, char **argv)
+ {
+ 	// Initialize those parts of *args that we need later.
+ 	args->files_name = NULL;
+ 	args->files_file = NULL;
+ 	args->files_delim = '\0';
+ 
+ 	// Check how we were called.
+ 	{
+ 		// Remove the leading path name, if any.
+ 		const char *name = strrchr(argv[0], '/');
+ 		if (name == NULL)
+ 			name = argv[0];
+ 		else
+ 			++name;
+ 
+ 		// NOTE: It's possible that name[0] is now '\0' if argv[0]
+ 		// is weird, but it doesn't matter here.
+ 
+ 		// Look for full command names instead of substrings like
+ 		// "un", "cat", and "lz" to reduce possibility of false
+ 		// positives when the programs have been renamed.
+ 		if (strstr(name, "xzcat") != NULL) {
+ 			opt_mode = MODE_DECOMPRESS;
+ 			opt_stdout = true;
+ 		} else if (strstr(name, "unxz") != NULL) {
+ 			opt_mode = MODE_DECOMPRESS;
+ 		} else if (strstr(name, "lzcat") != NULL) {
+ 			opt_format = FORMAT_LZMA;
+ 			opt_mode = MODE_DECOMPRESS;
+ 			opt_stdout = true;
+ 		} else if (strstr(name, "unlzma") != NULL) {
+ 			opt_format = FORMAT_LZMA;
+ 			opt_mode = MODE_DECOMPRESS;
+ 		} else if (strstr(name, "lzma") != NULL) {
+ 			opt_format = FORMAT_LZMA;
+ 		}
+ 	}
+ 
+ 	// First the flags from the environment
+ 	parse_environment(args, argv[0], "XZ_DEFAULTS");
+ 	parse_environment(args, argv[0], "XZ_OPT");
+ 
+ 	// Then from the command line
+ 	parse_real(args, argc, argv);
+ 
+ 	// If encoder or decoder support was omitted at build time,
+ 	// show an error now so that the rest of the code can rely on
+ 	// that whatever is in opt_mode is also supported.
+ #ifndef HAVE_ENCODERS
+ 	if (opt_mode == MODE_COMPRESS)
+ 		message_fatal(_("Compression support was disabled "
+ 				"at build time"));
+ #endif
+ #ifndef HAVE_DECODERS
+ 	// Even MODE_LIST cannot work without decoder support so MODE_COMPRESS
+ 	// is the only valid choice.
+ 	if (opt_mode != MODE_COMPRESS)
+ 		message_fatal(_("Decompression support was disabled "
+ 				"at build time"));
+ #endif
+ 
+ #ifdef HAVE_LZIP_DECODER
+ 	if (opt_mode == MODE_COMPRESS && opt_format == FORMAT_LZIP)
+ 		message_fatal(_("Compression of lzip files (.lz) "
+ 				"is not supported"));
+ #endif
+ 
+ 	// Never remove the source file when the destination is not on disk.
+ 	// In test mode the data is written nowhere, but setting opt_stdout
+ 	// will make the rest of the code behave well.
+ 	if (opt_stdout || opt_mode == MODE_TEST) {
+ 		opt_keep_original = true;
+ 		opt_stdout = true;
+ 	}
+ 
+ 	// When compressing, if no --format flag was used, or it
+ 	// was --format=auto, we compress to the .xz format.
+ 	if (opt_mode == MODE_COMPRESS && opt_format == FORMAT_AUTO)
+ 		opt_format = FORMAT_XZ;
+ 
+ 	// Set opt_block_list to NULL if we are not compressing to the .xz
+ 	// format. This option cannot be used outside of this case, and
+ 	// simplifies the implementation later.
+ 	if ((opt_mode != MODE_COMPRESS || opt_format != FORMAT_XZ)
+ 			&& opt_block_list != NULL) {
+ 		message(V_WARNING, _("--block-list is ignored unless "
+ 				"compressing to the .xz format"));
+ 		free(opt_block_list);
+ 		opt_block_list = NULL;
+ 	}
+ 
+ 	// Compression settings need to be validated (options themselves and
+ 	// their memory usage) when compressing to any file format. It has to
+ 	// be done also when uncompressing raw data, since for raw decoding
+ 	// the options given on the command line are used to know what kind
+ 	// of raw data we are supposed to decode.
+ 	if (opt_mode == MODE_COMPRESS || (opt_format == FORMAT_RAW
+ 			&& opt_mode != MODE_LIST))
+ 		coder_set_compression_settings();
+ 
+ 	// If raw format is used and a custom suffix is not provided,
+ 	// then only stdout mode can be used when compressing or decompressing.
+ 	if (opt_format == FORMAT_RAW && !suffix_is_set() && !opt_stdout
+ 			&& (opt_mode == MODE_COMPRESS
+ 				|| opt_mode == MODE_DECOMPRESS))
+ 		message_fatal(_("With --format=raw, --suffix=.SUF is "
+ 				"required unless writing to stdout"));
+ 
+ 	// If no filenames are given, use stdin.
+ 	if (argv[optind] == NULL && args->files_name == NULL) {
+ 		// We don't modify or free() the "-" constant. The caller
+ 		// modifies this so don't make the struct itself const.
+ 		static char *names_stdin[2] = { (char *)"-", NULL };
+ 		args->arg_names = names_stdin;
+ 		args->arg_count = 1;
+ 	} else {
+ 		// We got at least one filename from the command line, or
+ 		// --files or --files0 was specified.
+ 		args->arg_names = argv + optind;
+ 		args->arg_count = (unsigned int)(argc - optind);
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ #ifndef NDEBUG
+ extern void
+ args_free(void)
+ {
+ 	free(opt_block_list);
+ 	return;
+ }
+ #endif
 diff --git a/src/xz/args.h b/src/xz/args.h
 index a1a5930a..a1f42f8a 100644
 --- a/src/xz/args.h
 +++ b/src/xz/args.h
-@@ -3,7 +3,8 @@
+@@ -1,44 +1,45 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
  /// \file       args.h
  /// \brief      Argument parsing
  //
@@ -32,11 +879,48 @@ index a1a5930a..a1f42f8a 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ typedef struct {
+ 	/// Filenames from command line
+ 	char **arg_names;
+ 
+ 	/// Number of filenames from command line
+ 	unsigned int arg_count;
+ 
+ 	/// Name of the file from which to read filenames. This is NULL
+ 	/// if --files or --files0 was not used.
+ 	const char *files_name;
+ 
+ 	/// File opened for reading from which filenames are read. This is
+ 	/// non-NULL only if files_name is non-NULL.
+ 	FILE *files_file;
+ 
+ 	/// Delimiter for filenames read from files_file
+ 	char files_delim;
+ 
+ } args_info;
+ 
+ 
+ extern bool opt_stdout;
+ extern bool opt_force;
+ extern bool opt_keep_original;
+ // extern bool opt_recursive;
+ extern bool opt_robot;
+ extern bool opt_ignore_check;
+ 
+ extern const char stdin_filename[];
+ 
+ extern void args_parse(args_info *args, int argc, char **argv);
+ extern void args_free(void);
 diff --git a/src/xz/coder.c b/src/xz/coder.c
 index ab2b07d3..3fefded9 100644
 --- a/src/xz/coder.c
 +++ b/src/xz/coder.c
-@@ -3,7 +3,8 @@
+@@ -1,1524 +1,1525 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
  /// \file       coder.c
  /// \brief      Compresses or uncompresses a file
  //
@@ -46,11 +930,1528 @@ index ab2b07d3..3fefded9 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ 
+ 
+ /// Return value type for coder_init().
+ enum coder_init_ret {
+ 	CODER_INIT_NORMAL,
+ 	CODER_INIT_PASSTHRU,
+ 	CODER_INIT_ERROR,
+ };
+ 
+ 
+ enum operation_mode opt_mode = MODE_COMPRESS;
+ enum format_type opt_format = FORMAT_AUTO;
+ bool opt_auto_adjust = true;
+ bool opt_single_stream = false;
+ uint64_t opt_block_size = 0;
+ block_list_entry *opt_block_list = NULL;
+ 
+ /// Stream used to communicate with liblzma
+ static lzma_stream strm = LZMA_STREAM_INIT;
+ 
+ /// Maximum number of filter chains. The first filter chain is the default,
+ /// and 9 other filter chains can be specified with --filtersX.
+ #define NUM_FILTER_CHAIN_MAX 10
+ 
+ /// The default filter chain is in filters[0]. It is used for encoding
+ /// in all supported formats and also for decdoing raw streams. The other
+ /// filter chains are set by --filtersX to support changing filters with
+ /// the --block-list option.
+ static lzma_filter filters[NUM_FILTER_CHAIN_MAX][LZMA_FILTERS_MAX + 1];
+ 
+ /// Bit mask representing the filters that are actually used when encoding
+ /// in the xz format. This is needed since a filter chain could be
+ /// specified in --filtersX (or the default filter chain), but never used
+ /// in --block-list. The default filter chain is always assumed to be used,
+ /// unless --block-list is specified and does not have a block using the
+ /// default filter chain.
+ static uint32_t filters_used_mask = 1;
+ 
+ #ifdef HAVE_ENCODERS
+ /// Track the memory usage for all filter chains (default or --filtersX).
+ /// The memory usage may need to be scaled down depending on the memory limit.
+ static uint64_t filter_memusages[ARRAY_SIZE(filters)];
+ #endif
+ 
+ /// Input and output buffers
+ static io_buf in_buf;
+ static io_buf out_buf;
+ 
+ /// Number of filters in the default filter chain. Zero indicates that
+ /// we are using a preset.
+ static uint32_t filters_count = 0;
+ 
+ /// Number of the preset (0-9)
+ static uint32_t preset_number = LZMA_PRESET_DEFAULT;
+ 
+ /// True if the current default filter chain was set using the --filters
+ /// option. The filter chain is reset if a preset option (like -9) or an
+ /// old-style filter option (like --lzma2) is used after a --filters option.
+ static bool string_to_filter_used = false;
+ 
+ /// Integrity check type
+ static lzma_check check;
+ 
+ /// This becomes false if the --check=CHECK option is used.
+ static bool check_default = true;
+ 
+ /// Indicates if unconsumed input is allowed to remain after
+ /// decoding has successfully finished. This is set for each file
+ /// in coder_init().
+ static bool allow_trailing_input;
+ 
+ #ifdef MYTHREAD_ENABLED
+ static lzma_mt mt_options = {
+ 	.flags = 0,
+ 	.timeout = 300,
+ };
+ #endif
+ 
+ 
+ extern void
+ coder_set_check(lzma_check new_check)
+ {
+ 	check = new_check;
+ 	check_default = false;
+ 	return;
+ }
+ 
+ 
+ static void
+ forget_filter_chain(void)
+ {
+ 	// Setting a preset or using --filters makes us forget
+ 	// the earlier custom filter chain (if any).
+ 	if (filters_count > 0) {
+ 		lzma_filters_free(filters[0], NULL);
+ 		filters_count = 0;
+ 	}
+ 
+ 	string_to_filter_used = false;
+ 	return;
+ }
+ 
+ 
+ extern void
+ coder_set_preset(uint32_t new_preset)
+ {
+ 	preset_number &= ~LZMA_PRESET_LEVEL_MASK;
+ 	preset_number |= new_preset;
+ 	forget_filter_chain();
+ 	return;
+ }
+ 
+ 
+ extern void
+ coder_set_extreme(void)
+ {
+ 	preset_number |= LZMA_PRESET_EXTREME;
+ 	forget_filter_chain();
+ 	return;
+ }
+ 
+ 
+ extern void
+ coder_add_filter(lzma_vli id, void *options)
+ {
+ 	if (filters_count == LZMA_FILTERS_MAX)
+ 		message_fatal(_("Maximum number of filters is four"));
+ 
+ 	if (string_to_filter_used)
+ 		forget_filter_chain();
+ 
+ 	filters[0][filters_count].id = id;
+ 	filters[0][filters_count].options = options;
+ 	// Terminate the filter chain with LZMA_VLI_UNKNOWN to simplify
+ 	// implementation of forget_filter_chain().
+ 	filters[0][++filters_count].id = LZMA_VLI_UNKNOWN;
+ 
+ 	// Setting a custom filter chain makes us forget the preset options.
+ 	// This makes a difference if one specifies e.g. "xz -9 --lzma2 -e"
+ 	// where the custom filter chain resets the preset level back to
+ 	// the default 6, making the example equivalent to "xz -6e".
+ 	preset_number = LZMA_PRESET_DEFAULT;
+ 
+ 	return;
+ }
+ 
+ 
+ static void
+ str_to_filters(const char *str, uint32_t index, uint32_t flags)
+ {
+ 	int error_pos;
+ 	const char *err = lzma_str_to_filters(str, &error_pos,
+ 			filters[index], flags, NULL);
+ 
+ 	if (err != NULL) {
+ 		char filter_num[2] = "";
+ 		if (index > 0)
+ 			filter_num[0] = '0' + index;
+ 
+ 		// FIXME? The message in err isn't translated.
+ 		// Including the translations in the xz translations is
+ 		// slightly ugly but possible. Creating a new domain for
+ 		// liblzma might not be worth it especially since on some
+ 		// OSes it adds extra dependencies to translation libraries.
+ 		message(V_ERROR, _("Error in --filters%s=FILTERS option:"),
+ 				filter_num);
+ 		message(V_ERROR, "%s", str);
+ 		message(V_ERROR, "%*s^", error_pos, "");
+ 		message_fatal("%s", err);
+ 	}
+ }
+ 
+ 
+ extern void
+ coder_add_filters_from_str(const char *filter_str)
+ {
+ 	// Forget presets and previously defined filter chain. See
+ 	// coder_add_filter() above for why preset_number must be reset too.
+ 	forget_filter_chain();
+ 	preset_number = LZMA_PRESET_DEFAULT;
+ 
+ 	string_to_filter_used = true;
+ 
+ 	// Include LZMA_STR_ALL_FILTERS so this can be used with --format=raw.
+ 	str_to_filters(filter_str, 0, LZMA_STR_ALL_FILTERS);
+ 
+ 	// Set the filters_count to be the number of filters converted from
+ 	// the string.
+ 	for (filters_count = 0; filters[0][filters_count].id
+ 			!= LZMA_VLI_UNKNOWN;
+ 			++filters_count) ;
+ 
+ 	assert(filters_count > 0);
+ 	return;
+ }
+ 
+ 
+ extern void
+ coder_add_block_filters(const char *str, size_t slot)
+ {
+ 	// Free old filters first, if they were previously allocated.
+ 	if (filters_used_mask & (1U << slot))
+ 		lzma_filters_free(filters[slot], NULL);
+ 
+ 	str_to_filters(str, slot, 0);
+ 
+ 	filters_used_mask |= 1U << slot;
+ }
+ 
+ 
+ static void lzma_attribute((__noreturn__))
+ memlimit_too_small(uint64_t memory_usage)
+ {
+ 	message(V_ERROR, _("Memory usage limit is too low for the given "
+ 			"filter setup."));
+ 	message_mem_needed(V_ERROR, memory_usage);
+ 	tuklib_exit(E_ERROR, E_ERROR, false);
+ }
+ 
+ 
+ #ifdef HAVE_ENCODERS
+ // For a given opt_block_list index, validate that the filter has been
+ // set. If it has not been set, we must exit with error to avoid using
+ // an uninitialized filter chain.
+ static void
+ validate_block_list_filter(const uint32_t filter_num)
+ {
+          if (!(filters_used_mask & (1U << filter_num)))
+ 		message_fatal(_("filter chain %u used by --block-list but "
+ 				"not specified with --filters%u="),
+ 				(unsigned)filter_num, (unsigned)filter_num);
+ }
+ 
+ 
+ // Sets the memory usage for each filter chain. It will return the maximum
+ // memory usage of all of the filter chains.
+ static uint64_t
+ filters_memusage_max(const lzma_mt *mt, bool encode)
+ {
+ 	uint64_t max_memusage = 0;
+ 
+ #ifdef MYTHREAD_ENABLED
+ 	// Copy multithreaded options to a temporary struct since the
+ 	// filters member needs to be changed
+ 	lzma_mt mt_local;
+ 	if (mt != NULL)
+ 		mt_local = *mt;
+ #else
+ 	(void)mt;
+ #endif
+ 
+ 	for (uint32_t i = 0; i < ARRAY_SIZE(filters); i++) {
+ 		if (!(filters_used_mask & (1U << i)))
+ 			continue;
+ 
+ 		uint64_t memusage = UINT64_MAX;
+ #ifdef MYTHREAD_ENABLED
+ 		if (mt != NULL) {
+ 			mt_local.filters = filters[i];
+ 			memusage = lzma_stream_encoder_mt_memusage(&mt_local);
+ 			filter_memusages[i] = memusage;
+ 		}
+ 		else
+ #endif
+ 
+ 		if (encode) {
+ 			memusage = lzma_raw_encoder_memusage(filters[i]);
+ 			filter_memusages[i] = memusage;
+ 		}
+ 
+ #ifdef HAVE_DECODERS
+ 		else {
+ 			memusage = lzma_raw_decoder_memusage(filters[i]);
+ 		}
+ #endif
+ 
+ 		if (memusage > max_memusage)
+ 			max_memusage = memusage;
+ 	}
+ 
+ 	return max_memusage;
+ }
+ 
+ #endif
+ 
+ extern void
+ coder_set_compression_settings(void)
+ {
+ #ifdef HAVE_LZIP_DECODER
+ 	// .lz compression isn't supported.
+ 	assert(opt_format != FORMAT_LZIP);
+ #endif
+ 
+ #ifdef HAVE_ENCODERS
+ #	ifdef MYTHREAD_ENABLED
+ 	// Represents the largest Block size specified with --block-list. This
+ 	// is needed to help reduce the Block size in the multithreaded encoder
+ 	// so memory is not wasted.
+ 	uint64_t max_block_list_size = 0;
+ #	endif
+ 
+ 	if (opt_block_list != NULL) {
+ 		// This mask tracks the filters actually referenced in
+ 		// --block-list. It is used to help remove bits from
+ 		// filters_used_mask when a filter chain was specified
+ 		// but never actually used.
+ 		uint32_t filters_ref_mask = 0;
+ 
+ 		for (uint32_t i = 0; opt_block_list[i].size != 0; i++) {
+ 			validate_block_list_filter(
+ 					opt_block_list[i].filters_index);
+ 
+ 			// Mark the current filter as referenced.
+ 			filters_ref_mask |= 1U <<
+ 					opt_block_list[i].filters_index;
+ 
+ #	ifdef MYTHREAD_ENABLED
+ 			if (opt_block_list[i].size > max_block_list_size)
+ 				max_block_list_size = opt_block_list[i].size;
+ #	endif
+ 		}
+ 
+ 		assert(filters_ref_mask != 0);
+ 		// Note: The filters that were initialized but not used do
+ 		//       not free their options and do not have the filter
+ 		//       IDs set to LZMA_VLI_UNKNOWN. Filter chains are not
+ 		//       freed outside of debug mode and the default filter
+ 		//       chain is never freed.
+ 		filters_used_mask = filters_ref_mask;
+ 	} else {
+ 		// Reset filters used mask in case --block-list is not
+ 		// used, but --filtersX is used.
+ 		filters_used_mask = 1;
+ 	}
+ #endif
+ 	// The default check type is CRC64, but fallback to CRC32
+ 	// if CRC64 isn't supported by the copy of liblzma we are
+ 	// using. CRC32 is always supported.
+ 	if (check_default) {
+ 		check = LZMA_CHECK_CRC64;
+ 		if (!lzma_check_is_supported(check))
+ 			check = LZMA_CHECK_CRC32;
+ 	}
+ 
+ 	// Options for LZMA1 or LZMA2 in case we are using a preset.
+ 	static lzma_options_lzma opt_lzma;
+ 
+ 	// The first filter in the filters[] array is for the default
+ 	// filter chain.
+ 	lzma_filter *default_filters = filters[0];
+ 
+ 	if (filters_count == 0 && filters_used_mask & 1) {
+ 		// We are using a preset. This is not a good idea in raw mode
+ 		// except when playing around with things. Different versions
+ 		// of this software may use different options in presets, and
+ 		// thus make uncompressing the raw data difficult.
+ 		if (opt_format == FORMAT_RAW) {
+ 			// The message is shown only if warnings are allowed
+ 			// but the exit status isn't changed.
+ 			message(V_WARNING, _("Using a preset in raw mode "
+ 					"is discouraged."));
+ 			message(V_WARNING, _("The exact options of the "
+ 					"presets may vary between software "
+ 					"versions."));
+ 		}
+ 
+ 		// Get the preset for LZMA1 or LZMA2.
+ 		if (lzma_lzma_preset(&opt_lzma, preset_number))
+ 			message_bug();
+ 
+ 		// Use LZMA2 except with --format=lzma we use LZMA1.
+ 		default_filters[0].id = opt_format == FORMAT_LZMA
+ 				? LZMA_FILTER_LZMA1 : LZMA_FILTER_LZMA2;
+ 		default_filters[0].options = &opt_lzma;
+ 
+ 		filters_count = 1;
+ 
+ 		// Terminate the filter options array.
+ 		default_filters[1].id = LZMA_VLI_UNKNOWN;
+ 	}
+ 
+ 	// If we are using the .lzma format, allow exactly one filter
+ 	// which has to be LZMA1. There is no need to check if the default
+ 	// filter chain is being used since it can only be disabled if
+ 	// --block-list is used, which is incompatible with FORMAT_LZMA.
+ 	if (opt_format == FORMAT_LZMA && (filters_count != 1
+ 			|| default_filters[0].id != LZMA_FILTER_LZMA1))
+ 		message_fatal(_("The .lzma format supports only "
+ 				"the LZMA1 filter"));
+ 
+ 	// If we are using the .xz format, make sure that there is no LZMA1
+ 	// filter to prevent LZMA_PROG_ERROR.
+ 	if (opt_format == FORMAT_XZ && filters_used_mask & 1)
+ 		for (size_t i = 0; i < filters_count; ++i)
+ 			if (default_filters[i].id == LZMA_FILTER_LZMA1)
+ 				message_fatal(_("LZMA1 cannot be used "
+ 						"with the .xz format"));
+ 
+ 	if (filters_used_mask & 1) {
+ 		// Print the selected default filter chain.
+ 		message_filters_show(V_DEBUG, default_filters);
+ 	}
+ 
+ 	// The --flush-timeout option requires LZMA_SYNC_FLUSH support
+ 	// from the filter chain. Currently the threaded encoder doesn't
+ 	// support LZMA_SYNC_FLUSH so single-threaded mode must be used.
+ 	if (opt_mode == MODE_COMPRESS && opt_flush_timeout != 0) {
+ 		for (uint32_t i = 0; i < ARRAY_SIZE(filters); ++i) {
+ 			if (!(filters_used_mask & (1U << i)))
+ 				continue;
+ 
+ 			const lzma_filter *fc = filters[i];
+ 			for (size_t j = 0; fc[j].id != LZMA_VLI_UNKNOWN; j++) {
+ 				switch (fc[j].id) {
+ 				case LZMA_FILTER_LZMA2:
+ 				case LZMA_FILTER_DELTA:
+ 					break;
+ 
+ 				default:
+ 					message_fatal(_("Filter chain %u is "
+ 							"incompatible with "
+ 							"--flush-timeout"),
+ 							(unsigned)i);
+ 				}
+ 			}
+ 		}
+ 
+ 		if (hardware_threads_is_mt()) {
+ 			message(V_WARNING, _("Switching to single-threaded "
+ 					"mode due to --flush-timeout"));
+ 			hardware_threads_set(1);
+ 		}
+ 	}
+ 
+ 	// Get the memory usage and memory limit. The memory usage is the
+ 	// maximum of the default filters[] and any filters specified by
+ 	// --filtersX.
+ 	// Note that if --format=raw was used, we can be decompressing and
+ 	// do not need to account for any filter chains created
+ 	// with --filtersX.
+ 	//
+ 	// If multithreaded .xz compression is done, the memory limit
+ 	// will be replaced.
+ 	uint64_t memory_limit = hardware_memlimit_get(opt_mode);
+ 	uint64_t memory_usage = UINT64_MAX;
+ 	if (opt_mode == MODE_COMPRESS) {
+ #ifdef HAVE_ENCODERS
+ #	ifdef MYTHREAD_ENABLED
+ 		if (opt_format == FORMAT_XZ && hardware_threads_is_mt()) {
+ 			memory_limit = hardware_memlimit_mtenc_get();
+ 			mt_options.threads = hardware_threads_get();
+ 
+ 			uint64_t block_size = opt_block_size;
+ 			// If opt_block_size is not set, find the maximum
+ 			// recommended Block size based on the filter chains
+ 			if (block_size == 0) {
+ 				for (uint32_t i = 0; i < ARRAY_SIZE(filters);
+ 						i++) {
+ 					if (!(filters_used_mask & (1U << i)))
+ 						continue;
+ 
+ 					uint64_t size = lzma_mt_block_size(
+ 							filters[i]);
+ 
+ 					// If this returns an error, then one
+ 					// of the filter chains in use is
+ 					// invalid, so there is no point in
+ 					// progressing further.
+ 					if (size == UINT64_MAX)
+ 						message_fatal(_("Unsupported "
+ 							"options in filter "
+ 							"chain %u"),
+ 							(unsigned)i);
+ 
+ 					if (size > block_size)
+ 						block_size = size;
+ 				}
+ 
+ 				// If the largest block size specified
+ 				// with --block-list is less than the
+ 				// recommended Block size, then it is a waste
+ 				// of RAM to use a larger Block size. It may
+ 				// even allow more threads to be used in some
+ 				// situations. If the special 0 Block size is
+ 				// used (encode all remaining data in 1 Block)
+ 				// then max_block_list_size will be set to
+ 				// UINT64_MAX, so the recommended Block size
+ 				// will always be used in this case.
+ 				if (max_block_list_size > 0
+ 						&& max_block_list_size
+ 						< block_size)
+ 					block_size = max_block_list_size;
+ 			}
+ 
+ 			mt_options.block_size = block_size;
+ 			mt_options.check = check;
+ 
+ 			memory_usage = filters_memusage_max(
+ 						&mt_options, true);
+ 			if (memory_usage != UINT64_MAX)
+ 				message(V_DEBUG, _("Using up to %" PRIu32
+ 						" threads."),
+ 						mt_options.threads);
+ 		} else
+ #	endif
+ 		{
+ 			memory_usage = filters_memusage_max(NULL, true);
+ 		}
+ #endif
+ 	} else {
+ #ifdef HAVE_DECODERS
+ 		memory_usage = lzma_raw_decoder_memusage(default_filters);
+ #endif
+ 	}
+ 
+ 	if (memory_usage == UINT64_MAX)
+ 		message_fatal(_("Unsupported filter chain or filter options"));
+ 
+ 	// Print memory usage info before possible dictionary
+ 	// size auto-adjusting.
+ 	//
+ 	// NOTE: If only encoder support was built, we cannot show the
+ 	// what the decoder memory usage will be.
+ 	message_mem_needed(V_DEBUG, memory_usage);
+ #ifdef HAVE_DECODERS
+ 	if (opt_mode == MODE_COMPRESS) {
+ #ifdef HAVE_ENCODERS
+ 		const uint64_t decmem =
+ 				filters_memusage_max(NULL, false);
+ #else
+ 		// If encoders are not enabled, then --block-list is never
+ 		// usable, so the other filter chains 1-9 can never be used.
+ 		// So there is no need to find the maximum decoder memory
+ 		// required in this case.
+ 		const uint64_t decmem = lzma_raw_decoder_memusage(filters[0]);
+ #endif
+ 		if (decmem != UINT64_MAX)
+ 			message(V_DEBUG, _("Decompression will need "
+ 					"%s MiB of memory."), uint64_to_str(
+ 						round_up_to_mib(decmem), 0));
+ 	}
+ #endif
+ 
+ 	if (memory_usage <= memory_limit)
+ 		return;
+ 
+ 	// With --format=raw settings are never adjusted to meet
+ 	// the memory usage limit.
+ 	if (opt_format == FORMAT_RAW)
+ 		memlimit_too_small(memory_usage);
+ 
+ 	assert(opt_mode == MODE_COMPRESS);
+ 
+ #ifdef HAVE_ENCODERS
+ #	ifdef MYTHREAD_ENABLED
+ 	if (opt_format == FORMAT_XZ && hardware_threads_is_mt()) {
+ 		// Try to reduce the number of threads before
+ 		// adjusting the compression settings down.
+ 		while (mt_options.threads > 1) {
+ 			// Reduce the number of threads by one and check
+ 			// the memory usage.
+ 			--mt_options.threads;
+ 			memory_usage = filters_memusage_max(
+ 					&mt_options, true);
+ 			if (memory_usage == UINT64_MAX)
+ 				message_bug();
+ 
+ 			if (memory_usage <= memory_limit) {
+ 				// The memory usage is now low enough.
+ 				message(V_WARNING, _("Reduced the number of "
+ 					"threads from %s to %s to not exceed "
+ 					"the memory usage limit of %s MiB"),
+ 					uint64_to_str(
+ 						hardware_threads_get(), 0),
+ 					uint64_to_str(mt_options.threads, 1),
+ 					uint64_to_str(round_up_to_mib(
+ 						memory_limit), 2));
+ 				return;
+ 			}
+ 		}
+ 
+ 		// If the memory usage limit is only a soft limit (automatic
+ 		// number of threads and no --memlimit-compress), the limit
+ 		// is only used to reduce the number of threads and once at
+ 		// just one thread, the limit is completely ignored. This
+ 		// way -T0 won't use insane amount of memory but at the same
+ 		// time the soft limit will never make xz fail and never make
+ 		// xz change settings that would affect the compressed output.
+ 		if (hardware_memlimit_mtenc_is_default()) {
+ 			message(V_WARNING, _("Reduced the number of threads "
+ 				"from %s to one. The automatic memory usage "
+ 				"limit of %s MiB is still being exceeded. "
+ 				"%s MiB of memory is required. "
+ 				"Continuing anyway."),
+ 				uint64_to_str(hardware_threads_get(), 0),
+ 				uint64_to_str(
+ 					round_up_to_mib(memory_limit), 1),
+ 				uint64_to_str(
+ 					round_up_to_mib(memory_usage), 2));
+ 			return;
+ 		}
+ 
+ 		// If --no-adjust was used, we cannot drop to single-threaded
+ 		// mode since it produces different compressed output.
+ 		//
+ 		// NOTE: In xz 5.2.x, --no-adjust also prevented reducing
+ 		// the number of threads. This changed in 5.3.3alpha.
+ 		if (!opt_auto_adjust)
+ 			memlimit_too_small(memory_usage);
+ 
+ 		// Switch to single-threaded mode. It uses
+ 		// less memory than using one thread in
+ 		// the multithreaded mode but the output
+ 		// is also different.
+ 		hardware_threads_set(1);
+ 		memory_usage = filters_memusage_max(NULL, true);
+ 		message(V_WARNING, _("Switching to single-threaded mode "
+ 			"to not exceed the memory usage limit of %s MiB"),
+ 			uint64_to_str(round_up_to_mib(memory_limit), 0));
+ 	}
+ #	endif
+ 
+ 	if (memory_usage <= memory_limit)
+ 		return;
+ 
+ 	// Don't adjust LZMA2 or LZMA1 dictionary size if --no-adjust
+ 	// was specified as that would change the compressed output.
+ 	if (!opt_auto_adjust)
+ 		memlimit_too_small(memory_usage);
+ 
+ 	// Decrease the dictionary size until we meet the memory usage limit.
+ 	// The struct is used to track data needed to correctly reduce the
+ 	// memory usage and report which filters were adjusted.
+ 	typedef struct {
+ 		// Pointer to the filter chain that needs to be reduced.
+ 		// NULL indicates that this filter chain was either never
+ 		// set or was never above the memory limit.
+ 		lzma_filter *filters;
+ 
+ 		// Original dictionary sizes are used to show how each
+ 		// filter's dictionary was reduced.
+ 		uint64_t orig_dict_size;
+ 
+ 		// Index of the LZMA filter in the filters member. We only
+ 		// adjust this filter's memusage because we don't know how
+ 		// to reduce the memory usage of the other filters.
+ 		uint32_t lzma_idx;
+ 
+ 		// Indicates if the filter's dictionary size needs to be
+ 		// reduced to fit under the memory limit (true) or if the
+ 		// filter chain is unused or is already under the memory
+ 		// limit (false).
+ 		bool reduce_dict_size;
+ 	} memusage_reduction_data;
+ 
+ 	memusage_reduction_data memusage_reduction[ARRAY_SIZE(filters)];
+ 
+ 	// Counter represents how many filter chains are above the memory
+ 	// limit.
+ 	size_t count = 0;
+ 
+ 	for (uint32_t i = 0; i < ARRAY_SIZE(filters); i++) {
+ 		// The short var name "r" will reduce the number of lines
+ 		// of code needed since less lines will stretch past 80
+ 		// characters.
+ 		memusage_reduction_data *r = &memusage_reduction[i];
+ 		r->filters = NULL;
+ 		r->reduce_dict_size = false;
+ 
+ 		if (!(filters_used_mask & (1U << i)))
+ 			continue;
+ 
+ 		for (uint32_t j = 0; filters[i][j].id != LZMA_VLI_UNKNOWN;
+ 				j++)
+ 			if ((filters[i][j].id == LZMA_FILTER_LZMA2
+ 					|| filters[i][j].id
+ 						== LZMA_FILTER_LZMA1)
+ 					&& filter_memusages[i]
+ 						> memory_limit) {
+ 				count++;
+ 				r->filters = filters[i];
+ 				r->lzma_idx = j;
+ 				r->reduce_dict_size = true;
+ 
+ 				lzma_options_lzma *opt = r->filters
+ 						[r->lzma_idx].options;
+ 				r->orig_dict_size = opt->dict_size;
+ 				opt->dict_size &= ~((UINT32_C(1) << 20) - 1);
+ 			}
+ 	}
+ 
+ 	// Loop until all filters use <= memory_limit, or exit.
+ 	while (count > 0) {
+ 		for (uint32_t i = 0; i < ARRAY_SIZE(memusage_reduction); i++) {
+ 			memusage_reduction_data *r = &memusage_reduction[i];
+ 
+ 			if (!r->reduce_dict_size)
+ 				continue;
+ 
+ 			lzma_options_lzma *opt =
+ 					r->filters[r->lzma_idx].options;
+ 
+ 			// If it is below 1 MiB, auto-adjusting failed.
+ 			// We could be more sophisticated and scale it
+ 			// down even more, but nobody has complained so far.
+ 			if (opt->dict_size < (UINT32_C(1) << 20))
+ 				memlimit_too_small(memory_usage);
+ 
+ 			uint64_t filt_mem_usage =
+ 					lzma_raw_encoder_memusage(r->filters);
+ 
+ 			if (filt_mem_usage == UINT64_MAX)
+ 				message_bug();
+ 
+ 			if (filt_mem_usage < memory_limit) {
+ 				r->reduce_dict_size = false;
+ 				count--;
+ 			}
+ 			else {
+ 				opt->dict_size -= UINT32_C(1) << 20;
+ 			}
+ 		}
+ 	}
+ 
+ 	// Tell the user that we decreased the dictionary size for
+ 	// each filter that was adjusted.
+ 	for (uint32_t i = 0; i < ARRAY_SIZE(memusage_reduction); i++) {
+ 		memusage_reduction_data *r = &memusage_reduction[i];
+ 
+ 		// If the filters were never set, then the memory usage
+ 		// was never adjusted.
+ 		if (r->filters == NULL)
+ 			continue;
+ 
+ 		lzma_filter *filter_lzma = &(r->filters[r->lzma_idx]);
+ 		lzma_options_lzma *opt = filter_lzma->options;
+ 
+ 		// The first index is the default filter chain. The message
+ 		// should be slightly different if the default filter chain
+ 		// or if --filtersX was adjusted.
+ 		if (i == 0)
+ 			message(V_WARNING, _("Adjusted LZMA%c dictionary "
+ 				"size from %s MiB to %s MiB to not exceed the "
+ 				"memory usage limit of %s MiB"),
+ 				filter_lzma->id == LZMA_FILTER_LZMA2
+ 					? '2' : '1',
+ 				uint64_to_str(r->orig_dict_size >> 20, 0),
+ 				uint64_to_str(opt->dict_size >> 20, 1),
+ 				uint64_to_str(round_up_to_mib(
+ 					memory_limit), 2));
+ 		else
+ 			message(V_WARNING, _("Adjusted LZMA%c dictionary size "
+ 				"for --filters%u from %s MiB to %s MiB to not "
+ 				"exceed the memory usage limit of %s MiB"),
+ 				filter_lzma->id == LZMA_FILTER_LZMA2
+ 					? '2' : '1',
+ 				(unsigned)i,
+ 				uint64_to_str(r->orig_dict_size >> 20, 0),
+ 				uint64_to_str(opt->dict_size >> 20, 1),
+ 				uint64_to_str(round_up_to_mib(
+ 					memory_limit), 2));
+ 	}
+ #endif
+ 
+ 	return;
+ }
+ 
+ 
+ #ifdef HAVE_DECODERS
+ /// Return true if the data in in_buf seems to be in the .xz format.
+ static bool
+ is_format_xz(void)
+ {
+ 	// Specify the magic as hex to be compatible with EBCDIC systems.
+ 	static const uint8_t magic[6] = { 0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00 };
+ 	return strm.avail_in >= sizeof(magic)
+ 			&& memcmp(in_buf.u8, magic, sizeof(magic)) == 0;
+ }
+ 
+ 
+ /// Return true if the data in in_buf seems to be in the .lzma format.
+ static bool
+ is_format_lzma(void)
+ {
+ 	// The .lzma header is 13 bytes.
+ 	if (strm.avail_in < 13)
+ 		return false;
+ 
+ 	// Decode the LZMA1 properties.
+ 	lzma_filter filter = { .id = LZMA_FILTER_LZMA1 };
+ 	if (lzma_properties_decode(&filter, NULL, in_buf.u8, 5) != LZMA_OK)
+ 		return false;
+ 
+ 	// A hack to ditch tons of false positives: We allow only dictionary
+ 	// sizes that are 2^n or 2^n + 2^(n-1) or UINT32_MAX. LZMA_Alone
+ 	// created only files with 2^n, but accepts any dictionary size.
+ 	// If someone complains, this will be reconsidered.
+ 	lzma_options_lzma *opt = filter.options;
+ 	const uint32_t dict_size = opt->dict_size;
+ 	free(opt);
+ 
+ 	if (dict_size != UINT32_MAX) {
+ 		uint32_t d = dict_size - 1;
+ 		d |= d >> 2;
+ 		d |= d >> 3;
+ 		d |= d >> 4;
+ 		d |= d >> 8;
+ 		d |= d >> 16;
+ 		++d;
+ 		if (d != dict_size || dict_size == 0)
+ 			return false;
+ 	}
+ 
+ 	// Another hack to ditch false positives: Assume that if the
+ 	// uncompressed size is known, it must be less than 256 GiB.
+ 	// Again, if someone complains, this will be reconsidered.
+ 	uint64_t uncompressed_size = 0;
+ 	for (size_t i = 0; i < 8; ++i)
+ 		uncompressed_size |= (uint64_t)(in_buf.u8[5 + i]) << (i * 8);
+ 
+ 	if (uncompressed_size != UINT64_MAX
+ 			&& uncompressed_size > (UINT64_C(1) << 38))
+ 		return false;
+ 
+ 	return true;
+ }
+ 
+ 
+ #ifdef HAVE_LZIP_DECODER
+ /// Return true if the data in in_buf seems to be in the .lz format.
+ static bool
+ is_format_lzip(void)
+ {
+ 	static const uint8_t magic[4] = { 0x4C, 0x5A, 0x49, 0x50 };
+ 	return strm.avail_in >= sizeof(magic)
+ 			&& memcmp(in_buf.u8, magic, sizeof(magic)) == 0;
+ }
+ #endif
+ #endif
+ 
+ 
+ /// Detect the input file type (for now, this done only when decompressing),
+ /// and initialize an appropriate coder. Return value indicates if a normal
+ /// liblzma-based coder was initialized (CODER_INIT_NORMAL), if passthru
+ /// mode should be used (CODER_INIT_PASSTHRU), or if an error occurred
+ /// (CODER_INIT_ERROR).
+ static enum coder_init_ret
+ coder_init(file_pair *pair)
+ {
+ 	lzma_ret ret = LZMA_PROG_ERROR;
+ 
+ 	// In most cases if there is input left when coding finishes,
+ 	// something has gone wrong. Exceptions are --single-stream
+ 	// and decoding .lz files which can contain trailing non-.lz data.
+ 	// These will be handled later in this function.
+ 	allow_trailing_input = false;
+ 
+ 	// Set the first filter chain. If the --block-list option is not
+ 	// used then use the default filter chain (filters[0]).
+ 	// Otherwise, use first filter chain from the block list.
+ 	lzma_filter *active_filters = opt_block_list == NULL
+ 			? filters[0]
+ 			: filters[opt_block_list[0].filters_index];
+ 
+ 	if (opt_mode == MODE_COMPRESS) {
+ #ifdef HAVE_ENCODERS
+ 		switch (opt_format) {
+ 		case FORMAT_AUTO:
+ 			// args.c ensures this.
+ 			assert(0);
+ 			break;
+ 
+ 		case FORMAT_XZ:
+ #	ifdef MYTHREAD_ENABLED
+ 			mt_options.filters = active_filters;
+ 			if (hardware_threads_is_mt())
+ 				ret = lzma_stream_encoder_mt(
+ 						&strm, &mt_options);
+ 			else
+ #	endif
+ 				ret = lzma_stream_encoder(
+ 						&strm, active_filters, check);
+ 			break;
+ 
+ 		case FORMAT_LZMA:
+ 			ret = lzma_alone_encoder(&strm,
+ 					active_filters[0].options);
+ 			break;
+ 
+ #	ifdef HAVE_LZIP_DECODER
+ 		case FORMAT_LZIP:
+ 			// args.c should disallow this.
+ 			assert(0);
+ 			ret = LZMA_PROG_ERROR;
+ 			break;
+ #	endif
+ 
+ 		case FORMAT_RAW:
+ 			ret = lzma_raw_encoder(&strm, active_filters);
+ 			break;
+ 		}
+ #endif
+ 	} else {
+ #ifdef HAVE_DECODERS
+ 		uint32_t flags = 0;
+ 
+ 		// It seems silly to warn about unsupported check if the
+ 		// check won't be verified anyway due to --ignore-check.
+ 		if (opt_ignore_check)
+ 			flags |= LZMA_IGNORE_CHECK;
+ 		else
+ 			flags |= LZMA_TELL_UNSUPPORTED_CHECK;
+ 
+ 		if (opt_single_stream)
+ 			allow_trailing_input = true;
+ 		else
+ 			flags |= LZMA_CONCATENATED;
+ 
+ 		// We abuse FORMAT_AUTO to indicate unknown file format,
+ 		// for which we may consider passthru mode.
+ 		enum format_type init_format = FORMAT_AUTO;
+ 
+ 		switch (opt_format) {
+ 		case FORMAT_AUTO:
+ 			// .lz is checked before .lzma since .lzma detection
+ 			// is more complicated (no magic bytes).
+ 			if (is_format_xz())
+ 				init_format = FORMAT_XZ;
+ #	ifdef HAVE_LZIP_DECODER
+ 			else if (is_format_lzip())
+ 				init_format = FORMAT_LZIP;
+ #	endif
+ 			else if (is_format_lzma())
+ 				init_format = FORMAT_LZMA;
+ 			break;
+ 
+ 		case FORMAT_XZ:
+ 			if (is_format_xz())
+ 				init_format = FORMAT_XZ;
+ 			break;
+ 
+ 		case FORMAT_LZMA:
+ 			if (is_format_lzma())
+ 				init_format = FORMAT_LZMA;
+ 			break;
+ 
+ #	ifdef HAVE_LZIP_DECODER
+ 		case FORMAT_LZIP:
+ 			if (is_format_lzip())
+ 				init_format = FORMAT_LZIP;
+ 			break;
+ #	endif
+ 
+ 		case FORMAT_RAW:
+ 			init_format = FORMAT_RAW;
+ 			break;
+ 		}
+ 
+ 		switch (init_format) {
+ 		case FORMAT_AUTO:
+ 			// Unknown file format. If --decompress --stdout
+ 			// --force have been given, then we copy the input
+ 			// as is to stdout. Checking for MODE_DECOMPRESS
+ 			// is needed, because we don't want to do use
+ 			// passthru mode with --test.
+ 			if (opt_mode == MODE_DECOMPRESS
+ 					&& opt_stdout && opt_force) {
+ 				// These are needed for progress info.
+ 				strm.total_in = 0;
+ 				strm.total_out = 0;
+ 				return CODER_INIT_PASSTHRU;
+ 			}
+ 
+ 			ret = LZMA_FORMAT_ERROR;
+ 			break;
+ 
+ 		case FORMAT_XZ:
+ #	ifdef MYTHREAD_ENABLED
+ 			mt_options.flags = flags;
+ 
+ 			mt_options.threads = hardware_threads_get();
+ 			mt_options.memlimit_stop
+ 				= hardware_memlimit_get(MODE_DECOMPRESS);
+ 
+ 			// If single-threaded mode was requested, set the
+ 			// memlimit for threading to zero. This forces the
+ 			// decoder to use single-threaded mode which matches
+ 			// the behavior of lzma_stream_decoder().
+ 			//
+ 			// Otherwise use the limit for threaded decompression
+ 			// which has a sane default (users are still free to
+ 			// make it insanely high though).
+ 			mt_options.memlimit_threading
+ 					= mt_options.threads == 1
+ 					? 0 : hardware_memlimit_mtdec_get();
+ 
+ 			ret = lzma_stream_decoder_mt(&strm, &mt_options);
+ #	else
+ 			ret = lzma_stream_decoder(&strm,
+ 					hardware_memlimit_get(
+ 						MODE_DECOMPRESS), flags);
+ #	endif
+ 			break;
+ 
+ 		case FORMAT_LZMA:
+ 			ret = lzma_alone_decoder(&strm,
+ 					hardware_memlimit_get(
+ 						MODE_DECOMPRESS));
+ 			break;
+ 
+ #	ifdef HAVE_LZIP_DECODER
+ 		case FORMAT_LZIP:
+ 			allow_trailing_input = true;
+ 			ret = lzma_lzip_decoder(&strm,
+ 					hardware_memlimit_get(
+ 						MODE_DECOMPRESS), flags);
+ 			break;
+ #	endif
+ 
+ 		case FORMAT_RAW:
+ 			// Memory usage has already been checked in
+ 			// coder_set_compression_settings().
+ 			ret = lzma_raw_decoder(&strm, active_filters);
+ 			break;
+ 		}
+ 
+ 		// Try to decode the headers. This will catch too low
+ 		// memory usage limit in case it happens in the first
+ 		// Block of the first Stream, which is where it very
+ 		// probably will happen if it is going to happen.
+ 		//
+ 		// This will also catch unsupported check type which
+ 		// we treat as a warning only. If there are empty
+ 		// concatenated Streams with unsupported check type then
+ 		// the message can be shown more than once here. The loop
+ 		// is used in case there is first a warning about
+ 		// unsupported check type and then the first Block
+ 		// would exceed the memlimit.
+ 		if (ret == LZMA_OK && init_format != FORMAT_RAW) {
+ 			strm.next_out = NULL;
+ 			strm.avail_out = 0;
+ 			while ((ret = lzma_code(&strm, LZMA_RUN))
+ 					== LZMA_UNSUPPORTED_CHECK)
+ 				message_warning("%s: %s", pair->src_name,
+ 						message_strm(ret));
+ 
+ 			// With --single-stream lzma_code won't wait for
+ 			// LZMA_FINISH and thus it can return LZMA_STREAM_END
+ 			// if the file has no uncompressed data inside.
+ 			// So treat LZMA_STREAM_END as LZMA_OK here.
+ 			// When lzma_code() is called again in coder_normal()
+ 			// it will return LZMA_STREAM_END again.
+ 			if (ret == LZMA_STREAM_END)
+ 				ret = LZMA_OK;
+ 		}
+ #endif
+ 	}
+ 
+ 	if (ret != LZMA_OK) {
+ 		message_error("%s: %s", pair->src_name, message_strm(ret));
+ 		if (ret == LZMA_MEMLIMIT_ERROR)
+ 			message_mem_needed(V_ERROR, lzma_memusage(&strm));
+ 
+ 		return CODER_INIT_ERROR;
+ 	}
+ 
+ 	return CODER_INIT_NORMAL;
+ }
+ 
+ 
+ #ifdef HAVE_ENCODERS
+ /// Resolve conflicts between opt_block_size and opt_block_list in single
+ /// threaded mode. We want to default to opt_block_list, except when it is
+ /// larger than opt_block_size. If this is the case for the current Block
+ /// at *list_pos, then we break into smaller Blocks. Otherwise advance
+ /// to the next Block in opt_block_list, and break apart if needed.
+ static void
+ split_block(uint64_t *block_remaining,
+ 	    uint64_t *next_block_remaining,
+ 	    size_t *list_pos)
+ {
+ 	if (*next_block_remaining > 0) {
+ 		// The Block at *list_pos has previously been split up.
+ 		assert(!hardware_threads_is_mt());
+ 		assert(opt_block_size > 0);
+ 		assert(opt_block_list != NULL);
+ 
+ 		if (*next_block_remaining > opt_block_size) {
+ 			// We have to split the current Block at *list_pos
+ 			// into another opt_block_size length Block.
+ 			*block_remaining = opt_block_size;
+ 		} else {
+ 			// This is the last remaining split Block for the
+ 			// Block at *list_pos.
+ 			*block_remaining = *next_block_remaining;
+ 		}
+ 
+ 		*next_block_remaining -= *block_remaining;
+ 
+ 	} else {
+ 		// The Block at *list_pos has been finished. Go to the next
+ 		// entry in the list. If the end of the list has been
+ 		// reached, reuse the size and filters of the last Block.
+ 		if (opt_block_list[*list_pos + 1].size != 0) {
+ 			++*list_pos;
+ 
+ 			// Update the filters if needed.
+ 			if (opt_block_list[*list_pos - 1].filters_index
+ 				!= opt_block_list[*list_pos].filters_index) {
+ 				const uint32_t filter_idx = opt_block_list
+ 						[*list_pos].filters_index;
+ 				const lzma_filter *next = filters[filter_idx];
+ 				const lzma_ret ret = lzma_filters_update(
+ 						&strm, next);
+ 
+ 				if (ret != LZMA_OK) {
+ 					// This message is only possible if
+ 					// the filter chain has unsupported
+ 					// options since the filter chain is
+ 					// validated using
+ 					// lzma_raw_encoder_memusage() or
+ 					// lzma_stream_encoder_mt_memusage().
+ 					// Some options are not validated until
+ 					// the encoders are initialized.
+ 					message_fatal(
+ 						_("Error changing to "
+ 						"filter chain %u: %s"),
+ 						(unsigned)filter_idx,
+ 						message_strm(ret));
+ 				}
+ 			}
+ 		}
+ 
+ 		*block_remaining = opt_block_list[*list_pos].size;
+ 
+ 		// If in single-threaded mode, split up the Block if needed.
+ 		// This is not needed in multi-threaded mode because liblzma
+ 		// will do this due to how threaded encoding works.
+ 		if (!hardware_threads_is_mt() && opt_block_size > 0
+ 				&& *block_remaining > opt_block_size) {
+ 			*next_block_remaining
+ 					= *block_remaining - opt_block_size;
+ 			*block_remaining = opt_block_size;
+ 		}
+ 	}
+ }
+ #endif
+ 
+ 
+ static bool
+ coder_write_output(file_pair *pair)
+ {
+ 	if (opt_mode != MODE_TEST) {
+ 		if (io_write(pair, &out_buf, IO_BUFFER_SIZE - strm.avail_out))
+ 			return true;
+ 	}
+ 
+ 	strm.next_out = out_buf.u8;
+ 	strm.avail_out = IO_BUFFER_SIZE;
+ 	return false;
+ }
+ 
+ 
+ /// Compress or decompress using liblzma.
+ static bool
+ coder_normal(file_pair *pair)
+ {
+ 	// Encoder needs to know when we have given all the input to it.
+ 	// The decoders need to know it too when we are using
+ 	// LZMA_CONCATENATED. We need to check for src_eof here, because
+ 	// the first input chunk has been already read if decompressing,
+ 	// and that may have been the only chunk we will read.
+ 	lzma_action action = pair->src_eof ? LZMA_FINISH : LZMA_RUN;
+ 
+ 	lzma_ret ret;
+ 
+ 	// Assume that something goes wrong.
+ 	bool success = false;
+ 
+ #ifdef HAVE_ENCODERS
+ 	// block_remaining indicates how many input bytes to encode before
+ 	// finishing the current .xz Block. The Block size is set with
+ 	// --block-size=SIZE and --block-list. They have an effect only when
+ 	// compressing to the .xz format. If block_remaining == UINT64_MAX,
+ 	// only a single block is created.
+ 	uint64_t block_remaining = UINT64_MAX;
+ 
+ 	// next_block_remaining for when we are in single-threaded mode and
+ 	// the Block in --block-list is larger than the --block-size=SIZE.
+ 	uint64_t next_block_remaining = 0;
+ 
+ 	// Position in opt_block_list. Unused if --block-list wasn't used.
+ 	size_t list_pos = 0;
+ 
+ 	// Handle --block-size for single-threaded mode and the first step
+ 	// of --block-list.
+ 	if (opt_mode == MODE_COMPRESS && opt_format == FORMAT_XZ) {
+ 		// --block-size doesn't do anything here in threaded mode,
+ 		// because the threaded encoder will take care of splitting
+ 		// to fixed-sized Blocks.
+ 		if (!hardware_threads_is_mt() && opt_block_size > 0)
+ 			block_remaining = opt_block_size;
+ 
+ 		// If --block-list was used, start with the first size.
+ 		//
+ 		// For threaded case, --block-size specifies how big Blocks
+ 		// the encoder needs to be prepared to create at maximum
+ 		// and --block-list will simultaneously cause new Blocks
+ 		// to be started at specified intervals. To keep things
+ 		// logical, the same is done in single-threaded mode. The
+ 		// output is still not identical because in single-threaded
+ 		// mode the size info isn't written into Block Headers.
+ 		if (opt_block_list != NULL) {
+ 			if (block_remaining < opt_block_list[list_pos].size) {
+ 				assert(!hardware_threads_is_mt());
+ 				next_block_remaining =
+ 						opt_block_list[list_pos].size
+ 						- block_remaining;
+ 			} else {
+ 				block_remaining =
+ 						opt_block_list[list_pos].size;
+ 			}
+ 		}
+ 	}
+ #endif
+ 
+ 	strm.next_out = out_buf.u8;
+ 	strm.avail_out = IO_BUFFER_SIZE;
+ 
+ 	while (!user_abort) {
+ 		// Fill the input buffer if it is empty and we aren't
+ 		// flushing or finishing.
+ 		if (strm.avail_in == 0 && action == LZMA_RUN) {
+ 			strm.next_in = in_buf.u8;
+ #ifdef HAVE_ENCODERS
+ 			const size_t read_size = my_min(block_remaining,
+ 					IO_BUFFER_SIZE);
+ #else
+ 			const size_t read_size = IO_BUFFER_SIZE;
+ #endif
+ 			strm.avail_in = io_read(pair, &in_buf, read_size);
+ 
+ 			if (strm.avail_in == SIZE_MAX)
+ 				break;
+ 
+ 			if (pair->src_eof) {
+ 				action = LZMA_FINISH;
+ 			}
+ #ifdef HAVE_ENCODERS
+ 			else if (block_remaining != UINT64_MAX) {
+ 				// Start a new Block after every
+ 				// opt_block_size bytes of input.
+ 				block_remaining -= strm.avail_in;
+ 				if (block_remaining == 0)
+ 					action = LZMA_FULL_BARRIER;
+ 			}
+ 
+ 			if (action == LZMA_RUN && pair->flush_needed)
+ 				action = LZMA_SYNC_FLUSH;
+ #endif
+ 		}
+ 
+ 		// Let liblzma do the actual work.
+ 		ret = lzma_code(&strm, action);
+ 
+ 		// Write out if the output buffer became full.
+ 		if (strm.avail_out == 0)
+ 			if (coder_write_output(pair))
+ 				break;
+ 
+ #ifdef HAVE_ENCODERS
+ 		if (ret == LZMA_STREAM_END && (action == LZMA_SYNC_FLUSH
+ 				|| action == LZMA_FULL_BARRIER)) {
+ 			if (action == LZMA_SYNC_FLUSH) {
+ 				// Flushing completed. Write the pending data
+ 				// out immediately so that the reading side
+ 				// can decompress everything compressed so far.
+ 				if (coder_write_output(pair))
+ 					break;
+ 
+ 				// Mark that we haven't seen any new input
+ 				// since the previous flush.
+ 				pair->src_has_seen_input = false;
+ 				pair->flush_needed = false;
+ 			} else {
+ 				// Start a new Block after LZMA_FULL_BARRIER.
+ 				if (opt_block_list == NULL) {
+ 					assert(!hardware_threads_is_mt());
+ 					assert(opt_block_size > 0);
+ 					block_remaining = opt_block_size;
+ 				} else {
+ 					split_block(&block_remaining,
+ 							&next_block_remaining,
+ 							&list_pos);
+ 				}
+ 			}
+ 
+ 			// Start a new Block after LZMA_FULL_FLUSH or continue
+ 			// the same block after LZMA_SYNC_FLUSH.
+ 			action = LZMA_RUN;
+ 		} else
+ #endif
+ 		if (ret != LZMA_OK) {
+ 			// Determine if the return value indicates that we
+ 			// won't continue coding. LZMA_NO_CHECK would be
+ 			// here too if LZMA_TELL_ANY_CHECK was used.
+ 			const bool stop = ret != LZMA_UNSUPPORTED_CHECK;
+ 
+ 			if (stop) {
+ 				// Write the remaining bytes even if something
+ 				// went wrong, because that way the user gets
+ 				// as much data as possible, which can be good
+ 				// when trying to get at least some useful
+ 				// data out of damaged files.
+ 				if (coder_write_output(pair))
+ 					break;
+ 			}
+ 
+ 			if (ret == LZMA_STREAM_END) {
+ 				if (allow_trailing_input) {
+ 					io_fix_src_pos(pair, strm.avail_in);
+ 					success = true;
+ 					break;
+ 				}
+ 
+ 				// Check that there is no trailing garbage.
+ 				// This is needed for LZMA_Alone and raw
+ 				// streams. This is *not* done with .lz files
+ 				// as that format specifically requires
+ 				// allowing trailing garbage.
+ 				if (strm.avail_in == 0 && !pair->src_eof) {
+ 					// Try reading one more byte.
+ 					// Hopefully we don't get any more
+ 					// input, and thus pair->src_eof
+ 					// becomes true.
+ 					strm.avail_in = io_read(
+ 							pair, &in_buf, 1);
+ 					if (strm.avail_in == SIZE_MAX)
+ 						break;
+ 
+ 					assert(strm.avail_in == 0
+ 							|| strm.avail_in == 1);
+ 				}
+ 
+ 				if (strm.avail_in == 0) {
+ 					assert(pair->src_eof);
+ 					success = true;
+ 					break;
+ 				}
+ 
+ 				// We hadn't reached the end of the file.
+ 				ret = LZMA_DATA_ERROR;
+ 				assert(stop);
+ 			}
+ 
+ 			// If we get here and stop is true, something went
+ 			// wrong and we print an error. Otherwise it's just
+ 			// a warning and coding can continue.
+ 			if (stop) {
+ 				message_error("%s: %s", pair->src_name,
+ 						message_strm(ret));
+ 			} else {
+ 				message_warning("%s: %s", pair->src_name,
+ 						message_strm(ret));
+ 
+ 				// When compressing, all possible errors set
+ 				// stop to true.
+ 				assert(opt_mode != MODE_COMPRESS);
+ 			}
+ 
+ 			if (ret == LZMA_MEMLIMIT_ERROR) {
+ 				// Display how much memory it would have
+ 				// actually needed.
+ 				message_mem_needed(V_ERROR,
+ 						lzma_memusage(&strm));
+ 			}
+ 
+ 			if (stop)
+ 				break;
+ 		}
+ 
+ 		// Show progress information under certain conditions.
+ 		message_progress_update();
+ 	}
+ 
+ 	return success;
+ }
+ 
+ 
+ /// Copy from input file to output file without processing the data in any
+ /// way. This is used only when trying to decompress unrecognized files
+ /// with --decompress --stdout --force, so the output is always stdout.
+ static bool
+ coder_passthru(file_pair *pair)
+ {
+ 	while (strm.avail_in != 0) {
+ 		if (user_abort)
+ 			return false;
+ 
+ 		if (io_write(pair, &in_buf, strm.avail_in))
+ 			return false;
+ 
+ 		strm.total_in += strm.avail_in;
+ 		strm.total_out = strm.total_in;
+ 		message_progress_update();
+ 
+ 		strm.avail_in = io_read(pair, &in_buf, IO_BUFFER_SIZE);
+ 		if (strm.avail_in == SIZE_MAX)
+ 			return false;
+ 	}
+ 
+ 	return true;
+ }
+ 
+ 
+ extern void
+ coder_run(const char *filename)
+ {
+ 	// Set and possibly print the filename for the progress message.
+ 	message_filename(filename);
+ 
+ 	// Try to open the input file.
+ 	file_pair *pair = io_open_src(filename);
+ 	if (pair == NULL)
+ 		return;
+ 
+ 	// Assume that something goes wrong.
+ 	bool success = false;
+ 
+ 	if (opt_mode == MODE_COMPRESS) {
+ 		strm.next_in = NULL;
+ 		strm.avail_in = 0;
+ 	} else {
+ 		// Read the first chunk of input data. This is needed
+ 		// to detect the input file type.
+ 		strm.next_in = in_buf.u8;
+ 		strm.avail_in = io_read(pair, &in_buf, IO_BUFFER_SIZE);
+ 	}
+ 
+ 	if (strm.avail_in != SIZE_MAX) {
+ 		// Initialize the coder. This will detect the file format
+ 		// and, in decompression or testing mode, check the memory
+ 		// usage of the first Block too. This way we don't try to
+ 		// open the destination file if we see that coding wouldn't
+ 		// work at all anyway. This also avoids deleting the old
+ 		// "target" file if --force was used.
+ 		const enum coder_init_ret init_ret = coder_init(pair);
+ 
+ 		if (init_ret != CODER_INIT_ERROR && !user_abort) {
+ 			// Don't open the destination file when --test
+ 			// is used.
+ 			if (opt_mode == MODE_TEST || !io_open_dest(pair)) {
+ 				// Remember the current time. It is needed
+ 				// for progress indicator.
+ 				mytime_set_start_time();
+ 
+ 				// Initialize the progress indicator.
+ 				//
+ 				// NOTE: When reading from stdin, fstat()
+ 				// isn't called on it and thus src_st.st_size
+ 				// is zero. If stdin pointed to a regular
+ 				// file, it would still be possible to know
+ 				// the file size but then we would also need
+ 				// to take into account the current reading
+ 				// position since with stdin it isn't
+ 				// necessarily at the beginning of the file.
+ 				const bool is_passthru = init_ret
+ 						== CODER_INIT_PASSTHRU;
+ 				const uint64_t in_size
+ 					= pair->src_st.st_size <= 0
+ 					? 0 : (uint64_t)(pair->src_st.st_size);
+ 				message_progress_start(&strm,
+ 						is_passthru, in_size);
+ 
+ 				// Do the actual coding or passthru.
+ 				if (is_passthru)
+ 					success = coder_passthru(pair);
+ 				else
+ 					success = coder_normal(pair);
+ 
+ 				message_progress_end(success);
+ 			}
+ 		}
+ 	}
+ 
+ 	// Close the file pair. It needs to know if coding was successful to
+ 	// know if the source or target file should be unlinked.
+ 	io_close(pair, success);
+ 
+ 	return;
+ }
+ 
+ 
+ #ifndef NDEBUG
+ extern void
+ coder_free(void)
+ {
+ 	// Free starting from the second filter chain since the default
+ 	// filter chain may have its options set from a static variable
+ 	// in coder_set_compression_settings(). Since this is only run in
+ 	// debug mode and will be freed when the process ends anyway, we
+ 	// don't worry about freeing it.
+ 	for (uint32_t i = 1; i < ARRAY_SIZE(filters); i++) {
+ 		if (filters_used_mask & (1U << i))
+ 			lzma_filters_free(filters[i], NULL);
+ 	}
+ 
+ 	lzma_end(&strm);
+ 	return;
+ }
+ #endif
 diff --git a/src/xz/coder.h b/src/xz/coder.h
 index 7a255939..7dfa466e 100644
 --- a/src/xz/coder.h
 +++ b/src/xz/coder.h
-@@ -3,7 +3,8 @@
+@@ -1,96 +1,97 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
  /// \file       coder.h
  /// \brief      Compresses or uncompresses a file
  //
@@ -60,11 +2461,100 @@ index 7a255939..7dfa466e 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ enum operation_mode {
+ 	MODE_COMPRESS,
+ 	MODE_DECOMPRESS,
+ 	MODE_TEST,
+ 	MODE_LIST,
+ };
+ 
+ 
+ // NOTE: The order of these is significant in suffix.c.
+ enum format_type {
+ 	FORMAT_AUTO,
+ 	FORMAT_XZ,
+ 	FORMAT_LZMA,
+ #ifdef HAVE_LZIP_DECODER
+ 	FORMAT_LZIP,
+ #endif
+ 	FORMAT_RAW,
+ };
+ 
+ 
+ /// Simple struct to track Block metadata specified through the
+ /// --block-list option.
+ typedef struct {
+ 	/// Uncompressed size of the Block
+ 	uint64_t size;
+ 
+ 	/// Index into the filters[] representing the filter chain to use
+ 	/// for this Block.
+ 	uint32_t filters_index;
+ } block_list_entry;
+ 
+ 
+ /// Operation mode of the command line tool. This is set in args.c and read
+ /// in several files.
+ extern enum operation_mode opt_mode;
+ 
+ /// File format to use when encoding or what format(s) to accept when
+ /// decoding. This is a global because it's needed also in suffix.c.
+ /// This is set in args.c.
+ extern enum format_type opt_format;
+ 
+ /// If true, the compression settings are automatically adjusted down if
+ /// they exceed the memory usage limit.
+ extern bool opt_auto_adjust;
+ 
+ /// If true, stop after decoding the first stream.
+ extern bool opt_single_stream;
+ 
+ /// If non-zero, start a new .xz Block after every opt_block_size bytes
+ /// of input. This has an effect only when compressing to the .xz format.
+ extern uint64_t opt_block_size;
+ 
+ /// List of block size and filter chain pointer pairs.
+ extern block_list_entry *opt_block_list;
+ 
+ /// Set the integrity check type used when compressing
+ extern void coder_set_check(lzma_check check);
+ 
+ /// Set preset number
+ extern void coder_set_preset(uint32_t new_preset);
+ 
+ /// Enable extreme mode
+ extern void coder_set_extreme(void);
+ 
+ /// Add a filter to the custom filter chain
+ extern void coder_add_filter(lzma_vli id, void *options);
+ 
+ /// Set and partially validate compression settings. This can also be used
+ /// in decompression or test mode with the raw format.
+ extern void coder_set_compression_settings(void);
+ 
+ /// Compress or decompress the given file
+ extern void coder_run(const char *filename);
+ 
+ #ifndef NDEBUG
+ /// Free the memory allocated for the coder and kill the worker threads.
+ extern void coder_free(void);
+ #endif
+ 
+ /// Create filter chain from string
+ extern void coder_add_filters_from_str(const char *filter_str);
+ 
+ /// Add or overwrite a filter that can be used by the block-list.
+ extern void coder_add_block_filters(const char *str, size_t slot);
 diff --git a/src/xz/message.c b/src/xz/message.c
 index a888d29e..8caba650 100644
 --- a/src/xz/message.c
 +++ b/src/xz/message.c
-@@ -3,7 +3,8 @@
+@@ -1,1190 +1,1191 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
  /// \file       message.c
  /// \brief      Printing messages
  //
@@ -74,3 +2564,1184 @@ index a888d29e..8caba650 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ 
+ #include <stdarg.h>
+ 
+ 
+ /// Number of the current file
+ static unsigned int files_pos = 0;
+ 
+ /// Total number of input files; zero if unknown.
+ static unsigned int files_total;
+ 
+ /// Verbosity level
+ static enum message_verbosity verbosity = V_WARNING;
+ 
+ /// Filename which we will print with the verbose messages
+ static const char *filename;
+ 
+ /// True once the a filename has been printed to stderr as part of progress
+ /// message. If automatic progress updating isn't enabled, this becomes true
+ /// after the first progress message has been printed due to user sending
+ /// SIGINFO, SIGUSR1, or SIGALRM. Once this variable is true, we will print
+ /// an empty line before the next filename to make the output more readable.
+ static bool first_filename_printed = false;
+ 
+ /// This is set to true when we have printed the current filename to stderr
+ /// as part of a progress message. This variable is useful only if not
+ /// updating progress automatically: if user sends many SIGINFO, SIGUSR1, or
+ /// SIGALRM signals, we won't print the name of the same file multiple times.
+ static bool current_filename_printed = false;
+ 
+ /// True if we should print progress indicator and update it automatically
+ /// if also verbose >= V_VERBOSE.
+ static bool progress_automatic;
+ 
+ /// True if message_progress_start() has been called but
+ /// message_progress_end() hasn't been called yet.
+ static bool progress_started = false;
+ 
+ /// This is true when a progress message was printed and the cursor is still
+ /// on the same line with the progress message. In that case, a newline has
+ /// to be printed before any error messages.
+ static bool progress_active = false;
+ 
+ /// Pointer to lzma_stream used to do the encoding or decoding.
+ static lzma_stream *progress_strm;
+ 
+ /// This is true if we are in passthru mode (not actually compressing or
+ /// decompressing) and thus cannot use lzma_get_progress(progress_strm, ...).
+ /// That is, we are using coder_passthru() in coder.c.
+ static bool progress_is_from_passthru;
+ 
+ /// Expected size of the input stream is needed to show completion percentage
+ /// and estimate remaining time.
+ static uint64_t expected_in_size;
+ 
+ 
+ // Use alarm() and SIGALRM when they are supported. This has two minor
+ // advantages over the alternative of polling gettimeofday():
+ //  - It is possible for the user to send SIGINFO, SIGUSR1, or SIGALRM to
+ //    get intermediate progress information even when --verbose wasn't used
+ //    or stderr is not a terminal.
+ //  - alarm() + SIGALRM seems to have slightly less overhead than polling
+ //    gettimeofday().
+ #ifdef SIGALRM
+ 
+ const int message_progress_sigs[] = {
+ 	SIGALRM,
+ #ifdef SIGINFO
+ 	SIGINFO,
+ #endif
+ #ifdef SIGUSR1
+ 	SIGUSR1,
+ #endif
+ 	0
+ };
+ 
+ /// The signal handler for SIGALRM sets this to true. It is set back to false
+ /// once the progress message has been updated.
+ static volatile sig_atomic_t progress_needs_updating = false;
+ 
+ /// Signal handler for SIGALRM
+ static void
+ progress_signal_handler(int sig lzma_attribute((__unused__)))
+ {
+ 	progress_needs_updating = true;
+ 	return;
+ }
+ 
+ #else
+ 
+ /// This is true when progress message printing is wanted. Using the same
+ /// variable name as above to avoid some ifdefs.
+ static bool progress_needs_updating = false;
+ 
+ /// Elapsed time when the next progress message update should be done.
+ static uint64_t progress_next_update;
+ 
+ #endif
+ 
+ 
+ extern void
+ message_init(void)
+ {
+ 	// If --verbose is used, we use a progress indicator if and only
+ 	// if stderr is a terminal. If stderr is not a terminal, we print
+ 	// verbose information only after finishing the file. As a special
+ 	// exception, even if --verbose was not used, user can send SIGALRM
+ 	// to make us print progress information once without automatic
+ 	// updating.
+ 	progress_automatic = isatty(STDERR_FILENO);
+ 
+ 	// Commented out because COLUMNS is rarely exported to environment.
+ 	// Most users have at least 80 columns anyway, let's think something
+ 	// fancy here if enough people complain.
+ /*
+ 	if (progress_automatic) {
+ 		// stderr is a terminal. Check the COLUMNS environment
+ 		// variable to see if the terminal is wide enough. If COLUMNS
+ 		// doesn't exist or it has some unparsable value, we assume
+ 		// that the terminal is wide enough.
+ 		const char *columns_str = getenv("COLUMNS");
+ 		if (columns_str != NULL) {
+ 			char *endptr;
+ 			const long columns = strtol(columns_str, &endptr, 10);
+ 			if (*endptr != '\0' || columns < 80)
+ 				progress_automatic = false;
+ 		}
+ 	}
+ */
+ 
+ #ifdef SIGALRM
+ 	// Establish the signal handlers which set a flag to tell us that
+ 	// progress info should be updated.
+ 	struct sigaction sa;
+ 	sigemptyset(&sa.sa_mask);
+ 	sa.sa_flags = 0;
+ 	sa.sa_handler = &progress_signal_handler;
+ 
+ 	for (size_t i = 0; message_progress_sigs[i] != 0; ++i)
+ 		if (sigaction(message_progress_sigs[i], &sa, NULL))
+ 			message_signal_handler();
+ #endif
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_verbosity_increase(void)
+ {
+ 	if (verbosity < V_DEBUG)
+ 		++verbosity;
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_verbosity_decrease(void)
+ {
+ 	if (verbosity > V_SILENT)
+ 		--verbosity;
+ 
+ 	return;
+ }
+ 
+ 
+ extern enum message_verbosity
+ message_verbosity_get(void)
+ {
+ 	return verbosity;
+ }
+ 
+ 
+ extern void
+ message_set_files(unsigned int files)
+ {
+ 	files_total = files;
+ 	return;
+ }
+ 
+ 
+ /// Prints the name of the current file if it hasn't been printed already,
+ /// except if we are processing exactly one stream from stdin to stdout.
+ /// I think it looks nicer to not print "(stdin)" when --verbose is used
+ /// in a pipe and no other files are processed.
+ static void
+ print_filename(void)
+ {
+ 	if (!opt_robot && (files_total != 1 || filename != stdin_filename)) {
+ 		signals_block();
+ 
+ 		FILE *file = opt_mode == MODE_LIST ? stdout : stderr;
+ 
+ 		// If a file was already processed, put an empty line
+ 		// before the next filename to improve readability.
+ 		if (first_filename_printed)
+ 			fputc('\n', file);
+ 
+ 		first_filename_printed = true;
+ 		current_filename_printed = true;
+ 
+ 		// If we don't know how many files there will be due
+ 		// to usage of --files or --files0.
+ 		if (files_total == 0)
+ 			fprintf(file, "%s (%u)\n", filename,
+ 					files_pos);
+ 		else
+ 			fprintf(file, "%s (%u/%u)\n", filename,
+ 					files_pos, files_total);
+ 
+ 		signals_unblock();
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_filename(const char *src_name)
+ {
+ 	// Start numbering the files starting from one.
+ 	++files_pos;
+ 	filename = src_name;
+ 
+ 	if (verbosity >= V_VERBOSE
+ 			&& (progress_automatic || opt_mode == MODE_LIST))
+ 		print_filename();
+ 	else
+ 		current_filename_printed = false;
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_progress_start(lzma_stream *strm, bool is_passthru, uint64_t in_size)
+ {
+ 	// Store the pointer to the lzma_stream used to do the coding.
+ 	// It is needed to find out the position in the stream.
+ 	progress_strm = strm;
+ 	progress_is_from_passthru = is_passthru;
+ 
+ 	// Store the expected size of the file. If we aren't printing any
+ 	// statistics, then is will be unused. But since it is possible
+ 	// that the user sends us a signal to show statistics, we need
+ 	// to have it available anyway.
+ 	expected_in_size = in_size;
+ 
+ 	// Indicate that progress info may need to be printed before
+ 	// printing error messages.
+ 	progress_started = true;
+ 
+ 	// If progress indicator is wanted, print the filename and possibly
+ 	// the file count now.
+ 	if (verbosity >= V_VERBOSE && progress_automatic) {
+ 		// Start the timer to display the first progress message
+ 		// after one second. An alternative would be to show the
+ 		// first message almost immediately, but delaying by one
+ 		// second looks better to me, since extremely early
+ 		// progress info is pretty much useless.
+ #ifdef SIGALRM
+ 		// First disable a possibly existing alarm.
+ 		alarm(0);
+ 		progress_needs_updating = false;
+ 		alarm(1);
+ #else
+ 		progress_needs_updating = true;
+ 		progress_next_update = 1000;
+ #endif
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ /// Make the string indicating completion percentage.
+ static const char *
+ progress_percentage(uint64_t in_pos)
+ {
+ 	// If the size of the input file is unknown or the size told us is
+ 	// clearly wrong since we have processed more data than the alleged
+ 	// size of the file, show a static string indicating that we have
+ 	// no idea of the completion percentage.
+ 	if (expected_in_size == 0 || in_pos > expected_in_size)
+ 		return "--- %";
+ 
+ 	// Never show 100.0 % before we actually are finished.
+ 	double percentage = (double)(in_pos) / (double)(expected_in_size)
+ 			* 99.9;
+ 
+ 	// Use big enough buffer to hold e.g. a multibyte decimal point.
+ 	static char buf[16];
+ 	snprintf(buf, sizeof(buf), "%.1f %%", percentage);
+ 
+ 	return buf;
+ }
+ 
+ 
+ /// Make the string containing the amount of input processed, amount of
+ /// output produced, and the compression ratio.
+ static const char *
+ progress_sizes(uint64_t compressed_pos, uint64_t uncompressed_pos, bool final)
+ {
+ 	// Use big enough buffer to hold e.g. a multibyte thousand separators.
+ 	static char buf[128];
+ 	char *pos = buf;
+ 	size_t left = sizeof(buf);
+ 
+ 	// Print the sizes. If this the final message, use more reasonable
+ 	// units than MiB if the file was small.
+ 	const enum nicestr_unit unit_min = final ? NICESTR_B : NICESTR_MIB;
+ 	my_snprintf(&pos, &left, "%s / %s",
+ 			uint64_to_nicestr(compressed_pos,
+ 				unit_min, NICESTR_TIB, false, 0),
+ 			uint64_to_nicestr(uncompressed_pos,
+ 				unit_min, NICESTR_TIB, false, 1));
+ 
+ 	// Avoid division by zero. If we cannot calculate the ratio, set
+ 	// it to some nice number greater than 10.0 so that it gets caught
+ 	// in the next if-clause.
+ 	const double ratio = uncompressed_pos > 0
+ 			? (double)(compressed_pos) / (double)(uncompressed_pos)
+ 			: 16.0;
+ 
+ 	// If the ratio is very bad, just indicate that it is greater than
+ 	// 9.999. This way the length of the ratio field stays fixed.
+ 	if (ratio > 9.999)
+ 		snprintf(pos, left, " > %.3f", 9.999);
+ 	else
+ 		snprintf(pos, left, " = %.3f", ratio);
+ 
+ 	return buf;
+ }
+ 
+ 
+ /// Make the string containing the processing speed of uncompressed data.
+ static const char *
+ progress_speed(uint64_t uncompressed_pos, uint64_t elapsed)
+ {
+ 	// Don't print the speed immediately, since the early values look
+ 	// somewhat random.
+ 	if (elapsed < 3000)
+ 		return "";
+ 
+ 	// The first character of KiB/s, MiB/s, or GiB/s:
+ 	static const char unit[] = { 'K', 'M', 'G' };
+ 
+ 	size_t unit_index = 0;
+ 
+ 	// Calculate the speed as KiB/s.
+ 	double speed = (double)(uncompressed_pos)
+ 			/ ((double)(elapsed) * (1024.0 / 1000.0));
+ 
+ 	// Adjust the unit of the speed if needed.
+ 	while (speed > 999.0) {
+ 		speed /= 1024.0;
+ 		if (++unit_index == ARRAY_SIZE(unit))
+ 			return ""; // Way too fast ;-)
+ 	}
+ 
+ 	// Use decimal point only if the number is small. Examples:
+ 	//  - 0.1 KiB/s
+ 	//  - 9.9 KiB/s
+ 	//  - 99 KiB/s
+ 	//  - 999 KiB/s
+ 	// Use big enough buffer to hold e.g. a multibyte decimal point.
+ 	static char buf[16];
+ 	snprintf(buf, sizeof(buf), "%.*f %ciB/s",
+ 			speed > 9.9 ? 0 : 1, speed, unit[unit_index]);
+ 	return buf;
+ }
+ 
+ 
+ /// Make a string indicating elapsed time. The format is either
+ /// M:SS or H:MM:SS depending on if the time is an hour or more.
+ static const char *
+ progress_time(uint64_t mseconds)
+ {
+ 	// 9999 hours = 416 days
+ 	static char buf[sizeof("9999:59:59")];
+ 
+ 	// 32-bit variable is enough for elapsed time (136 years).
+ 	uint32_t seconds = (uint32_t)(mseconds / 1000);
+ 
+ 	// Don't show anything if the time is zero or ridiculously big.
+ 	if (seconds == 0 || seconds > ((9999 * 60) + 59) * 60 + 59)
+ 		return "";
+ 
+ 	uint32_t minutes = seconds / 60;
+ 	seconds %= 60;
+ 
+ 	if (minutes >= 60) {
+ 		const uint32_t hours = minutes / 60;
+ 		minutes %= 60;
+ 		snprintf(buf, sizeof(buf),
+ 				"%" PRIu32 ":%02" PRIu32 ":%02" PRIu32,
+ 				hours, minutes, seconds);
+ 	} else {
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 ":%02" PRIu32,
+ 				minutes, seconds);
+ 	}
+ 
+ 	return buf;
+ }
+ 
+ 
+ /// Return a string containing estimated remaining time when
+ /// reasonably possible.
+ static const char *
+ progress_remaining(uint64_t in_pos, uint64_t elapsed)
+ {
+ 	// Don't show the estimated remaining time when it wouldn't
+ 	// make sense:
+ 	//  - Input size is unknown.
+ 	//  - Input has grown bigger since we started (de)compressing.
+ 	//  - We haven't processed much data yet, so estimate would be
+ 	//    too inaccurate.
+ 	//  - Only a few seconds has passed since we started (de)compressing,
+ 	//    so estimate would be too inaccurate.
+ 	if (expected_in_size == 0 || in_pos > expected_in_size
+ 			|| in_pos < (UINT64_C(1) << 19) || elapsed < 8000)
+ 		return "";
+ 
+ 	// Calculate the estimate. Don't give an estimate of zero seconds,
+ 	// since it is possible that all the input has been already passed
+ 	// to the library, but there is still quite a bit of output pending.
+ 	uint32_t remaining = (uint32_t)((double)(expected_in_size - in_pos)
+ 			* ((double)(elapsed) / 1000.0) / (double)(in_pos));
+ 	if (remaining < 1)
+ 		remaining = 1;
+ 
+ 	static char buf[sizeof("9 h 55 min")];
+ 
+ 	// Select appropriate precision for the estimated remaining time.
+ 	if (remaining <= 10) {
+ 		// A maximum of 10 seconds remaining.
+ 		// Show the number of seconds as is.
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " s", remaining);
+ 
+ 	} else if (remaining <= 50) {
+ 		// A maximum of 50 seconds remaining.
+ 		// Round up to the next multiple of five seconds.
+ 		remaining = (remaining + 4) / 5 * 5;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " s", remaining);
+ 
+ 	} else if (remaining <= 590) {
+ 		// A maximum of 9 minutes and 50 seconds remaining.
+ 		// Round up to the next multiple of ten seconds.
+ 		remaining = (remaining + 9) / 10 * 10;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " min %" PRIu32 " s",
+ 				remaining / 60, remaining % 60);
+ 
+ 	} else if (remaining <= 59 * 60) {
+ 		// A maximum of 59 minutes remaining.
+ 		// Round up to the next multiple of a minute.
+ 		remaining = (remaining + 59) / 60;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " min", remaining);
+ 
+ 	} else if (remaining <= 9 * 3600 + 50 * 60) {
+ 		// A maximum of 9 hours and 50 minutes left.
+ 		// Round up to the next multiple of ten minutes.
+ 		remaining = (remaining + 599) / 600 * 10;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " h %" PRIu32 " min",
+ 				remaining / 60, remaining % 60);
+ 
+ 	} else if (remaining <= 23 * 3600) {
+ 		// A maximum of 23 hours remaining.
+ 		// Round up to the next multiple of an hour.
+ 		remaining = (remaining + 3599) / 3600;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " h", remaining);
+ 
+ 	} else if (remaining <= 9 * 24 * 3600 + 23 * 3600) {
+ 		// A maximum of 9 days and 23 hours remaining.
+ 		// Round up to the next multiple of an hour.
+ 		remaining = (remaining + 3599) / 3600;
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " d %" PRIu32 " h",
+ 				remaining / 24, remaining % 24);
+ 
+ 	} else if (remaining <= 999 * 24 * 3600) {
+ 		// A maximum of 999 days remaining. ;-)
+ 		// Round up to the next multiple of a day.
+ 		remaining = (remaining + 24 * 3600 - 1) / (24 * 3600);
+ 		snprintf(buf, sizeof(buf), "%" PRIu32 " d", remaining);
+ 
+ 	} else {
+ 		// The estimated remaining time is too big. Don't show it.
+ 		return "";
+ 	}
+ 
+ 	return buf;
+ }
+ 
+ 
+ /// Get how much uncompressed and compressed data has been processed.
+ static void
+ progress_pos(uint64_t *in_pos,
+ 		uint64_t *compressed_pos, uint64_t *uncompressed_pos)
+ {
+ 	uint64_t out_pos;
+ 	if (progress_is_from_passthru) {
+ 		// In passthru mode the progress info is in total_in/out but
+ 		// the *progress_strm itself isn't initialized and thus we
+ 		// cannot use lzma_get_progress().
+ 		*in_pos = progress_strm->total_in;
+ 		out_pos = progress_strm->total_out;
+ 	} else {
+ 		lzma_get_progress(progress_strm, in_pos, &out_pos);
+ 	}
+ 
+ 	// It cannot have processed more input than it has been given.
+ 	assert(*in_pos <= progress_strm->total_in);
+ 
+ 	// It cannot have produced more output than it claims to have ready.
+ 	assert(out_pos >= progress_strm->total_out);
+ 
+ 	if (opt_mode == MODE_COMPRESS) {
+ 		*compressed_pos = out_pos;
+ 		*uncompressed_pos = *in_pos;
+ 	} else {
+ 		*compressed_pos = *in_pos;
+ 		*uncompressed_pos = out_pos;
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_progress_update(void)
+ {
+ 	if (!progress_needs_updating)
+ 		return;
+ 
+ 	// Calculate how long we have been processing this file.
+ 	const uint64_t elapsed = mytime_get_elapsed();
+ 
+ #ifndef SIGALRM
+ 	if (progress_next_update > elapsed)
+ 		return;
+ 
+ 	progress_next_update = elapsed + 1000;
+ #endif
+ 
+ 	// Get our current position in the stream.
+ 	uint64_t in_pos;
+ 	uint64_t compressed_pos;
+ 	uint64_t uncompressed_pos;
+ 	progress_pos(&in_pos, &compressed_pos, &uncompressed_pos);
+ 
+ 	// Block signals so that fprintf() doesn't get interrupted.
+ 	signals_block();
+ 
+ 	// Print the filename if it hasn't been printed yet.
+ 	if (!current_filename_printed)
+ 		print_filename();
+ 
+ 	// Print the actual progress message. The idea is that there is at
+ 	// least three spaces between the fields in typical situations, but
+ 	// even in rare situations there is at least one space.
+ 	const char *cols[5] = {
+ 		progress_percentage(in_pos),
+ 		progress_sizes(compressed_pos, uncompressed_pos, false),
+ 		progress_speed(uncompressed_pos, elapsed),
+ 		progress_time(elapsed),
+ 		progress_remaining(in_pos, elapsed),
+ 	};
+ 	fprintf(stderr, "\r %*s %*s   %*s %10s   %10s\r",
+ 			tuklib_mbstr_fw(cols[0], 6), cols[0],
+ 			tuklib_mbstr_fw(cols[1], 35), cols[1],
+ 			tuklib_mbstr_fw(cols[2], 9), cols[2],
+ 			cols[3],
+ 			cols[4]);
+ 
+ #ifdef SIGALRM
+ 	// Updating the progress info was finished. Reset
+ 	// progress_needs_updating to wait for the next SIGALRM.
+ 	//
+ 	// NOTE: This has to be done before alarm(1) or with (very) bad
+ 	// luck we could be setting this to false after the alarm has already
+ 	// been triggered.
+ 	progress_needs_updating = false;
+ 
+ 	if (verbosity >= V_VERBOSE && progress_automatic) {
+ 		// Mark that the progress indicator is active, so if an error
+ 		// occurs, the error message gets printed cleanly.
+ 		progress_active = true;
+ 
+ 		// Restart the timer so that progress_needs_updating gets
+ 		// set to true after about one second.
+ 		alarm(1);
+ 	} else {
+ 		// The progress message was printed because user had sent us
+ 		// SIGALRM. In this case, each progress message is printed
+ 		// on its own line.
+ 		fputc('\n', stderr);
+ 	}
+ #else
+ 	// When SIGALRM isn't supported and we get here, it's always due to
+ 	// automatic progress update. We set progress_active here too like
+ 	// described above.
+ 	assert(verbosity >= V_VERBOSE);
+ 	assert(progress_automatic);
+ 	progress_active = true;
+ #endif
+ 
+ 	signals_unblock();
+ 
+ 	return;
+ }
+ 
+ 
+ static void
+ progress_flush(bool finished)
+ {
+ 	if (!progress_started || verbosity < V_VERBOSE)
+ 		return;
+ 
+ 	uint64_t in_pos;
+ 	uint64_t compressed_pos;
+ 	uint64_t uncompressed_pos;
+ 	progress_pos(&in_pos, &compressed_pos, &uncompressed_pos);
+ 
+ 	// Avoid printing intermediate progress info if some error occurs
+ 	// in the beginning of the stream. (If something goes wrong later in
+ 	// the stream, it is sometimes useful to tell the user where the
+ 	// error approximately occurred, especially if the error occurs
+ 	// after a time-consuming operation.)
+ 	if (!finished && !progress_active
+ 			&& (compressed_pos == 0 || uncompressed_pos == 0))
+ 		return;
+ 
+ 	progress_active = false;
+ 
+ 	const uint64_t elapsed = mytime_get_elapsed();
+ 
+ 	signals_block();
+ 
+ 	// When using the auto-updating progress indicator, the final
+ 	// statistics are printed in the same format as the progress
+ 	// indicator itself.
+ 	if (progress_automatic) {
+ 		const char *cols[5] = {
+ 			finished ? "100 %" : progress_percentage(in_pos),
+ 			progress_sizes(compressed_pos, uncompressed_pos, true),
+ 			progress_speed(uncompressed_pos, elapsed),
+ 			progress_time(elapsed),
+ 			finished ? "" : progress_remaining(in_pos, elapsed),
+ 		};
+ 		fprintf(stderr, "\r %*s %*s   %*s %10s   %10s\n",
+ 				tuklib_mbstr_fw(cols[0], 6), cols[0],
+ 				tuklib_mbstr_fw(cols[1], 35), cols[1],
+ 				tuklib_mbstr_fw(cols[2], 9), cols[2],
+ 				cols[3],
+ 				cols[4]);
+ 	} else {
+ 		// The filename is always printed.
+ 		fprintf(stderr, "%s: ", filename);
+ 
+ 		// Percentage is printed only if we didn't finish yet.
+ 		if (!finished) {
+ 			// Don't print the percentage when it isn't known
+ 			// (starts with a dash).
+ 			const char *percentage = progress_percentage(in_pos);
+ 			if (percentage[0] != '-')
+ 				fprintf(stderr, "%s, ", percentage);
+ 		}
+ 
+ 		// Size information is always printed.
+ 		fprintf(stderr, "%s", progress_sizes(
+ 				compressed_pos, uncompressed_pos, true));
+ 
+ 		// The speed and elapsed time aren't always shown.
+ 		const char *speed = progress_speed(uncompressed_pos, elapsed);
+ 		if (speed[0] != '\0')
+ 			fprintf(stderr, ", %s", speed);
+ 
+ 		const char *elapsed_str = progress_time(elapsed);
+ 		if (elapsed_str[0] != '\0')
+ 			fprintf(stderr, ", %s", elapsed_str);
+ 
+ 		fputc('\n', stderr);
+ 	}
+ 
+ 	signals_unblock();
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_progress_end(bool success)
+ {
+ 	assert(progress_started);
+ 	progress_flush(success);
+ 	progress_started = false;
+ 	return;
+ }
+ 
+ 
+ static void
+ vmessage(enum message_verbosity v, const char *fmt, va_list ap)
+ {
+ 	if (v <= verbosity) {
+ 		signals_block();
+ 
+ 		progress_flush(false);
+ 
+ 		// TRANSLATORS: This is the program name in the beginning
+ 		// of the line in messages. Usually it becomes "xz: ".
+ 		// This is a translatable string because French needs
+ 		// a space before a colon.
+ 		fprintf(stderr, _("%s: "), progname);
+ 
+ #ifdef __clang__
+ #	pragma GCC diagnostic push
+ #	pragma GCC diagnostic ignored "-Wformat-nonliteral"
+ #endif
+ 		vfprintf(stderr, fmt, ap);
+ #ifdef __clang__
+ #	pragma GCC diagnostic pop
+ #endif
+ 
+ 		fputc('\n', stderr);
+ 
+ 		signals_unblock();
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message(enum message_verbosity v, const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+ 	vmessage(v, fmt, ap);
+ 	va_end(ap);
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_warning(const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+ 	vmessage(V_WARNING, fmt, ap);
+ 	va_end(ap);
+ 
+ 	set_exit_status(E_WARNING);
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_error(const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+ 	vmessage(V_ERROR, fmt, ap);
+ 	va_end(ap);
+ 
+ 	set_exit_status(E_ERROR);
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_fatal(const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+ 	vmessage(V_ERROR, fmt, ap);
+ 	va_end(ap);
+ 
+ 	tuklib_exit(E_ERROR, E_ERROR, false);
+ }
+ 
+ 
+ extern void
+ message_bug(void)
+ {
+ 	message_fatal(_("Internal error (bug)"));
+ }
+ 
+ 
+ extern void
+ message_signal_handler(void)
+ {
+ 	message_fatal(_("Cannot establish signal handlers"));
+ }
+ 
+ 
+ extern const char *
+ message_strm(lzma_ret code)
+ {
+ 	switch (code) {
+ 	case LZMA_NO_CHECK:
+ 		return _("No integrity check; not verifying file integrity");
+ 
+ 	case LZMA_UNSUPPORTED_CHECK:
+ 		return _("Unsupported type of integrity check; "
+ 				"not verifying file integrity");
+ 
+ 	case LZMA_MEM_ERROR:
+ 		return strerror(ENOMEM);
+ 
+ 	case LZMA_MEMLIMIT_ERROR:
+ 		return _("Memory usage limit reached");
+ 
+ 	case LZMA_FORMAT_ERROR:
+ 		return _("File format not recognized");
+ 
+ 	case LZMA_OPTIONS_ERROR:
+ 		return _("Unsupported options");
+ 
+ 	case LZMA_DATA_ERROR:
+ 		return _("Compressed data is corrupt");
+ 
+ 	case LZMA_BUF_ERROR:
+ 		return _("Unexpected end of input");
+ 
+ 	case LZMA_OK:
+ 	case LZMA_STREAM_END:
+ 	case LZMA_GET_CHECK:
+ 	case LZMA_PROG_ERROR:
+ 	case LZMA_SEEK_NEEDED:
+ 	case LZMA_RET_INTERNAL1:
+ 	case LZMA_RET_INTERNAL2:
+ 	case LZMA_RET_INTERNAL3:
+ 	case LZMA_RET_INTERNAL4:
+ 	case LZMA_RET_INTERNAL5:
+ 	case LZMA_RET_INTERNAL6:
+ 	case LZMA_RET_INTERNAL7:
+ 	case LZMA_RET_INTERNAL8:
+ 		// Without "default", compiler will warn if new constants
+ 		// are added to lzma_ret, it is not too easy to forget to
+ 		// add the new constants to this function.
+ 		break;
+ 	}
+ 
+ 	return _("Internal error (bug)");
+ }
+ 
+ 
+ extern void
+ message_mem_needed(enum message_verbosity v, uint64_t memusage)
+ {
+ 	if (v > verbosity)
+ 		return;
+ 
+ 	// Convert memusage to MiB, rounding up to the next full MiB.
+ 	// This way the user can always use the displayed usage as
+ 	// the new memory usage limit. (If we rounded to the nearest,
+ 	// the user might need to +1 MiB to get high enough limit.)
+ 	memusage = round_up_to_mib(memusage);
+ 
+ 	uint64_t memlimit = hardware_memlimit_get(opt_mode);
+ 
+ 	// Handle the case when there is no memory usage limit.
+ 	// This way we don't print a weird message with a huge number.
+ 	if (memlimit == UINT64_MAX) {
+ 		message(v, _("%s MiB of memory is required. "
+ 				"The limiter is disabled."),
+ 				uint64_to_str(memusage, 0));
+ 		return;
+ 	}
+ 
+ 	// With US-ASCII:
+ 	// 2^64 with thousand separators + " MiB" suffix + '\0' = 26 + 4 + 1
+ 	// But there may be multibyte chars so reserve enough space.
+ 	char memlimitstr[128];
+ 
+ 	// Show the memory usage limit as MiB unless it is less than 1 MiB.
+ 	// This way it's easy to notice errors where one has typed
+ 	// --memory=123 instead of --memory=123MiB.
+ 	if (memlimit < (UINT32_C(1) << 20)) {
+ 		snprintf(memlimitstr, sizeof(memlimitstr), "%s B",
+ 				uint64_to_str(memlimit, 1));
+ 	} else {
+ 		// Round up just like with memusage. If this function is
+ 		// called for informational purposes (to just show the
+ 		// current usage and limit), we should never show that
+ 		// the usage is higher than the limit, which would give
+ 		// a false impression that the memory usage limit isn't
+ 		// properly enforced.
+ 		snprintf(memlimitstr, sizeof(memlimitstr), "%s MiB",
+ 				uint64_to_str(round_up_to_mib(memlimit), 1));
+ 	}
+ 
+ 	message(v, _("%s MiB of memory is required. The limit is %s."),
+ 			uint64_to_str(memusage, 0), memlimitstr);
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_filters_show(enum message_verbosity v, const lzma_filter *filters)
+ {
+ 	if (v > verbosity)
+ 		return;
+ 
+ 	char *buf;
+ 	const lzma_ret ret = lzma_str_from_filters(&buf, filters,
+ 			LZMA_STR_ENCODER | LZMA_STR_GETOPT_LONG, NULL);
+ 	if (ret != LZMA_OK)
+ 		message_fatal("%s", message_strm(ret));
+ 
+ 	fprintf(stderr, _("%s: Filter chain: %s\n"), progname, buf);
+ 	free(buf);
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_try_help(void)
+ {
+ 	// Print this with V_WARNING instead of V_ERROR to prevent it from
+ 	// showing up when --quiet has been specified.
+ 	message(V_WARNING, _("Try `%s --help' for more information."),
+ 			progname);
+ 	return;
+ }
+ 
+ 
+ extern void
+ message_version(void)
+ {
+ 	// It is possible that liblzma version is different than the command
+ 	// line tool version, so print both.
+ 	if (opt_robot) {
+ 		printf("XZ_VERSION=%" PRIu32 "\nLIBLZMA_VERSION=%" PRIu32 "\n",
+ 				LZMA_VERSION, lzma_version_number());
+ 	} else {
+ 		printf("xz (" PACKAGE_NAME ") " LZMA_VERSION_STRING "\n");
+ 		printf("liblzma %s\n", lzma_version_string());
+ 	}
+ 
+ 	tuklib_exit(E_SUCCESS, E_ERROR, verbosity != V_SILENT);
+ }
+ 
+ 
+ extern void
+ message_help(bool long_help)
+ {
+ 	printf(_("Usage: %s [OPTION]... [FILE]...\n"
+ 			"Compress or decompress FILEs in the .xz format.\n\n"),
+ 			progname);
+ 
+ 	// NOTE: The short help doesn't currently have options that
+ 	// take arguments.
+ 	if (long_help)
+ 		puts(_("Mandatory arguments to long options are mandatory "
+ 				"for short options too.\n"));
+ 
+ 	if (long_help)
+ 		puts(_(" Operation mode:\n"));
+ 
+ 	puts(_(
+ "  -z, --compress      force compression\n"
+ "  -d, --decompress    force decompression\n"
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"));
+ 
+ 	if (long_help)
+ 		puts(_("\n Operation modifiers:\n"));
+ 
+ 	puts(_(
+ "  -k, --keep          keep (don't delete) input files\n"
+ "  -f, --force         force overwrite of output file and (de)compress links\n"
+ "  -c, --stdout        write to standard output and don't delete input files"));
+ 	// NOTE: --to-stdout isn't included above because it's not
+ 	// the recommended spelling. It was copied from gzip but other
+ 	// compressors with gzip-like syntax don't support it.
+ 
+ 	if (long_help) {
+ 		puts(_(
+ "      --single-stream decompress only the first stream, and silently\n"
+ "                      ignore possible remaining input data"));
+ 		puts(_(
+ "      --no-sparse     do not create sparse files when decompressing\n"
+ "  -S, --suffix=.SUF   use the suffix `.SUF' on compressed files\n"
+ "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
+ "                      omitted, filenames are read from the standard input;\n"
+ "                      filenames must be terminated with the newline character\n"
+ "      --files0[=FILE] like --files but use the null character as terminator"));
+ 	}
+ 
+ 	if (long_help) {
+ 		puts(_("\n Basic file format and compression options:\n"));
+ 		puts(_(
+ "  -F, --format=FMT    file format to encode or decode; possible values are\n"
+ "                      `auto' (default), `xz', `lzma', `lzip', and `raw'\n"
+ "  -C, --check=CHECK   integrity check type: `none' (use with caution),\n"
+ "                      `crc32', `crc64' (default), or `sha256'"));
+ 		puts(_(
+ "      --ignore-check  don't verify the integrity check when decompressing"));
+ 	}
+ 
+ 	puts(_(
+ "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
+ "                      decompressor memory usage into account before using 7-9!"));
+ 
+ 	puts(_(
+ "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
+ "                      does not affect decompressor memory requirements"));
+ 
+ 	puts(_(
+ "  -T, --threads=NUM   use at most NUM threads; the default is 1; set to 0\n"
+ "                      to use as many threads as there are processor cores"));
+ 
+ 	if (long_help) {
+ 		puts(_(
+ "      --block-size=SIZE\n"
+ "                      start a new .xz block after every SIZE bytes of input;\n"
+ "                      use this to set the block size for threaded compression"));
+ 		puts(_(
+ "      --block-list=BLOCKS\n"
+ "                      start a new .xz block after the given comma-separated\n"
+ "                      intervals of uncompressed data; optionally, specify a\n"
+ "                      filter chain number (0-9) followed by a `:' before the\n"
+ "                      uncompressed data size"));
+ 		puts(_(
+ "      --flush-timeout=TIMEOUT\n"
+ "                      when compressing, if more than TIMEOUT milliseconds has\n"
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ 		));
+ 		puts(_( // xgettext:no-c-format
+ "      --memlimit-compress=LIMIT\n"
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"));
+ 
+ 		puts(_(
+ "      --no-adjust     if compression settings exceed the memory usage limit,\n"
+ "                      give an error instead of adjusting the settings downwards"));
+ 	}
+ 
+ 	if (long_help) {
+ 		puts(_(
+ "\n Custom filter chain for compression (alternative for using presets):"));
+ 
+ 		puts(_(
+ "\n"
+ "  --filters=FILTERS   set the filter chain using the liblzma filter string\n"
+ "                      syntax; use --filters-help for more information"
+ 		));
+ 
+ 		puts(_(
+ "  --filters1=FILTERS ... --filters9=FILTERS\n"
+ "                      set additional filter chains using the liblzma filter\n"
+ "                      string syntax to use with --block-list"
+ 		));
+ 
+ 		puts(_(
+ "  --filters-help      display more information about the liblzma filter string\n"
+ "                      syntax and exit."
+ 		));
+ 
+ #if defined(HAVE_ENCODER_LZMA1) || defined(HAVE_DECODER_LZMA1) \
+ 		|| defined(HAVE_ENCODER_LZMA2) || defined(HAVE_DECODER_LZMA2)
+ 		// TRANSLATORS: The word "literal" in "literal context bits"
+ 		// means how many "context bits" to use when encoding
+ 		// literals. A literal is a single 8-bit byte. It doesn't
+ 		// mean "literally" here.
+ 		puts(_(
+ "\n"
+ "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"));
+ #endif
+ 
+ 		puts(_(
+ "\n"
+ "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
+ "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
+ "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
+ "  --sparc[=OPTS]      SPARC BCJ filter\n"
+ "                      Valid OPTS for all BCJ filters:\n"
+ "                        start=NUM  start offset for conversions (default=0)"));
+ 
+ #if defined(HAVE_ENCODER_DELTA) || defined(HAVE_DECODER_DELTA)
+ 		puts(_(
+ "\n"
+ "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"));
+ #endif
+ 	}
+ 
+ 	if (long_help)
+ 		puts(_("\n Other options:\n"));
+ 
+ 	puts(_(
+ "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
+ "  -v, --verbose       be verbose; specify twice for even more verbose"));
+ 
+ 	if (long_help) {
+ 		puts(_(
+ "  -Q, --no-warn       make warnings not affect the exit status"));
+ 		puts(_(
+ "      --robot         use machine-parsable messages (useful for scripts)"));
+ 		puts("");
+ 		puts(_(
+ "      --info-memory   display the total amount of RAM and the currently active\n"
+ "                      memory usage limits, and exit"));
+ 		puts(_(
+ "  -h, --help          display the short help (lists only the basic options)\n"
+ "  -H, --long-help     display this long help and exit"));
+ 	} else {
+ 		puts(_(
+ "  -h, --help          display this short help and exit\n"
+ "  -H, --long-help     display the long help (lists also the advanced options)"));
+ 	}
+ 
+ 	puts(_(
+ "  -V, --version       display the version number and exit"));
+ 
+ 	puts(_("\nWith no FILE, or when FILE is -, read standard input.\n"));
+ 
+ 	// TRANSLATORS: This message indicates the bug reporting address
+ 	// for this package. Please add _another line_ saying
+ 	// "Report translation bugs to <...>\n" with the email or WWW
+ 	// address for translation bugs. Thanks.
+ 	printf(_("Report bugs to <%s> (in English or Finnish).\n"),
+ 			PACKAGE_BUGREPORT);
+ 	printf(_("%s home page: <%s>\n"), PACKAGE_NAME, PACKAGE_URL);
+ 
+ #if LZMA_VERSION_STABILITY != LZMA_VERSION_STABILITY_STABLE
+ 	puts(_(
+ "THIS IS A DEVELOPMENT VERSION NOT INTENDED FOR PRODUCTION USE."));
+ #endif
+ 
+ 	tuklib_exit(E_SUCCESS, E_ERROR, verbosity != V_SILENT);
+ }
+ 
+ 
+ extern void
+ message_filters_help(void)
+ {
+ 	char *encoder_options;
+ 	if (lzma_str_list_filters(&encoder_options, LZMA_VLI_UNKNOWN,
+ 			LZMA_STR_ENCODER, NULL) != LZMA_OK)
+ 		message_bug();
+ 
+ 	if (!opt_robot) {
+ 		puts(_(
+ "Filter chains are set using the --filters=FILTERS or\n"
+ "--filters1=FILTERS ... --filters9=FILTERS options. Each filter in the chain\n"
+ "can be separated by spaces or `--'. Alternatively a preset <0-9>[e] can be\n"
+ "specified instead of a filter chain.\n"
+ 		));
+ 
+ 		puts(_("The supported filters and their options are:"));
+ 	}
+ 
+ 	puts(encoder_options);
+ 
+ 	tuklib_exit(E_SUCCESS, E_ERROR, verbosity != V_SILENT);
+ }

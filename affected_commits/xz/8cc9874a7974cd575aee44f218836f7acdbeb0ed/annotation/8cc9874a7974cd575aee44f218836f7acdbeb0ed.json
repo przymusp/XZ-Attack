@@ -1,0 +1,1 @@
+{"src/liblzma/common/index.c": {"language": "C", "type": "programming", "purpose": "programming", "+": [{"id": 773, "type": "code", "purpose": "programming"}, {"id": 774, "type": "code", "purpose": "programming"}, {"id": 775, "type": "documentation", "purpose": "programming"}], "-": []}}

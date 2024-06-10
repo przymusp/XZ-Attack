@@ -11,7 +11,50 @@ diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
 index 0a9dc09b..8edeb3c5 100755
 --- a/build-aux/ci_build.sh
 +++ b/build-aux/ci_build.sh
-@@ -44,7 +44,11 @@ DEST_DIR="$SRC_DIR/../xz_build"
+@@ -1,206 +1,259 @@
+ #!/bin/bash
+ #
+ #############################################################################
+ #
+ # Script meant to be used for Continuous Integration automation for POSIX
+ # systems. On GitHub, this is used by Ubuntu and MacOS builds.
+ #
+ #############################################################################
+ #
+ # Author: Jia Tan
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ #############################################################################
+ 
+ set -e
+ 
+ USAGE="Usage: $0
+   -b [autotools|cmake]
+   -c [crc32|crc64|sha256]
+   -d [encoders|decoders|bcj|delta|threads|shared|nls]
+   -f [CFLAGS]
+   -l [destdir]
+   -n [ARTIFACTS_DIR_NAME]
+   -p [all|build|test]
+   -s [srcdir]"
+ 
+ # Absolute path of script directory
+ ABS_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
+ 
+ # Default CLI option values
+ BUILD_SYSTEM="autotools"
+ CHECK_TYPE="crc32,crc64,sha256"
+ BCJ="y"
+ DELTA="y"
+ ENCODERS="y"
+ DECODERS="y"
+ THREADS="y"
+ SHARED="y"
+ NATIVE_LANG_SUPPORT="y"
+ SRC_DIR="$ABS_DIR/../"
+ DEST_DIR="$SRC_DIR/../xz_build"
  PHASE="all"
  ARTIFACTS_DIR_NAME="output"
  
@@ -24,7 +67,15 @@ index 0a9dc09b..8edeb3c5 100755
  while getopts b:c:d:l:n:s:p:f:h opt; do
  	# b option can have either value "autotools" OR "cmake"
  	case ${opt} in
-@@ -60,17 +64,7 @@ while getopts b:c:d:l:n:s:p:f:h opt; do
+ 	h)
+ 		echo "$USAGE"
+ 		exit 0
+ 	;;
+ 	b)
+ 		case "$OPTARG" in
+ 			autotools) ;;
+ 			cmake) ;;
+ 			*) echo "Invalid build system: $OPTARG"; exit 1;;
  		esac
  		BUILD_SYSTEM="$OPTARG"
  	;;
@@ -43,7 +94,15 @@ index 0a9dc09b..8edeb3c5 100755
  	;;
  	# d options can be a comma separated list of things to disable at
  	# configure time
-@@ -86,7 +80,7 @@ while getopts b:c:d:l:n:s:p:f:h opt; do
+ 	d)
+ 	for disable_arg in $(echo "$OPTARG" | sed "s/,/ /g"); do
+ 		case "$disable_arg" in
+ 		encoders) ENCODERS="n" ;;
+ 		decoders) DECODERS="n" ;;
+ 		bcj) BCJ="n" ;;
+ 		delta) DELTA="n" ;;
+ 		threads) THREADS="n" ;;
+ 		shared) SHARED="n";;
  		nls) NATIVE_LANG_SUPPORT="n";;
  		*) echo "Invalid disable value: $disable_arg"; exit 1 ;;
  		esac
@@ -52,7 +111,9 @@ index 0a9dc09b..8edeb3c5 100755
  	;;
  	l) DEST_DIR="$OPTARG"
  	;;
-@@ -96,111 +90,170 @@ while getopts b:c:d:l:n:s:p:f:h opt; do
+ 	n) ARTIFACTS_DIR_NAME="$OPTARG"
+ 	;;
+ 	s) SRC_DIR="$OPTARG"
  	;;
  	p) PHASE="$OPTARG"
  	;;

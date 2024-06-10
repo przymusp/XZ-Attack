@@ -8,7 +8,8 @@ diff --git a/tests/test_check.c b/tests/test_check.c
 index 9d2d6094..fa1326d1 100644
 --- a/tests/test_check.c
 +++ b/tests/test_check.c
-@@ -2,10 +2,9 @@
+@@ -1,87 +1,352 @@
+ ///////////////////////////////////////////////////////////////////////////////
  //
  /// \file       test_check.c
  /// \brief      Tests integrity checks
@@ -21,7 +22,17 @@ index 9d2d6094..fa1326d1 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
-@@ -23,9 +22,35 @@ static const uint8_t test_string[9] = { 49, 50, 51, 52, 53, 54, 55, 56, 57 };
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "tests.h"
+ 
+ 
+ // These must be specified as numbers so that the test works on EBCDIC
+ // systems too.
+ // static const uint8_t test_string[9] = "123456789";
+ // static const uint8_t test_unaligned[12] = "xxx123456789";
+ static const uint8_t test_string[9] = { 49, 50, 51, 52, 53, 54, 55, 56, 57 };
  static const uint8_t test_unaligned[12]
  		= { 120, 120, 120, 49, 50, 51, 52, 53, 54, 55, 56, 57 };
  
@@ -58,7 +69,23 @@ index 9d2d6094..fa1326d1 100644
  {
  	// CRC32 is always enabled.
  	assert_true(lzma_check_is_supported(LZMA_CHECK_CRC32));
-@@ -49,7 +74,7 @@ test_crc32(void)
+ 
+ 	const uint32_t test_vector = 0xCBF43926;
+ 
+ 	// Test 1
+ 	assert_uint_eq(lzma_crc32(test_string, sizeof(test_string), 0),
+ 			test_vector);
+ 
+ 	// Test 2
+ 	assert_uint_eq(lzma_crc32(test_unaligned + 3, sizeof(test_string), 0),
+ 			test_vector);
+ 
+ 	// Test 3
+ 	uint32_t crc = 0;
+ 	for (size_t i = 0; i < sizeof(test_string); ++i)
+ 		crc = lzma_crc32(test_string + i, 1, crc);
+ 	assert_uint_eq(crc, test_vector);
+ }
  
  
  static void
@@ -67,7 +94,27 @@ index 9d2d6094..fa1326d1 100644
  {
  	// CRC64 can be disabled.
  	if (!lzma_check_is_supported(LZMA_CHECK_CRC64))
-@@ -77,11 +102,251 @@ test_crc64(void)
+ 		assert_skip("CRC64 support is disabled");
+ 
+ 	// If CRC64 is disabled then lzma_crc64() will be missing.
+ 	// Using an ifdef here avoids a linker error.
+ #ifdef HAVE_CHECK_CRC64
+ 	const uint64_t test_vector = 0x995DC9BBDF1939FA;
+ 
+ 	// Test 1
+ 	assert_uint_eq(lzma_crc64(test_string, sizeof(test_string), 0),
+ 			test_vector);
+ 
+ 	// Test 2
+ 	assert_uint_eq(lzma_crc64(test_unaligned + 3, sizeof(test_string), 0),
+ 			test_vector);
+ 
+ 	// Test 3
+ 	uint64_t crc = 0;
+ 	for (size_t i = 0; i < sizeof(test_string); ++i)
+ 		crc = lzma_crc64(test_string + i, 1, crc);
+ 	assert_uint_eq(crc, test_vector);
+ #endif
  }
  
  
@@ -325,7 +372,59 @@ diff --git a/tests/tests.h b/tests/tests.h
 index b76a448e..4d6169b0 100644
 --- a/tests/tests.h
 +++ b/tests/tests.h
-@@ -53,6 +53,29 @@ static const char enum_strings_lzma_ret[][24] = {
+@@ -1,118 +1,141 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       tests.h
+ /// \brief      Common definitions for test applications
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #ifndef LZMA_TESTS_H
+ #define LZMA_TESTS_H
+ 
+ #include "sysdefs.h"
+ #include "tuklib_integer.h"
+ #include "lzma.h"
+ #include "tuktest.h"
+ 
+ 
+ #define memcrap(buf, size) memset(buf, 0xFD, size)
+ 
+ 
+ // TODO: Remove these three macros once all tests have been converted.
+ #define expect(test) ((test) ? 0 : (fprintf(stderr, "%s:%d: %s\n", \
+ 	__FILE__, __LINE__, #test), abort(), 0))
+ 
+ #define succeed(test) expect(!(test))
+ 
+ #define fail(test) expect(test)
+ 
+ 
+ // This table and macro allow getting more readable error messages when
+ // comparing the lzma_ret enumeration values.
+ static const char enum_strings_lzma_ret[][24] = {
+ 	"LZMA_OK",
+ 	"LZMA_STREAM_END",
+ 	"LZMA_NO_CHECK",
+ 	"LZMA_UNSUPPORTED_CHECK",
+ 	"LZMA_GET_CHECK",
+ 	"LZMA_MEM_ERROR",
+ 	"LZMA_MEMLIMIT_ERROR",
+ 	"LZMA_FORMAT_ERROR",
+ 	"LZMA_OPTIONS_ERROR",
+ 	"LZMA_DATA_ERROR",
+ 	"LZMA_BUF_ERROR",
+ 	"LZMA_PROG_ERROR",
+ 	"LZMA_SEEK_NEEDED",
+ };
+ 
+ #define assert_lzma_ret(test_expr, ref_val) \
  	assert_enum_eq(test_expr, ref_val, enum_strings_lzma_ret)
  
  
@@ -355,3 +454,63 @@ index b76a448e..4d6169b0 100644
  static inline bool
  coder_loop(lzma_stream *strm, uint8_t *in, size_t in_size,
  		uint8_t *out, size_t out_size,
+ 		lzma_ret expected_ret, lzma_action finishing_action)
+ {
+ 	size_t in_left = in_size;
+ 	size_t out_left = out_size > 0 ? out_size + 1 : 0;
+ 	lzma_action action = LZMA_RUN;
+ 	lzma_ret ret;
+ 
+ 	strm->next_in = NULL;
+ 	strm->avail_in = 0;
+ 	strm->next_out = NULL;
+ 	strm->avail_out = 0;
+ 
+ 	while (true) {
+ 		if (in_left > 0) {
+ 			if (--in_left == 0)
+ 				action = finishing_action;
+ 
+ 			strm->next_in = in++;
+ 			strm->avail_in = 1;
+ 		}
+ 
+ 		if (out_left > 0) {
+ 			--out_left;
+ 			strm->next_out = out++;
+ 			strm->avail_out = 1;
+ 		}
+ 
+ 		ret = lzma_code(strm, action);
+ 		if (ret != LZMA_OK)
+ 			break;
+ 	}
+ 
+ 	bool error = false;
+ 
+ 	if (ret != expected_ret)
+ 		error = true;
+ 
+ 	if (strm->total_in != in_size || strm->total_out != out_size)
+ 		error = true;
+ 
+ 	return error;
+ }
+ 
+ 
+ static inline bool
+ decoder_loop_ret(lzma_stream *strm, uint8_t *in, size_t in_size,
+ 		lzma_ret expected_ret)
+ {
+ 	return coder_loop(strm, in, in_size, NULL, 0, expected_ret, LZMA_RUN);
+ }
+ 
+ 
+ static inline bool
+ decoder_loop(lzma_stream *strm, uint8_t *in, size_t in_size)
+ {
+ 	return coder_loop(strm, in, in_size, NULL, 0,
+ 			LZMA_STREAM_END, LZMA_RUN);
+ }
+ 
+ #endif

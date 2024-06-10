@@ -1,0 +1,1 @@
+{"src/liblzma/lz/lz_encoder.c": {"language": "C", "type": "programming", "purpose": "programming", "+": [{"id": 550, "type": "documentation", "purpose": "programming"}], "-": [{"id": 549, "type": "documentation", "purpose": "programming"}]}}

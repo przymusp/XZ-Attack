@@ -1,0 +1,1 @@
+{"CMakeLists.txt": {"language": "Text", "type": "prose", "purpose": "project", "+": [{"id": 913, "type": "code", "purpose": "project"}, {"id": 914, "type": "code", "purpose": "project"}], "-": [{"id": 911, "type": "documentation", "purpose": "project"}, {"id": 912, "type": "code", "purpose": "project"}]}}

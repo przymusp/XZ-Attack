@@ -32,7 +32,14 @@ diff --git a/tests/ossfuzz/Makefile b/tests/ossfuzz/Makefile
 index 008cd7df..a25bd0db 100644
 --- a/tests/ossfuzz/Makefile
 +++ b/tests/ossfuzz/Makefile
-@@ -8,5 +8,8 @@ all: $(FUZZ_TARGET_BINS)
+@@ -1,12 +1,15 @@
+ FUZZ_TARGET_SRCS = $(wildcard *.c)
+ FUZZ_TARGET_BINS = $(FUZZ_TARGET_SRCS:.c=)
+ 
+ all: $(FUZZ_TARGET_BINS)
+ 
+ %: %.c
+ 	$(CC) $(CFLAGS) -c $< -I ../../src/liblzma/api/ ;
  	$(CXX) $(CXXFLAGS) $(LIB_FUZZING_ENGINE) $(<:.c=.o) -o $(OUT)/$@ \
  		../../src/liblzma/.libs/liblzma.a ;
  
@@ -96,7 +103,7 @@ diff --git a/tests/ossfuzz/fuzz_common.h b/tests/ossfuzz/fuzz_common.h
 index ce3f9345..14742f2e 100644
 --- a/tests/ossfuzz/fuzz_common.h
 +++ b/tests/ossfuzz/fuzz_common.h
-@@ -1,9 +1,10 @@
+@@ -1,56 +1,56 @@
  ///////////////////////////////////////////////////////////////////////////////
  //
 -/// \file       fuzz_decode_auto.c
@@ -110,7 +117,17 @@ index ce3f9345..14742f2e 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
-@@ -21,13 +22,12 @@
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include <inttypes.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include "lzma.h"
+ 
+ // Some header values can make liblzma allocate a lot of RAM
+ // (up to about 4 GiB with liblzma 5.2.x). We set a limit here to
+ // prevent extreme allocations when fuzzing.
  #define MEM_LIMIT (300 << 20) // 300 MiB
  
  
@@ -128,11 +145,34 @@ index ce3f9345..14742f2e 100644
  	// Give the whole input buffer at once to liblzma.
  	// Output buffer isn't initialized as liblzma only writes to it.
  	stream->next_in = inbuf;
+ 	stream->avail_in = inbuf_size;
+ 	stream->next_out = outbuf;
+ 	stream->avail_out = sizeof(outbuf);
+ 
+ 	lzma_ret ret;
+ 	while ((ret = lzma_code(stream, LZMA_FINISH)) == LZMA_OK) {
+ 		if (stream->avail_out == 0) {
+ 			// outbuf became full. We don't care about the
+ 			// uncompressed data there, so we simply reuse
+ 			// the outbuf and overwrite the old data.
+ 			stream->next_out = outbuf;
+ 			stream->avail_out = sizeof(outbuf);
+ 		}
+ 	}
+ 
+ 	// LZMA_PROG_ERROR should never happen as long as the code calling
+ 	// the liblzma functions is correct. Thus LZMA_PROG_ERROR is a sign
+ 	// of a bug in either this function or in liblzma.
+ 	if (ret == LZMA_PROG_ERROR) {
+ 		fprintf(stderr, "lzma_code() returned LZMA_PROG_ERROR\n");
+ 		abort();
+ 	}
+ }
 diff --git a/tests/ossfuzz/fuzz_decode_alone.c b/tests/ossfuzz/fuzz_decode_alone.c
 index d07874bc..2fb7bc09 100644
 --- a/tests/ossfuzz/fuzz_decode_alone.c
 +++ b/tests/ossfuzz/fuzz_decode_alone.c
-@@ -1,11 +1,10 @@
+@@ -1,41 +1,42 @@
  ///////////////////////////////////////////////////////////////////////////////
  //
 -/// \file       fuzz_decode_auto.c
@@ -148,7 +188,19 @@ index d07874bc..2fb7bc09 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
-@@ -25,11 +24,13 @@ LLVMFuzzerTestOneInput(const uint8_t *inbuf, size_t inbuf_size)
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include <inttypes.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include "lzma.h"
+ #include "fuzz_common.h"
+ 
+ 
+ extern int
+ LLVMFuzzerTestOneInput(const uint8_t *inbuf, size_t inbuf_size)
+ {
  	lzma_stream strm = LZMA_STREAM_INIT;
  	// Initialize a LZMA alone decoder using the memory usage limit
  	// defined in fuzz_common.h
@@ -164,11 +216,17 @@ index d07874bc..2fb7bc09 100644
  		abort();
  	}
  
+ 	fuzz_code(&strm, inbuf, inbuf_size);
+ 
+ 	// Free the allocated memory.
+ 	lzma_end(&strm);
+ 	return 0;
+ }
 diff --git a/tests/ossfuzz/fuzz_decode_stream.c b/tests/ossfuzz/fuzz_decode_stream.c
 index 1da8ecb3..e06613e3 100644
 --- a/tests/ossfuzz/fuzz_decode_stream.c
 +++ b/tests/ossfuzz/fuzz_decode_stream.c
-@@ -1,10 +1,10 @@
+@@ -1,53 +1,54 @@
  ///////////////////////////////////////////////////////////////////////////////
  //
  /// \file       fuzz_decode_stream.c
@@ -182,7 +240,17 @@ index 1da8ecb3..e06613e3 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
-@@ -22,7 +22,7 @@ extern int
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include <inttypes.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include "lzma.h"
+ #include "fuzz_common.h"
+ 
+ 
+ extern int
  LLVMFuzzerTestOneInput(const uint8_t *inbuf, size_t inbuf_size)
  {
  	lzma_stream strm = LZMA_STREAM_INIT;
@@ -191,7 +259,11 @@ index 1da8ecb3..e06613e3 100644
  	// defined in fuzz_common.h
  	//
  	// Enable support for concatenated .xz files which is used when
-@@ -34,13 +34,14 @@ LLVMFuzzerTestOneInput(const uint8_t *inbuf, size_t inbuf_size)
+ 	// decompressing regular .xz files (instead of data embedded inside
+ 	// some other file format). Integrity checks on the uncompressed
+ 	// data are ignored to make fuzzing more effective (incorrect check
+ 	// values won't prevent the decoder from processing more input).
+ 	//
  	// The flag LZMA_IGNORE_CHECK doesn't disable verification of
  	// header CRC32 values. Those checks are disabled when liblzma is
  	// built with the #define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION.
@@ -209,11 +281,18 @@ index 1da8ecb3..e06613e3 100644
  		abort();
  	}
  
+ 	fuzz_code(&strm, inbuf, inbuf_size);
+ 
+ 	// Free the allocated memory.
+ 	lzma_end(&strm);
+ 
+ 	return 0;
+ }
 diff --git a/tests/ossfuzz/fuzz_encode_stream.c b/tests/ossfuzz/fuzz_encode_stream.c
 index 8ae8780e..f5770baa 100644
 --- a/tests/ossfuzz/fuzz_encode_stream.c
 +++ b/tests/ossfuzz/fuzz_encode_stream.c
-@@ -1,11 +1,10 @@
+@@ -1,79 +1,87 @@
  ///////////////////////////////////////////////////////////////////////////////
  //
  /// \file       fuzz_encode_stream.c
@@ -228,7 +307,21 @@ index 8ae8780e..f5770baa 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
-@@ -27,9 +26,15 @@ LLVMFuzzerTestOneInput(const uint8_t *inbuf, size_t inbuf_size)
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include <inttypes.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include "lzma.h"
+ #include "fuzz_common.h"
+ 
+ 
+ extern int
+ LLVMFuzzerTestOneInput(const uint8_t *inbuf, size_t inbuf_size)
+ {
+ 	if (inbuf_size == 0) {
+ 		fprintf(stderr, "no input data provided\n");
  		return 0;
  	}
  
@@ -246,7 +339,23 @@ index 8ae8780e..f5770baa 100644
  	switch (decider) {
  	case 0:
  	case 1:
-@@ -53,21 +58,24 @@ LLVMFuzzerTestOneInput(const uint8_t *inbuf, size_t inbuf_size)
+ 	case 5:
+ 		preset_level = (uint32_t)decider;
+ 		break;
+ 	case 6:
+ 		preset_level = 0 | LZMA_PRESET_EXTREME;
+ 		break;
+ 	case 7:
+ 		preset_level = 3 | LZMA_PRESET_EXTREME;
+ 		break;
+ 	default:
+ 		return 0;
+ 	}
+ 
+ 	// Initialize lzma_options with the above preset level
+ 	lzma_options_lzma opt_lzma;
+ 	if (lzma_lzma_preset(&opt_lzma, preset_level)){
+ 		fprintf(stderr, "lzma_lzma_preset() failed\n");
  		abort();
  	}
  
@@ -280,3 +389,9 @@ index 8ae8780e..f5770baa 100644
  		abort();
  	}
  
+ 	fuzz_code(&strm, inbuf  + 1, inbuf_size - 1);
+ 
+ 	// Free the allocated memory.
+ 	lzma_end(&strm);
+ 	return 0;
+ }

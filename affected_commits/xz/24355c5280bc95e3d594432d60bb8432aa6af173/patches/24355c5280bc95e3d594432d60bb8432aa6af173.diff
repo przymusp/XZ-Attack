@@ -12,7 +12,15 @@ diff --git a/po4a/fr.po b/po4a/fr.po
 index 7943e7f0..ef7c4fd9 100644
 --- a/po4a/fr.po
 +++ b/po4a/fr.po
-@@ -9,2629 +9,4111 @@
+@@ -1,3543 +1,5451 @@
+ # french translation of XZ Utils man
+ # Copyright (C) 2021 Debian French l10n team <debian-l10n-french@lists.debian.org>
+ # This file is put in the public domain.
+ # This file is distributed under the same license as the XZ Utils package.
+ #
+ #  Translator
+ # bubu <bubub@no-log.org>, 2021.
+ #
  msgid ""
  msgstr ""
  "Project-Id-Version: XZ Utils 5.2.5\n"
@@ -5136,7 +5144,9 @@ index 7943e7f0..ef7c4fd9 100644
  #, no-wrap
  msgid ""
  "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
-@@ -2641,287 +4123,446 @@ msgstr ""
+ "export XZ_OPT>\n"
+ msgstr ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
  "export XZ_OPT>\n"
  
  #. type: SH
@@ -5679,7 +5689,9 @@ index 7943e7f0..ef7c4fd9 100644
  #, no-wrap
  msgid ""
  "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
-@@ -2931,39 +4572,67 @@ msgstr ""
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
+ msgstr ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
  "    | xargs -0r -P4 -n16 xz -T1>\n"
  
  #. type: Plain text
@@ -5762,7 +5774,15 @@ index 7943e7f0..ef7c4fd9 100644
  #, no-wrap
  msgid ""
  "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
-@@ -2979,565 +4648,804 @@ msgstr ""
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
+ msgstr ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Votre version de xz est trop ancienne.\"\n"
+ "fi\n"
  "unset XZ_VERSION LIBLZMA_VERSION>\n"
  
  #. type: Plain text
@@ -6845,7 +6865,12 @@ diff --git a/po4a/pt_BR.po b/po4a/pt_BR.po
 index 8af5e359..98fcd140 100644
 --- a/po4a/pt_BR.po
 +++ b/po4a/pt_BR.po
-@@ -6,10 +6,11 @@
+@@ -1,3677 +1,5744 @@
+ # Brazilian Portuguese translations for xz package
+ # Traduções em português brasileiro para o pacote xz.
+ # This file is put in the public domain.
+ # Rafael Fontenelle <rafaelff@gnome.org>, 2022-2023.
+ #
  msgid ""
  msgstr ""
  "Project-Id-Version: xz-man 5.4.0-pre2\n"
@@ -6859,7 +6884,9 @@ index 8af5e359..98fcd140 100644
  "Language: pt_BR\n"
  "MIME-Version: 1.0\n"
  "Content-Type: text/plain; charset=UTF-8\n"
-@@ -19,1852 +20,3080 @@ msgstr ""
+ "Content-Transfer-Encoding: 8bit\n"
+ "X-Bugs: Report translation errors to the Language-Team address.\n"
+ "Plural-Forms: nplurals=2; plural=(n > 1)\n"
  "X-Generator: Gtranslator 42.0\n"
  
  #. type: TH
@@ -10610,7 +10637,7 @@ index 8af5e359..98fcd140 100644
  #, no-wrap
  msgid "4096-byte alignment is best"
  msgstr ""
-@@ -1872,881 +3101,1297 @@ msgstr ""
+ "Alinhamento de 4096 bytes\n"
  ";;é melhor"
  
  #. type: tbl table
@@ -12311,7 +12338,9 @@ index 8af5e359..98fcd140 100644
  #, no-wrap
  msgid ""
  "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
-@@ -2756,285 +4401,446 @@ msgstr ""
+ "export XZ_OPT>\n"
+ msgstr ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
  "export XZ_OPT>\n"
  
  #. type: SH
@@ -12853,7 +12882,9 @@ index 8af5e359..98fcd140 100644
  #, no-wrap
  msgid ""
  "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
-@@ -3044,39 +4850,67 @@ msgstr ""
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
+ msgstr ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
  "    | xargs -0r -P4 -n16 xz -T1>\n"
  
  #. type: Plain text
@@ -12936,7 +12967,15 @@ index 8af5e359..98fcd140 100644
  #, no-wrap
  msgid ""
  "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
-@@ -3092,12 +4926,16 @@ msgstr ""
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
+ msgstr ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
  "unset XZ_VERSION LIBLZMA_VERSION>\n"
  
  #. type: Plain text
@@ -12957,7 +12996,17 @@ index 8af5e359..98fcd140 100644
  #, no-wrap
  msgid ""
  "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
-@@ -3115,563 +4953,792 @@ msgstr ""
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
+ "fi>\n"
+ msgstr ""
+ "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
  "fi>\n"
  
  #. type: Plain text

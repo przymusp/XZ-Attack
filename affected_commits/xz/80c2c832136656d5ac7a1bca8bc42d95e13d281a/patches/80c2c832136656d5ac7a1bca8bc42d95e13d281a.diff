@@ -8,7 +8,10 @@ diff --git a/po4a/de.po b/po4a/de.po
 index 27e645fa..3dab2ed8 100644
 --- a/po4a/de.po
 +++ b/po4a/de.po
-@@ -4,10 +4,10 @@
+@@ -1,3682 +1,3685 @@
+ # XZ Utils man pages German translation
+ # This file is put in the public domain.
+ #
  # Mario Blättermann <mario.blaettermann@gmail.com>, 2015, 2019-2020, 2022-2023.
  msgid ""
  msgstr ""
@@ -22,7 +25,8 @@ index 27e645fa..3dab2ed8 100644
  "Last-Translator: Mario Blättermann <mario.blaettermann@gmail.com>\n"
  "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
  "Language: de\n"
-@@ -16,22 +16,22 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
  "Content-Transfer-Encoding: 8bit\n"
  "X-Bugs: Report translation errors to the Language-Team address.\n"
  "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -51,7 +55,7 @@ index 27e645fa..3dab2ed8 100644
  #: ../src/scripts/xzdiff.1:9 ../src/scripts/xzgrep.1:9
  #: ../src/scripts/xzless.1:10 ../src/scripts/xzmore.1:7
  #, no-wrap
-@@ -39,7 +39,7 @@ msgid "Tukaani"
+ msgid "Tukaani"
  msgstr "Tukaani"
  
  #. type: TH
@@ -60,7 +64,7 @@ index 27e645fa..3dab2ed8 100644
  #: ../src/scripts/xzdiff.1:9 ../src/scripts/xzgrep.1:9
  #: ../src/scripts/xzless.1:10 ../src/scripts/xzmore.1:7
  #, no-wrap
-@@ -47,7 +47,7 @@ msgid "XZ Utils"
+ msgid "XZ Utils"
  msgstr "XZ-Dienstprogramme"
  
  #. type: SH
@@ -69,7 +73,7 @@ index 27e645fa..3dab2ed8 100644
  #: ../src/scripts/xzdiff.1:10 ../src/scripts/xzgrep.1:10
  #: ../src/scripts/xzless.1:11 ../src/scripts/xzmore.1:8
  #, no-wrap
-@@ -55,12 +55,12 @@ msgid "NAME"
+ msgid "NAME"
  msgstr "BEZEICHNUNG"
  
  #. type: Plain text
@@ -84,7 +88,7 @@ index 27e645fa..3dab2ed8 100644
  #: ../src/scripts/xzdiff.1:12 ../src/scripts/xzgrep.1:12
  #: ../src/scripts/xzless.1:13 ../src/scripts/xzmore.1:10
  #, no-wrap
-@@ -68,48 +68,48 @@ msgid "SYNOPSIS"
+ msgid "SYNOPSIS"
  msgstr "ÜBERSICHT"
  
  #. type: Plain text
@@ -142,7 +146,7 @@ index 27e645fa..3dab2ed8 100644
  #: ../src/scripts/xzdiff.1:24 ../src/scripts/xzgrep.1:33
  #: ../src/scripts/xzless.1:19 ../src/scripts/xzmore.1:16
  #, no-wrap
-@@ -117,2641 +117,2641 @@ msgid "DESCRIPTION"
+ msgid "DESCRIPTION"
  msgstr "BESCHREIBUNG"
  
  #. type: Plain text
@@ -3304,7 +3308,9 @@ index 27e645fa..3dab2ed8 100644
  #, no-wrap
  msgid ""
  "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
-@@ -2761,285 +2761,285 @@ msgstr ""
+ "export XZ_OPT>\n"
+ msgstr ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
  "export XZ_OPT>\n"
  
  #. type: SH
@@ -3641,7 +3647,9 @@ index 27e645fa..3dab2ed8 100644
  #, no-wrap
  msgid ""
  "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
-@@ -3049,39 +3049,39 @@ msgstr ""
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
+ msgstr ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
  "    | xargs -0r -P4 -n16 xz -T1>\n"
  
  #. type: Plain text
@@ -3688,7 +3696,15 @@ index 27e645fa..3dab2ed8 100644
  #, no-wrap
  msgid ""
  "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
-@@ -3097,12 +3097,12 @@ msgstr ""
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
+ msgstr ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Ihre Version von Xz ist zu alt.\"\n"
+ "fi\n"
  "unset XZ_VERSION LIBLZMA_VERSION>\n"
  
  #. type: Plain text
@@ -3703,7 +3719,17 @@ index 27e645fa..3dab2ed8 100644
  #, no-wrap
  msgid ""
  "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
-@@ -3120,108 +3120,108 @@ msgstr ""
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
+ "fi>\n"
+ msgstr ""
+ "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
  "fi>\n"
  
  #. type: Plain text
@@ -3832,7 +3858,7 @@ index 27e645fa..3dab2ed8 100644
  #: ../src/scripts/xzdiff.1:65 ../src/scripts/xzgrep.1:106
  #: ../src/scripts/xzless.1:65 ../src/scripts/xzmore.1:51
  #, no-wrap
-@@ -3229,22 +3229,22 @@ msgid "SEE ALSO"
+ msgid "SEE ALSO"
  msgstr "SIEHE AUCH"
  
  #. type: Plain text
@@ -3859,7 +3885,435 @@ index 27e645fa..3dab2ed8 100644
  msgid "LZMA SDK: E<lt>https://7-zip.org/sdk.htmlE<gt>"
  msgstr "LZMA-SDK: E<lt>https://7-zip.org/sdk.htmlE<gt>"
  
-@@ -3680,3 +3680,6 @@ msgstr "Eine Liste der bei der Betrachtung von Dateiinhalten verfügbaren Tastat
+ #. type: TH
+ #: ../src/xzdec/xzdec.1:7
+ #, no-wrap
+ msgid "XZDEC"
+ msgstr "XZDEC"
+ 
+ #. type: TH
+ #: ../src/xzdec/xzdec.1:7
+ #, no-wrap
+ msgid "2017-04-19"
+ msgstr "19. April 2017"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:10
+ msgid "xzdec, lzmadec - Small .xz and .lzma decompressors"
+ msgstr "xzdec, lzmadec - Kleine Dekompressoren für .xz und .lzma"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:14
+ msgid "B<xzdec> [I<option...>] [I<file...>]"
+ msgstr "B<xzdec> [I<Option…>] [I<Datei…>]"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:18
+ msgid "B<lzmadec> [I<option...>] [I<file...>]"
+ msgstr "B<lzmadec> [I<Option…>] [I<Datei…>]"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:44
+ msgid "B<xzdec> is a liblzma-based decompression-only tool for B<.xz> (and only B<.xz>)  files.  B<xzdec> is intended to work as a drop-in replacement for B<xz>(1)  in the most common situations where a script has been written to use B<xz --decompress --stdout> (and possibly a few other commonly used options) to decompress B<.xz> files.  B<lzmadec> is identical to B<xzdec> except that B<lzmadec> supports B<.lzma> files instead of B<.xz> files."
+ msgstr "B<xzdec> ist ein auf Liblzma basierendes Nur-Dekompressionswerkzeug für B<.xz>-Dateien (und B<nur> für B<.xz>-Dateien). B<xzdec> ist als direkter Ersatz für B<xz>(1) in jenen Situationen konzipiert, wo ein Skript B<xz --decompress --stdout> (und eventuelle einige andere höufig genutzte Optionen) zum Dekomprimieren von B<.xz>-Dateien. B<lzmadec> ist weitgehend identisch zu B<xzdec>, mit der Ausnahme, dass B<lzmadec> B<.lzma>-Dateien anstelle von B<.xz>-Dateien unterstützt."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:61
+ msgid "To reduce the size of the executable, B<xzdec> doesn't support multithreading or localization, and doesn't read options from B<XZ_DEFAULTS> and B<XZ_OPT> environment variables.  B<xzdec> doesn't support displaying intermediate progress information: sending B<SIGINFO> to B<xzdec> does nothing, but sending B<SIGUSR1> terminates the process instead of displaying progress information."
+ msgstr "Um die Größe der ausführbaren Datei zu reduzieren, unterstützt B<xzdec> weder Multithreading noch Lokalisierung. Außerdem liest es keine Optionen aus den Umgebungsvariablen B<XZ_DEFAULTS> und B<XZ_OPT>. B<xzdec> unterstützt keine zwischenzeitlichen Fortschrittsinformationen: Das Senden von B<SIGINFO> an B<xzdec> hat keine Auswirkungen, jedoch beendet B<SIGUSR1> den Prozess, anstatt Fortschrittsinformationen anzuzeigen."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:69
+ msgid "Ignored for B<xz>(1)  compatibility.  B<xzdec> supports only decompression."
+ msgstr "ist zwecks Kompatibilität zu B<xz>(1) vorhanden; wird ignoriert. B<xzdec> unterstützt nur Dekompression."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:76
+ msgid "Ignored for B<xz>(1)  compatibility.  B<xzdec> never creates or removes any files."
+ msgstr "ist zwecks Kompatibilität zu B<xz>(1) vorhanden; wird ignoriert. B<xzdec> erzeugt oder entfernt niemals Dateien."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:83
+ msgid "Ignored for B<xz>(1)  compatibility.  B<xzdec> always writes the decompressed data to standard output."
+ msgstr "ist zwecks Kompatibilität zu B<xz>(1) vorhanden; wird ignoriert. B<xzdec> schreibt die dekomprimierten Daten immer in die Standardausgabe."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:89
+ msgid "Specifying this once does nothing since B<xzdec> never displays any warnings or notices.  Specify this twice to suppress errors."
+ msgstr "hat bei einmaliger Angabe keine Wirkung, da B<xzdec> niemals Warnungen oder sonstige Meldungen anzeigt. Wenn Sie dies zweimal angeben, werden Fehlermeldungen unterdrückt."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:96
+ msgid "Ignored for B<xz>(1)  compatibility.  B<xzdec> never uses the exit status 2."
+ msgstr "ist zwecks Kompatibilität zu B<xz>(1) vorhanden; wird ignoriert. B<xzdec> verwendet niemals den Exit-Status 2."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:99
+ msgid "Display a help message and exit successfully."
+ msgstr "zeigt eine Hilfemeldung an und beendet das Programm erfolgreich."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:104
+ msgid "Display the version number of B<xzdec> and liblzma."
+ msgstr "zeigt die Versionsnummer von B<xzdec> und liblzma an."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:108
+ msgid "All was good."
+ msgstr "Alles ist in Ordnung."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:117
+ msgid "B<xzdec> doesn't have any warning messages like B<xz>(1)  has, thus the exit status 2 is not used by B<xzdec>."
+ msgstr "B<xzdec> gibt keine Warnmeldungen wie B<xz>(1) aus, daher wird der Exit-Status 2 von B<xzdec> nicht verwendet."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:131
+ msgid "Use B<xz>(1)  instead of B<xzdec> or B<lzmadec> for normal everyday use.  B<xzdec> or B<lzmadec> are meant only for situations where it is important to have a smaller decompressor than the full-featured B<xz>(1)."
+ msgstr "Verwenden Sie B<xz>(1) anstelle von B<xzdec> oder B<lzmadec> im normalen täglichen Gebrauch. B<xzdec> oder B<lzmadec> sind nur für Situationen gedacht, in denen ein kleinerer Dekompressor statt des voll ausgestatteten B<xz>(1) wichtig ist."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:143
+ msgid "B<xzdec> and B<lzmadec> are not really that small.  The size can be reduced further by dropping features from liblzma at compile time, but that shouldn't usually be done for executables distributed in typical non-embedded operating system distributions.  If you need a truly small B<.xz> decompressor, consider using XZ Embedded."
+ msgstr "B<xzdec> und B<lzmadec> sind nicht wirklich extrem klein. Die Größe kann durch Deaktivieren von Funktionen bei der Kompilierung von Liblzma weiter verringert werden, aber das sollte nicht für ausführbare Dateien getan werden, die in typischen Betriebssystemen ausgeliefert werden, außer in den Distributionen für eingebettete Systeme. Wenn Sie einen wirklich winzigen Dekompressor für B<.xz>-Dateien brauchen, sollten Sie stattdessen XZ Embedded in Erwägung ziehen."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:145 ../src/lzmainfo/lzmainfo.1:60
+ msgid "B<xz>(1)"
+ msgstr "B<xz>(1)"
+ 
+ #. type: TH
+ #: ../src/lzmainfo/lzmainfo.1:7
+ #, no-wrap
+ msgid "LZMAINFO"
+ msgstr "LZMAINFO"
+ 
+ #. type: TH
+ #: ../src/lzmainfo/lzmainfo.1:7 ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "2013-06-30"
+ msgstr "30. Juni 2013"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:10
+ msgid "lzmainfo - show information stored in the .lzma file header"
+ msgstr "lzmainfo - im .lzma-Dateikopf enthaltene Informationen anzeigen"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:15
+ msgid "B<lzmainfo> [B<--help>] [B<--version>] [I<file...>]"
+ msgstr "B<lzmainfo> [B<--help>] [B<--version>] [I<Datei …>]"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:31
+ msgid "B<lzmainfo> shows information stored in the B<.lzma> file header.  It reads the first 13 bytes from the specified I<file>, decodes the header, and prints it to standard output in human readable format.  If no I<files> are given or I<file> is B<->, standard input is read."
+ msgstr "B<lzmainfo> zeigt die im B<.lzma>-Dateikopf enthaltenen Informationen an. Es liest die ersten 13 Bytes aus der angegebenen I<Datei>, dekodiert den Dateikopf und gibt das Ergebnis in die Standardausgabe in einem menschenlesbaren Format aus. Falls keine I<Datei>en angegeben werden oder die I<Datei> als B<-> übergeben wird, dann wird aus der Standardeingabe gelesen."
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:40
+ msgid "Usually the most interesting information is the uncompressed size and the dictionary size.  Uncompressed size can be shown only if the file is in the non-streamed B<.lzma> format variant.  The amount of memory required to decompress the file is a few dozen kilobytes plus the dictionary size."
+ msgstr "In der Regel sind die unkomprimierte Größe der Daten und die Größe des Wörterbuchs am bedeutsamsten. Die unkomprimierte Größe kann nur dann angezeigt werden, wenn die Datei im B<.lzma>-Format kein Datenstrom ist. Die Größe des für die Dekompression nötigen Speichers beträgt einige Dutzend Kilobyte zuzüglich der Größe des Inhaltsverzeichnisses."
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:44
+ msgid "B<lzmainfo> is included in XZ Utils primarily for backward compatibility with LZMA Utils."
+ msgstr "B<lzmainfo> ist in den XZ-Dienstprogrammen hauptsächlich zur Kompatibilität zu den LZMA-Dienstprogrammen enthalten."
+ 
+ #. type: SH
+ #: ../src/lzmainfo/lzmainfo.1:51 ../src/scripts/xzdiff.1:74
+ #, no-wrap
+ msgid "BUGS"
+ msgstr "FEHLER"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:59
+ msgid "B<lzmainfo> uses B<MB> while the correct suffix would be B<MiB> (2^20 bytes).  This is to keep the output compatible with LZMA Utils."
+ msgstr "B<lzmainfo> verwendet B<MB>, während das korrekte Suffix B<MiB> (2^20 Bytes) wäre. Damit wird die Kompatibilität zu den LZMA-Dienstprogrammen gewährleistet."
+ 
+ #. type: TH
+ #: ../src/scripts/xzdiff.1:9
+ #, no-wrap
+ msgid "XZDIFF"
+ msgstr "XZDIFF"
+ 
+ #. type: TH
+ #: ../src/scripts/xzdiff.1:9
+ #, no-wrap
+ msgid "2021-06-04"
+ msgstr "4. Juni 2021"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:12
+ msgid "xzcmp, xzdiff, lzcmp, lzdiff - compare compressed files"
+ msgstr "xzcmp, xzdiff, lzcmp, lzdiff - komprimierte Dateien vergleichen"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:15
+ msgid "B<xzcmp> [I<cmp_options>] I<file1> [I<file2>]"
+ msgstr "B<xzcmp> [I<cmp-Optionen>] I<Datei1> [I<Datei2>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:18
+ msgid "B<xzdiff> [I<diff_options>] I<file1> [I<file2>]"
+ msgstr "B<xzdiff> [I<diff-Optionen>] I<Datei1> [I<Datei2>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:21
+ msgid "B<lzcmp> [I<cmp_options>] I<file1> [I<file2>]"
+ msgstr "B<lzcmp> [I<cmp-Optionen>] I<Datei1> [I<Datei2>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:24
+ msgid "B<lzdiff> [I<diff_options>] I<file1> [I<file2>]"
+ msgstr "B<lzdiff> [I<diff-Optionen>] I<Datei1> [I<Datei2>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:59
+ msgid "B<xzcmp> and B<xzdiff> invoke B<cmp>(1)  or B<diff>(1)  on files compressed with B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), or B<zstd>(1).  All options specified are passed directly to B<cmp>(1)  or B<diff>(1).  If only one file is specified, then the files compared are I<file1> (which must have a suffix of a supported compression format) and I<file1> from which the compression format suffix has been stripped.  If two files are specified, then they are uncompressed if necessary and fed to B<cmp>(1)  or B<diff>(1).  The exit status from B<cmp>(1)  or B<diff>(1)  is preserved unless a decompression error occurs; then exit status is 2."
+ msgstr "Die Dienstprogramme B<xzcmp> und B<xzdiff> führen die Programme B<cmp>(1) beziehungsweise B<diff>(1) mit Dateien aus, die mittels B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1),  B<lzop>(1) oder B<zstd> komprimiert wurden. Alle angegebenen Optionen werden direkt an B<cmp>(1) oder B<diff>(1) übergeben. Wird nur eine Datei angegeben, wird diese I<Datei1> (die eine Endung entsprechend eines der unterstützten Kompressionsformate haben muss) mit der I<Datei1> verglichen, von der die Kompressionsformat-Endung entfernt wird. Werden zwei Dateien angegeben, dann werden deren Inhalte (falls nötig, unkomprimiert) an B<cmp>(1) oder B<diff>(1) weitergeleitet. Der Exit-Status von B<cmp>(1) oder B<diff>(1) wird dabei bewahrt (sofern kein Dekompressionsfehler auftrat; in diesem Fall ist der Exit-Status 2)."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:65
+ msgid "The names B<lzcmp> and B<lzdiff> are provided for backward compatibility with LZMA Utils."
+ msgstr "Die Namen B<lzcmp> und B<lzdiff> dienen der Abwärtskompatibilität zu den LZMA-Dienstprogrammen."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:74
+ msgid "B<cmp>(1), B<diff>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zdiff>(1)"
+ msgstr "B<cmp>(1), B<diff>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zdiff>(1)"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:79
+ msgid "Messages from the B<cmp>(1)  or B<diff>(1)  programs refer to temporary filenames instead of those specified."
+ msgstr "Die Meldungen der Programme B<cmp>(1) oder B<diff>(1) können auf temporäre Dateinamen verweisen anstatt auf die tatsächlich angegebenen Dateinamen."
+ 
+ #. type: TH
+ #: ../src/scripts/xzgrep.1:9
+ #, no-wrap
+ msgid "XZGREP"
+ msgstr "XZGREP"
+ 
+ #. type: TH
+ #: ../src/scripts/xzgrep.1:9
+ #, no-wrap
+ msgid "2022-07-19"
+ msgstr "19. Juli 2022"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:12
+ msgid "xzgrep - search compressed files for a regular expression"
+ msgstr "xzgrep - komprimierte Dateien nach einem regulären Ausdruck durchsuchen"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:18
+ msgid "B<xzgrep> [I<grep_options>] [B<-e>] I<pattern> [I<file...>]"
+ msgstr "B<xzgrep> [I<grep_Optionen>] [B<-e>] I<Muster> [I<Datei …>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:21
+ msgid "B<xzegrep> \\&..."
+ msgstr "B<xzegrep> …"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:24
+ msgid "B<xzfgrep> \\&..."
+ msgstr "B<xzfgrep> …"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:27
+ msgid "B<lzgrep> \\&..."
+ msgstr "B<lzgrep> …"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:30
+ msgid "B<lzegrep> \\&..."
+ msgstr "B<lzegrep> …"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:33
+ msgid "B<lzfgrep> \\&..."
+ msgstr "B<lzfgrep> …"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:49
+ msgid "B<xzgrep> invokes B<grep>(1)  on I<files> which may be either uncompressed or compressed with B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), or B<zstd>(1).  All options specified are passed directly to B<grep>(1)."
+ msgstr "B<xzgrep> wendet B<grep>(1) auf I<Dateien> an, die entweder unkomprimiert oder mit B<xz>(1), B<lzma>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1) oder B<zstd> komprimiert sein können. Alle angegebenen Optionen werden direkt an B<grep>(1) übergeben."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:62
+ msgid "If no I<file> is specified, then standard input is decompressed if necessary and fed to B<grep>(1).  When reading from standard input, B<gzip>(1), B<bzip2>(1), B<lzop>(1), and B<zstd>(1)  compressed files are not supported."
+ msgstr "Wenn keine I<Datei> angegeben ist, wird die Standardeingabe dekomprimiert (falls nötig) und an B<grep> übergeben. Beim Lesen aus der Standardeingabe keine Dateien unterstützt, die mit B<gzip>(1), B<bzip2>(1), B<lzop>(1) oder B<zstd> komprimiert sind."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:81
+ msgid "If B<xzgrep> is invoked as B<xzegrep> or B<xzfgrep> then B<grep -E> or B<grep -F> is used instead of B<grep>(1).  The same applies to names B<lzgrep>, B<lzegrep>, and B<lzfgrep>, which are provided for backward compatibility with LZMA Utils."
+ msgstr "Wenn B<xzgrep> als B<xzegrep> oder B<xzfgrep> aufgerufen wird, dann wird B<grep -E> oder B<grep -F> anstelle von B<grep>(1) verwendet. Genauso verhalten sich die Befehle B<lzgrep>, B<lzegrep> und B<lzfgrep>, die die Abwärtskompatibilität zu den LZMA-Dienstprogrammen gewährleisten."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:86
+ msgid "At least one match was found from at least one of the input files.  No errors occurred."
+ msgstr "In mindestens einer der Eingabedateien wurde mindestens ein Treffer gefunden. Es sind keine Fehler aufgetreten."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:90
+ msgid "No matches were found from any of the input files.  No errors occurred."
+ msgstr "In keiner der Eingabedateien wurde ein Treffer gefunden. Es sind keine Fehler aufgetreten."
+ 
+ #. type: TP
+ #: ../src/scripts/xzgrep.1:90
+ #, no-wrap
+ msgid "E<gt>1"
+ msgstr "E<gt>1"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:94
+ msgid "One or more errors occurred.  It is unknown if matches were found."
+ msgstr "Ein oder mehrere Fehler sind aufgetreten. Es ist unbekannt, ob Treffer gefunden wurden."
+ 
+ #. type: TP
+ #: ../src/scripts/xzgrep.1:95
+ #, no-wrap
+ msgid "B<GREP>"
+ msgstr "B<GREP>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:106
+ msgid "If the B<GREP> environment variable is set, B<xzgrep> uses it instead of B<grep>(1), B<grep -E>, or B<grep -F>."
+ msgstr "Wenn die Umgebungsvariable B<GREP> gesetzt ist, verwendet B<xzgrep> deren Inhalt anstelle von B<grep>(1), B<grep -E> oder B<grep -F>."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:113
+ msgid "B<grep>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zgrep>(1)"
+ msgstr "B<grep>(1), B<xz>(1), B<gzip>(1), B<bzip2>(1), B<lzop>(1), B<zstd>(1), B<zgrep>(1)"
+ 
+ #. type: TH
+ #: ../src/scripts/xzless.1:10
+ #, no-wrap
+ msgid "XZLESS"
+ msgstr "XZLESS"
+ 
+ #. type: TH
+ #: ../src/scripts/xzless.1:10
+ #, no-wrap
+ msgid "2010-09-27"
+ msgstr "27. September 2010"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:13
+ msgid "xzless, lzless - view xz or lzma compressed (text) files"
+ msgstr "xzless, lzless - mit xz oder lzma komprimierte (Text-)Dateien betrachten"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:16
+ msgid "B<xzless> [I<file>...]"
+ msgstr "B<xzless> [I<Datei> …]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:19
+ msgid "B<lzless> [I<file>...]"
+ msgstr "B<lzless> [I<Datei> …]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:31
+ msgid "B<xzless> is a filter that displays text from compressed files to a terminal.  It works on files compressed with B<xz>(1)  or B<lzma>(1).  If no I<files> are given, B<xzless> reads from standard input."
+ msgstr "B<xzless> ist ein Filter, der Text aus komprimierten Dateien in einem Terminal anzeigt. Es funktioniert mit Dateien, die mit B<xz>(1) oder B<lzma>(1) komprimiert sind. Falls keine I<files> angegeben sind, liest B<xzless> aus der Standardeingabe."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:48
+ msgid "B<xzless> uses B<less>(1)  to present its output.  Unlike B<xzmore>, its choice of pager cannot be altered by setting an environment variable.  Commands are based on both B<more>(1)  and B<vi>(1)  and allow back and forth movement and searching.  See the B<less>(1)  manual for more information."
+ msgstr "B<xzless> verwendet B<less>(1) zur Darstellung der Ausgabe. Im Gegensatz zu B<xzmore> können Sie das zu verwendende Textanzeigeprogramm nicht durch Setzen einer Umgebungsvariable ändern. Die Befehle basieren auf B<more>(1) und B<vi>(1) und ermöglichen Vorwärts- und Rückwärtssprünge sowie Suchvorgänge. In der Handbuchseite zu B<less>(1) finden Sie weiter Information."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:52
+ msgid "The command named B<lzless> is provided for backward compatibility with LZMA Utils."
+ msgstr "Der Befehl B<lzless> dient der Abwärtskompatibilität zu den LZMA-Dienstprogrammen."
+ 
+ #. type: TP
+ #: ../src/scripts/xzless.1:53
+ #, no-wrap
+ msgid "B<LESSMETACHARS>"
+ msgstr "B<LESSMETACHARS>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:59
+ msgid "A list of characters special to the shell.  Set by B<xzless> unless it is already set in the environment."
+ msgstr "Dies enthält eine Zeichenliste mit Bezug zur Shell. Wenn diese Variable nicht bereits gesetzt ist, wird sie durch B<xzless> gesetzt."
+ 
+ #. type: TP
+ #: ../src/scripts/xzless.1:59
+ #, no-wrap
+ msgid "B<LESSOPEN>"
+ msgstr "B<LESSOPEN>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:65
+ msgid "Set to a command line to invoke the B<xz>(1)  decompressor for preprocessing the input files to B<less>(1)."
+ msgstr "Dies ist auf die Befehlszeile zum Aufruf von B<xz>(1) gesetzt, die zur Vorverarbeitung der Eingabedateien für B<less>(1) nötig ist."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:69
+ msgid "B<less>(1), B<xz>(1), B<xzmore>(1), B<zless>(1)"
+ msgstr "B<less>(1), B<xz>(1), B<xzmore>(1), B<zless>(1)"
+ 
+ #. type: TH
+ #: ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "XZMORE"
+ msgstr "XZMORE"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:10
+ msgid "xzmore, lzmore - view xz or lzma compressed (text) files"
+ msgstr "xzmore, lzmore - mit xz oder lzma komprimierte (Text-)Dateien lesen"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:13
+ msgid "B<xzmore> [I<file...>]"
+ msgstr "B<xzmore> [I<Datei …>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:16
+ msgid "B<lzmore> [I<file...>]"
+ msgstr "B<lzmore> [I<Datei …>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:24
+ msgid "B<xzmore> is a filter which allows examination of B<xz>(1)  or B<lzma>(1)  compressed text files one screenful at a time on a soft-copy terminal."
+ msgstr "B<xzmore> ist ein Filter zur seitenweisen Anzeige von Textdateien in einem Terminal, die mit B<xz>(1) oder B<lzma>(1) komprimiert wurden."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:33
+ msgid "To use a pager other than the default B<more,> set environment variable B<PAGER> to the name of the desired program.  The name B<lzmore> is provided for backward compatibility with LZMA Utils."
+ msgstr "Um ein anderes Textanzeigeprogramm als den voreingestellten B<more> zu verwenden, setzen Sie die Umgebungsvariable B<PAGER> auf das gewünschte Programm. Der Name B<lzmore> dient der Abwärtskompatibilität zu den LZMA-Dienstprogrammen."
+ 
+ #. type: TP
+ #: ../src/scripts/xzmore.1:33
+ #, no-wrap
+ msgid "B<e> or B<q>"
+ msgstr "B<e> oder B<q>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:40
+ msgid "When the prompt --More--(Next file: I<file>)  is printed, this command causes B<xzmore> to exit."
+ msgstr "Wenn die Zeile --Mehr--(Nächste Datei: I<Datei>) angezeigt wird, wird B<xzmore> mit diesem Befehl beendet."
+ 
+ #. type: TP
+ #: ../src/scripts/xzmore.1:40
+ #, no-wrap
+ msgid "B<s>"
+ msgstr "B<s>"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:47
+ msgid "When the prompt --More--(Next file: I<file>)  is printed, this command causes B<xzmore> to skip the next file and continue."
+ msgstr "Wenn die Zeile --Mehr--(Nächste Datei: I<Datei>) angezeigt wird, springt B<xzmore> zur nächsten Datei und zeigt diese an."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:51
+ msgid "For list of keyboard commands supported while actually viewing the content of a file, refer to manual of the pager you use, usually B<more>(1)."
+ msgstr "Eine Liste der bei der Betrachtung von Dateiinhalten verfügbaren Tastaturbefehle finden Sie in der Handbuchseite des verwendeten Textanzeigeprogramms, meist B<more>(1)."
+ 
+ #. type: Plain text
  #: ../src/scripts/xzmore.1:55
  msgid "B<more>(1), B<xz>(1), B<xzless>(1), B<zmore>(1)"
  msgstr "B<more>(1), B<xz>(1), B<xzless>(1), B<zmore>(1)"

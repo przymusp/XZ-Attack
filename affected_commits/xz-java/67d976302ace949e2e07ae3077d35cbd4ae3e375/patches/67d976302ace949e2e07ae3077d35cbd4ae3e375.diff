@@ -8,7 +8,22 @@ diff --git a/README b/README
 index ed592c8..3b20334 100644
 --- a/README
 +++ b/README
-@@ -16,7 +16,7 @@ Introduction
+@@ -1,86 +1,86 @@
+ 
+ XZ for Java
+ ===========
+ 
+ Introduction
+ 
+     This aims to be a complete implementation of XZ data compression
+     in pure Java. Features:
+       - Full support for the .xz file format specification version 1.0.4
+       - Single-threaded streamed compression and decompression
+       - Single-threaded decompression with limited random access support
+       - Raw streams (no .xz headers) for advanced users, including LZMA2
+         with preset dictionary
+ 
+     Threading is planned but it is unknown when it will be implemented.
  
      For the latest source code, see the project home page:
  
@@ -17,11 +32,82 @@ index ed592c8..3b20334 100644
  
      The source code is compatible with Java 5 and later (except
      module-info.java which is Java 9 or later). However, the default
+     build options require OpenJDK 11 or later, and create Java 7
+     compatible binaries.
+ 
+ Building with Apache Ant
+ 
+     Type "ant" to compile the classes and create the .jar files.
+     Type "ant doc" to build the javadoc HTML documentation. Note
+     that building the documentation will download a small file named
+     "element-list" or "package-list" from Oracle to enable linking to
+     the documentation of the standard Java classes.
+ 
+     If you are using Ant older than 1.9.8:
+ 
+         Edit build.xml and remove the release attributes from <javac>
+         tags, that is, remove all occurrences of these two lines:
+ 
+             release="${sourcever}"
+ 
+             release="${sourcever9}"
+ 
+         The downside of the above is that then -source and -target
+         options will be used instead of --release.
+ 
+     If you are using OpenJDK version older than 11:
+ 
+         Adjust extdoc_url and extdoc_file to point to an older URL
+         and to use "package-list" instead of "element-list". This
+         modification isn't required if the documentation won't be
+         built.
+ 
+     If you are using OpenJDK version older than 9:
+ 
+         Comment the sourcever9 line in the file build.properties.
+         When it is commented, module-info.java won't be built and
+         xz.jar won't be a modular JAR.
+ 
+     If you are using OpenJDK version older than 7:
+ 
+         In build.properties, set "sourcever = 5" or "sourcever = 6"
+         to be compatible with Java 5 or 6.
+ 
+ Building without Apache Ant
+ 
+     If you cannot or don't want to use Ant, just compile all .java files
+     under the "src" directory (possibly skip the demo files src/*.java).
+     For module support (Java >= 9) compile also src9/module-info.java.
+ 
+ Demo programs
+ 
+     You can test compression with XZEncDemo, which compresses from
+     standard input to standard output:
+ 
+         java -jar build/jar/XZEncDemo.jar < foo.txt > foo.txt.xz
+ 
+     You can test decompression with XZDecDemo, which decompresses to
+     standard output:
+ 
+         java -jar build/jar/XZDecDemo.jar foo.txt.xz
+ 
+ Reporting bugs
+ 
+     Report bugs to <lasse.collin@tukaani.org> or visit the IRC channel
+     #tukaani on Freenode and talk to Larhzu.
+ 
 diff --git a/build.properties b/build.properties
 index 052d972..3d82dc4 100644
 --- a/build.properties
 +++ b/build.properties
-@@ -8,7 +8,7 @@
+@@ -1,60 +1,60 @@
+ #
+ # build.properties
+ #
+ # Author: Lasse Collin <lasse.collin@tukaani.org>
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
  #
  
  title = XZ data compression
@@ -30,11 +116,88 @@ index 052d972..3d82dc4 100644
  version = 1.9
  debug = false
  
+ # sourcever sets --release for javac 9 (or later) or -source and -target for
+ # older javac versions which don't support --release. The main source code is
+ # Java 5 compatible but the oldest -source/-target pair (and also --release)
+ # that OpenJDK 15 supports is 7 (Java 7).
+ #
+ # sourcever9 does the same as sourcever but for files that require Java 9 or
+ # later. The resulting classes are packaged as multi-release JAR, including
+ # module-info.java. If sourcever9 is commented out, these files won't be
+ # built but the package will still work.
+ #
+ # If you need to build this on an older JDK:
+ #   - Set sourcever appropriately (5 or higher)
+ #   - Comment the sourcever9 line below to disable building Java 9 files.
+ #   - Adjust extdoc_url and extdoc_file to point to older documentation.
+ sourcever = 7
+ sourcever9 = 9
+ 
+ src_dir = src
+ src9_dir = src9
+ build_dir = build
+ dist_dir = ${build_dir}/dist
+ dist_file = ${dist_dir}/xz-java-${version}.zip
+ classes_dir = ${build_dir}/classes
+ classes9_dir = ${build_dir}/classes9
+ jar_dir = ${build_dir}/jar
+ doc_dir = ${build_dir}/doc
+ 
+ # extdoc_url and extdoc_file must be modified as a pair.
+ #
+ # Possible values for extdoc_url:
+ #     https://docs.oracle.com/javase/7/docs/api
+ #     https://docs.oracle.com/javase/8/docs/api
+ #     https://docs.oracle.com/javase/9/docs/api
+ #     https://docs.oracle.com/en/java/javase/11/docs/api
+ #     ...
+ #     https://docs.oracle.com/en/java/javase/15/docs/api
+ #
+ # Possible values for extdoc_file:
+ #   - Java 7, 8, and 9: package-list
+ #   - Java 11 and later: element-list
+ extdoc_url = https://docs.oracle.com/en/java/javase/15/docs/api
+ extdoc_file = element-list
+ extdoc_dir = extdoc
+ 
+ pom_template = maven/pom_template.xml
+ maven_dir = ${build_dir}/maven
 diff --git a/maven/pom_template.xml b/maven/pom_template.xml
 index 666c51a..04d2086 100644
 --- a/maven/pom_template.xml
 +++ b/maven/pom_template.xml
-@@ -32,8 +32,8 @@
+@@ -1,63 +1,63 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ 
+ <!--
+     Author: Lasse Collin <lasse.collin@tukaani.org>
+ 
+     This file has been put into the public domain.
+     You can do whatever you want with this file.
+ -->
+ 
+ <project xmlns="http://maven.apache.org/POM/4.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
+ 
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <groupId>org.tukaani</groupId>
+     <artifactId>xz</artifactId>
+     <version>@VERSION@</version>
+     <packaging>jar</packaging>
+ 
+     <name>XZ for Java</name>
+     <description>@TITLE@</description>
+     <url>@HOMEPAGE@</url>
+ 
+     <licenses>
+         <license>
+             <name>Public Domain</name>
+             <comments>You can do whatever you want with this package.</comments>
+             <distribution>repo</distribution>
+         </license>
      </licenses>
  
      <scm>
@@ -45,11 +208,59 @@ index 666c51a..04d2086 100644
      </scm>
  
      <developers>
+         <developer>
+             <name>Lasse Collin</name>
+             <email>lasse.collin@tukaani.org</email>
+         </developer>
+     </developers>
+ 
+     <contributors>
+         <contributor>
+             <!-- According to Maven docs, it's good to only list those people
+                  as <developers> that should be contacted if someone wants
+                  to talk with an upstream developer. Thus, Igor Pavlov is
+                  marked as a <contributor> even though XZ for Java simply
+                  couldn't exist without Igor Pavlov's code. -->
+             <name>Igor Pavlov</name>
+             <url>http://7-zip.org/</url>
+         </contributor>
+ 
+         <contributor>
+             <name>Brett Okken</name>
+             <email>brett.okken.os@gmail.com</email>
+         </contributor>
+     </contributors>
+ 
+ </project>
 diff --git a/src/org/tukaani/xz/package-info.java b/src/org/tukaani/xz/package-info.java
 index ad23233..7f77f4e 100644
 --- a/src/org/tukaani/xz/package-info.java
 +++ b/src/org/tukaani/xz/package-info.java
-@@ -25,7 +25,7 @@
+@@ -1,45 +1,45 @@
+ /*
+  * package-info
+  *
+  * Author: Lasse Collin <lasse.collin@tukaani.org>
+  *
+  * This file has been put into the public domain.
+  * You can do whatever you want with this file.
+  */
+ 
+ /**
+  * XZ data compression support.
+  *
+  * <h2>Introduction</h2>
+  * <p>
+  * This aims to be a complete implementation of XZ data compression
+  * in pure Java. Features:
+  * <ul>
+  * <li>Full support for the .xz file format specification version 1.0.4</li>
+  * <li>Single-threaded streamed compression and decompression</li>
+  * <li>Single-threaded decompression with limited random access support</li>
+  * <li>Raw streams (no .xz headers) for advanced users, including LZMA2
+  *     with preset dictionary</li>
+  * </ul>
+  * <p>
   * Threading is planned but it is unknown when it will be implemented.
   * <p>
   * For the latest source code, see the
@@ -58,3 +269,17 @@ index ad23233..7f77f4e 100644
   *
   * <h2>Getting started</h2>
   * <p>
+  * Start by reading the documentation of {@link org.tukaani.xz.XZOutputStream}
+  * and {@link org.tukaani.xz.XZInputStream}.
+  * If you use XZ inside another file format or protocol,
+  * see also {@link org.tukaani.xz.SingleXZInputStream}.
+  *
+  * <h2>Licensing</h2>
+  * <p>
+  * XZ for Java has been put into the public domain, thus you can do
+  * whatever you want with it. All the files in the package have been
+  * written by Lasse Collin, Igor Pavlov, and/or Brett Okken.
+  * <p>
+  * This software is provided "as is", without any warranty.
+  */
+ package org.tukaani.xz;

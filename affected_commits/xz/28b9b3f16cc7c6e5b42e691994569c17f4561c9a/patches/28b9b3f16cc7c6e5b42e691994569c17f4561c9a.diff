@@ -8,7 +8,7 @@ diff --git a/po/hu.po b/po/hu.po
 index 714d919b..4e4fb477 100644
 --- a/po/hu.po
 +++ b/po/hu.po
-@@ -1,144 +1,198 @@
+@@ -1,1074 +1,1194 @@
 +# SPDX-License-Identifier: 0BSD
 +#
  # Hungarian translation for xz.
@@ -245,7 +245,14 @@ index 714d919b..4e4fb477 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s: poll() sikertelen: %s"
-@@ -153,252 +207,252 @@ msgstr "%s: poll() sikertelen: %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -555,7 +562,7 @@ index 714d919b..4e4fb477 100644
  msgid "Filters"
  msgstr "Szűrők"
  
-@@ -406,7 +460,7 @@ msgstr "Szűrők"
+ #. TRANSLATORS: Indicates that there is no integrity check.
  #. This string is used in tables. In older xz version this
  #. string was limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -564,7 +571,7 @@ index 714d919b..4e4fb477 100644
  msgid "None"
  msgstr "Nincs"
  
-@@ -414,60 +468,60 @@ msgstr "Nincs"
+ #. TRANSLATORS: Indicates that integrity check name is not known,
  #. but the Check ID is known (here 2). In older xz version these
  #. strings were limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -639,7 +646,8 @@ index 714d919b..4e4fb477 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s: Túl kicsi, hogy érvényes .xz fájl legyen"
-@@ -476,64 +530,68 @@ msgstr "%s: Túl kicsi, hogy érvényes .xz fájl legyen"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -722,7 +730,7 @@ index 714d919b..4e4fb477 100644
  msgid "Cannot read data from standard input when reading filenames from standard input"
  msgstr "Az adatok nem olvashatók be a szabványos bemenetről a fájlnevek olvasásakor"
  
-@@ -541,68 +599,68 @@ msgstr "Az adatok nem olvashatók be a szabványos bemenetről a fájlnevek olva
+ #. TRANSLATORS: This is the program name in the beginning
  #. of the line in messages. Usually it becomes "xz: ".
  #. This is a translatable string because French needs
  #. a space before a colon.
@@ -807,7 +815,10 @@ index 714d919b..4e4fb477 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -613,15 +671,15 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Használat: %s [KAPCSOLÓ]... [FÁJL]...\n"
  ".xz formátumú FÁJLok tömörítése vagy kibontása.\n"
  "\n"
  
@@ -826,7 +837,11 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -633,7 +691,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      kényszerített tömörítés\n"
+ "  -d, --decompress    kényszerített kibontás\n"
  "  -t, --test          tömörített fájl épségének tesztelése\n"
  "  -l, --list          információk kiírása az .xz fájlokról"
  
@@ -835,7 +850,7 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -641,7 +699,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Műveleti módosítók:\n"
  
@@ -844,7 +859,11 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -653,7 +711,7 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          bemeneti fájlok megtartása (ne törölje)\n"
+ "  -f, --force         kimeneti fájl kényszerített felülírása,\n"
+ "                      és a linkek tömörítése/kibontása\n"
  "  -c, --stdout        írás a szabványos kimenetre írás, és nem törli a\n"
  "                      bemeneti fájlokat"
  
@@ -853,7 +872,7 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
-@@ -661,10 +719,10 @@ msgstr ""
+ msgstr ""
  "      --single-stream csak az első adatfolyam kibontása, és a\n"
  "                      lehetséges hátralévő bemeneti adatok mellőzése"
  
@@ -866,7 +885,14 @@ index 714d919b..4e4fb477 100644
  "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
  "                      omitted, filenames are read from the standard input;\n"
  "                      filenames must be terminated with the newline character\n"
-@@ -679,7 +737,7 @@ msgstr ""
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     ne hozzon létre ritka fájlokat kibontáskor\n"
+ "  -S, --suffix=.SUF   a „.SUF” utótag használata a tömörített fájlokon\n"
+ "      --files[=FÁJL]  fájlnevek beolvasása a FÁJLból; ha a FÁJL nincs\n"
+ "                      megadva, akkor a fájlnevek a szabványos bemenetről\n"
+ "                      lesznek beolvasva; a fájlneveket újsor karakterrel\n"
+ "                      kell zárni\n"
  "      --files0[=FÁJL] mint a --files, de a null karaktert használja\n"
  "                      használja elválasztóként"
  
@@ -875,7 +901,7 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -687,12 +745,12 @@ msgstr ""
+ msgstr ""
  "\n"
  " Alapvető fájlformátum és tömörítési beállítások:\n"
  
@@ -892,7 +918,7 @@ index 714d919b..4e4fb477 100644
  msgstr ""
  "  -F, --format=FMT    a kódoláshoz vagy dekódoláshoz használt fájlformátum;\n"
  "                      lehetséges értékek „auto” (alapértelmezett), „xz”,\n"
-@@ -700,11 +758,11 @@ msgstr ""
+ "                      „lzma”, „lzip” és „raw”\n"
  "  -C, --check=ELL     integritás-ellenőrzés típusa: „none” (óvatosan használja),\n"
  "                      „crc32”, „crc64” (alapértelmezett) vagy „sha256”"
  
@@ -906,7 +932,8 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -713,7 +771,7 @@ msgstr ""
+ msgstr ""
+ "  -0 ... -9           tömörítési előbeállítás; alapértelmezett a 6;\n"
  "                      a 7-9 használata előtt vegye figyelembe a tömörítő\n"
  "                      *és* kibontó memóriahasználatát!"
  
@@ -915,7 +942,7 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -721,16 +779,16 @@ msgstr ""
+ msgstr ""
  "  -e, --extreme       a tömörítési arány javítási kísérlete több CPU-idő\n"
  "                      használatával; nincs hatással a kibontó memóriaigényére"
  
@@ -939,7 +966,9 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "      --block-size=SIZE\n"
  "                      start a new .xz block after every SIZE bytes of input;\n"
-@@ -740,17 +798,21 @@ msgstr ""
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=MÉRET\n"
  "                      új .xz blokk indítása minden MÉRETnyi bájt bemenet után;\n"
  "                      a többszálas tömörítés blokkméretének megadásához"
  
@@ -967,7 +996,11 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -762,7 +824,7 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
+ "      --flush-timeout=IDŐTÚLLÉPÉS\n"
+ "                      tömörítéskor, ha több mint IDŐTÚLLÉPÉS ezredmásodperc\n"
  "                      telt el az előző kiírástól, és a bemenetolvasás\n"
  "                      blokkolna, akkor minden adat ki lesz írva"
  
@@ -976,7 +1009,19 @@ index 714d919b..4e4fb477 100644
  #, no-c-format
  msgid ""
  "      --memlimit-compress=LIMIT\n"
-@@ -782,7 +844,7 @@ msgstr ""
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"
+ msgstr ""
+ "      --memlimit-compress=KORLÁT\n"
+ "      --memlimit-decompress=KORLÁT\n"
+ "      --memlimit-mt-decompress=KORLÁT\n"
+ "  -M, --memlimit=KORLÁT\n"
+ "                      a memóriahasználati korlát megadása tömörítéshez,\n"
+ "                      kibontáshoz, többszálú kibontású vagy mindháromhoz; a\n"
  "                      KORLÁT bájtokban van megadva, a RAM %-ában, vagy 0 az\n"
  "                      alapértelmezéshez"
  
@@ -985,7 +1030,8 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -791,7 +853,7 @@ msgstr ""
+ msgstr ""
+ "      --no-adjust     ha a tömörítési beállítások túllépik a memóriahasználati\n"
  "                      korlátot, akkor hibát fog adni a beállítások lefelé\n"
  "                      állítása helyett"
  
@@ -994,7 +1040,7 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -799,7 +861,35 @@ msgstr ""
+ msgstr ""
  "\n"
  " Egyéni szűrőlánc a tömörítéshez (alternatíva az előbeállításokra):"
  
@@ -1031,7 +1077,29 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -829,7 +919,7 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=KAPCS]     LZMA1 vagy LZMA2; a KAPCS nulla vagy több vesszővel\n"
+ "  --lzma2[=KAPCS]     elválasztott kapcsoló az alábbiak közül\n"
+ "                      (érvényes érték; alapértelmezett):\n"
+ "                        preset=ELŐ visszaállítás egy előbeállításra (0-9[e])\n"
+ "                        dict=SZÁM  szótárméret (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=SZÁM    literál környezeti bitek száma (0-4; 3)\n"
+ "                        lp=SZÁM    literál pozícióbitek száma (0-4; 0)\n"
+ "                        pb=SZÁM    pozícióbitek száma (0-4; 2)\n"
+ "                        mode=MÓD   tömörítési mód (fast, normal; normal)\n"
+ "                        nice=SZÁM  az egyezés „nice” hossza (2-273; 64)\n"
+ "                        mf=NÉV     egyezéskereső (hc3, hc4, bt2, bt3, bt4; bt4)\n"
  "                        depth=SZÁM legnagyobb keresési mélység; 0=automatikus\n"
  "                                   (alapértelmezett)"
  
@@ -1040,7 +1108,9 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "\n"
  "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
-@@ -839,6 +929,7 @@ msgid ""
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
  "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
  "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
  "  --sparc[=OPTS]      SPARC BCJ filter\n"
@@ -1048,7 +1118,11 @@ index 714d919b..4e4fb477 100644
  "                      Valid OPTS for all BCJ filters:\n"
  "                        start=NUM  start offset for conversions (default=0)"
  msgstr ""
-@@ -850,11 +941,12 @@ msgstr ""
+ "\n"
+ "  --x86[=KAPCS]       x86 BCJ szűrő (32 bites és 64 bites)\n"
+ "  --arm[=KAPCS]       ARM BCJ szűrő\n"
+ "  --armthumb[=KAPCS]  ARM-Thumb BCJ szűrő\n"
+ "  --arm64[=KAPCS]     ARM64 BCJ szűrő\n"
  "  --powerpc[=KAPCS]   PowerPC BCJ szűrő (csak big endian esetén)\n"
  "  --ia64[=KAPCS]      IA-64 (Itanium) BCJ szűrő\n"
  "  --sparc[=KAPCS]     SPARC BCJ szűrő\n"
@@ -1064,7 +1138,12 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -867,7 +959,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=OPTS]      Delta szűrő; érvényes KAPCSOLÓK\n"
+ "                      (érvényes értékek; alapértelmezett default):\n"
  "                        dist=SZÁM  az egymásból kivont bájtok közti\n"
  "                                   távolság (1-256; 1)"
  
@@ -1073,7 +1152,7 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -875,7 +967,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Egyéb kapcsolók:\n"
  
@@ -1082,7 +1161,9 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -885,19 +977,19 @@ msgstr ""
+ msgstr ""
+ "  -q, --quiet         figyelmeztetések elrejtése; adja meg kétszer, hogy a\n"
+ "                      hibákat is elrejtse\n"
  "  -v, --verbose       legyen bőbeszédű; adja meg kétszer, hogy még bőbeszédűbb\n"
  "                      legyen"
  
@@ -1105,7 +1186,7 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "      --info-memory   display the total amount of RAM and the currently active\n"
  "                      memory usage limits, and exit"
-@@ -905,7 +997,7 @@ msgstr ""
+ msgstr ""
  "      --info-memory   az összes RAM mennyiségének és a jelenlegi\n"
  "                      memóriahasználati korlátok megjelenítése, és kilépés"
  
@@ -1114,7 +1195,7 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "  -h, --help          display the short help (lists only the basic options)\n"
  "  -H, --long-help     display this long help and exit"
-@@ -913,7 +1005,7 @@ msgstr ""
+ msgstr ""
  "  -h, --help          a rövid súgó megjelenítése (csak az alapvető kapcsolók)\n"
  "  -H, --long-help     ezen hosszú súgó megjelenítése, és kilépés"
  
@@ -1123,7 +1204,7 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "  -h, --help          display this short help and exit\n"
  "  -H, --long-help     display the long help (lists also the advanced options)"
-@@ -921,11 +1013,12 @@ msgstr ""
+ msgstr ""
  "  -h, --help          ezen rövid súgó megjelenítése, és kilépés\n"
  "  -H, --long-help     a hosszú súgó megjelenítése (speciális kapcsolókhoz)"
  
@@ -1138,7 +1219,11 @@ index 714d919b..4e4fb477 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -937,54 +1030,60 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "FÁJL nélkül, vagy ha a FÁJL -, olvasás a szabványos bemenetről.\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -1218,7 +1303,7 @@ index 714d919b..4e4fb477 100644
  #: src/xz/suffix.c:165
  #, c-format
  msgid "%s: Filename has an unknown suffix, skipping"
-@@ -992,49 +1091,70 @@ msgstr "%s: A fájlnév utótagja ismeretlen, kihagyás"
+ msgstr "%s: A fájlnév utótagja ismeretlen, kihagyás"
  
  #: src/xz/suffix.c:186
  #, c-format
@@ -1302,3 +1387,37 @@ index 714d919b..4e4fb477 100644
  #~ msgid "Sandbox is disabled due to incompatible command line arguments"
  #~ msgstr "A homokozó ki lett kapcsolva a nem kompatibilis parancssori argumentumok miatt"
  
+ #~ msgid "Sandbox was successfully enabled"
+ #~ msgstr "A homokozó sikeresen engedélyezve"
+ 
+ #~ msgid "Memory usage limit for compression:    "
+ #~ msgstr "Memóriahasználat korlátja tömörítéskor: "
+ 
+ #~ msgid "  Streams:            %s\n"
+ #~ msgstr "  Adatfolyamok:       %s\n"
+ 
+ #~ msgid "  Blocks:             %s\n"
+ #~ msgstr "  Blokkok:            %s\n"
+ 
+ #~ msgid "  Ratio:              %s\n"
+ #~ msgstr "  Arány:              %s\n"
+ 
+ #~ msgid "  Check:              %s\n"
+ #~ msgstr "  Ellenőrzés:         %s\n"
+ 
+ #~ msgid ""
+ #~ "  Streams:\n"
+ #~ "    Stream    Blocks      CompOffset    UncompOffset        CompSize      UncompSize  Ratio  Check      Padding"
+ #~ msgstr ""
+ #~ "  Adatfolyamok:\n"
+ #~ "    Folyam    Blokkok      TömEltolás    KibEltolás        TömMéret      KibMéret  Arány  Ellenőrzés      Keret"
+ 
+ #~ msgid ""
+ #~ "  Blocks:\n"
+ #~ "    Stream     Block      CompOffset    UncompOffset       TotalSize      UncompSize  Ratio  Check"
+ #~ msgstr ""
+ #~ "  Blokkok:\n"
+ #~ "    Folyam    Blokkok      TömEltolás    KibEltolás        TömMéret      KibMéret  Arány  Ellenőrzés"
+ 
+ #~ msgid "      CheckVal %*s Header  Flags        CompSize    MemUsage  Filters"
+ #~ msgstr "      ÉrtékEll %*s Fejléc  Jelzők        TömMéret    MemHasználat  Szűrők"

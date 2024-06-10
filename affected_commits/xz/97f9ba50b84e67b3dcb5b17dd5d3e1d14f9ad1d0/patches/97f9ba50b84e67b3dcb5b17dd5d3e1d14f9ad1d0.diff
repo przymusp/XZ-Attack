@@ -13,7 +13,21 @@ diff --git a/src/liblzma/check/crc32_table.c b/src/liblzma/check/crc32_table.c
 index 41a80dcb..09b00fa3 100644
 --- a/src/liblzma/check/crc32_table.c
 +++ b/src/liblzma/check/crc32_table.c
-@@ -15,9 +15,9 @@
+@@ -1,45 +1,45 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       crc32_table.c
+ /// \brief      Precalculated CRC32 table with correct endianness
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "common.h"
+ 
  
  // FIXME: Compared to crc_common.h this has to check for __x86_64__ too
  // so that in 32-bit builds crc32_x86.S won't break due to a missing table.
@@ -25,3 +39,25 @@ index 41a80dcb..09b00fa3 100644
  #	define X86_CLMUL_NO_TABLE 1
  #endif
  
+ #if defined(HAVE_ARM64_CRC32) \
+ 		&& !defined(WORDS_BIGENDIAN) \
+ 		&& defined(__ARM_FEATURE_CRC32)
+ #	define ARM64_CRC32_NO_TABLE 1
+ #endif
+ 
+ 
+ #if !defined(HAVE_ENCODERS) && (defined(X86_CLMUL_NO_TABLE) \
+ 		|| defined(ARM64_CRC32_NO_TABLE_))
+ // No table needed. Use a typedef to avoid an empty translation unit.
+ typedef void lzma_crc32_dummy;
+ 
+ #else
+ // Having the declaration here silences clang -Wmissing-variable-declarations.
+ extern const uint32_t lzma_crc32_table[8][256];
+ 
+ #       ifdef WORDS_BIGENDIAN
+ #       	include "crc32_table_be.h"
+ #       else
+ #       	include "crc32_table_le.h"
+ #       endif
+ #endif

@@ -1,0 +1,1 @@
+{"src/liblzma/api/lzma/version.h": {"language": "C", "type": "programming", "purpose": "programming", "+": [{"id": 25, "type": "documentation", "purpose": "programming"}, {"id": 36, "type": "documentation", "purpose": "programming"}], "-": [{"id": 24, "type": "documentation", "purpose": "programming"}, {"id": 35, "type": "documentation", "purpose": "programming"}]}}

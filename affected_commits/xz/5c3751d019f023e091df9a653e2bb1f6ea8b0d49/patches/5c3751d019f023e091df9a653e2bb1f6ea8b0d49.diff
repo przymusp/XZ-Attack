@@ -8,7 +8,7 @@ diff --git a/po/ro.po b/po/ro.po
 index 202b8c8b..1ddcd041 100644
 --- a/po/ro.po
 +++ b/po/ro.po
-@@ -1,6 +1,8 @@
+@@ -1,1226 +1,1210 @@
 -# Romanian translation for xz.
 -# Mesajele în limba română pentru pachetul xz.
 -# This file is put in the public domain.
@@ -20,7 +20,12 @@ index 202b8c8b..1ddcd041 100644
  #
  # Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>, 2022 - 2024.
  #
-@@ -13,14 +15,15 @@
+ # Cronologia traducerii fișierului „xz”:
+ # Traducerea inițială, făcută de R-GC, pentru versiunea xz 5.2.5.
+ # Actualizare a traducerii pentru versiunea 5.2.6 (nepublicată în TP), făcută de R-GC, 2022.
+ # Actualizare a algoritmului formelor de plural (de la „trei” la „patru” experimental).
+ # Actualizare a traducerii pentru versiunea 5.4.0-pre1, făcută de R-GC, noi-2022.
+ # Actualizare a traducerii pentru versiunea 5.4.0-pre2, făcută de R-GC, dec-2022.
  # Actualizare a traducerii pentru versiunea 5.4.3, făcută de R-GC, mai-2023.
  # Actualizare a traducerii pentru versiunea 5.4.4-pre1, făcută de R-GC, iul-2023.
  # Actualizare a traducerii pentru versiunea 5.6.0-pre1, făcută de R-GC, feb-2024.
@@ -39,7 +44,10 @@ index 202b8c8b..1ddcd041 100644
  "Last-Translator: Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>\n"
  "Language-Team: Romanian <translation-team-ro@lists.sourceforge.net>\n"
  "Language: ro\n"
-@@ -31,122 +34,122 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ "Plural-Forms: nplurals=4; plural=((n==1) ? 0 : (n==2) ? 1 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 2 : 3);\n"
  "X-Bugs: Report translation errors to the Language-Team address.\n"
  "X-Generator: Poedit 3.2.2\n"
  
@@ -191,7 +199,13 @@ index 202b8c8b..1ddcd041 100644
  #, c-format
  msgid "Unsupported options in filter chain %u"
  msgstr "Opțiuni neacceptate în lanțul de filtre %u"
-@@ -160,60 +163,60 @@ msgstr "Opțiuni neacceptate în lanțul de filtre %u"
+ 
+ # NOTĂ:
+ # - să intru în contact cu dezvoltatorii, pentru ai ruga să introducă a doua formă de plural
+ # (necesară cel puțin pentru limba română):
+ # „Se utilizează până la %<PRIu32> de fire.”
+ # ****
+ # construcție necesară pentru mașini cu
  # procesoare/nuclee > 10
  # ===
  # cred că deja au apărut astfel de „monștrii”
@@ -264,7 +278,14 @@ index 202b8c8b..1ddcd041 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s: poll() a eșuat: %s"
-@@ -228,136 +231,136 @@ msgstr "%s: poll() a eșuat: %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -429,7 +450,11 @@ index 202b8c8b..1ddcd041 100644
  msgid "Multi-threaded decompression:"
  msgstr "Decomprimare cu multiple-fire de execuție:"
  
-@@ -369,119 +372,119 @@ msgstr "Decomprimare cu multiple-fire de execuție:"
+ # R-GC, scrie:
+ # ATENȚIE:
+ # este vorba de:
+ # T0 = momentul 0, și nu de:
+ # TO = la, către. pe, în...
  # ****
  # probabil tipul de literă folosit de mine în Poedit, să
  # nu diferențieze prea mult O de 0...
@@ -578,7 +603,7 @@ index 202b8c8b..1ddcd041 100644
  msgid "Filters"
  msgstr "Filtre"
  
-@@ -489,7 +492,7 @@ msgstr "Filtre"
+ #. TRANSLATORS: Indicates that there is no integrity check.
  #. This string is used in tables. In older xz version this
  #. string was limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -587,7 +612,7 @@ index 202b8c8b..1ddcd041 100644
  msgid "None"
  msgstr "Nici una"
  
-@@ -497,60 +500,60 @@ msgstr "Nici una"
+ #. TRANSLATORS: Indicates that integrity check name is not known,
  #. but the Check ID is known (here 2). In older xz version these
  #. strings were limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -662,7 +687,8 @@ index 202b8c8b..1ddcd041 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s: Prea mic pentru a fi un fișier .xz valid"
-@@ -559,26 +562,26 @@ msgstr "%s: Prea mic pentru a fi un fișier .xz valid"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -694,7 +720,8 @@ index 202b8c8b..1ddcd041 100644
  #, c-format
  msgid "%s file\n"
  msgid_plural "%s files\n"
-@@ -587,24 +590,28 @@ msgstr[1] "două fișiere\n"
+ msgstr[0] "un fișier\n"
+ msgstr[1] "două fișiere\n"
  msgstr[2] "%s fișiere\n"
  msgstr[3] "%s de fișiere\n"
  
@@ -728,7 +755,12 @@ index 202b8c8b..1ddcd041 100644
  #, c-format
  msgid "%s: Unexpected end of input when reading filenames"
  msgstr "%s: Sfârșit neașteptat al intrării la citirea numelor de fișiere"
-@@ -617,16 +624,16 @@ msgstr "%s: Sfârșit neașteptat al intrării la citirea numelor de fișiere"
+ 
+ # Adaptînd sugestia făcută de Daniel Șerbănescu asupra traducerii cuvîntului „null”, am modificat
+ # traducerea de la:„Caracter nul găsit...”, la:
+ # „Caracter nul(null) găsit...”
+ # Sugestia făcută de el în baza obiecției că în pagina web, «dexonline» definiția cuvîntului nul, este un pic ambiguă; nu are o bază prea solidă,
+ # din următoarele motive:
  # - pagina în cauză e construită, alimentată și menținută de persoane voluntare, precum noi ca traducători de software.
  # - intrările pentru definiția cuvîntului „nul”, sînt extrase din dicționare de uz general; niciuna dintre ele, nu a ieșit dintr-un dicționar tehnic, cu atît mai puțin unul de informatică.
  # - utilizatorul software-ului «xz», direct de la linia de comandă, mă îndoiesc că va fi un utilizator ce nu este familiarizat cu nomenclatura din informatică (pentru restul utilizatorilor, acest mesaj nu va fi vizibil, pentru că-l vor utiliza din spatele unui software „IGU” «InterfațăGrafică(de)Utilizator»
@@ -748,7 +780,7 @@ index 202b8c8b..1ddcd041 100644
  msgid "Cannot read data from standard input when reading filenames from standard input"
  msgstr "Nu se pot citi date de la intrarea standard atunci când se citesc numele de fișiere de la intrarea standard"
  
-@@ -634,68 +641,68 @@ msgstr "Nu se pot citi date de la intrarea standard atunci când se citesc numel
+ #. TRANSLATORS: This is the program name in the beginning
  #. of the line in messages. Usually it becomes "xz: ".
  #. This is a translatable string because French needs
  #. a space before a colon.
@@ -832,7 +864,10 @@ index 202b8c8b..1ddcd041 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -706,17 +713,17 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Utilizare: %s [OPȚIUNE]... [FIȘIER]...\n"
  "Comprimă sau decomprimă FIȘIER(e) în formatul .xz.\n"
  "\n"
  
@@ -853,7 +888,11 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -728,7 +735,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      forțează comprimarea\n"
+ "  -d, --decompress    forțează decomprimarea\n"
  "  -t, --test          testează integritatea fișierului comprimat\n"
  "  -l, --list          listează informații despre fișierele .xz"
  
@@ -862,7 +901,7 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -736,7 +743,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Modificatori de operare:\n"
  
@@ -871,7 +910,11 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -748,7 +755,7 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          păstrează (nu șterge) fișierele de intrare\n"
+ "  -f, --force         forțează suprascrierea fișierului de ieșire și\n"
+ "                      (de)comprimă legăturile\n"
  "  -c, --stdout        scrie la ieșirea standard și nu șterge fișierele de\n"
  "                      intrare"
  
@@ -880,7 +923,7 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
-@@ -756,7 +763,7 @@ msgstr ""
+ msgstr ""
  "      --single-stream decomprimă doar primul flux și ignoră în tăcere\n"
  "                      posibilele date de intrare rămase"
  
@@ -889,7 +932,18 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "      --no-sparse     do not create sparse files when decompressing\n"
  "  -S, --suffix=.SUF   use the suffix '.SUF' on compressed files\n"
-@@ -775,7 +782,7 @@ msgstr ""
+ "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
+ "                      omitted, filenames are read from the standard input;\n"
+ "                      filenames must be terminated with the newline character\n"
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     nu creează fișiere disperse când decomprimă\n"
+ "  -S, --suffix=.SUF   utilizează sufixul „.SUF” pentru fișierele comprimate\n"
+ "      --files[=FIȘIER]\n"
+ "                      citește numele fișierelor de procesat din FIȘIER;\n"
+ "                      dacă FIȘIER este omis, numele de fișiere sunt citite\n"
+ "                      de la intrarea standard; numele de fișiere trebuie să\n"
+ "                      fie terminate cu caracterul de linie nouă\n"
  "      --files0[=FIȘIER]\n"
  "                      ca „--files”, dar folosește caracterul null ca terminator"
  
@@ -898,7 +952,7 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -783,7 +790,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Formatul de bază al fișierului și opțiunile de comprimare:\n"
  
@@ -907,7 +961,15 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  -F, --format=FMT    file format to encode or decode; possible values are\n"
  "                      'auto' (default), 'xz', 'lzma', 'lzip', and 'raw'\n"
-@@ -799,11 +806,11 @@ msgstr ""
+ "  -C, --check=CHECK   integrity check type: 'none' (use with caution),\n"
+ "                      'crc32', 'crc64' (default), or 'sha256'"
+ msgstr ""
+ "  -F, --format=FORMAT\n"
+ "                      formatul de fișier pentru codificare sau decodificare;\n"
+ "                      valorile posibile sunt „auto” (implicit), „xz”,\n"
+ "                      „lzma”, „lzip” și „raw”\n"
+ "  -C, --check=VERIFICARE\n"
+ "                      tip de verificare a integrității: „none” (utilizați\n"
  "                      cu precauție), „crc32”, „crc64” (implicit) sau\n"
  "                      „sha256”"
  
@@ -921,7 +983,9 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -813,7 +820,7 @@ msgstr ""
+ msgstr ""
+ "  -0 ... -9           presetare comprimare; valoarea implicită este 6;\n"
+ "                      luați în considerare memoria utilizată de instrumentul de\n"
  "                      comprimare *și* de instrumentul de decomprimare, înainte\n"
  "                      de a utiliza presetările 7-9!"
  
@@ -930,7 +994,8 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -822,7 +829,7 @@ msgstr ""
+ msgstr ""
+ "  -e, --extreme       încearcă să îmbunătățească raportul de comprimare\n"
  "                      folosind mai mult timp CPU-ul; nu afectează cerințele\n"
  "                      de memorie ale instrumentului de decomprimare"
  
@@ -939,7 +1004,9 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  -T, --threads=NUM   use at most NUM threads; the default is 0 which uses\n"
  "                      as many threads as there are processor cores"
-@@ -832,7 +839,7 @@ msgstr ""
+ msgstr ""
+ "  -T, --threads=NUMĂR\n"
+ "                      utilizează cel mult NUMĂR fire de execuție; valoarea\n"
  "                      implicită este 0, care utilizează atâtea fire de execuție\n"
  "                      câte nuclee există în procesor"
  
@@ -948,7 +1015,10 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "      --block-size=SIZE\n"
  "                      start a new .xz block after every SIZE bytes of input;\n"
-@@ -843,7 +850,7 @@ msgstr ""
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=DIM\n"
+ "                      începe un nou bloc .xz după fiecare DIM octeți de intrare\n"
  "                      utilizați acest lucru pentru a stabili dimensiunea\n"
  "                      blocului pentru comprimarea cu fire de execuție"
  
@@ -957,7 +1027,13 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "      --block-list=BLOCKS\n"
  "                      start a new .xz block after the given comma-separated\n"
-@@ -857,7 +864,7 @@ msgstr ""
+ "                      intervals of uncompressed data; optionally, specify a\n"
+ "                      filter chain number (0-9) followed by a ':' before the\n"
+ "                      uncompressed data size"
+ msgstr ""
+ "      --block-list=BLOCURI\n"
+ "                      începe un nou bloc .xz după intervalele date separate\n"
+ "                      prin virgulă, de date necomprimate; opțional, specificați\n"
  "                      un număr de lanț de filtrare (0-9) urmat de „:” înainte\n"
  "                      de dimensiunea datelor necomprimate"
  
@@ -966,7 +1042,12 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -870,7 +877,7 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
+ "      --flush-timeout=TIMP_LIMITĂ\n"
+ "                      la comprimare, dacă au trecut mai mult de TIMP_LIMITĂ\n"
+ "                      milisecunde de la curățarea anterioară și citirea mai\n"
  "                      multor intrări s-ar bloca, toate datele în așteptare\n"
  "                      sunt eliminate"
  
@@ -975,7 +1056,19 @@ index 202b8c8b..1ddcd041 100644
  #, no-c-format
  msgid ""
  "      --memlimit-compress=LIMIT\n"
-@@ -890,7 +897,7 @@ msgstr ""
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"
+ msgstr ""
+ "      --memlimit-compress=LIMITA\n"
+ "      --memlimit-decompress=LIMITA\n"
+ "      --memlimit-mt-decompress=LIMITA\n"
+ "  -M, --memlimit=LIMITA\n"
+ "                      stabilește limita de utilizare a memoriei pentru\n"
+ "                      comprimare, decomprimare, decomprimare cu fire de\n"
  "                      execuție sau toate acestea; LIMITA este exprimată în\n"
  "                      octeți, % din RAM sau 0 pt. a activa valoarea implicită"
  
@@ -984,7 +1077,7 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -898,7 +905,7 @@ msgstr ""
+ msgstr ""
  "      --no-adjust     dacă setările de comprimare depășesc limita de utilizare\n"
  "                      a memoriei, dă o eroare în loc să reducă val. stabilite"
  
@@ -993,7 +1086,8 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -907,7 +914,7 @@ msgstr ""
+ msgstr ""
+ "\n"
  " Lanț de filtrare personalizat pentru comprimare (alternativă la utilizarea\n"
  " presetărilor):"
  
@@ -1002,7 +1096,10 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "\n"
  "  --filters=FILTERS   set the filter chain using the liblzma filter string\n"
-@@ -918,7 +925,7 @@ msgstr ""
+ "                      syntax; use --filters-help for more information"
+ msgstr ""
+ "\n"
+ "  --filters=FILTRE    definește lanțul de filtre folosind sintaxa șirului de\n"
  "                      filtre liblzma; utilizați „--filters-help” pentru mai\n"
  "                      multe informații"
  
@@ -1011,7 +1108,10 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  --filters1=FILTERS ... --filters9=FILTERS\n"
  "                      set additional filter chains using the liblzma filter\n"
-@@ -929,7 +936,7 @@ msgstr ""
+ "                      string syntax to use with --block-list"
+ msgstr ""
+ "  --filters1=FILTRE ... --filters9=FILTRE\n"
+ "                      definește lanțuri de filtre suplimentare folosind sintaxa\n"
  "                      șirului de filtre liblzma pentru a fi utilizate cu\n"
  "                      opțiunea „--block-list”"
  
@@ -1020,7 +1120,7 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  --filters-help      display more information about the liblzma filter string\n"
  "                      syntax and exit."
-@@ -937,7 +944,7 @@ msgstr ""
+ msgstr ""
  "  --filters-help      afișează mai multe informații despre sintaxa șirului de\n"
  "                      filtre liblzma și iese"
  
@@ -1029,7 +1129,33 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -971,7 +978,7 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=OPȚIUNI]   LZMA1 sau LZMA2; OPȚIUNI este o listă separată prin\n"
+ "  --lzma2[=OPȚIUNI]   virgulă, de niciuna sau de mai multe dintre următoarele\n"
+ "                      opțiuni (între paranteze: valorile valide, și cele\n"
+ "                      implicite):\n"
+ "                        preset=PRE resetează opțiunile la o presetare (0-9[e])\n"
+ "                        dict=NUM   dimensiunea dicționarului (4Ko - 1536Mo;\n"
+ "                                   8Mo)\n"
+ "                        lc=NUM     numărul de biți de context literal (0-4; 3)\n"
+ "                        lp=NUM     numărul de biți de poziție literală (0-4; 0)\n"
+ "                        pb=NUM     numărul de biți de poziție (0-4; 2)\n"
+ "                        mode=MOD   modul de comprimare (fast, normal; normal)\n"
+ "                        nice=NUM   lungimea „drăguță” a unei potriviri (2-273;\n"
+ "                                   64)\n"
+ "                        mf=NUME    găsitor de potriviri (hc3, hc4, bt2, bt3,\n"
+ "                                   bt4; bt4)\n"
  "                        depth=NUM  adâncimea maximă de căutare; 0=automată\n"
  "                                   (valoarea implicită)"
  
@@ -1038,7 +1164,25 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "\n"
  "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
-@@ -997,7 +1004,7 @@ msgstr ""
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
+ "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
+ "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
+ "  --sparc[=OPTS]      SPARC BCJ filter\n"
+ "  --riscv[=OPTS]      RISC-V BCJ filter\n"
+ "                      Valid OPTS for all BCJ filters:\n"
+ "                        start=NUM  start offset for conversions (default=0)"
+ msgstr ""
+ "\n"
+ "  --x86[=OPȚIUNI]     filtru BCJ x86 (32-biți și 64-biți)\n"
+ "  --arm[=OPȚIUNI]     filtru BCJ ARM\n"
+ "  --armthumb[=OPȚ]    filtru BCJ ARM-Thumb\n"
+ "  --arm64[=OPȚIUNI]   filtru ARM64 BCJ\n"
+ "  --powerpc[=OPȚIUNI] filtru BCJ PowerPC (numai big endian)\n"
+ "  --ia64[=OPȚIUNI]    filtru BCJ IA-64 (Itanium)\n"
+ "  --sparc[=OPȚIUNI]   filtru BCJ SPARC\n"
+ "  --riscv[=OPȚIUNI]   filtru RISC-V BCJ\n"
  "                      OPȚIUNI valide pentru toate filtrele BCJ:\n"
  "                      start=NUM  poziția de pornire a conversiilor (implicit=0)"
  
@@ -1047,7 +1191,11 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -1009,7 +1016,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=OPȚIUNI]   OPȚIUNI valide (valori valide; valoarea implicită):\n"
  "                        dist=NUM   distanța dintre octeți fiind dedusă\n"
  "                                   scăzând un octet din celălalt (1-256; 1)"
  
@@ -1056,7 +1204,7 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -1017,7 +1024,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Alte opțiuni:\n"
  
@@ -1065,7 +1213,9 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -1027,17 +1034,17 @@ msgstr ""
+ msgstr ""
+ "  -q, --quiet         suprimă avertismentele; specificați-o de două ori pentru\n"
+ "                      a suprima și erorile\n"
  "  -v, --verbose       descriere detaliată; specificați-o de două ori pentru și\n"
  "                      mai multe detalii"
  
@@ -1086,7 +1236,7 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "      --info-memory   display the total amount of RAM and the currently active\n"
  "                      memory usage limits, and exit"
-@@ -1045,7 +1052,7 @@ msgstr ""
+ msgstr ""
  "      --info-memory   afișează cantitatea totală de memorie RAM și limitele de\n"
  "                      utilizare a memoriei active în prezent, și iese"
  
@@ -1095,7 +1245,7 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  -h, --help          display the short help (lists only the basic options)\n"
  "  -H, --long-help     display this long help and exit"
-@@ -1053,7 +1060,7 @@ msgstr ""
+ msgstr ""
  "  -h, --help          afișează ajutorul scurt (enumeră doar opțiunile de bază)\n"
  "  -H, --long-help     afișează acest ajutor lung(detaliat) și iese"
  
@@ -1104,7 +1254,8 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "  -h, --help          display this short help and exit\n"
  "  -H, --long-help     display the long help (lists also the advanced options)"
-@@ -1062,11 +1069,12 @@ msgstr ""
+ msgstr ""
+ "  -h, --help          afișează acest scurt mesaj de ajutor, și iese\n"
  "  -H, --long-help     afișează mesajul detaliat de ajutor (afișează și opțiunile\n"
  "                      avansate)"
  
@@ -1119,7 +1270,11 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -1078,23 +1086,23 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "Fără FIȘIER, sau când FIȘIER este -, citește intrarea standard.\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -1147,7 +1302,11 @@ index 202b8c8b..1ddcd041 100644
  msgid ""
  "Filter chains are set using the --filters=FILTERS or\n"
  "--filters1=FILTERS ... --filters9=FILTERS options. Each filter in the chain\n"
-@@ -1106,121 +1114,97 @@ msgstr ""
+ "can be separated by spaces or '--'. Alternatively a preset <0-9>[e] can be\n"
+ "specified instead of a filter chain.\n"
+ msgstr ""
+ "Lanțurile de filtre sunt definite cu ajutorul opțiunilor „--filters=FILTRE” sau\n"
+ "„--filters1=FILTRE ... --filters9=FILTRE”. Fiecare filtru din lanț poate fi\n"
  "separat prin spații sau „--”. Alternativ, se poate specifica o presetare\n"
  "<0-9>[e] în locul unui lanț de filtre.\n"
  

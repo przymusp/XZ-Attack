@@ -1,0 +1,1 @@
+{"src/liblzma/common/microlzma_encoder.c": {"language": "C", "type": "programming", "purpose": "programming", "+": [{"id": 114, "type": "code", "purpose": "programming"}, {"id": 115, "type": "code", "purpose": "programming"}], "-": [{"id": 113, "type": "code", "purpose": "programming"}]}}

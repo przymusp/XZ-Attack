@@ -8,7 +8,7 @@ diff --git a/po/vi.po b/po/vi.po
 index da5c6b06..e8fac6ec 100644
 --- a/po/vi.po
 +++ b/po/vi.po
-@@ -1,22 +1,25 @@
+@@ -1,1079 +1,1192 @@
 +# SPDX-License-Identifier: 0BSD
 +#
  # Vietnamese translations for xz package
@@ -40,7 +40,11 @@ index da5c6b06..e8fac6ec 100644
  
  #: src/xz/args.c:77
  #, c-format
-@@ -28,132 +31,168 @@ msgstr "%s: Đối số cho --block-list không hợp lệ"
+ msgid "%s: Invalid argument to --block-list"
+ msgstr "%s: Đối số cho --block-list không hợp lệ"
+ 
+ #: src/xz/args.c:87
+ #, c-format
  msgid "%s: Too many arguments to --block-list"
  msgstr "%s: Quá nhiều đối số cho --block-list"
  
@@ -243,7 +247,14 @@ index da5c6b06..e8fac6ec 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s: hàm poll() bị lỗi: %s"
-@@ -168,252 +207,252 @@ msgstr "%s: hàm poll() bị lỗi: %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -553,7 +564,7 @@ index da5c6b06..e8fac6ec 100644
  msgid "Filters"
  msgstr "Bộ lọc"
  
-@@ -421,7 +460,7 @@ msgstr "Bộ lọc"
+ #. TRANSLATORS: Indicates that there is no integrity check.
  #. This string is used in tables. In older xz version this
  #. string was limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -562,7 +573,7 @@ index da5c6b06..e8fac6ec 100644
  msgid "None"
  msgstr "Không"
  
-@@ -429,60 +468,60 @@ msgstr "Không"
+ #. TRANSLATORS: Indicates that integrity check name is not known,
  #. but the Check ID is known (here 2). In older xz version these
  #. strings were limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -644,7 +655,8 @@ index da5c6b06..e8fac6ec 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s: Là quá nhỏ đối với tập tin .xz hợp lệ"
-@@ -491,63 +530,67 @@ msgstr "%s: Là quá nhỏ đối với tập tin .xz hợp lệ"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -727,7 +739,12 @@ index da5c6b06..e8fac6ec 100644
  msgid "Cannot read data from standard input when reading filenames from standard input"
  msgstr "Không thể đọc dữ liệu từ đầu vào tiêu chuẩn khi đọc tập tin từ đầu vào tiêu chuẩn"
  
-@@ -560,7 +603,7 @@ msgstr "Không thể đọc dữ liệu từ đầu vào tiêu chuẩn khi đọ
+ #. TRANSLATORS: This is the program name in the beginning
+ #. of the line in messages. Usually it becomes "xz: ".
+ #. This is a translatable string because French needs
+ #. a space before a colon.
+ #: src/xz/message.c:670 src/xz/message.c:725
+ #, c-format
  msgid "%s: "
  msgstr "%s: "
  
@@ -736,7 +753,52 @@ index da5c6b06..e8fac6ec 100644
  msgid "Internal error (bug)"
  msgstr "Lỗi nội bộ (lỗi)"
  
-@@ -613,7 +656,7 @@ msgstr "%s: Móc xích lọc: %s\n"
+ #: src/xz/message.c:804
+ msgid "Cannot establish signal handlers"
+ msgstr "Không thể thiết lập bộ xử lý tín hiệu"
+ 
+ #: src/xz/message.c:813
+ msgid "No integrity check; not verifying file integrity"
+ msgstr "Không có kiểm tra toàn vẹn nên không thể thẩm tra tính toàn vẹn của tập tin"
+ 
+ #: src/xz/message.c:816
+ msgid "Unsupported type of integrity check; not verifying file integrity"
+ msgstr "Kiểu kiểm tra toàn vẹn chưa được hỗ trợ; nên không thể thẩm tra tính toàn vẹn của tập tin"
+ 
+ #: src/xz/message.c:823
+ msgid "Memory usage limit reached"
+ msgstr "Đã chạm mốc giới hạn sử dụng bộ nhớ"
+ 
+ #: src/xz/message.c:826
+ msgid "File format not recognized"
+ msgstr "Không nhận ra định dạng tập tin"
+ 
+ #: src/xz/message.c:829
+ msgid "Unsupported options"
+ msgstr "Tùy chọn không được hỗ trợ"
+ 
+ #: src/xz/message.c:832
+ msgid "Compressed data is corrupt"
+ msgstr "Dữ liệu đã nén bị hỏng"
+ 
+ #: src/xz/message.c:835
+ msgid "Unexpected end of input"
+ msgstr "Gặp kết thúc đầu vào bất ngờ"
+ 
+ #: src/xz/message.c:877
+ #, c-format
+ msgid "%s MiB of memory is required. The limiter is disabled."
+ msgstr "Yêu cầu cần có %s MiB bộ nhớ. Nhưng giới hạn bị tắt."
+ 
+ #: src/xz/message.c:905
+ #, c-format
+ msgid "%s MiB of memory is required. The limit is %s."
+ msgstr "Yêu cầu cần có %s MiB bộ nhớ. Nhưng giới hạn là %s."
+ 
+ #: src/xz/message.c:924
+ #, c-format
+ msgid "%s: Filter chain: %s\n"
+ msgstr "%s: Móc xích lọc: %s\n"
  
  #: src/xz/message.c:935
  #, c-format
@@ -745,7 +807,62 @@ index da5c6b06..e8fac6ec 100644
  msgstr "Hãy chạy lệnh “%s --help” để xem thông tin thêm."
  
  #: src/xz/message.c:961
-@@ -676,7 +719,7 @@ msgstr ""
+ #, c-format
+ msgid ""
+ "Usage: %s [OPTION]... [FILE]...\n"
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Cách dùng: %s [TÙY CHỌN]... [TẬP TIN]...\n"
+ "Nén hoặc giải nén các TẬP TIN có định dạng .xz.\n"
+ "\n"
+ 
+ #: src/xz/message.c:968
+ msgid "Mandatory arguments to long options are mandatory for short options too.\n"
+ msgstr "Các tùy chọn dài bắt buộc phải có đối số thì với tùy chọn ngắn cũng vậy.\n"
+ 
+ #: src/xz/message.c:972
+ msgid " Operation mode:\n"
+ msgstr " Chế độ thao tác:\n"
+ 
+ #: src/xz/message.c:975
+ msgid ""
+ "  -z, --compress      force compression\n"
+ "  -d, --decompress    force decompression\n"
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      ép buộc nén\n"
+ "  -d, --decompress    ép buộc giải nén\n"
+ "  -t, --test          kiểm tra tính toàn vẹn của tập tin nén\n"
+ "  -l, --list          liệt kê các thông tin về tập tin .xz"
+ 
+ #: src/xz/message.c:981
+ msgid ""
+ "\n"
+ " Operation modifiers:\n"
+ msgstr ""
+ "\n"
+ " Bộ chỉnh sửa thao tác:\n"
+ 
+ #: src/xz/message.c:984
+ msgid ""
+ "  -k, --keep          keep (don't delete) input files\n"
+ "  -f, --force         force overwrite of output file and (de)compress links\n"
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          giữ lại (đừng xóa) tập tin đầu vào\n"
+ "  -f, --force         buộc ghi đè tập tin đầu ra và (giải) nén các liên kết\n"
+ "  -c, --stdout        ghi ra đầu ra tiêu chuẩn và không xóa tập tin đầu vào"
+ 
+ #: src/xz/message.c:993
+ msgid ""
+ "      --single-stream decompress only the first stream, and silently\n"
+ "                      ignore possible remaining input data"
+ msgstr ""
+ "      --single-stream chỉ giải nén luồng dữ liệu đầu, và bỏ qua\n"
+ "                      dữ liệu đầu vào còn lại có thể"
+ 
  #: src/xz/message.c:996
  msgid ""
  "      --no-sparse     do not create sparse files when decompressing\n"
@@ -754,7 +871,23 @@ index da5c6b06..e8fac6ec 100644
  "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
  "                      omitted, filenames are read from the standard input;\n"
  "                      filenames must be terminated with the newline character\n"
-@@ -700,9 +743,9 @@ msgstr ""
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     đừng tạo các tập tin rải rác khi giải nén\n"
+ "  -S, --suffix=.ĐUÔI  dùng hậu tố “.ĐUÔI” trên các tập tin nén\n"
+ "      --files[=TẬP-TIN]  đọc các tập tin cần xử lý từ TẬP-TIN; nếu không có\n"
+ "                      TẬP-TIN thì tên tập tin sẽ được đọc vào từ đầu vào tiêu\n"
+ "                      chuẩn; chúng phải được kết thúc bằng ký tự dòng mới\n"
+ "      --files0[=TẬP-TIN] giống --files nhưng ký tự kết thúc là null"
+ 
+ #: src/xz/message.c:1005
+ msgid ""
+ "\n"
+ " Basic file format and compression options:\n"
+ msgstr ""
+ "\n"
+ " Các tùy chọn về định dạng và nén cơ bản:\n"
+ 
  #: src/xz/message.c:1007
  msgid ""
  "  -F, --format=FMT    file format to encode or decode; possible values are\n"
@@ -767,7 +900,28 @@ index da5c6b06..e8fac6ec 100644
  msgstr ""
  "  -F, --format=ĐDạng  định dạng tập tin cần mã hóa hoặc giải mã; giá trị có thể\n"
  "                      là “auto” (mặc định), “xz”, “lzma”, “lzip”, và “raw”\n"
-@@ -731,11 +774,11 @@ msgstr ""
+ "  -C, --check=KIỂM    kiểu kiểm tra toàn vẹn: “none” (thận trọng khi dùng),\n"
+ "                      “crc32”, “crc64” (mặc định), hay “sha256”"
+ 
+ #: src/xz/message.c:1012
+ msgid "      --ignore-check  don't verify the integrity check when decompressing"
+ msgstr "      --ignore-check  không thẩm tra tính toàn vẹn khi giải nén"
+ 
+ #: src/xz/message.c:1016
+ msgid ""
+ "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
+ "                      decompressor memory usage into account before using 7-9!"
+ msgstr ""
+ "  -0 ... -9           đặt mức nén; mặc định là 6; tiêu dùng nhiều bộ nhớ khi nén\n"
+ "                      và giải nén, nên tính toán trước khi dùng 7-9!"
+ 
+ #: src/xz/message.c:1020
+ msgid ""
+ "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
+ "                      does not affect decompressor memory requirements"
+ msgstr ""
+ "  -e, --extreme       cố gắng nâng cao mức nén bằng cách dùng nhiều CPU hơn;\n"
+ "                      nhưng không yêu cần nhiều bộ nhớ khi giải nén"
  
  #: src/xz/message.c:1024
  msgid ""
@@ -783,7 +937,13 @@ index da5c6b06..e8fac6ec 100644
  
  #: src/xz/message.c:1029
  msgid ""
-@@ -749,15 +792,19 @@ msgstr ""
+ "      --block-size=SIZE\n"
+ "                      start a new .xz block after every SIZE bytes of input;\n"
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=CỠ\n"
+ "                      bắt đầu một khối .xz mới sau mỗi CỠ byte của đầu vào;\n"
+ "                      dùng tùy chọn này để đặt cỡ khối cho nén tuyến trình"
  
  #: src/xz/message.c:1033
  msgid ""
@@ -807,7 +967,11 @@ index da5c6b06..e8fac6ec 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -769,7 +816,7 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
+ "      --flush-timeout=THỜI_GIAN_CHỜ\n"
+ "                      khi đang nén, nếu đã trải qua hơn THỜI_GIAN_CHỜ milli-giây\n"
  "                      kể từ lần đẩy dữ liệu lên đĩa trước đó và đang đọc thêm\n"
  "                      khối nữa, mọi dữ liệu đang chờ sẽ được ghi lên đĩa"
  
@@ -816,7 +980,18 @@ index da5c6b06..e8fac6ec 100644
  #, no-c-format
  msgid ""
  "      --memlimit-compress=LIMIT\n"
-@@ -788,7 +835,7 @@ msgstr ""
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"
+ msgstr ""
+ "      --memlimit-compress=GIỚI_HẠN\n"
+ "      --memlimit-decompress=GIỚI_HẠN\n"
+ "      --memlimit-mt-decompress=GIỚI_HẠN\n"
+ "  -M, --memlimit=GIỚI_HẠN\n"
+ "                      đặt mức giới hạn dùng bộ nhớ cho việc nén, giải nén,\n"
  "                      giải nén tuyến trình, hoặc tất cả; GIỚI_HẠN có đơn vị là\n"
  "                      byte, % của RAM, hay 0 cho mặc định"
  
@@ -825,7 +1000,7 @@ index da5c6b06..e8fac6ec 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -796,7 +843,7 @@ msgstr ""
+ msgstr ""
  "      --no-adjust     nếu các cài đặt nén vượt quá giới hạn dùng bộ nhớ,\n"
  "                      đưa ra một lỗi thay vì sửa đổi các cài đặt xuống"
  
@@ -834,7 +1009,7 @@ index da5c6b06..e8fac6ec 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -804,7 +851,35 @@ msgstr ""
+ msgstr ""
  "\n"
  " Móc xích lọc tùy chỉnh cho nén (thay cho việc dùng chỉnh trước):"
  
@@ -871,7 +1046,27 @@ index da5c6b06..e8fac6ec 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -832,7 +907,7 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=CTC]       LZMA1 hay LZMA2; CÁC-TÙY-CHỌN là danh sách của không hoặc\n"
+ "  --lzma2[=CTC]       hơn các tùy chọn sau đây (giá trị hợp lệ; mặc định):\n"
+ "                        preset=PRE các tùy chọn tối ưu nén (0-9[e])\n"
+ "                        dict=SỐ    cỡ từ điển (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=SỐ      số bít ngữ cảnh văn bản (0-4; 3)\n"
+ "                        lp=SỐ      số bít vị trí văn bản (0-4; 0)\n"
+ "                        pb=SỐ      số bít vị trí (0-4; 2)\n"
+ "                        mode=CHẾ_ĐỘ  chế độ nén (fast, normal; normal)\n"
+ "                        nice=SỐ    chiều dài “tốt” của khớp (2-273; 64)\n"
  "                        mf=TÊN     bộ tìm khớp (hc3, hc4, bt2, bt3, bt4; bt4)\n"
  "                        depth=SỐ   mức sâu tìm kiếm tối đa; 0=tự động (mặc định)"
  
@@ -880,7 +1075,9 @@ index da5c6b06..e8fac6ec 100644
  msgid ""
  "\n"
  "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
-@@ -842,6 +917,7 @@ msgid ""
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
  "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
  "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
  "  --sparc[=OPTS]      SPARC BCJ filter\n"
@@ -888,7 +1085,11 @@ index da5c6b06..e8fac6ec 100644
  "                      Valid OPTS for all BCJ filters:\n"
  "                        start=NUM  start offset for conversions (default=0)"
  msgstr ""
-@@ -853,10 +929,11 @@ msgstr ""
+ "\n"
+ "  --x86[=OPTS]        bộ lọc x86 BCJ (32-bit và 64-bit)\n"
+ "  --arm[=OPTS]        bộ lọc ARM BCJ\n"
+ "  --armthumb[=OPTS]   bộ lọc ARM-Thumb BCJ\n"
+ "  --arm64[=OPTS]      bộ lọc ARM64 BCJ\n"
  "  --powerpc[=OPTS]    bộ lọc PowerPC BCJ (chỉ big endian)\n"
  "  --ia64[=OPTS]       bộ lọc IA-64 (Itanium) BCJ\n"
  "  --sparc[=OPTS]      bộ lọc SPARC BCJ\n"
@@ -901,7 +1102,12 @@ index da5c6b06..e8fac6ec 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -869,7 +946,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=OPTS]      bộ lọc Delta;\n"
+ "                      CÁC-TÙY-CHỌN hợp lệ (giá trị hợp lệ; mặc định):\n"
  "                        dist=SỐ    khoảng cách giữa các byte được trừ từ\n"
  "                                   những cái khác (1-256; 1)"
  
@@ -910,7 +1116,7 @@ index da5c6b06..e8fac6ec 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -877,56 +954,59 @@ msgstr ""
+ msgstr ""
  "\n"
  " Tùy chọn khác:\n"
  
@@ -985,7 +1191,11 @@ index da5c6b06..e8fac6ec 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -938,33 +1018,49 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "Không có TẬP_TIN, hoặc TẬP_TIN là “-”, thì đọc đầu vào tiêu chuẩn.\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -1044,7 +1254,13 @@ index da5c6b06..e8fac6ec 100644
  #, c-format
  msgid "%s: Invalid option value"
  msgstr "%s: Giá trị của tùy chọn không hợp lệ"
-@@ -978,53 +1074,70 @@ msgstr "Hiện nay chưa hỗ trợ LZMA1/LZMA2: %s"
+ 
+ #: src/xz/options.c:247
+ #, c-format
+ msgid "Unsupported LZMA1/LZMA2 preset: %s"
+ msgstr "Hiện nay chưa hỗ trợ LZMA1/LZMA2: %s"
+ 
+ #: src/xz/options.c:355
  msgid "The sum of lc and lp must not exceed 4"
  msgstr "Tổng số lượng lc và lp không được vượt quá 4"
  
@@ -1132,3 +1348,52 @@ index da5c6b06..e8fac6ec 100644
  msgid "Unknown error"
  msgstr "Lỗi chưa biết"
  
+ #~ msgid "Memory usage limit for compression:    "
+ #~ msgstr "Mức giới hạn dùng bộ nhớ cho nén:     "
+ 
+ #~ msgid "  Streams:            %s\n"
+ #~ msgstr "  Luồng dữ liệu:      %s\n"
+ 
+ #~ msgid "  Blocks:             %s\n"
+ #~ msgstr "  Khối:               %s\n"
+ 
+ #~ msgid "  Ratio:              %s\n"
+ #~ msgstr "  Tỷ lệ nén:          %s\n"
+ 
+ #~ msgid "  Check:              %s\n"
+ #~ msgstr "  Kiểm tra:           %s\n"
+ 
+ #~ msgid ""
+ #~ "  Streams:\n"
+ #~ "    Stream    Blocks      CompOffset    UncompOffset        CompSize      UncompSize  Ratio  Check      Padding"
+ #~ msgstr ""
+ #~ "  Luồng dữ liệu:\n"
+ #~ "     Luồng      Khối           BùNén       BùGiảiNén           CỡNén       CỡGiảiNén   TỷLệ  Ktra           Đệm"
+ 
+ #~ msgid ""
+ #~ "  Blocks:\n"
+ #~ "    Stream     Block      CompOffset    UncompOffset       TotalSize      UncompSize  Ratio  Check"
+ #~ msgstr ""
+ #~ "  Khối:\n"
+ #~ "     Luồng      Khối           BùNén       BùGiảiNén          CỡTổng       CỡGiảiNén   TỷLệ  Ktra"
+ 
+ #~ msgid "      CheckVal %*s Header  Flags        CompSize    MemUsage  Filters"
+ #~ msgstr "       GTrịKiểm %*s    Đầu  Cờ              CỡNén     DùngRAM  BộLọc"
+ 
+ #~ msgid "The selected match finder requires at least nice=%<PRIu32>"
+ #~ msgstr "Bộ tìm khớp đã chọn yêu cầu mức “tốt” ít nhất là nice=%<PRIu32>"
+ 
+ #~ msgid "Error setting O_NONBLOCK on standard input: %s"
+ #~ msgstr "Lỗi cài đặt O_NONBLOCK trên đầu vào tiêu chuẩn: %s"
+ 
+ #~ msgid "Error setting O_NONBLOCK on standard output: %s"
+ #~ msgstr "Lỗi cài đặt O_NONBLOCK trên đầu ra tiêu chuẩn: %s"
+ 
+ #~ msgid ""
+ #~ "      --block-size=SIZE\n"
+ #~ "                      when compressing to the .xz format, start a new block\n"
+ #~ "                      after every SIZE bytes of input; 0=disabled (default)"
+ #~ msgstr ""
+ #~ "      --block-size=CỠ\n"
+ #~ "                      khi nén thành định dạng .xz, bắt đầu khối mới\n"
+ #~ "                      sau mỗi SỐ byte đầu vào; 0=tắt (mặc định)"

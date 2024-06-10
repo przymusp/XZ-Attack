@@ -8,7 +8,50 @@ diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
 index 25716873..19391ec4 100644
 --- a/.github/workflows/ci.yml
 +++ b/.github/workflows/ci.yml
-@@ -44,48 +44,55 @@ jobs:
+@@ -1,159 +1,185 @@
+ #############################################################################
+ #
+ # Author: Jia Tan
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ #############################################################################
+ 
+ name: CI
+ 
+ on:
+   # Triggers the workflow on push or pull request events but only for the master branch
+   push:
+     branches: [ master ]
+   pull_request:
+     branches: [ master ]
+ 
+   # Allows running workflow manually
+   workflow_dispatch:
+ 
+ jobs:
+   # When CMake can support disabling check types and
+   # encoders/decoders/threads, it will be combined to one Linux job
+   # and another matrix list.
+   Linux-Autotools:
+     # Just run on latest ubuntu
+     runs-on: ubuntu-latest
+     steps:
+       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+       - uses: actions/checkout@v2
+       - name: Install Dependencies
+         run: sudo apt-get install -y autoconf automake build-essential po4a autopoint gcc-multilib
+ 
+       # -b specifies the build system to use.
+       # -p specifies the phase (build or test) to help narrow down an error
+       #    if one occurs.
+       #
+       # Start with the 32-bit build because the autoconf cache must be reset
+       # after the build because the 32-bit build sets the CFLAGS env variable.
+       # By starting with the 32-bit build, we only have to clear the
+       # cache once.
+       - name: Build 32-bit
          run: ./build-aux/ci_build.sh -b autotools -p build -f "-m32"
        - name: Test 32-bit
          run: |
@@ -73,7 +116,11 @@ index 25716873..19391ec4 100644
  
    Linux-CMake:
      runs-on: ubuntu-latest
-@@ -97,6 +104,12 @@ jobs:
+     steps:
+       - uses: actions/checkout@v2
+       - name: Install Dependencies
+         run: sudo apt-get install -y build-essential cmake
+       - name: Build
          run: ./build-aux/ci_build.sh -b cmake -p build
        - name: Test
          run: ./build-aux/ci_build.sh -b cmake -p test
@@ -86,7 +133,12 @@ index 25716873..19391ec4 100644
  
    MacOS-Autotools:
      runs-on: macos-latest
-@@ -109,42 +122,49 @@ jobs:
+     steps:
+       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+       - uses: actions/checkout@v2
+       - name: Install Dependencies
+         run: brew install autoconf automake libtool po4a
+ 
        - name: Build with full features
          run: ./build-aux/ci_build.sh -b autotools -p build
        - name: Test with full features
@@ -144,7 +196,11 @@ index 25716873..19391ec4 100644
  
    MacOS-CMake:
      runs-on: macos-latest
-@@ -156,4 +176,10 @@ jobs:
+     steps:
+       - uses: actions/checkout@v2
+       - name: Install Dependencies
+         run: brew install cmake
+       - name: Build
          run: ./build-aux/ci_build.sh -b cmake -p build
        - name: Test
          run: ./build-aux/ci_build.sh -b cmake -p test
@@ -160,7 +216,26 @@ diff --git a/build-aux/ci_build.sh b/build-aux/ci_build.sh
 index 2d0f8643..85542c9b 100755
 --- a/build-aux/ci_build.sh
 +++ b/build-aux/ci_build.sh
-@@ -20,10 +20,11 @@ USAGE="Usage: $0
+@@ -1,187 +1,206 @@
+ #!/bin/sh
+ #
+ #############################################################################
+ #
+ # Script meant to be used for Continuous Integration automation for POSIX
+ # systems. On GitHub, this is used by Ubuntu and MacOS builds.
+ #
+ #############################################################################
+ #
+ # Author: Jia Tan
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ #############################################################################
+ 
+ set -e
+ 
+ USAGE="Usage: $0
    -b [autotools|cmake]
    -c [crc32|crc64|sha256]
    -d [encoders|decoders|bcj|delta|threads|shared|nls]
@@ -174,7 +249,17 @@ index 2d0f8643..85542c9b 100755
  
  # Absolute path of script directory
  ABS_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
-@@ -41,9 +42,10 @@ NATIVE_LANG_SUPPORT="y"
+ 
+ # Default CLI option values
+ BUILD_SYSTEM="autotools"
+ CHECK_TYPE="crc32,crc64,sha256"
+ BCJ="y"
+ DELTA="y"
+ ENCODERS="y"
+ DECODERS="y"
+ THREADS="y"
+ SHARED="y"
+ NATIVE_LANG_SUPPORT="y"
  SRC_DIR="$ABS_DIR/../"
  DEST_DIR="$SRC_DIR/../xz_build"
  PHASE="all"
@@ -186,7 +271,44 @@ index 2d0f8643..85542c9b 100755
  	# b option can have either value "autotools" OR "cmake"
  	case ${opt} in
  	h)
-@@ -88,6 +90,8 @@ while getopts b:c:d:l:s:p:f:h opt; do
+ 		echo "$USAGE"
+ 		exit 0
+ 	;;
+ 	b)
+ 		case "$OPTARG" in
+ 			autotools) ;;
+ 			cmake) ;;
+ 			*) echo "Invalid build system: $OPTARG"; exit 1;;
+ 		esac
+ 		BUILD_SYSTEM="$OPTARG"
+ 	;;
+ 	# c options can be a comma separated list of check types to support
+ 	c)
+ 	for crc in $(echo $OPTARG | sed "s/,/ /g"); do 
+ 		case "$crc" in
+ 		crc32) ;;
+ 		crc64) ;;
+ 		sha256) ;;
+ 		*) echo "Invalid check type: $crc"; exit 1 ;;
+ 		esac
+ 	done
+ 	CHECK_TYPE="$OPTARG"
+ 	;;
+ 	# d options can be a comma separated list of things to disable at
+ 	# configure time
+ 	d)
+ 	for disable_arg in $(echo $OPTARG | sed "s/,/ /g"); do 
+ 		case "$disable_arg" in
+ 		encoders) ENCODERS="n" ;;
+ 		decoders) DECODERS="n" ;;
+ 		bcj) BCJ="n" ;;
+ 		delta) DELTA="n" ;;
+ 		threads) THREADS="n" ;;
+ 		shared) SHARED="n";;
+ 		nls) NATIVE_LANG_SUPPORT="n";;
+ 		*) echo "Invalid disable value: $disable_arg"; exit 1 ;;
+ 		esac
+ 	done	
  	;;
  	l) DEST_DIR="$OPTARG"
  	;;
@@ -195,7 +317,89 @@ index 2d0f8643..85542c9b 100755
  	s) SRC_DIR="$OPTARG"
  	;;
  	p) PHASE="$OPTARG"
-@@ -177,11 +181,26 @@ if [ "$PHASE" = "all" ] || [ "$PHASE" = "test" ]; then
+ 	;;
+ 	f) 
+ 	CFLAGS="$OPTARG"
+ 	export CFLAGS
+ 	;;
+ 	esac
+ done
+ 
+ if [ "$PHASE" = "all" ] || [ "$PHASE" = "build" ]; then
+ 	# Build based on arguments
+ 	mkdir -p "$DEST_DIR"
+ 	case $BUILD_SYSTEM in
+ 		autotools)
+ 		cd "$SRC_DIR"
+ 
+ 		# Run autogen.sh script if not already run
+ 		if [ ! -f configure ]
+ 		then 
+ 			"./autogen.sh"
+ 		fi
+ 
+ 		cd "$DEST_DIR"
+ 
+ 		# Generate configure option values
+ 		EXTRA_OPTIONS=""
+ 		FILTER_LIST="lzma1,lzma2"
+ 
+ 		if [ "$BCJ" = "y" ]
+ 		then
+ 			FILTER_LIST="$FILTER_LIST,x86,powerpc,ia64,arm,armthumb,arm64,sparc"
+ 		fi
+ 
+ 		if [ "$DELTA" = "y" ]
+ 		then
+ 			FILTER_LIST="$FILTER_LIST,delta"
+ 		fi
+ 
+ 		if [ "$ENCODERS" = "y" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --enable-encoders=$FILTER_LIST"
+ 		else
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-encoders"
+ 		fi
+ 
+ 		if [ "$DECODERS" = "y" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --enable-decoders=$FILTER_LIST"
+ 		else
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-decoders"
+ 		fi
+ 
+ 		if [ "$THREADS" = "n" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-threads"
+ 		fi
+ 
+ 		if [ "$SHARED" = "n" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-shared"
+ 		fi
+ 
+ 		if [ "$NATIVE_LANG_SUPPORT" = "n" ]
+ 		then
+ 			EXTRA_OPTIONS="$EXTRA_OPTIONS --disable-nls"
+ 		fi
+ 
+ 		# Run configure script
+ 		"$SRC_DIR"/configure --enable-werror --enable-checks=$CHECK_TYPE $EXTRA_OPTIONS --config-cache
+ 
+ 		# Build the project
+ 		make
+ 		;;
+ 		cmake)
+ 		# CMake currently does not support disabling encoders, decoders,
+ 		# threading, or check types. For now, just run the full build.
+ 		cd "$DEST_DIR"
+ 		cmake "$SRC_DIR/CMakeLists.txt" -B "$DEST_DIR"
+ 		make
+ 		;;
+ 	esac
+ fi
+ 
+ if [ "$PHASE" = "all" ] || [ "$PHASE" = "test" ]; then
  	case $BUILD_SYSTEM in
  		autotools)
  			cd "$DEST_DIR"

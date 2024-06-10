@@ -14,7 +14,57 @@ diff --git a/.gitignore b/.gitignore
 index 11dbc591..ca5f024e 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -51,6 +51,7 @@ build-aux/test-driver
+@@ -1,70 +1,71 @@
+ *~
+ *.bak
+ *.bak[0-9]
+ .gdb_history
+ 
+ .deps
+ .libs
+ *.la
+ *.lo
+ *.o
+ Makefile.in
+ 
+ /ABOUT-NLS
+ /autom4te.cache
+ /Doxyfile
+ /aclocal.m4
+ /config.h
+ /config.h.in
+ /config.log
+ /config.status
+ /configure
+ /libtool
+ /stamp-h1
+ 
+ build-aux/compile
+ build-aux/config.guess
+ build-aux/config.rpath
+ build-aux/config.sub
+ build-aux/depcomp
+ build-aux/install-sh
+ build-aux/ltmain.sh
+ build-aux/missing
+ build-aux/test-driver
+ 
+ /src/liblzma/liblzma.pc
+ /src/lzmainfo/lzmainfo
+ /src/xz/xz
+ /src/xzdec/lzmadec
+ /src/xzdec/xzdec
+ 
+ /src/scripts/xzdiff
+ /src/scripts/xzgrep
+ /src/scripts/xzless
+ /src/scripts/xzmore
+ 
+ /tests/compress_generated_abc
+ /tests/compress_generated_random
+ /tests/compress_generated_text
+ /tests/create_compress_files
+ /tests/test_bcj_exact_size
  /tests/test_block_header
  /tests/test_check
  /tests/test_filter_flags
@@ -22,11 +72,63 @@ index 11dbc591..ca5f024e 100644
  /tests/test_index
  /tests/test_stream_flags
  /tests/xzgrep_test_1.xz
+ /tests/xzgrep_test_2.xz
+ /tests/xzgrep_test_output
+ 
+ /lib/Makefile
+ /tests/Makefile
+ /Makefile
+ /debug/Makefile
+ /src/scripts/Makefile
+ /src/xz/Makefile
+ /src/Makefile
+ /src/liblzma/Makefile
+ /src/liblzma/api/Makefile
+ /src/lzmainfo/Makefile
+ /src/xzdec/Makefile
 diff --git a/tests/Makefile.am b/tests/Makefile.am
 index e049add4..ae63f464 100644
 --- a/tests/Makefile.am
 +++ b/tests/Makefile.am
-@@ -39,6 +39,7 @@ LDADD += $(LTLIBINTL)
+@@ -1,68 +1,70 @@
+ ##
+ ## Author: Lasse Collin
+ ##
+ ## This file has been put into the public domain.
+ ## You can do whatever you want with this file.
+ ##
+ 
+ EXTRA_DIST = \
+ 	files \
+ 	ossfuzz \
+ 	tuktest.h \
+ 	tests.h \
+ 	test_files.sh \
+ 	test_compress.sh \
+ 	test_compress_prepared_bcj_sparc \
+ 	test_compress_prepared_bcj_x86 \
+ 	test_compress_generated_abc \
+ 	test_compress_generated_random \
+ 	test_compress_generated_text \
+ 	test_scripts.sh \
+ 	bcj_test.c \
+ 	compress_prepared_bcj_sparc \
+ 	compress_prepared_bcj_x86 \
+ 	xzgrep_expected_output
+ 
+ AM_CPPFLAGS = \
+ 	-I$(top_srcdir)/src/common \
+ 	-I$(top_srcdir)/src/liblzma/api \
+ 	-I$(top_builddir)/lib
+ 
+ LDADD = $(top_builddir)/src/liblzma/liblzma.la
+ 
+ if COND_GNULIB
+ LDADD += $(top_builddir)/lib/libgnu.a
+ endif
+ 
+ LDADD += $(LTLIBINTL)
+ 
  check_PROGRAMS = \
  	create_compress_files \
  	test_check \
@@ -34,7 +136,8 @@ index e049add4..ae63f464 100644
  	test_stream_flags \
  	test_filter_flags \
  	test_block_header \
-@@ -47,6 +48,7 @@ check_PROGRAMS = \
+ 	test_index \
+ 	test_bcj_exact_size
  
  TESTS = \
  	test_check \
@@ -42,6 +145,22 @@ index e049add4..ae63f464 100644
  	test_stream_flags \
  	test_filter_flags \
  	test_block_header \
+ 	test_index \
+ 	test_bcj_exact_size \
+ 	test_files.sh \
+ 	test_compress_prepared_bcj_sparc \
+ 	test_compress_prepared_bcj_x86 \
+ 	test_compress_generated_abc \
+ 	test_compress_generated_random \
+ 	test_compress_generated_text
+ 
+ if COND_SCRIPTS
+ TESTS += test_scripts.sh
+ endif
+ 
+ clean-local:
+ 	-rm -f compress_generated_* \
+ 		xzgrep_test_output xzgrep_test_1.xz xzgrep_test_2.xz
 diff --git a/tests/test_hardware.c b/tests/test_hardware.c
 new file mode 100644
 index 00000000..34d07892

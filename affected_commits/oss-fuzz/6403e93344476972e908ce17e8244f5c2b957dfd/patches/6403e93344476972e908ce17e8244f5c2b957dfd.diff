@@ -22,7 +22,21 @@ diff --git a/projects/xz/build.sh b/projects/xz/build.sh
 index 9886951c0..8480c901f 100755
 --- a/projects/xz/build.sh
 +++ b/projects/xz/build.sh
-@@ -15,7 +15,7 @@
+@@ -1,33 +1,33 @@
+ #!/bin/bash -eu
+ # Copyright 2018 Google Inc.
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ #      http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
  #
  ################################################################################
  
@@ -31,11 +45,23 @@ index 9886951c0..8480c901f 100755
  ./configure \
    --enable-static \
    --disable-debug \
+   --disable-shared \
+   --disable-encoders \
+   --disable-xz \
+   --disable-xzdec \
+   --disable-lzmadec \
+   --disable-lzmainfo
+ make clean
+ make -j$(nproc) && make -C tests/ossfuzz && \
+     cp tests/ossfuzz/config/fuzz.options $OUT/ && \
+     cp tests/ossfuzz/config/fuzz.dict $OUT && \
+     find $SRC/xz/tests/files -name "*.xz" \
+     -exec zip -ujq $OUT/fuzz_seed_corpus.zip "{}" \;
 diff --git a/projects/xz/project.yaml b/projects/xz/project.yaml
 index c251990ae..aafdf48fe 100644
 --- a/projects/xz/project.yaml
 +++ b/projects/xz/project.yaml
-@@ -1,7 +1,8 @@
+@@ -1,14 +1,15 @@
  homepage: "https://tukaani.org/xz/"
  language: c++
 -primary_contact: "lasse.collin@tukaani.org"
@@ -45,7 +71,9 @@ index c251990ae..aafdf48fe 100644
    - "bshas3@gmail.com"
  fuzzing_engines:
    - libfuzzer
-@@ -11,4 +12,4 @@ sanitizers:
+   - afl
+   - honggfuzz
+ sanitizers:
    - address
    - memory
    - undefined

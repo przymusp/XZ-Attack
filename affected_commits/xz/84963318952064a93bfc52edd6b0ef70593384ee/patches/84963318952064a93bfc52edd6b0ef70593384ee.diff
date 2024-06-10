@@ -15,7 +15,24 @@ diff --git a/tests/test_bcj_exact_size.c b/tests/test_bcj_exact_size.c
 index 39b34c3d..0115ca60 100644
 --- a/tests/test_bcj_exact_size.c
 +++ b/tests/test_bcj_exact_size.c
-@@ -18,6 +18,15 @@
+@@ -1,113 +1,121 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       test_bcj_exact_size.c
+ /// \brief      Tests BCJ decoding when the output size is known
+ ///
+ /// These tests fail with XZ Utils 5.0.3 and earlier.
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "tests.h"
+ 
+ 
  static void
  test_exact_size(void)
  {
@@ -31,7 +48,53 @@ index 39b34c3d..0115ca60 100644
  	// Something to be compressed
  	const uint8_t in[16] = "0123456789ABCDEF";
  
-@@ -71,12 +80,16 @@ test_exact_size(void)
+ 	// in[] after compression
+ 	uint8_t compressed[1024];
+ 	size_t compressed_size = 0;
+ 
+ 	// Output buffer for decompressing compressed[]
+ 	uint8_t out[sizeof(in)];
+ 
+ 	// Compress with PowerPC BCJ and LZMA2. PowerPC BCJ is used because
+ 	// it has fixed 4-byte alignment which makes triggering the potential
+ 	// bug easy.
+ 	lzma_options_lzma opt_lzma2;
+ 	assert_false(lzma_lzma_preset(&opt_lzma2, 0));
+ 
+ 	lzma_filter filters[3] = {
+ 		{ .id = LZMA_FILTER_POWERPC, .options = NULL },
+ 		{ .id = LZMA_FILTER_LZMA2, .options = &opt_lzma2 },
+ 		{ .id = LZMA_VLI_UNKNOWN, .options = NULL },
+ 	};
+ 
+ 	assert_lzma_ret(lzma_stream_buffer_encode(
+ 			filters, LZMA_CHECK_CRC32, NULL,
+ 			in, sizeof(in),
+ 			compressed, &compressed_size, sizeof(compressed)),
+ 		LZMA_OK);
+ 
+ 	// Decompress so that we won't give more output space than
+ 	// the Stream will need.
+ 	lzma_stream strm = LZMA_STREAM_INIT;
+ 	assert_lzma_ret(lzma_stream_decoder(&strm, 10 << 20, 0), LZMA_OK);
+ 
+ 	strm.next_in = compressed;
+ 	strm.next_out = out;
+ 
+ 	while (true) {
+ 		if (strm.total_in < compressed_size)
+ 			strm.avail_in = 1;
+ 
+ 		const lzma_ret ret = lzma_code(&strm, LZMA_RUN);
+ 		if (ret == LZMA_STREAM_END) {
+ 			assert_uint_eq(strm.total_in, compressed_size);
+ 			assert_uint_eq(strm.total_out, sizeof(in));
+ 			lzma_end(&strm);
+ 			return;
+ 		}
+ 
+ 		assert_lzma_ret(ret, LZMA_OK);
+ 
  		if (strm.total_out < sizeof(in))
  			strm.avail_out = 1;
  	}
@@ -48,7 +111,15 @@ index 39b34c3d..0115ca60 100644
  	// An empty file with one Block using PowerPC BCJ and LZMA2.
  	size_t in_size;
  	uint8_t *empty_bcj_lzma2 = tuktest_file_from_srcdir(
-@@ -92,6 +105,7 @@ test_empty_block(void)
+ 			"files/good-1-empty-bcj-lzma2.xz", &in_size);
+ 
+ 	// Decompress without giving any output space.
+ 	uint64_t memlimit = 1 << 20;
+ 	uint8_t out[1];
+ 	size_t in_pos = 0;
+ 	size_t out_pos = 0;
+ 	assert_lzma_ret(lzma_stream_buffer_decode(&memlimit, 0, NULL,
+ 			empty_bcj_lzma2, &in_pos, in_size, out, &out_pos, 0),
  		LZMA_OK);
  	assert_uint_eq(in_pos, in_size);
  	assert_uint_eq(out_pos, 0);
@@ -56,7 +127,8 @@ index 39b34c3d..0115ca60 100644
  }
  
  
-@@ -100,12 +114,6 @@ main(int argc, char **argv)
+ extern int
+ main(int argc, char **argv)
  {
  	tuktest_start(argc, argv);
  
@@ -69,11 +141,169 @@ index 39b34c3d..0115ca60 100644
  	tuktest_run(test_exact_size);
  	tuktest_run(test_empty_block);
  
+ 	return tuktest_end();
+ }
 diff --git a/tests/test_check.c b/tests/test_check.c
 index cbe6917d..3c3a6e46 100644
 --- a/tests/test_check.c
 +++ b/tests/test_check.c
-@@ -157,6 +157,9 @@ test_lzma_check_size(void)
+@@ -1,357 +1,363 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       test_check.c
+ /// \brief      Tests integrity checks
+ //
+ //  Authors:    Lasse Collin
+ //              Jia Tan
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "tests.h"
+ #include "mythread.h"
+ 
+ 
+ // These must be specified as numbers so that the test works on EBCDIC
+ // systems too.
+ // static const uint8_t test_string[9] = "123456789";
+ // static const uint8_t test_unaligned[12] = "xxx123456789";
+ static const uint8_t test_string[9] = { 49, 50, 51, 52, 53, 54, 55, 56, 57 };
+ static const uint8_t test_unaligned[12]
+ 		= { 120, 120, 120, 49, 50, 51, 52, 53, 54, 55, 56, 57 };
+ 
+ // 2 MB is more than enough for the tests. Actually a tiny value would
+ // work because we don't actually decompress the files, we only test
+ // decoding of the Stream Header fields.
+ #define TEST_CHECK_MEMLIMIT (2U << 20)
+ 
+ static size_t no_check_size;
+ static uint8_t *no_check_xz_data;
+ 
+ static size_t unsupported_check_size;
+ static uint8_t *unsupported_check_xz_data;
+ 
+ #ifdef HAVE_CHECK_CRC32
+ static size_t crc32_size;
+ static uint8_t *crc32_xz_data;
+ #endif
+ 
+ #ifdef HAVE_CHECK_CRC64
+ static size_t crc64_size;
+ static uint8_t *crc64_xz_data;
+ #endif
+ 
+ #ifdef HAVE_CHECK_SHA256
+ static size_t sha256_size;
+ static uint8_t *sha256_xz_data;
+ #endif
+ 
+ 
+ static void
+ test_lzma_crc32(void)
+ {
+ 	// CRC32 is always enabled.
+ 	assert_true(lzma_check_is_supported(LZMA_CHECK_CRC32));
+ 
+ 	const uint32_t test_vector = 0xCBF43926;
+ 
+ 	// Test 1
+ 	assert_uint_eq(lzma_crc32(test_string, sizeof(test_string), 0),
+ 			test_vector);
+ 
+ 	// Test 2
+ 	assert_uint_eq(lzma_crc32(test_unaligned + 3, sizeof(test_string), 0),
+ 			test_vector);
+ 
+ 	// Test 3
+ 	uint32_t crc = 0;
+ 	for (size_t i = 0; i < sizeof(test_string); ++i)
+ 		crc = lzma_crc32(test_string + i, 1, crc);
+ 	assert_uint_eq(crc, test_vector);
+ }
+ 
+ 
+ static void
+ test_lzma_crc64(void)
+ {
+ 	// CRC64 can be disabled.
+ 	if (!lzma_check_is_supported(LZMA_CHECK_CRC64))
+ 		assert_skip("CRC64 support is disabled");
+ 
+ 	// If CRC64 is disabled then lzma_crc64() will be missing.
+ 	// Using an ifdef here avoids a linker error.
+ #ifdef HAVE_CHECK_CRC64
+ 	const uint64_t test_vector = 0x995DC9BBDF1939FA;
+ 
+ 	// Test 1
+ 	assert_uint_eq(lzma_crc64(test_string, sizeof(test_string), 0),
+ 			test_vector);
+ 
+ 	// Test 2
+ 	assert_uint_eq(lzma_crc64(test_unaligned + 3, sizeof(test_string), 0),
+ 			test_vector);
+ 
+ 	// Test 3
+ 	uint64_t crc = 0;
+ 	for (size_t i = 0; i < sizeof(test_string); ++i)
+ 		crc = lzma_crc64(test_string + i, 1, crc);
+ 	assert_uint_eq(crc, test_vector);
+ #endif
+ }
+ 
+ 
+ static void
+ test_lzma_supported_checks(void)
+ {
+ 	static const int expected_check_ids[] = {
+ 		LZMA_CHECK_NONE,
+ #ifdef HAVE_CHECK_CRC32
+ 		LZMA_CHECK_CRC32,
+ #endif
+ #ifdef HAVE_CHECK_CRC64
+ 		LZMA_CHECK_CRC64,
+ #endif
+ #ifdef HAVE_CHECK_SHA256
+ 		LZMA_CHECK_SHA256,
+ #endif
+ 	};
+ 
+ 	for (int i = 0; i <= LZMA_CHECK_ID_MAX + 1; i++) {
+ 		bool matched = false;
+ 		for (unsigned int j = 0; j < ARRAY_SIZE(expected_check_ids);
+ 				j++) {
+ 			if (expected_check_ids[j] == i) {
+ 				matched = true;
+ 				break;
+ 			}
+ 		}
+ 
+ 		if (matched)
+ 			assert_true(lzma_check_is_supported(i));
+ 		else
+ 			assert_false(lzma_check_is_supported(i));
+ 	}
+ }
+ 
+ 
+ static void
+ test_lzma_check_size(void)
+ {
+ 	// Expected check sizes taken from src/liblzma/api/lzma/check.h
+ 	static const uint32_t expected_check_sizes[] = {
+ 			0, 4, 4, 4, 8, 8, 8, 16, 16, 16,
+ 			32, 32, 32, 64, 64, 64
+ 	};
+ 
+ 	for (unsigned int i = 0; i < ARRAY_SIZE(expected_check_sizes); i++)
+ 		assert_uint_eq(expected_check_sizes[i], lzma_check_size(i));
+ 
+ 	assert_uint_eq(lzma_check_size(LZMA_CHECK_ID_MAX + 1), UINT32_MAX);
+ }
+ 
+ 
+ // Test the single threaded decoder for lzma_get_check
  static void
  test_lzma_get_check_st(void)
  {
@@ -83,7 +313,73 @@ index cbe6917d..3c3a6e46 100644
  	const uint32_t flags = LZMA_TELL_ANY_CHECK |
  			LZMA_TELL_UNSUPPORTED_CHECK |
  			LZMA_TELL_NO_CHECK;
-@@ -230,6 +233,7 @@ test_lzma_get_check_st(void)
+ 
+ 	uint8_t outbuf[128];
+ 	lzma_stream strm = LZMA_STREAM_INIT;
+ 
+ 	// Test a file with no integrity check:
+ 	assert_lzma_ret(lzma_stream_decoder(&strm, TEST_CHECK_MEMLIMIT,
+ 			flags), LZMA_OK);
+ 	strm.next_in = no_check_xz_data;
+ 	strm.avail_in = no_check_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_NO_CHECK);
+ 	assert_lzma_check(lzma_get_check(&strm), LZMA_CHECK_NONE);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
+ 
+ 	// Test a file with an unsupported integrity check type:
+ 	assert_lzma_ret(lzma_stream_decoder(&strm, TEST_CHECK_MEMLIMIT,
+ 			flags), LZMA_OK);
+ 	strm.next_in = unsupported_check_xz_data;
+ 	strm.avail_in = unsupported_check_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_UNSUPPORTED_CHECK);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
+ 
+ 	// Test a file with CRC32 as the integrity check:
+ #ifdef HAVE_CHECK_CRC32
+ 	assert_lzma_ret(lzma_stream_decoder(&strm, TEST_CHECK_MEMLIMIT,
+ 			flags), LZMA_OK);
+ 	strm.next_in = crc32_xz_data;
+ 	strm.avail_in = crc32_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_GET_CHECK);
+ 	assert_lzma_check(lzma_get_check(&strm), LZMA_CHECK_CRC32);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
+ #endif
+ 
+ 	// Test a file with CRC64 as the integrity check:
+ #ifdef HAVE_CHECK_CRC64
+ 	assert_lzma_ret(lzma_stream_decoder(&strm, TEST_CHECK_MEMLIMIT,
+ 			flags), LZMA_OK);
+ 	strm.next_in = crc64_xz_data;
+ 	strm.avail_in = crc64_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_GET_CHECK);
+ 	assert_lzma_check(lzma_get_check(&strm), LZMA_CHECK_CRC64);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
+ #endif
+ 
+ 	// Test a file with SHA-256 as the integrity check:
+ #ifdef HAVE_CHECK_SHA256
+ 	assert_lzma_ret(lzma_stream_decoder(&strm, TEST_CHECK_MEMLIMIT,
+ 			flags), LZMA_OK);
+ 	strm.next_in = sha256_xz_data;
+ 	strm.avail_in = sha256_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_GET_CHECK);
+ 	assert_lzma_check(lzma_get_check(&strm), LZMA_CHECK_SHA256);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
  #endif
  
  	lzma_end(&strm);
@@ -91,7 +387,7 @@ index cbe6917d..3c3a6e46 100644
  }
  
  
-@@ -237,7 +241,9 @@ static void
+ static void
  test_lzma_get_check_mt(void)
  {
  #ifndef MYTHREAD_ENABLED
@@ -102,11 +398,156 @@ index cbe6917d..3c3a6e46 100644
  #else
  	const uint32_t flags = LZMA_TELL_ANY_CHECK |
  			LZMA_TELL_UNSUPPORTED_CHECK |
+ 			LZMA_TELL_NO_CHECK;
+ 
+ 	const lzma_mt options = {
+ 		.flags = flags,
+ 		.threads = 2,
+ 		.timeout = 0,
+ 		.memlimit_threading = TEST_CHECK_MEMLIMIT,
+ 		.memlimit_stop = TEST_CHECK_MEMLIMIT
+ 	};
+ 
+ 	uint8_t outbuf[128];
+ 	lzma_stream strm = LZMA_STREAM_INIT;
+ 
+ 	// Test a file with no integrity check:
+ 	assert_lzma_ret(lzma_stream_decoder_mt(&strm, &options), LZMA_OK);
+ 	strm.next_in = no_check_xz_data;
+ 	strm.avail_in = no_check_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_NO_CHECK);
+ 	assert_lzma_check(lzma_get_check(&strm), LZMA_CHECK_NONE);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
+ 
+ 	// Test a file with an unsupported integrity check type:
+ 	assert_lzma_ret(lzma_stream_decoder_mt(&strm, &options), LZMA_OK);
+ 	strm.next_in = unsupported_check_xz_data;
+ 	strm.avail_in = unsupported_check_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_UNSUPPORTED_CHECK);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
+ 
+ 	// Test a file with CRC32 as the integrity check:
+ #ifdef HAVE_CHECK_CRC32
+ 	assert_lzma_ret(lzma_stream_decoder_mt(&strm, &options), LZMA_OK);
+ 	strm.next_in = crc32_xz_data;
+ 	strm.avail_in = crc32_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_GET_CHECK);
+ 	assert_lzma_check(lzma_get_check(&strm), LZMA_CHECK_CRC32);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
+ #endif
+ 
+ 	// Test a file with CRC64 as the integrity check:
+ #ifdef HAVE_CHECK_CRC64
+ 	assert_lzma_ret(lzma_stream_decoder_mt(&strm, &options), LZMA_OK);
+ 	strm.next_in = crc64_xz_data;
+ 	strm.avail_in = crc64_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_GET_CHECK);
+ 	assert_lzma_check(lzma_get_check(&strm), LZMA_CHECK_CRC64);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
+ #endif
+ 
+ 	// Test a file with SHA-256 as the integrity check:
+ #ifdef HAVE_CHECK_SHA256
+ 	assert_lzma_ret(lzma_stream_decoder_mt(&strm,&options), LZMA_OK);
+ 	strm.next_in = sha256_xz_data;
+ 	strm.avail_in = sha256_size;
+ 	strm.next_out = outbuf;
+ 	strm.avail_out = sizeof(outbuf);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_GET_CHECK);
+ 	assert_lzma_check(lzma_get_check(&strm), LZMA_CHECK_SHA256);
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_RUN), LZMA_STREAM_END);
+ #endif
+ 
+ 	lzma_end(&strm);
+ #endif
+ }
+ 
+ 
+ extern int
+ main(int argc, char **argv)
+ {
+ 	tuktest_start(argc, argv);
+ 
+ 	no_check_xz_data = tuktest_file_from_srcdir(
+ 			"files/good-1-check-none.xz", &no_check_size);
+ 
+ 	unsupported_check_xz_data = tuktest_file_from_srcdir(
+ 			"files/unsupported-check.xz",
+ 			&unsupported_check_size);
+ 
+ #ifdef HAVE_CHECK_CRC32
+ 	crc32_xz_data = tuktest_file_from_srcdir(
+ 			"files/good-1-check-crc32.xz", &crc32_size);
+ #endif
+ 
+ #ifdef HAVE_CHECK_CRC64
+ 	crc64_xz_data = tuktest_file_from_srcdir(
+ 			"files/good-1-check-crc64.xz", &crc64_size);
+ #endif
+ 
+ #ifdef HAVE_CHECK_SHA256
+ 	sha256_xz_data = tuktest_file_from_srcdir(
+ 			"files/good-1-check-sha256.xz", &sha256_size);
+ #endif
+ 
+ 	tuktest_run(test_lzma_crc32);
+ 	tuktest_run(test_lzma_crc64);
+ 	tuktest_run(test_lzma_supported_checks);
+ 	tuktest_run(test_lzma_check_size);
+ 	tuktest_run(test_lzma_get_check_st);
+ 	tuktest_run(test_lzma_get_check_mt);
+ 
+ 	return tuktest_end();
+ }
 diff --git a/tests/test_hardware.c b/tests/test_hardware.c
 index ee4434c1..c72d9b28 100644
 --- a/tests/test_hardware.c
 +++ b/tests/test_hardware.c
-@@ -32,7 +32,7 @@ static void
+@@ -1,50 +1,50 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       test_hardware.c
+ /// \brief      Tests src/liblzma/api/lzma/hardware.h API functions
+ ///
+ /// Since the output values of these functions are hardware dependent, these
+ /// tests are trivial. They are simply used to detect errors and machines
+ /// that these function are not supported on.
+ //
+ //  Author:     Jia Tan
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "tests.h"
+ #include "mythread.h"
+ 
+ 
+ static void
+ test_lzma_physmem(void)
+ {
+ 	// NOTE: Use _skip instead of _fail because 0 can also mean that we
+ 	// don't know how to get this information on this operating system.
+ 	if (lzma_physmem() == 0)
+ 		assert_skip("Could not determine amount of physical memory");
+ }
+ 
+ 
+ static void
  test_lzma_cputhreads(void)
  {
  #ifndef MYTHREAD_ENABLED
@@ -115,11 +556,233 @@ index ee4434c1..c72d9b28 100644
  #else
  	if (lzma_cputhreads() == 0)
  		assert_skip("Could not determine cpu core count");
+ #endif
+ }
+ 
+ 
+ extern int
+ main(int argc, char **argv)
+ {
+ 	tuktest_start(argc, argv);
+ 	tuktest_run(test_lzma_physmem);
+ 	tuktest_run(test_lzma_cputhreads);
+ 	return tuktest_end();
+ }
 diff --git a/tests/test_index.c b/tests/test_index.c
 index d9e63dd0..31b958d5 100644
 --- a/tests/test_index.c
 +++ b/tests/test_index.c
-@@ -211,6 +211,7 @@ test_read(lzma_index *i)
+@@ -1,730 +1,736 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       test_index.c
+ /// \brief      Tests functions handling the lzma_index structure
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "tests.h"
+ 
+ #define MEMLIMIT (LZMA_VLI_C(1) << 20)
+ 
+ #define SMALL_COUNT 3
+ #define BIG_COUNT 5555
+ 
+ 
+ static lzma_index *
+ create_empty(void)
+ {
+ 	lzma_index *i = lzma_index_init(NULL);
+ 	expect(i != NULL);
+ 	return i;
+ }
+ 
+ 
+ static lzma_index *
+ create_small(void)
+ {
+ 	lzma_index *i = lzma_index_init(NULL);
+ 	expect(i != NULL);
+ 	expect(lzma_index_append(i, NULL, 101, 555) == LZMA_OK);
+ 	expect(lzma_index_append(i, NULL, 602, 777) == LZMA_OK);
+ 	expect(lzma_index_append(i, NULL, 804, 999) == LZMA_OK);
+ 	return i;
+ }
+ 
+ 
+ static lzma_index *
+ create_big(void)
+ {
+ 	lzma_index *i = lzma_index_init(NULL);
+ 	expect(i != NULL);
+ 
+ 	lzma_vli total_size = 0;
+ 	lzma_vli uncompressed_size = 0;
+ 
+ 	// Add pseudo-random sizes (but always the same size values).
+ 	uint32_t n = 11;
+ 	for (size_t j = 0; j < BIG_COUNT; ++j) {
+ 		n = 7019 * n + 7607;
+ 		const uint32_t t = n * 3011;
+ 		expect(lzma_index_append(i, NULL, t, n) == LZMA_OK);
+ 		total_size += (t + 3) & ~LZMA_VLI_C(3);
+ 		uncompressed_size += n;
+ 	}
+ 
+ 	expect(lzma_index_block_count(i) == BIG_COUNT);
+ 	expect(lzma_index_total_size(i) == total_size);
+ 	expect(lzma_index_uncompressed_size(i) == uncompressed_size);
+ 	expect(lzma_index_total_size(i) + lzma_index_size(i)
+ 				+ 2 * LZMA_STREAM_HEADER_SIZE
+ 			== lzma_index_stream_size(i));
+ 
+ 	return i;
+ }
+ 
+ 
+ static bool
+ is_equal(const lzma_index *a, const lzma_index *b)
+ {
+ 	// Compare only the Stream and Block sizes and offsets.
+ 	lzma_index_iter ra, rb;
+ 	lzma_index_iter_init(&ra, a);
+ 	lzma_index_iter_init(&rb, b);
+ 
+ 	while (true) {
+ 		bool reta = lzma_index_iter_next(&ra, LZMA_INDEX_ITER_ANY);
+ 		bool retb = lzma_index_iter_next(&rb, LZMA_INDEX_ITER_ANY);
+ 		if (reta)
+ 			return !(reta ^ retb);
+ 
+ 		if (ra.stream.number != rb.stream.number
+ 				|| ra.stream.block_count
+ 					!= rb.stream.block_count
+ 				|| ra.stream.compressed_offset
+ 					!= rb.stream.compressed_offset
+ 				|| ra.stream.uncompressed_offset
+ 					!= rb.stream.uncompressed_offset
+ 				|| ra.stream.compressed_size
+ 					!= rb.stream.compressed_size
+ 				|| ra.stream.uncompressed_size
+ 					!= rb.stream.uncompressed_size
+ 				|| ra.stream.padding
+ 					!= rb.stream.padding)
+ 			return false;
+ 
+ 		if (ra.stream.block_count == 0)
+ 			continue;
+ 
+ 		if (ra.block.number_in_file != rb.block.number_in_file
+ 				|| ra.block.compressed_file_offset
+ 					!= rb.block.compressed_file_offset
+ 				|| ra.block.uncompressed_file_offset
+ 					!= rb.block.uncompressed_file_offset
+ 				|| ra.block.number_in_stream
+ 					!= rb.block.number_in_stream
+ 				|| ra.block.compressed_stream_offset
+ 					!= rb.block.compressed_stream_offset
+ 				|| ra.block.uncompressed_stream_offset
+ 					!= rb.block.uncompressed_stream_offset
+ 				|| ra.block.uncompressed_size
+ 					!= rb.block.uncompressed_size
+ 				|| ra.block.unpadded_size
+ 					!= rb.block.unpadded_size
+ 				|| ra.block.total_size
+ 					!= rb.block.total_size)
+ 			return false;
+ 	}
+ }
+ 
+ 
+ static void
+ test_equal(void)
+ {
+ 	lzma_index *a = create_empty();
+ 	lzma_index *b = create_small();
+ 	lzma_index *c = create_big();
+ 	expect(a && b && c);
+ 
+ 	expect(is_equal(a, a));
+ 	expect(is_equal(b, b));
+ 	expect(is_equal(c, c));
+ 
+ 	expect(!is_equal(a, b));
+ 	expect(!is_equal(a, c));
+ 	expect(!is_equal(b, c));
+ 
+ 	lzma_index_end(a, NULL);
+ 	lzma_index_end(b, NULL);
+ 	lzma_index_end(c, NULL);
+ }
+ 
+ 
+ static void
+ test_overflow(void)
+ {
+ 	// Integer overflow tests
+ 	lzma_index *i = create_empty();
+ 
+ 	expect(lzma_index_append(i, NULL, LZMA_VLI_MAX - 5, 1234)
+ 			== LZMA_DATA_ERROR);
+ 
+ 	// TODO
+ 
+ 	lzma_index_end(i, NULL);
+ }
+ 
+ 
+ static void
+ test_copy(const lzma_index *i)
+ {
+ 	lzma_index *d = lzma_index_dup(i, NULL);
+ 	expect(d != NULL);
+ 	expect(is_equal(i, d));
+ 	lzma_index_end(d, NULL);
+ }
+ 
+ 
+ static void
+ test_read(lzma_index *i)
+ {
+ 	lzma_index_iter r;
+ 	lzma_index_iter_init(&r, i);
+ 
+ 	// Try twice so we see that rewinding works.
+ 	for (size_t j = 0; j < 2; ++j) {
+ 		lzma_vli total_size = 0;
+ 		lzma_vli uncompressed_size = 0;
+ 		lzma_vli stream_offset = LZMA_STREAM_HEADER_SIZE;
+ 		lzma_vli uncompressed_offset = 0;
+ 		uint32_t count = 0;
+ 
+ 		while (!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK)) {
+ 			++count;
+ 
+ 			total_size += r.block.total_size;
+ 			uncompressed_size += r.block.uncompressed_size;
+ 
+ 			expect(r.block.compressed_file_offset
+ 					== stream_offset);
+ 			expect(r.block.uncompressed_file_offset
+ 					== uncompressed_offset);
+ 
+ 			stream_offset += r.block.total_size;
+ 			uncompressed_offset += r.block.uncompressed_size;
+ 		}
+ 
+ 		expect(lzma_index_total_size(i) == total_size);
+ 		expect(lzma_index_uncompressed_size(i) == uncompressed_size);
+ 		expect(lzma_index_block_count(i) == count);
+ 
+ 		lzma_index_iter_rewind(&r);
+ 	}
+ }
+ 
+ 
  static void
  test_code(lzma_index *i)
  {
@@ -127,7 +790,64 @@ index d9e63dd0..31b958d5 100644
  	const size_t alloc_size = 128 * 1024;
  	uint8_t *buf = malloc(alloc_size);
  	expect(buf != NULL);
-@@ -275,6 +276,9 @@ test_code(lzma_index *i)
+ 
+ 	// Encode
+ 	lzma_stream strm = LZMA_STREAM_INIT;
+ 	expect(lzma_index_encoder(&strm, i) == LZMA_OK);
+ 	const lzma_vli index_size = lzma_index_size(i);
+ 	succeed(coder_loop(&strm, NULL, 0, buf, index_size,
+ 			LZMA_STREAM_END, LZMA_RUN));
+ 
+ 	// Decode
+ 	lzma_index *d;
+ 	expect(lzma_index_decoder(&strm, &d, MEMLIMIT) == LZMA_OK);
+ 	expect(d == NULL);
+ 	succeed(decoder_loop(&strm, buf, index_size));
+ 
+ 	expect(is_equal(i, d));
+ 
+ 	lzma_index_end(d, NULL);
+ 	lzma_end(&strm);
+ 
+ 	// Decode with hashing
+ 	lzma_index_hash *h = lzma_index_hash_init(NULL, NULL);
+ 	expect(h != NULL);
+ 	lzma_index_iter r;
+ 	lzma_index_iter_init(&r, i);
+ 	while (!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK))
+ 		expect(lzma_index_hash_append(h, r.block.unpadded_size,
+ 				r.block.uncompressed_size) == LZMA_OK);
+ 	size_t pos = 0;
+ 	while (pos < index_size - 1)
+ 		expect(lzma_index_hash_decode(h, buf, &pos, pos + 1)
+ 				== LZMA_OK);
+ 	expect(lzma_index_hash_decode(h, buf, &pos, pos + 1)
+ 			== LZMA_STREAM_END);
+ 
+ 	lzma_index_hash_end(h, NULL);
+ 
+ 	// Encode buffer
+ 	size_t buf_pos = 1;
+ 	expect(lzma_index_buffer_encode(i, buf, &buf_pos, index_size)
+ 			== LZMA_BUF_ERROR);
+ 	expect(buf_pos == 1);
+ 
+ 	succeed(lzma_index_buffer_encode(i, buf, &buf_pos, index_size + 1));
+ 	expect(buf_pos == index_size + 1);
+ 
+ 	// Decode buffer
+ 	buf_pos = 1;
+ 	uint64_t memlimit = MEMLIMIT;
+ 	expect(lzma_index_buffer_decode(&d, &memlimit, NULL, buf, &buf_pos,
+ 			index_size) == LZMA_DATA_ERROR);
+ 	expect(buf_pos == 1);
+ 	expect(d == NULL);
+ 
+ 	succeed(lzma_index_buffer_decode(&d, &memlimit, NULL, buf, &buf_pos,
+ 			index_size + 1));
+ 	expect(buf_pos == index_size + 1);
+ 	expect(is_equal(i, d));
+ 
  	lzma_index_end(d, NULL);
  
  	free(buf);
@@ -137,7 +857,358 @@ index d9e63dd0..31b958d5 100644
  }
  
  
-@@ -633,6 +637,7 @@ test_locate(void)
+ static void
+ test_many(lzma_index *i)
+ {
+ 	test_copy(i);
+ 	test_read(i);
+ 	test_code(i);
+ }
+ 
+ 
+ static void
+ test_cat(void)
+ {
+ 	lzma_index *a, *b, *c, *d, *e, *f;
+ 	lzma_index_iter r;
+ 
+ 	// Empty Indexes
+ 	a = create_empty();
+ 	b = create_empty();
+ 	expect(lzma_index_cat(a, b, NULL) == LZMA_OK);
+ 	expect(lzma_index_block_count(a) == 0);
+ 	expect(lzma_index_stream_size(a) == 2 * LZMA_STREAM_HEADER_SIZE + 8);
+ 	expect(lzma_index_file_size(a)
+ 			== 2 * (2 * LZMA_STREAM_HEADER_SIZE + 8));
+ 	lzma_index_iter_init(&r, a);
+ 	expect(lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK));
+ 
+ 	b = create_empty();
+ 	expect(lzma_index_cat(a, b, NULL) == LZMA_OK);
+ 	expect(lzma_index_block_count(a) == 0);
+ 	expect(lzma_index_stream_size(a) == 2 * LZMA_STREAM_HEADER_SIZE + 8);
+ 	expect(lzma_index_file_size(a)
+ 			== 3 * (2 * LZMA_STREAM_HEADER_SIZE + 8));
+ 
+ 	b = create_empty();
+ 	c = create_empty();
+ 	expect(lzma_index_stream_padding(b, 4) == LZMA_OK);
+ 	expect(lzma_index_cat(b, c, NULL) == LZMA_OK);
+ 	expect(lzma_index_block_count(b) == 0);
+ 	expect(lzma_index_stream_size(b) == 2 * LZMA_STREAM_HEADER_SIZE + 8);
+ 	expect(lzma_index_file_size(b)
+ 			== 2 * (2 * LZMA_STREAM_HEADER_SIZE + 8) + 4);
+ 
+ 	expect(lzma_index_stream_padding(a, 8) == LZMA_OK);
+ 	expect(lzma_index_cat(a, b, NULL) == LZMA_OK);
+ 	expect(lzma_index_block_count(a) == 0);
+ 	expect(lzma_index_stream_size(a) == 2 * LZMA_STREAM_HEADER_SIZE + 8);
+ 	expect(lzma_index_file_size(a)
+ 			== 5 * (2 * LZMA_STREAM_HEADER_SIZE + 8) + 4 + 8);
+ 
+ 	expect(lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK));
+ 	lzma_index_iter_rewind(&r);
+ 	expect(lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK));
+ 	lzma_index_end(a, NULL);
+ 
+ 	// Small Indexes
+ 	a = create_small();
+ 	lzma_vli stream_size = lzma_index_stream_size(a);
+ 	lzma_index_iter_init(&r, a);
+ 	for (int i = SMALL_COUNT; i >= 0; --i)
+ 		expect(!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK)
+ 				^ (i == 0));
+ 
+ 	b = create_small();
+ 	expect(lzma_index_stream_padding(a, 4) == LZMA_OK);
+ 	expect(lzma_index_cat(a, b, NULL) == LZMA_OK);
+ 	expect(lzma_index_file_size(a) == stream_size * 2 + 4);
+ 	expect(lzma_index_stream_size(a) > stream_size);
+ 	expect(lzma_index_stream_size(a) < stream_size * 2);
+ 	for (int i = SMALL_COUNT; i >= 0; --i)
+ 		expect(!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK)
+ 				^ (i == 0));
+ 
+ 	lzma_index_iter_rewind(&r);
+ 	for (int i = SMALL_COUNT * 2; i >= 0; --i)
+ 		expect(!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK)
+ 				^ (i == 0));
+ 
+ 	b = create_small();
+ 	c = create_small();
+ 	expect(lzma_index_stream_padding(b, 8) == LZMA_OK);
+ 	expect(lzma_index_cat(b, c, NULL) == LZMA_OK);
+ 	expect(lzma_index_stream_padding(a, 12) == LZMA_OK);
+ 	expect(lzma_index_cat(a, b, NULL) == LZMA_OK);
+ 	expect(lzma_index_file_size(a) == stream_size * 4 + 4 + 8 + 12);
+ 
+ 	expect(lzma_index_block_count(a) == SMALL_COUNT * 4);
+ 	for (int i = SMALL_COUNT * 2; i >= 0; --i)
+ 		expect(!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK)
+ 				^ (i == 0));
+ 
+ 	lzma_index_iter_rewind(&r);
+ 	for (int i = SMALL_COUNT * 4; i >= 0; --i)
+ 		expect(!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK)
+ 				^ (i == 0));
+ 
+ 	lzma_index_end(a, NULL);
+ 
+ 	// Mix of empty and small
+ 	a = create_empty();
+ 	b = create_small();
+ 	expect(lzma_index_stream_padding(a, 4) == LZMA_OK);
+ 	expect(lzma_index_cat(a, b, NULL) == LZMA_OK);
+ 	lzma_index_iter_init(&r, a);
+ 	for (int i = SMALL_COUNT; i >= 0; --i)
+ 		expect(!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK)
+ 				^ (i == 0));
+ 
+ 	lzma_index_end(a, NULL);
+ 
+ 	// Big Indexes
+ 	a = create_big();
+ 	stream_size = lzma_index_stream_size(a);
+ 	b = create_big();
+ 	expect(lzma_index_stream_padding(a, 4) == LZMA_OK);
+ 	expect(lzma_index_cat(a, b, NULL) == LZMA_OK);
+ 	expect(lzma_index_file_size(a) == stream_size * 2 + 4);
+ 	expect(lzma_index_stream_size(a) > stream_size);
+ 	expect(lzma_index_stream_size(a) < stream_size * 2);
+ 
+ 	b = create_big();
+ 	c = create_big();
+ 	expect(lzma_index_stream_padding(b, 8) == LZMA_OK);
+ 	expect(lzma_index_cat(b, c, NULL) == LZMA_OK);
+ 	expect(lzma_index_stream_padding(a, 12) == LZMA_OK);
+ 	expect(lzma_index_cat(a, b, NULL) == LZMA_OK);
+ 	expect(lzma_index_file_size(a) == stream_size * 4 + 4 + 8 + 12);
+ 
+ 	lzma_index_iter_init(&r, a);
+ 	for (int i = BIG_COUNT * 4; i >= 0; --i)
+ 		expect(!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK)
+ 				^ (i == 0));
+ 
+ 	lzma_index_end(a, NULL);
+ 
+ 	// Test for the bug fix 3d5a99ca373a4e86faf671226ca6487febb9eeac.
+ 	// lzma_index_checks would previously only return the checks
+ 	// for the last stream that was concatenated to the index.
+ 	d = create_small();
+ 	e = create_small();
+ 	f = create_small();
+ 
+ 	lzma_stream_flags crc32_flags = {
+ 		.backward_size = LZMA_BACKWARD_SIZE_MIN,
+ 		.check = LZMA_CHECK_CRC32
+ 	};
+ 	expect(lzma_index_stream_flags(d, &crc32_flags) == LZMA_OK);
+ 
+ 	lzma_stream_flags crc64_flags = {
+ 		.backward_size = LZMA_BACKWARD_SIZE_MIN,
+ 		.check = LZMA_CHECK_CRC64
+ 	};
+ 	expect(lzma_index_stream_flags(e, &crc64_flags) == LZMA_OK);
+ 
+ 	lzma_stream_flags sha256_flags = {
+ 		.backward_size = LZMA_BACKWARD_SIZE_MIN,
+ 		.check = LZMA_CHECK_SHA256
+ 	};
+ 	expect(lzma_index_stream_flags(f, &sha256_flags) == LZMA_OK);
+ 
+ 	expect(lzma_index_checks(d) == (1U << LZMA_CHECK_CRC32));
+ 	expect(lzma_index_checks(e) == (1U << LZMA_CHECK_CRC64));
+ 	expect(lzma_index_checks(f) == (1U << LZMA_CHECK_SHA256));
+ 
+ 	expect(lzma_index_cat(d, e, NULL) == LZMA_OK);
+ 	expect(lzma_index_checks(d) == ((1U << LZMA_CHECK_CRC32) |
+ 			(1U << LZMA_CHECK_CRC64)));
+ 
+ 	expect(lzma_index_cat(d, f, NULL) == LZMA_OK);
+ 	expect(lzma_index_checks(d) == ((1U << LZMA_CHECK_CRC32) |
+ 			(1U << LZMA_CHECK_CRC64) |
+ 			(1U << LZMA_CHECK_SHA256)));
+ 
+ 	lzma_index_end(d, NULL);
+ 
+ }
+ 
+ 
+ static void
+ test_locate(void)
+ {
+ 	lzma_index *i = lzma_index_init(NULL);
+ 	expect(i != NULL);
+ 	lzma_index_iter r;
+ 	lzma_index_iter_init(&r, i);
+ 
+ 	// Cannot locate anything from an empty Index.
+ 	expect(lzma_index_iter_locate(&r, 0));
+ 	expect(lzma_index_iter_locate(&r, 555));
+ 
+ 	// One empty Record: nothing is found since there's no uncompressed
+ 	// data.
+ 	expect(lzma_index_append(i, NULL, 16, 0) == LZMA_OK);
+ 	expect(lzma_index_iter_locate(&r, 0));
+ 
+ 	// Non-empty Record and we can find something.
+ 	expect(lzma_index_append(i, NULL, 32, 5) == LZMA_OK);
+ 	expect(!lzma_index_iter_locate(&r, 0));
+ 	expect(r.block.total_size == 32);
+ 	expect(r.block.uncompressed_size == 5);
+ 	expect(r.block.compressed_file_offset
+ 			== LZMA_STREAM_HEADER_SIZE + 16);
+ 	expect(r.block.uncompressed_file_offset == 0);
+ 
+ 	// Still cannot find anything past the end.
+ 	expect(lzma_index_iter_locate(&r, 5));
+ 
+ 	// Add the third Record.
+ 	expect(lzma_index_append(i, NULL, 40, 11) == LZMA_OK);
+ 
+ 	expect(!lzma_index_iter_locate(&r, 0));
+ 	expect(r.block.total_size == 32);
+ 	expect(r.block.uncompressed_size == 5);
+ 	expect(r.block.compressed_file_offset
+ 			== LZMA_STREAM_HEADER_SIZE + 16);
+ 	expect(r.block.uncompressed_file_offset == 0);
+ 
+ 	expect(!lzma_index_iter_next(&r, LZMA_INDEX_ITER_BLOCK));
+ 	expect(r.block.total_size == 40);
+ 	expect(r.block.uncompressed_size == 11);
+ 	expect(r.block.compressed_file_offset
+ 			== LZMA_STREAM_HEADER_SIZE + 16 + 32);
+ 	expect(r.block.uncompressed_file_offset == 5);
+ 
+ 	expect(!lzma_index_iter_locate(&r, 2));
+ 	expect(r.block.total_size == 32);
+ 	expect(r.block.uncompressed_size == 5);
+ 	expect(r.block.compressed_file_offset
+ 			== LZMA_STREAM_HEADER_SIZE + 16);
+ 	expect(r.block.uncompressed_file_offset == 0);
+ 
+ 	expect(!lzma_index_iter_locate(&r, 5));
+ 	expect(r.block.total_size == 40);
+ 	expect(r.block.uncompressed_size == 11);
+ 	expect(r.block.compressed_file_offset
+ 			== LZMA_STREAM_HEADER_SIZE + 16 + 32);
+ 	expect(r.block.uncompressed_file_offset == 5);
+ 
+ 	expect(!lzma_index_iter_locate(&r, 5 + 11 - 1));
+ 	expect(r.block.total_size == 40);
+ 	expect(r.block.uncompressed_size == 11);
+ 	expect(r.block.compressed_file_offset
+ 			== LZMA_STREAM_HEADER_SIZE + 16 + 32);
+ 	expect(r.block.uncompressed_file_offset == 5);
+ 
+ 	expect(lzma_index_iter_locate(&r, 5 + 11));
+ 	expect(lzma_index_iter_locate(&r, 5 + 15));
+ 
+ 	// Large Index
+ 	lzma_index_end(i, NULL);
+ 	i = lzma_index_init(NULL);
+ 	expect(i != NULL);
+ 	lzma_index_iter_init(&r, i);
+ 
+ 	for (size_t n = 4; n <= 4 * 5555; n += 4)
+ 		expect(lzma_index_append(i, NULL, n + 8, n) == LZMA_OK);
+ 
+ 	expect(lzma_index_block_count(i) == 5555);
+ 
+ 	// First Record
+ 	expect(!lzma_index_iter_locate(&r, 0));
+ 	expect(r.block.total_size == 4 + 8);
+ 	expect(r.block.uncompressed_size == 4);
+ 	expect(r.block.compressed_file_offset == LZMA_STREAM_HEADER_SIZE);
+ 	expect(r.block.uncompressed_file_offset == 0);
+ 
+ 	expect(!lzma_index_iter_locate(&r, 3));
+ 	expect(r.block.total_size == 4 + 8);
+ 	expect(r.block.uncompressed_size == 4);
+ 	expect(r.block.compressed_file_offset == LZMA_STREAM_HEADER_SIZE);
+ 	expect(r.block.uncompressed_file_offset == 0);
+ 
+ 	// Second Record
+ 	expect(!lzma_index_iter_locate(&r, 4));
+ 	expect(r.block.total_size == 2 * 4 + 8);
+ 	expect(r.block.uncompressed_size == 2 * 4);
+ 	expect(r.block.compressed_file_offset
+ 			== LZMA_STREAM_HEADER_SIZE + 4 + 8);
+ 	expect(r.block.uncompressed_file_offset == 4);
+ 
+ 	// Last Record
+ 	expect(!lzma_index_iter_locate(
+ 			&r, lzma_index_uncompressed_size(i) - 1));
+ 	expect(r.block.total_size == 4 * 5555 + 8);
+ 	expect(r.block.uncompressed_size == 4 * 5555);
+ 	expect(r.block.compressed_file_offset == lzma_index_total_size(i)
+ 			+ LZMA_STREAM_HEADER_SIZE - 4 * 5555 - 8);
+ 	expect(r.block.uncompressed_file_offset
+ 			== lzma_index_uncompressed_size(i) - 4 * 5555);
+ 
+ 	// Allocation chunk boundaries. See INDEX_GROUP_SIZE in
+ 	// liblzma/common/index.c.
+ 	const size_t group_multiple = 256 * 4;
+ 	const size_t radius = 8;
+ 	const size_t start = group_multiple - radius;
+ 	lzma_vli ubase = 0;
+ 	lzma_vli tbase = 0;
+ 	size_t n;
+ 	for (n = 1; n < start; ++n) {
+ 		ubase += n * 4;
+ 		tbase += n * 4 + 8;
+ 	}
+ 
+ 	while (n < start + 2 * radius) {
+ 		expect(!lzma_index_iter_locate(&r, ubase + n * 4));
+ 
+ 		expect(r.block.compressed_file_offset == tbase + n * 4 + 8
+ 				+ LZMA_STREAM_HEADER_SIZE);
+ 		expect(r.block.uncompressed_file_offset == ubase + n * 4);
+ 
+ 		tbase += n * 4 + 8;
+ 		ubase += n * 4;
+ 		++n;
+ 
+ 		expect(r.block.total_size == n * 4 + 8);
+ 		expect(r.block.uncompressed_size == n * 4);
+ 	}
+ 
+ 	// Do it also backwards.
+ 	while (n > start) {
+ 		expect(!lzma_index_iter_locate(&r, ubase + (n - 1) * 4));
+ 
+ 		expect(r.block.total_size == n * 4 + 8);
+ 		expect(r.block.uncompressed_size == n * 4);
+ 
+ 		--n;
+ 		tbase -= n * 4 + 8;
+ 		ubase -= n * 4;
+ 
+ 		expect(r.block.compressed_file_offset == tbase + n * 4 + 8
+ 				+ LZMA_STREAM_HEADER_SIZE);
+ 		expect(r.block.uncompressed_file_offset == ubase + n * 4);
+ 	}
+ 
+ 	// Test locating in concatenated Index.
+ 	lzma_index_end(i, NULL);
+ 	i = lzma_index_init(NULL);
+ 	expect(i != NULL);
+ 	lzma_index_iter_init(&r, i);
+ 	for (n = 0; n < group_multiple; ++n)
+ 		expect(lzma_index_append(i, NULL, 8, 0) == LZMA_OK);
+ 	expect(lzma_index_append(i, NULL, 16, 1) == LZMA_OK);
+ 	expect(!lzma_index_iter_locate(&r, 0));
+ 	expect(r.block.total_size == 16);
+ 	expect(r.block.uncompressed_size == 1);
+ 	expect(r.block.compressed_file_offset
+ 			== LZMA_STREAM_HEADER_SIZE + group_multiple * 8);
+ 	expect(r.block.uncompressed_file_offset == 0);
+ 
+ 	lzma_index_end(i, NULL);
+ }
+ 
+ 
  static void
  test_corrupt(void)
  {
@@ -145,7 +1216,35 @@ index d9e63dd0..31b958d5 100644
  	const size_t alloc_size = 128 * 1024;
  	uint8_t *buf = malloc(alloc_size);
  	expect(buf != NULL);
-@@ -668,6 +673,7 @@ test_corrupt(void)
+ 	lzma_stream strm = LZMA_STREAM_INIT;
+ 
+ 	lzma_index *i = create_empty();
+ 	expect(lzma_index_append(i, NULL, 0, 1) == LZMA_PROG_ERROR);
+ 	lzma_index_end(i, NULL);
+ 
+ 	// Create a valid Index and corrupt it in different ways.
+ 	i = create_small();
+ 	expect(lzma_index_encoder(&strm, i) == LZMA_OK);
+ 	succeed(coder_loop(&strm, NULL, 0, buf, 20,
+ 			LZMA_STREAM_END, LZMA_RUN));
+ 	lzma_index_end(i, NULL);
+ 
+ 	// Wrong Index Indicator
+ 	buf[0] ^= 1;
+ 	expect(lzma_index_decoder(&strm, &i, MEMLIMIT) == LZMA_OK);
+ 	succeed(decoder_loop_ret(&strm, buf, 1, LZMA_DATA_ERROR));
+ 	buf[0] ^= 1;
+ 
+ 	// Wrong Number of Records and thus CRC32 fails.
+ 	--buf[1];
+ 	expect(lzma_index_decoder(&strm, &i, MEMLIMIT) == LZMA_OK);
+ 	succeed(decoder_loop_ret(&strm, buf, 10, LZMA_DATA_ERROR));
+ 	++buf[1];
+ 
+ 	// Padding not NULs
+ 	buf[15] ^= 1;
+ 	expect(lzma_index_decoder(&strm, &i, MEMLIMIT) == LZMA_OK);
+ 	succeed(decoder_loop_ret(&strm, buf, 16, LZMA_DATA_ERROR));
  
  	lzma_end(&strm);
  	free(buf);
@@ -153,11 +1252,93 @@ index d9e63dd0..31b958d5 100644
  }
  
  
+ // Allocator that succeeds for the first two allocation but fails the rest.
+ static void *
+ my_alloc(void *opaque, size_t a, size_t b)
+ {
+ 	(void)opaque;
+ 
+ 	static unsigned count = 0;
+ 	if (++count > 2)
+ 		return NULL;
+ 
+ 	return malloc(a * b);
+ }
+ 
+ static const lzma_allocator my_allocator = { &my_alloc, NULL, NULL };
+ 
+ 
+ int
+ main(void)
+ {
+ 	test_equal();
+ 
+ 	test_overflow();
+ 
+ 	lzma_index *i = create_empty();
+ 	test_many(i);
+ 	lzma_index_end(i, NULL);
+ 
+ 	i = create_small();
+ 	test_many(i);
+ 	lzma_index_end(i, NULL);
+ 
+ 	i = create_big();
+ 	test_many(i);
+ 	lzma_index_end(i, NULL);
+ 
+ 	test_cat();
+ 
+ 	test_locate();
+ 
+ 	test_corrupt();
+ 
+ 	// Test for the bug fix 21515d79d778b8730a434f151b07202d52a04611:
+ 	// liblzma: Fix lzma_index_dup() for empty Streams.
+ 	i = create_empty();
+ 	expect(lzma_index_stream_padding(i, 4) == LZMA_OK);
+ 	test_copy(i);
+ 	lzma_index_end(i, NULL);
+ 
+ 	// Test for the bug fix 3bf857edfef51374f6f3fffae3d817f57d3264a0:
+ 	// liblzma: Fix a memory leak in error path of lzma_index_dup().
+ 	// Use Valgrind to see that there are no leaks.
+ 	i = create_small();
+ 	expect(lzma_index_dup(i, &my_allocator) == NULL);
+ 	lzma_index_end(i, NULL);
+ 
+ 	return 0;
+ }
 diff --git a/tests/test_memlimit.c b/tests/test_memlimit.c
 index b5f91472..4e16903d 100644
 --- a/tests/test_memlimit.c
 +++ b/tests/test_memlimit.c
-@@ -26,6 +26,9 @@ static uint8_t out[8192];
+@@ -1,156 +1,170 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       test_memlimit.c
+ /// \brief      Tests memory usage limit in decoders
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "tests.h"
+ #include "mythread.h"
+ 
+ 
+ #define MEMLIMIT_TOO_LOW 1234U
+ #define MEMLIMIT_HIGH_ENOUGH (2U << 20)
+ 
+ 
+ static uint8_t *in;
+ static size_t in_size;
+ static uint8_t out[8192];
+ 
+ 
  static void
  test_memlimit_stream_decoder(void)
  {
@@ -167,7 +1348,22 @@ index b5f91472..4e16903d 100644
  	lzma_stream strm = LZMA_STREAM_INIT;
  	assert_lzma_ret(lzma_stream_decoder(&strm, MEMLIMIT_TOO_LOW, 0),
  			LZMA_OK);
-@@ -48,6 +51,7 @@ test_memlimit_stream_decoder(void)
+ 
+ 	strm.next_in = in;
+ 	strm.avail_in = in_size;
+ 	strm.next_out = out;
+ 	strm.avail_out = sizeof(out);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_FINISH), LZMA_MEMLIMIT_ERROR);
+ 
+ 	assert_uint_eq(lzma_memlimit_get(&strm), MEMLIMIT_TOO_LOW);
+ 	assert_lzma_ret(lzma_memlimit_set(&strm, MEMLIMIT_TOO_LOW + 1),
+ 			LZMA_MEMLIMIT_ERROR);
+ 	assert_lzma_ret(lzma_memlimit_set(&strm, MEMLIMIT_HIGH_ENOUGH),
+ 			LZMA_OK);
+ 
+ 	// This fails before commit 660739f99ab211edec4071de98889fb32ed04e98
+ 	// (liblzma <= 5.2.6, liblzma <= 5.3.3alpha). It was fixed in 5.2.7.
  	assert_lzma_ret(lzma_code(&strm, LZMA_FINISH), LZMA_STREAM_END);
  
  	lzma_end(&strm);
@@ -175,7 +1371,7 @@ index b5f91472..4e16903d 100644
  }
  
  
-@@ -55,7 +59,9 @@ static void
+ static void
  test_memlimit_stream_decoder_mt(void)
  {
  #ifndef MYTHREAD_ENABLED
@@ -186,7 +1382,34 @@ index b5f91472..4e16903d 100644
  #else
  	lzma_stream strm = LZMA_STREAM_INIT;
  	lzma_mt mt = {
-@@ -90,6 +96,9 @@ test_memlimit_stream_decoder_mt(void)
+ 		.flags = 0,
+ 		.threads = 1,
+ 		.timeout = 0,
+ 		.memlimit_threading = 0,
+ 		.memlimit_stop = MEMLIMIT_TOO_LOW,
+ 	};
+ 
+ 	assert_lzma_ret(lzma_stream_decoder_mt(&strm, &mt), LZMA_OK);
+ 
+ 	strm.next_in = in;
+ 	strm.avail_in = in_size;
+ 	strm.next_out = out;
+ 	strm.avail_out = sizeof(out);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_FINISH), LZMA_MEMLIMIT_ERROR);
+ 
+ 	assert_uint_eq(lzma_memlimit_get(&strm), MEMLIMIT_TOO_LOW);
+ 	assert_lzma_ret(lzma_memlimit_set(&strm, MEMLIMIT_TOO_LOW + 1),
+ 			LZMA_MEMLIMIT_ERROR);
+ 	assert_lzma_ret(lzma_memlimit_set(&strm, MEMLIMIT_HIGH_ENOUGH),
+ 			LZMA_OK);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_FINISH), LZMA_STREAM_END);
+ 	lzma_end(&strm);
+ #endif
+ }
+ 
+ 
  static void
  test_memlimit_alone_decoder(void)
  {
@@ -196,7 +1419,22 @@ index b5f91472..4e16903d 100644
  	size_t alone_size;
  	uint8_t *alone_buf = tuktest_file_from_srcdir(
  			"files/good-unknown_size-with_eopm.lzma", &alone_size);
-@@ -112,12 +121,16 @@ test_memlimit_alone_decoder(void)
+ 
+ 	lzma_stream strm = LZMA_STREAM_INIT;
+ 	assert_lzma_ret(lzma_alone_decoder(&strm, MEMLIMIT_TOO_LOW), LZMA_OK);
+ 
+ 	strm.next_in = alone_buf;
+ 	strm.avail_in = alone_size;
+ 	strm.next_out = out;
+ 	strm.avail_out = sizeof(out);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_FINISH), LZMA_MEMLIMIT_ERROR);
+ 
+ 	assert_uint_eq(lzma_memlimit_get(&strm), MEMLIMIT_TOO_LOW);
+ 	assert_lzma_ret(lzma_memlimit_set(&strm, MEMLIMIT_TOO_LOW + 1),
+ 			LZMA_MEMLIMIT_ERROR);
+ 	assert_lzma_ret(lzma_memlimit_set(&strm, MEMLIMIT_HIGH_ENOUGH),
+ 			LZMA_OK);
  
  	assert_lzma_ret(lzma_code(&strm, LZMA_FINISH), LZMA_STREAM_END);
  	lzma_end(&strm);
@@ -213,7 +1451,19 @@ index b5f91472..4e16903d 100644
  	lzma_stream strm = LZMA_STREAM_INIT;
  	assert_lzma_ret(lzma_auto_decoder(&strm, MEMLIMIT_TOO_LOW, 0),
  			LZMA_OK);
-@@ -137,6 +150,7 @@ test_memlimit_auto_decoder(void)
+ 
+ 	strm.next_in = in;
+ 	strm.avail_in = in_size;
+ 	strm.next_out = out;
+ 	strm.avail_out = sizeof(out);
+ 
+ 	assert_lzma_ret(lzma_code(&strm, LZMA_FINISH), LZMA_MEMLIMIT_ERROR);
+ 
+ 	assert_uint_eq(lzma_memlimit_get(&strm), MEMLIMIT_TOO_LOW);
+ 	assert_lzma_ret(lzma_memlimit_set(&strm, MEMLIMIT_TOO_LOW + 1),
+ 			LZMA_MEMLIMIT_ERROR);
+ 	assert_lzma_ret(lzma_memlimit_set(&strm, MEMLIMIT_HIGH_ENOUGH),
+ 			LZMA_OK);
  
  	assert_lzma_ret(lzma_code(&strm, LZMA_FINISH), LZMA_STREAM_END);
  	lzma_end(&strm);
@@ -221,11 +1471,94 @@ index b5f91472..4e16903d 100644
  }
  
  
+ extern int
+ main(int argc, char **argv)
+ {
+ 	tuktest_start(argc, argv);
+ 
+ 	in = tuktest_file_from_srcdir("files/good-1-check-crc32.xz", &in_size);
+ 
+ 	tuktest_run(test_memlimit_stream_decoder);
+ 	tuktest_run(test_memlimit_stream_decoder_mt);
+ 	tuktest_run(test_memlimit_alone_decoder);
+ 	tuktest_run(test_memlimit_auto_decoder);
+ 
+ 	return tuktest_end();
+ }
 diff --git a/tests/test_vli.c b/tests/test_vli.c
 index 3cf027a8..793dcf2e 100644
 --- a/tests/test_vli.c
 +++ b/tests/test_vli.c
-@@ -70,6 +70,7 @@ test_lzma_vli_size(void)
+@@ -1,309 +1,322 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       test_vli.c
+ /// \brief      Tests liblzma vli functions
+ //
+ //  Author:     Jia Tan
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "tests.h"
+ 
+ 
+ // Pre-encoded VLI values for testing
+ // VLI can have between 1 and 9 bytes when encoded
+ // They are encoded little endian where all but the last
+ // byte must have the leading 1 bit set
+ static const uint8_t one_byte[1] = {0x25};
+ static const lzma_vli one_byte_value = 37;
+ 
+ static const uint8_t two_bytes[2] = {0x80, 0x56};
+ static const lzma_vli two_byte_value = 11008;
+ 
+ static const uint8_t three_bytes[3] = {0x99, 0x92, 0x20};
+ static const lzma_vli three_byte_value = 526617;
+ 
+ static const uint8_t four_bytes[4] = {0x97, 0x83, 0x94, 0x47};
+ static const lzma_vli four_byte_value = 149225879;
+ 
+ static const uint8_t five_bytes[5] = {0xA6, 0x92, 0x88, 0x89, 0x32};
+ static const lzma_vli five_byte_value = 13440780582;
+ 
+ static const uint8_t six_bytes[6] = {0xA9, 0x84, 0x99, 0x82, 0x94, 0x12};
+ static const lzma_vli six_byte_value = 623848604201;
+ 
+ static const uint8_t seven_bytes[7] = {0x90, 0x80, 0x90, 0x80, 0x90, 0x80,
+ 				0x79};
+ static const lzma_vli seven_byte_value = 532167923073040;
+ 
+ static const uint8_t eight_bytes[8] = {0x91, 0x87, 0xF2, 0xB2, 0xC2, 0xD2,
+ 				0x93, 0x63};
+ static const lzma_vli eight_byte_value = 55818443594433425;
+ 
+ static const uint8_t nine_bytes[9] = {0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1,
+ 				0xE1, 0xF1, 0x1};
+ static const lzma_vli nine_byte_value = 136100349976529025;
+ 
+ 
+ static void
+ test_lzma_vli_size(void)
+ {
+ 	// First test invalid VLI values (should return 0)
+ 	// VLI UNKNOWN is an invalid VLI
+ 	assert_uint_eq(lzma_vli_size(LZMA_VLI_UNKNOWN), 0);
+ 	// Loop over a few VLI values just over the maximum
+ 	for (uint64_t i = LZMA_VLI_MAX + 1; i < LZMA_VLI_MAX + 10; i++)
+ 		assert_uint_eq(lzma_vli_size(i), 0);
+ 
+ 	// Number should increment every seven set bits
+ 	lzma_vli vli = 1;
+ 	for (uint32_t i = 1; i < LZMA_VLI_BYTES_MAX; i++, vli <<= 7) {
+ 		// Test the base value and a few others around it
+ 		assert_uint_eq(lzma_vli_size(vli), i);
+ 		assert_uint_eq(lzma_vli_size(vli * 2), i);
+ 		assert_uint_eq(lzma_vli_size(vli + 10), i);
+ 		assert_uint_eq(lzma_vli_size(vli * 3 + 39), i);
+ 	}
  }
  
  
@@ -233,7 +1566,38 @@ index 3cf027a8..793dcf2e 100644
  // Helper function for test_lzma_vli_encode
  // Encodes an input VLI and compares against a pre-computed value
  static void
-@@ -108,11 +109,15 @@ encode_multi_call_mode(lzma_vli input, const uint8_t *expected,
+ encode_single_call_mode(lzma_vli input, const uint8_t *expected,
+ 		uint32_t expected_len)
+ {
+ 	uint8_t out[LZMA_VLI_BYTES_MAX];
+ 	size_t out_pos = 0;
+ 	assert_lzma_ret(lzma_vli_encode(input, NULL, out, &out_pos,
+ 			expected_len), LZMA_OK);
+ 	assert_uint_eq(out_pos, expected_len);
+ 	assert_array_eq(out, expected, expected_len);
+ }
+ 
+ 
+ // Helper function for test_lzma_vli_encode
+ // Encodes an input VLI one byte at a time with the multi call
+ // method. Then compares agaist a pre-computed value
+ static void
+ encode_multi_call_mode(lzma_vli input, const uint8_t *expected,
+ 		uint32_t expected_len)
+ {
+ 	uint8_t out[LZMA_VLI_BYTES_MAX];
+ 	size_t out_pos = 0;
+ 	size_t vli_pos = 0;
+ 
+ 	for (uint32_t i = 1; i < expected_len; i++) {
+ 		assert_lzma_ret(lzma_vli_encode(input, &vli_pos, out,
+ 				&out_pos, i), LZMA_OK);
+ 		assert_uint_eq(out_pos, i);
+ 		assert_uint_eq(vli_pos, i);
+ 	}
+ 	assert_lzma_ret(lzma_vli_encode(input, &vli_pos, out, &out_pos,
+ 			expected_len), LZMA_STREAM_END);
+ 	assert_uint_eq(out_pos, expected_len);
  	assert_uint_eq(vli_pos, expected_len);
  	assert_array_eq(out, expected, expected_len);
  }
@@ -249,7 +1613,76 @@ index 3cf027a8..793dcf2e 100644
  	size_t vli_pos = 0;
  	uint8_t out[LZMA_VLI_BYTES_MAX];
  	uint8_t zeros[LZMA_VLI_BYTES_MAX];
-@@ -189,9 +194,11 @@ test_lzma_vli_encode(void)
+ 	memzero(out, LZMA_VLI_BYTES_MAX);
+ 	memzero(zeros, LZMA_VLI_BYTES_MAX);
+ 	size_t out_pos = 0;
+ 
+ 	// First test invalid input parameters
+ 	// VLI invalid
+ 	assert_lzma_ret(lzma_vli_encode(LZMA_VLI_UNKNOWN, &vli_pos, out,
+ 			&out_pos, sizeof(out)), LZMA_PROG_ERROR);
+ 	// Failure should not change params
+ 	assert_uint_eq(vli_pos, 0);
+ 	assert_uint_eq(out_pos, 0);
+ 	assert_array_eq(out, zeros, LZMA_VLI_BYTES_MAX);
+ 
+ 	assert_lzma_ret(lzma_vli_encode(LZMA_VLI_MAX + 1, &vli_pos, out,
+ 		&out_pos, sizeof(out)), LZMA_PROG_ERROR);
+ 	assert_uint_eq(vli_pos, 0);
+ 	assert_uint_eq(out_pos, 0);
+ 	assert_array_eq(out, zeros, LZMA_VLI_BYTES_MAX);
+ 
+ 	// 0 output size
+ 	assert_lzma_ret(lzma_vli_encode(one_byte_value, &vli_pos, out,
+ 			&out_pos, 0), LZMA_BUF_ERROR);
+ 	assert_uint_eq(vli_pos, 0);
+ 	assert_uint_eq(out_pos, 0);
+ 	assert_array_eq(out, zeros, LZMA_VLI_BYTES_MAX);
+ 
+ 	// Size of VLI does not fit in buffer
+ 	size_t phony_out_pos = 3;
+ 	assert_lzma_ret(lzma_vli_encode(one_byte_value, NULL, out,
+ 			&phony_out_pos, 2), LZMA_PROG_ERROR);
+ 
+ 	assert_lzma_ret(lzma_vli_encode(LZMA_VLI_MAX / 2, NULL, out,
+ 			&out_pos, 2), LZMA_PROG_ERROR);
+ 
+ 	// Test single-call mode (using vli_pos as NULL)
+ 	encode_single_call_mode(one_byte_value, one_byte,
+ 			sizeof(one_byte));
+ 	encode_single_call_mode(two_byte_value, two_bytes,
+ 			sizeof(two_bytes));
+ 	encode_single_call_mode(three_byte_value, three_bytes,
+ 			sizeof(three_bytes));
+ 	encode_single_call_mode(four_byte_value, four_bytes,
+ 			sizeof(four_bytes));
+ 	encode_single_call_mode(five_byte_value, five_bytes,
+ 			sizeof(five_bytes));
+ 	encode_single_call_mode(six_byte_value, six_bytes,
+ 			sizeof(six_bytes));
+ 	encode_single_call_mode(seven_byte_value, seven_bytes,
+ 			sizeof(seven_bytes));
+ 	encode_single_call_mode(eight_byte_value, eight_bytes,
+ 			sizeof(eight_bytes));
+ 	encode_single_call_mode(nine_byte_value, nine_bytes,
+ 			sizeof(nine_bytes));
+ 
+ 	// Test multi-call mode
+ 	encode_multi_call_mode(one_byte_value, one_byte,
+ 			sizeof(one_byte));
+ 	encode_multi_call_mode(two_byte_value, two_bytes,
+ 			sizeof(two_bytes));
+ 	encode_multi_call_mode(three_byte_value, three_bytes,
+ 			sizeof(three_bytes));
+ 	encode_multi_call_mode(four_byte_value, four_bytes,
+ 			sizeof(four_bytes));
+ 	encode_multi_call_mode(five_byte_value, five_bytes,
+ 			sizeof(five_bytes));
+ 	encode_multi_call_mode(six_byte_value, six_bytes,
+ 			sizeof(six_bytes));
+ 	encode_multi_call_mode(seven_byte_value, seven_bytes,
+ 			sizeof(seven_bytes));
+ 	encode_multi_call_mode(eight_byte_value, eight_bytes,
  			sizeof(eight_bytes));
  	encode_multi_call_mode(nine_byte_value, nine_bytes,
  			sizeof(nine_bytes));
@@ -261,7 +1694,35 @@ index 3cf027a8..793dcf2e 100644
  static void
  decode_single_call_mode(const uint8_t *input, uint32_t input_len,
  		lzma_vli expected)
-@@ -227,10 +234,15 @@ decode_multi_call_mode(const uint8_t *input, uint32_t input_len,
+ {
+ 	lzma_vli out = 0;
+ 	size_t in_pos = 0;
+ 
+ 	assert_lzma_ret(lzma_vli_decode(&out, NULL, input, &in_pos,
+ 			input_len), LZMA_OK);
+ 	assert_uint_eq(in_pos, input_len);
+ 	assert_uint_eq(out, expected);
+ }
+ 
+ 
+ static void
+ decode_multi_call_mode(const uint8_t *input, uint32_t input_len,
+ 		lzma_vli expected)
+ {
+ 	lzma_vli out = 0;
+ 	size_t in_pos = 0;
+ 	size_t vli_pos = 0;
+ 
+ 	for (uint32_t i = 1; i < input_len; i++) {
+ 		assert_lzma_ret(lzma_vli_decode(&out, &vli_pos, input,
+ 				&in_pos, i), LZMA_OK);
+ 		assert_uint_eq(in_pos, i);
+ 		assert_uint_eq(vli_pos, i);
+ 	}
+ 
+ 	assert_lzma_ret(lzma_vli_decode(&out, &vli_pos, input, &in_pos,
+ 			input_len), LZMA_STREAM_END);
+ 	assert_uint_eq(in_pos, input_len);
  	assert_uint_eq(vli_pos, input_len);
  	assert_uint_eq(out, expected);
  }
@@ -277,7 +1738,64 @@ index 3cf027a8..793dcf2e 100644
  	lzma_vli out = 0;
  	size_t in_pos = 0;
  
-@@ -295,6 +307,7 @@ test_lzma_vli_decode(void)
+ 	// First test invalid input params
+ 	// 0 in_size
+ 	assert_lzma_ret(lzma_vli_decode(&out, NULL, one_byte, &in_pos, 0),
+ 			LZMA_DATA_ERROR);
+ 	assert_uint_eq(out, 0);
+ 	assert_uint_eq(in_pos, 0);
+ 
+ 	// VLI encoded is invalid (last digit has leading 1 set)
+ 	uint8_t invalid_vli[3] = {0x80, 0x80, 0x80};
+ 	assert_lzma_ret(lzma_vli_decode(&out, NULL, invalid_vli, &in_pos,
+ 			sizeof(invalid_vli)), LZMA_DATA_ERROR);
+ 
+ 	// Bad vli_pos
+ 	size_t vli_pos = LZMA_VLI_BYTES_MAX;
+ 	assert_lzma_ret(lzma_vli_decode(&out, &vli_pos, invalid_vli, &in_pos,
+ 			sizeof(invalid_vli)), LZMA_PROG_ERROR);
+ 
+ 	// Bad in_pos
+ 	in_pos = sizeof(invalid_vli);
+ 	assert_lzma_ret(lzma_vli_decode(&out, &in_pos, invalid_vli, &in_pos,
+ 			sizeof(invalid_vli)), LZMA_BUF_ERROR);
+ 
+ 	// Test single call mode
+ 	decode_single_call_mode(one_byte, sizeof(one_byte),
+ 			one_byte_value);
+ 	decode_single_call_mode(two_bytes, sizeof(two_bytes),
+ 			two_byte_value);
+ 	decode_single_call_mode(three_bytes, sizeof(three_bytes),
+ 			three_byte_value);
+ 	decode_single_call_mode(four_bytes, sizeof(four_bytes),
+ 			four_byte_value);
+ 	decode_single_call_mode(five_bytes, sizeof(five_bytes),
+ 			five_byte_value);
+ 	decode_single_call_mode(six_bytes, sizeof(six_bytes),
+ 			six_byte_value);
+ 	decode_single_call_mode(seven_bytes, sizeof(seven_bytes),
+ 			seven_byte_value);
+ 	decode_single_call_mode(eight_bytes, sizeof(eight_bytes),
+ 			eight_byte_value);
+ 	decode_single_call_mode(nine_bytes, sizeof(nine_bytes),
+ 			nine_byte_value);
+ 
+ 	// Test multi call mode
+ 	decode_multi_call_mode(one_byte, sizeof(one_byte),
+ 			one_byte_value);
+ 	decode_multi_call_mode(two_bytes, sizeof(two_bytes),
+ 			two_byte_value);
+ 	decode_multi_call_mode(three_bytes, sizeof(three_bytes),
+ 			three_byte_value);
+ 	decode_multi_call_mode(four_bytes, sizeof(four_bytes),
+ 			four_byte_value);
+ 	decode_multi_call_mode(five_bytes, sizeof(five_bytes),
+ 			five_byte_value);
+ 	decode_multi_call_mode(six_bytes, sizeof(six_bytes),
+ 			six_byte_value);
+ 	decode_multi_call_mode(seven_bytes, sizeof(seven_bytes),
+ 			seven_byte_value);
+ 	decode_multi_call_mode(eight_bytes, sizeof(eight_bytes),
  			eight_byte_value);
  	decode_multi_call_mode(nine_bytes, sizeof(nine_bytes),
  			nine_byte_value);
@@ -285,3 +1803,12 @@ index 3cf027a8..793dcf2e 100644
  }
  
  
+ extern int
+ main(int argc, char **argv)
+ {
+ 	tuktest_start(argc, argv);
+ 	tuktest_run(test_lzma_vli_size);
+ 	tuktest_run(test_lzma_vli_encode);
+ 	tuktest_run(test_lzma_vli_decode);
+ 	return tuktest_end();
+ }

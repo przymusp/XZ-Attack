@@ -1,0 +1,1 @@
+{"CMakeLists.txt": {"language": "Text", "type": "prose", "purpose": "project", "+": [{"id": 848, "type": "code", "purpose": "project"}], "-": []}, "tests/Makefile.am": {"language": "Makefile", "type": "programming", "purpose": "test", "+": [{"id": 45, "type": "code", "purpose": "test"}, {"id": 59, "type": "code", "purpose": "test"}], "-": []}}

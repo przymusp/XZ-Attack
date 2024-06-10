@@ -8,7 +8,7 @@ diff --git a/po4a/ro.po b/po4a/ro.po
 index 9ad5e00f..f12bdfa6 100644
 --- a/po4a/ro.po
 +++ b/po4a/ro.po
-@@ -1,5 +1,8 @@
+@@ -1,3870 +1,3905 @@
 -# Mesajele în limba română pentru pachetul xz-man.
 -# This file is put in the public domain.
 +# SPDX-License-Identifier: 0BSD
@@ -19,7 +19,9 @@ index 9ad5e00f..f12bdfa6 100644
  #
  # Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>, 2022 - 2024.
  #
-@@ -9,13 +12,14 @@
+ # Cronologia traducerii fișierului „xz-man”:
+ # Traducerea inițială, făcută de R-GC, pentru versiunea xz-man 5.4.0-pre1.
+ # Actualizare a traducerii pentru versiunea 5.4.0-pre2, făcută de R-GC, dec-2022.
  # Actualizare a traducerii pentru versiunea 5.4.3, făcută de R-GC, mai-2023.
  # Actualizare a traducerii pentru versiunea 5.4.4-pre1, făcută de R-GC, iul-2023.
  # Actualizare a traducerii pentru versiunea 5.6.0-pre1, făcută de R-GC, feb-2024.
@@ -37,7 +39,11 @@ index 9ad5e00f..f12bdfa6 100644
  "Last-Translator: Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>\n"
  "Language-Team: Romanian <translation-team-ro@lists.sourceforge.net>\n"
  "Language: ro\n"
-@@ -27,196 +31,196 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ "Plural-Forms: plural=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+ "X-Bugs: Report translation errors to the Language-Team address.\n"
  "X-Generator: Poedit 3.2.2\n"
  
  #. type: TH
@@ -288,7 +294,11 @@ index 9ad5e00f..f12bdfa6 100644
  #, no-wrap
  msgid "Memory usage"
  msgstr "Utilizarea memoriei"
-@@ -228,986 +232,991 @@ msgstr "Utilizarea memoriei"
+ 
+ # R-GC, scrie:
+ # nu am respectat forma de-a scrie procentele,
+ # ale autorilor: „5\ % to 20\ %”; pentru că noi
+ # folosim forma: „5\% la 20\%”; adică, ceea ce
  # va vedea utilizatorul la afișarea acestui mesaj,
  # va fi: „5% la 20%”, și nu: „5 % la 20 %”
  #. type: Plain text
@@ -1481,7 +1491,11 @@ index 9ad5e00f..f12bdfa6 100644
  msgid "If the input file is bigger than the sum of the sizes in I<items>, the last item is repeated until the end of the file.  A special value of B<0> may be used as the last size to indicate that the rest of the file should be encoded as a single block."
  msgstr "În cazul în care fișierul de intrare este mai mare decât suma dimensiunilor din I<elemente>, ultimul element se repetă până la sfârșitul fișierului. O valoare specială de B<0> poate fi utilizată ca ultimă dimensiune pentru a indica faptul că restul fișierului trebuie să fie codificat ca un singur bloc."
  
-@@ -1219,722 +1228,722 @@ msgstr "În cazul în care fișierul de intrare este mai mare decât suma dimens
+ # R-GC, scrie:
+ # în acest mesaj, mărimile „MiB” nu au fost
+ # traduse ca „Mio”, cum era normal, pentru
+ # că aici se indică cum trebuie să treacă seria
+ # de parametrii în linia de comandă, utilizatorul,
  # pentru ca utilitățile xz să „înțeleagă” despre
  # ce este vorba...
  #. type: Plain text
@@ -2342,7 +2356,7 @@ index 9ad5e00f..f12bdfa6 100644
  #, no-wrap
  msgid "32-bit or 64-bit x86"
  msgstr ""
-@@ -1942,25 +1951,25 @@ msgstr ""
+ "x86 pe 32 de biți\n"
  ";;sau 64 de biți"
  
  #. type: tbl table
@@ -2372,7 +2386,7 @@ index 9ad5e00f..f12bdfa6 100644
  #, no-wrap
  msgid "4096-byte alignment is best"
  msgstr ""
-@@ -1968,961 +1977,962 @@ msgstr ""
+ "alinierea pe 4096-octeți\n"
  ";;este cea mai bună"
  
  #. type: tbl table
@@ -3521,7 +3535,9 @@ index 9ad5e00f..f12bdfa6 100644
  #, no-wrap
  msgid ""
  "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
-@@ -2932,285 +2942,285 @@ msgstr ""
+ "export XZ_OPT>\n"
+ msgstr ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
  "export XZ_OPT>\n"
  
  #. type: SH
@@ -3858,7 +3874,9 @@ index 9ad5e00f..f12bdfa6 100644
  #, no-wrap
  msgid ""
  "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
-@@ -3220,39 +3230,39 @@ msgstr ""
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
+ msgstr ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
  "    | xargs -0r -P4 -n16 xz -T1>\n"
  
  #. type: Plain text
@@ -3905,7 +3923,15 @@ index 9ad5e00f..f12bdfa6 100644
  #, no-wrap
  msgid ""
  "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
-@@ -3268,12 +3278,12 @@ msgstr ""
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
+ msgstr ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Versiunea dumneavoastră de „xz” este prea veche!\"\n"
+ "fi\n"
  "unset XZ_VERSION LIBLZMA_VERSION>\n"
  
  #. type: Plain text
@@ -3920,7 +3946,17 @@ index 9ad5e00f..f12bdfa6 100644
  #, no-wrap
  msgid ""
  "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
-@@ -3291,580 +3301,605 @@ msgstr ""
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
+ "fi>\n"
+ msgstr ""
+ "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
  "fi>\n"
  
  #. type: Plain text

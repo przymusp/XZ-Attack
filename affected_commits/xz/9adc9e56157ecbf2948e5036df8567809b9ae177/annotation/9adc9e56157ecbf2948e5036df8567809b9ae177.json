@@ -1,0 +1,1 @@
+{"src/xz/xz.1": {"language": "Roff", "type": "markup", "purpose": "markup", "+": [{"id": 3, "type": "code", "purpose": "markup"}, {"id": 4, "type": "code", "purpose": "markup"}, {"id": 10, "type": "code", "purpose": "markup"}], "-": [{"id": 2, "type": "code", "purpose": "markup"}, {"id": 9, "type": "code", "purpose": "markup"}]}}

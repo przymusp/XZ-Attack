@@ -8,7 +8,7 @@ diff --git a/po/hr.po b/po/hr.po
 index 1476bc26..940fa939 100644
 --- a/po/hr.po
 +++ b/po/hr.po
-@@ -1,13 +1,18 @@
+@@ -1,1079 +1,1141 @@
 -# Croatian translation of xz.
 -# This file is put in the public domain.
 +# SPDX-License-Identifier: 0BSD
@@ -33,7 +33,8 @@ index 1476bc26..940fa939 100644
  "Last-Translator: Božidar Putanec <bozidarp@yahoo.com>\n"
  "Language-Team: Croatian <lokalizacija@linux.hr>\n"
  "Language: hr\n"
-@@ -16,7 +21,6 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
  "Content-Transfer-Encoding: 8bit\n"
  "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
  "X-Bugs: Report translation errors to the Language-Team address.\n"
@@ -41,7 +42,11 @@ index 1476bc26..940fa939 100644
  
  #: src/xz/args.c:77
  #, c-format
-@@ -28,132 +32,168 @@ msgstr "%s: nevaljani argument za --block-list"
+ msgid "%s: Invalid argument to --block-list"
+ msgstr "%s: nevaljani argument za --block-list"
+ 
+ #: src/xz/args.c:87
+ #, c-format
  msgid "%s: Too many arguments to --block-list"
  msgstr "%s: Previše argumenata za --block-list"
  
@@ -261,7 +266,14 @@ index 1476bc26..940fa939 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s: poll() nije uspjela: %s"
-@@ -168,349 +208,349 @@ msgstr "%s: poll() nije uspjela: %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -710,7 +722,7 @@ index 1476bc26..940fa939 100644
  #, c-format
  msgid "%s file\n"
  msgid_plural "%s files\n"
-@@ -518,38 +558,42 @@ msgstr[0] "%s datoteka\n"
+ msgstr[0] "%s datoteka\n"
  msgstr[1] "%s datoteke\n"
  msgstr[2] "%s datoteka\n"
  
@@ -763,7 +775,12 @@ index 1476bc26..940fa939 100644
  msgid "Cannot read data from standard input when reading filenames from standard input"
  msgstr "Nije moguće čitati podatke iz standardnog ulaza dok se čitaju imena datoteka iz standardnog ulaza"
  
-@@ -562,7 +606,7 @@ msgstr "Nije moguće čitati podatke iz standardnog ulaza dok se čitaju imena d
+ #. TRANSLATORS: This is the program name in the beginning
+ #. of the line in messages. Usually it becomes "xz: ".
+ #. This is a translatable string because French needs
+ #. a space before a colon.
+ #: src/xz/message.c:670 src/xz/message.c:725
+ #, c-format
  msgid "%s: "
  msgstr "%s: "
  
@@ -772,7 +789,17 @@ index 1476bc26..940fa939 100644
  msgid "Internal error (bug)"
  msgstr "Interna greška (bug)"
  
-@@ -580,7 +624,7 @@ msgstr "Nepodržani tip provjere integriteta -- ne provjeravamo integritet datot
+ #: src/xz/message.c:804
+ msgid "Cannot establish signal handlers"
+ msgstr "Nije moguće uspostaviti rukovatelje signala"
+ 
+ #: src/xz/message.c:813
+ msgid "No integrity check; not verifying file integrity"
+ msgstr "Nema provjere integriteta -- ne provjeravamo integritet datoteke"
+ 
+ #: src/xz/message.c:816
+ msgid "Unsupported type of integrity check; not verifying file integrity"
+ msgstr "Nepodržani tip provjere integriteta -- ne provjeravamo integritet datoteke"
  
  #: src/xz/message.c:823
  msgid "Memory usage limit reached"
@@ -781,7 +808,20 @@ index 1476bc26..940fa939 100644
  
  #: src/xz/message.c:826
  msgid "File format not recognized"
-@@ -601,12 +645,12 @@ msgstr "Neočekivani kraj ulaznih podataka"
+ msgstr "Format datoteke nije prepoznat"
+ 
+ #: src/xz/message.c:829
+ msgid "Unsupported options"
+ msgstr "Nepodržane opcije"
+ 
+ #: src/xz/message.c:832
+ msgid "Compressed data is corrupt"
+ msgstr "Komprimirani podaci su oštećeni"
+ 
+ #: src/xz/message.c:835
+ msgid "Unexpected end of input"
+ msgstr "Neočekivani kraj ulaznih podataka"
+ 
  #: src/xz/message.c:877
  #, c-format
  msgid "%s MiB of memory is required. The limiter is disabled."
@@ -796,7 +836,8 @@ index 1476bc26..940fa939 100644
  
  #: src/xz/message.c:924
  #, c-format
-@@ -615,8 +659,8 @@ msgstr "%s: Lanac filtara: %s\n"
+ msgid "%s: Filter chain: %s\n"
+ msgstr "%s: Lanac filtara: %s\n"
  
  #: src/xz/message.c:935
  #, c-format
@@ -807,7 +848,57 @@ index 1476bc26..940fa939 100644
  
  #: src/xz/message.c:961
  #, c-format
-@@ -674,25 +718,25 @@ msgid ""
+ msgid ""
+ "Usage: %s [OPTION]... [FILE]...\n"
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Uporaba: %s [OPCIJA]... [FILE]...\n"
+ "Komprimira ili dekomprimira DATOTEKE u .xz formatu.\n"
+ "\n"
+ 
+ #: src/xz/message.c:968
+ msgid "Mandatory arguments to long options are mandatory for short options too.\n"
+ msgstr "Obvezni argumenti za duge opcije, obvezni su i za kratke opcije.\n"
+ 
+ #: src/xz/message.c:972
+ msgid " Operation mode:\n"
+ msgstr " Način rada:\n"
+ 
+ #: src/xz/message.c:975
+ msgid ""
+ "  -z, --compress      force compression\n"
+ "  -d, --decompress    force decompression\n"
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      komprimira (prisilna kompresija)\n"
+ "  -d, --decompress    dekomprimira (prisilna dekompresija)\n"
+ "  -t, --test          testira integritet komprimirane datoteke\n"
+ "  -l, --list          ispiše podatke o .xz datotekama"
+ 
+ #: src/xz/message.c:981
+ msgid ""
+ "\n"
+ " Operation modifiers:\n"
+ msgstr ""
+ "\n"
+ " Modifikatori načina rada:\n"
+ 
+ #: src/xz/message.c:984
+ msgid ""
+ "  -k, --keep          keep (don't delete) input files\n"
+ "  -f, --force         force overwrite of output file and (de)compress links\n"
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          zadrži (ne briše) navedene ulazne datoteke\n"
+ "  -f, --force         piše preko izlaznih datoteka i\n"
+ "                        preko (de)komprimiranih poveznica\n"
+ "  -c, --stdout        piše na standardni izlaz i ne briše\n"
+ "                        ulazne datoteke"
+ 
+ #: src/xz/message.c:993
+ msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
  msgstr ""
@@ -839,7 +930,12 @@ index 1476bc26..940fa939 100644
  
  #: src/xz/message.c:1005
  msgid ""
-@@ -705,9 +749,9 @@ msgstr ""
+ "\n"
+ " Basic file format and compression options:\n"
+ msgstr ""
+ "\n"
+ " Osnovne opcije za format datoteka i kompresiju:\n"
+ 
  #: src/xz/message.c:1007
  msgid ""
  "  -F, --format=FMT    file format to encode or decode; possible values are\n"
@@ -852,7 +948,15 @@ index 1476bc26..940fa939 100644
  msgstr ""
  "  -F, --format=FMT    format datoteke za kodiranje ili dekodiranje; mogućnosti:\n"
  "                        „auto” (zadano), „xz”, „lzma”, „lzip“ i „raw”\n"
-@@ -723,8 +767,9 @@ msgid ""
+ "  -C, --check=KONTROLA  tip provjere integriteta: „none” (koristite s oprezom),\n"
+ "                          „crc32”, „crc64” (zadano), ili „sha256”"
+ 
+ #: src/xz/message.c:1012
+ msgid "      --ignore-check  don't verify the integrity check when decompressing"
+ msgstr "      --ignore-check  ne verificira provjeru integriteta pri dekompresiji"
+ 
+ #: src/xz/message.c:1016
+ msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
  msgstr ""
@@ -864,7 +968,11 @@ index 1476bc26..940fa939 100644
  
  #: src/xz/message.c:1020
  msgid ""
-@@ -736,11 +781,11 @@ msgstr ""
+ "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
+ "                      does not affect decompressor memory requirements"
+ msgstr ""
+ "  -e, --extreme       pokuša poboljšati omjer kompresije koristeći više CPU\n"
+ "                        vremena; ne utječe na potrebnu memoriju za dekompresiju"
  
  #: src/xz/message.c:1024
  msgid ""
@@ -880,7 +988,13 @@ index 1476bc26..940fa939 100644
  
  #: src/xz/message.c:1029
  msgid ""
-@@ -754,27 +799,31 @@ msgstr ""
+ "      --block-size=SIZE\n"
+ "                      start a new .xz block after every SIZE bytes of input;\n"
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=VELIČINA  započne novi.xz blok nakon svakih VELIČINA bajtova\n"
+ "                               ulaznih podataka; ovo rabite za postavljanje\n"
+ "                               veličine bloka za kompresiju s dretvama"
  
  #: src/xz/message.c:1033
  msgid ""
@@ -923,7 +1037,17 @@ index 1476bc26..940fa939 100644
  #, no-c-format
  msgid ""
  "      --memlimit-compress=LIMIT\n"
-@@ -792,7 +841,7 @@ msgstr ""
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"
+ msgstr ""
+ "      --memlimit-compress=GRANICA\n"
+ "      --memlimit-decompress=GRANICA\n"
+ "  -M, --memlimit=GRANICA\n"
+ "                     ograničenje korištenja memorije za kompresiju,\n"
  "                     dekompresiju, dretvama dekompresiju, ili sve ovo;\n"
  "                     GRANICA je u bajtima, % RAM, ili 0 za zadano"
  
@@ -932,7 +1056,8 @@ index 1476bc26..940fa939 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -801,15 +850,41 @@ msgstr ""
+ msgstr ""
+ "      --no-adjust     ako dane postavke kompresije prekorače ograničenje\n"
  "                        upotrebe memorije, završi s greškom umjesto da\n"
  "                        prilagodi postavke shodno ograničenju memorije"
  
@@ -977,7 +1102,28 @@ index 1476bc26..940fa939 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -838,7 +913,7 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=OPCIJE]    LZMA1 ili LZMA2; OPCIJE je popis\n"
+ "  --lzma2[=OPCIJE]    nula ili više od sljedećih opcija zarezom odijeljenih;\n"
+ "                      (valjane vrijednosti; zadano):\n"
+ "                        preset=PRE vrati opcije na pretpostavke (0-9[e])\n"
+ "                        dict=BROJ  veličina rječnika (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=BROJ    broj bitova doslovnog konteksta (0-4; 3)\n"
+ "                        lp=BROJ    broj bitova doslovne pozicije (0-4; 0)\n"
+ "                        pb=BROJ    broj pozicionih bitova (0-4; 2)\n"
+ "                        mode=NAČIN način kompresije (fast, normal; normal)\n"
+ "                        nice=BROJ  nice-dužina za podudaranje (2-273; 64)\n"
  "                        mf=IME     podudarač (hc3, hc4, bt2, bt3, bt4; bt4)\n"
  "                        depth=BROJ max. dubina traženja; 0=automatski (default)"
  
@@ -986,7 +1132,9 @@ index 1476bc26..940fa939 100644
  msgid ""
  "\n"
  "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
-@@ -848,6 +923,7 @@ msgid ""
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
  "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
  "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
  "  --sparc[=OPTS]      SPARC BCJ filter\n"
@@ -994,7 +1142,11 @@ index 1476bc26..940fa939 100644
  "                      Valid OPTS for all BCJ filters:\n"
  "                        start=NUM  start offset for conversions (default=0)"
  msgstr ""
-@@ -859,10 +935,11 @@ msgstr ""
+ "\n"
+ "  --x86[=OPCIJE]      x86 BCJ filtar (32-bit i 64-bit)\n"
+ "  --arm[=OPCIJE]      ARM BCJ filtar\n"
+ "  --armthumb[=OPCIJE] ARM-Thumb BCJ filtar\n"
+ "  --arm64[=OPCIJE]    ARM64 BCJ filtar\n"
  "  --powerpc[=OPCIJE]  PowerPC BCJ filtar (samo veliki endian)\n"
  "  --ia64[=OPCIJE]     IA-64 (Itanium) BCJ filtar\n"
  "  --sparc[=OPCIJE]    SPARC BCJ filtar\n"
@@ -1007,7 +1159,12 @@ index 1476bc26..940fa939 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -875,7 +952,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=OPCIJE]    Delta filtar; valjane OPCIJE\n"
+ "                        (valjane vrijednosti; zadano):\n"
  "                        dist=BROJ  razmak između bajtova koji se oduzimaju\n"
  "                                   jedan od drugog (1-256; 1)"
  
@@ -1016,7 +1173,7 @@ index 1476bc26..940fa939 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -883,23 +960,23 @@ msgstr ""
+ msgstr ""
  "\n"
  " Ostale opcije:\n"
  
@@ -1046,7 +1203,7 @@ index 1476bc26..940fa939 100644
  msgid ""
  "      --info-memory   display the total amount of RAM and the currently active\n"
  "                      memory usage limits, and exit"
-@@ -907,65 +984,82 @@ msgstr ""
+ msgstr ""
  "      --info-memory   pokaže ukupnu količinu RAM-a i trenutno\n"
  "                        aktivna ograničenja korištenja memorije, pa iziđe"
  
@@ -1146,7 +1303,7 @@ index 1476bc26..940fa939 100644
  #, c-format
  msgid "%s: Invalid option value"
  msgstr "%s: Nevaljana vrijednost opcije"
-@@ -973,107 +1067,75 @@ msgstr "%s: Nevaljana vrijednost opcije"
+ 
  #: src/xz/options.c:247
  #, c-format
  msgid "Unsupported LZMA1/LZMA2 preset: %s"

@@ -1,0 +1,1 @@
+{"/dev/null": {"language": "/dev/null", "type": "other", "purpose": "other", "+": [], "-": []}, ".gitignore": {"language": "Ignore List", "type": "data", "purpose": "data", "+": [{"id": 1, "type": "code"}, {"id": 2, "type": "code"}, {"id": 3, "type": "code"}, {"id": 4, "type": "code"}], "-": []}}

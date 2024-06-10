@@ -1,0 +1,1 @@
+{"tests/Makefile.am": {"language": "Makefile", "type": "programming", "purpose": "test", "+": [{"id": 47, "type": "code", "purpose": "test"}, {"id": 48, "type": "code", "purpose": "test"}, {"id": 58, "type": "code", "purpose": "test"}], "-": [{"id": 46, "type": "code", "purpose": "test"}]}}

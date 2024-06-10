@@ -19,7 +19,7 @@ diff --git a/lib/getopt.in.h b/lib/getopt.in.h
 index c50dda00..79941d44 100644
 --- a/lib/getopt.in.h
 +++ b/lib/getopt.in.h
-@@ -1,27 +1,26 @@
+@@ -1,228 +1,58 @@
  /* Declarations for getopt.
 -   Copyright (C) 1989-1994,1996-1999,2001,2003,2004,2005,2006,2007
 -   Free Software Foundation, Inc.
@@ -62,7 +62,9 @@ index c50dda00..79941d44 100644
  
  /* Standalone applications should #define __GETOPT_PREFIX to an
     identifier that prefixes the external functions and variables
-@@ -31,198 +30,29 @@
+    defined in this header.  When this happens, include the
+    headers that might declare getopt so that they will not cause
+    confusion if included after this file.  Then systematically rename
     identifiers so that they do not collide with the system functions
     and variables.  Renaming avoids problems with some compilers and
     linkers.  */

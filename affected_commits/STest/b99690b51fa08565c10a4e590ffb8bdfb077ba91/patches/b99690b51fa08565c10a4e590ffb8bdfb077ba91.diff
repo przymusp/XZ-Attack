@@ -8,7 +8,58 @@ diff --git a/README.md b/README.md
 index 84f083c..c1cf101 100644
 --- a/README.md
 +++ b/README.md
-@@ -52,7 +52,7 @@ The test runner can be run with a few simple command line arguments.
+@@ -1,104 +1,98 @@
+ # STest
+ 
+ ## About
+ **STest** is a unit testing framework for C/C++ based on Keith Nicholas's Seatest. **STest** is an xUnit style of unit testing framework, and is made to be portable. Installing **STest** is as easy as dropping the **stest.c** and **stest.h** files into your project.
+ 
+ ## Features
+ - xUnit style asserts
+ - Easily extensible for custom asserts
+ - Optional color-coded output
+ - Cross platform in any C/C++ project
+ - Supports global set-up and tear-down functions
+ - Supports per-test set-up and tear-down functions
+ - Ability to selectively run tests and fixtures
+ 
+ ## Asserts
+ | Assert | Arguments | Meaning |
+ |--------|-----------| ----------- |
+ |assert_true| int test | Asserts test is non-zero|
+ |assert_false| int test | Asserts test is zero|
+ |assert_int_equal| int expected, int actual| Asserts expected == actual|
+ |assert_ulong_equal| unsigned long expected, unsigned long actual| Asserts expected == actual|
+ |assert_string_equal| char* expected, char* actual| Asserts all characters of expected equal all characters of actual|
+ |assert_n_array_equal| void* expected, void* actual, int n| Asserts first n elements from expected to actual|
+ |assert_bit_set| int bit_number, int value| Asserts the bit_number in value is set to a 1|
+ |assert_bit_not_set| int bit_number, int value| Asserts the bit_number in value is set to a 0
+ |assert_bit_mask_matches| \<size> value, \<size> mask|Asserts all 1 bits in mask are set to 1 in value|
+ |assert_fail| char* message | Automatic failing test with a custom message|
+ |assert_float_equal| float expected, float actual, float delta| Asserts expected is within delta above or below value|
+ |assert_double_equal|double expected, double actual, double delta| Asserts expected is within delta above or below value|
+ |assert_string_contains| char* contained, char* container| Asserts contained is a substring of container|
+ |assert_string_not_contains|char* contained, char* container| Asserts contained is not a substring of container|
+ |assert_string_starts_with| char* contained, char* container| Asserts container begins with contained|
+ |assert_string_ends_with| char* contained, char* container| Asserts container ends with contained|
+ 
+ ## Command Line Arguments
+ The test runner can be run with a few simple command line arguments.
+ 
+ | Option           | Meaning                                          |
+ | -----------------| -------------------------------------------------|
+ | -d               | Display tests, do not run tests                  |
+ | -v               | Run tests in verbose mode                        |
+ | -vs              | Alternative display mode                         |
+ | -t \<testname>   | Only run tests that match \<testname>            |
+ | -f \<fixturename>| Only run fixtures that match \<fixturename>      |
+ | -m               | Output machine readable                          |
+ | -s               | Skip the rest of the test when an assert fails   |
+ | -k \<marker>     | prepend \<marker> before machine readable output |
+ | -c               | Color code output (green success, red failure)   |
+ | help             | Output help message                              |
+ 
+ ## Example Usage
  
  ```C
  // Sample test
@@ -17,7 +68,7 @@ index 84f083c..c1cf101 100644
    int actual = 10;
    assert_int_equal(10, actual);
  
-@@ -60,16 +60,10 @@ STEST(my_test)
+   char *actual_str = "Hello World";
    assert_string_contains("Hello", actual_str);
  }
  
@@ -36,11 +87,54 @@ index 84f083c..c1cf101 100644
  }
  
  // Sample fixture
+ // Fixtures are a collection of related tests
+ void test_fixture() {
+   test_fixture_start();
+   run_test(my_test());
+   another_test();
+   test_fixture_end();
+ }
+ 
+ // Sample test suite
+ // Should combine all fixtures that belong in the suite
+ void run_all_tests() { test_fixture(); }
+ 
+ // Keep main simple to run all of your test suites
+ int main(int argc, char **argv) {
+   return stest_testrunner(argc, argv, run_all_tests, NULL, NULL);
+ }
+ ```
+ 
+ ## Contributing
+ 
+ I am happy to accept pull requests for bug fixes and new features. Here are the suggested steps:
+ 1. Fork the repository
+ 2. Create a new branch
+ 3. Implement your feature
+ 4. Reformat your code with the provided .clang-format file
+ 5. Add your commits
+ 6. Create a pull request to master
+ 
+ I will try to keep the issues tab updated with improvements I am envisioning. 
+\ No newline at end of file
 diff --git a/src/stest.h b/src/stest.h
 index 4e0cf7b..9571b2e 100644
 --- a/src/stest.h
 +++ b/src/stest.h
-@@ -14,16 +14,6 @@ Defines
+@@ -1,120 +1,110 @@
+ /*
+  * Copyright (c) 2010 Keith Nicholas
+  * Copyright (c) 2021 Jia Tan
+  */
+ 
+ #ifndef STEST_H
+ #define STEST_H
+ 
+ #include <stdio.h>
+ 
+ /*
+ Defines
+ */
  
  #define STEST_PRINT_BUFFER_SIZE 10000
  
@@ -57,7 +151,52 @@ index 4e0cf7b..9571b2e 100644
  /*
  Typedefs
  */
-@@ -76,22 +66,22 @@ Assert Macros
+ 
+ typedef void (*stest_void_void)(void);
+ typedef void (*stest_void_string)(const char *);
+ 
+ /*
+ Declarations
+ */
+ 
+ extern void (*stest_simple_test_result)(int passed, const char *reason,
+                                         const char *function,
+                                         unsigned int line);
+ void stest_test_fixture_start(const char *filepath);
+ void stest_test_fixture_end(void);
+ void stest_simple_test_result_log(int passed, const char *reason,
+                                   const char *function, unsigned int line);
+ void stest_assert_true(int test, const char *function, unsigned int line);
+ void stest_assert_false(int test, const char *function, unsigned int line);
+ void stest_assert_int_equal(int expected, int actual, const char *function,
+                             unsigned int line);
+ void stest_assert_ulong_equal(unsigned long expected, unsigned long actual,
+                               const char *function, unsigned int line);
+ void stest_assert_float_equal(float expected, float actual, float delta,
+                               const char *function, unsigned int line);
+ void stest_assert_double_equal(double expected, double actual, double delta,
+                                const char *function, unsigned int line);
+ void stest_assert_string_equal(const char *expected, const char *actual,
+                                const char *function, unsigned int line);
+ void stest_assert_string_ends_with(const char *expected, const char *actual,
+                                    const char *function, unsigned int line);
+ void stest_assert_string_starts_with(const char *expected, const char *actual,
+                                      const char *function, unsigned int line);
+ void stest_assert_string_contains(const char *expected, const char *actual,
+                                   const char *function, unsigned int line);
+ void stest_assert_string_not_contains(const char *expected, const char *actual,
+                                       const char *function, unsigned int line);
+ int stest_should_run_fixture(const char *fixture);
+ int stest_should_run_test(const char *test);
+ void stest_before_run(const char *fixture, const char *test);
+ void stest_setup(void);
+ void stest_teardown(void);
+ void stest_suite_teardown(void);
+ void stest_suite_setup(void);
+ void stest_test(const char *test, void (*test_function)(void));
+ 
+ /*
+ Assert Macros
  */
  
  // clang-format off
@@ -96,11 +235,39 @@ index 4e0cf7b..9571b2e 100644
  
  /*
  Fixture / Test Management
+ */
+ 
+ void fixture_setup(void (*setup)( void ));
+ void fixture_teardown(void (*teardown)( void ));
+ #define run_test(test) do { stest_test(#test, test);} while (0)
+ #define test_fixture_start() do { stest_test_fixture_start(__FILE__); } while (0)
+ #define test_fixture_end() do { stest_test_fixture_end();} while (0)
+ void fixture_filter(const char* filter);
+ void test_filter(const char* filter);
+ void suite_teardown(stest_void_void teardown);
+ void suite_setup(stest_void_void setup);
+ int run_tests(stest_void_void tests);
+ int stest_testrunner(int argc, char** argv, stest_void_void tests, stest_void_void setup, stest_void_void teardown);
+ #endif
+ //clang-format on
+ 
+ #ifdef STEST_INTERNAL_TESTS
+ void stest_simple_test_result_nolog(int passed, const char* reason, const char* function, unsigned int line);
+ void stest_assert_last_passed(const char* function, unsigned int line);
+ void stest_assert_last_failed(const char* function, unsigned int line);
+ void stest_enable_logging(void);
+ void stest_disable_logging(void);
+ #endif
 diff --git a/tests/stests.c b/tests/stests.c
 index dcf3ef5..1177e7f 100644
 --- a/tests/stests.c
 +++ b/tests/stests.c
-@@ -6,7 +6,7 @@
+@@ -1,156 +1,146 @@
+ /*
+  * Copyright (c) 2021 Jia Tan
+  * Copyright (c) 2010 Keith Nicholas
+  */
+ 
  #include "stests.h"
  #include "stddef.h"
  
@@ -109,7 +276,11 @@ index dcf3ef5..1177e7f 100644
    int array_1[4] = {0, 1, 2, 3};
    int array_2[4] = {0, 1, 2, 4};
    int array_3[4] = {0, 1, 2, 3};
-@@ -18,7 +18,7 @@ STEST(test_assert_n_array_equal)
+ 
+   assert_test_passes(assert_n_array_equal(array_1, array_1, 4));
+   assert_test_passes(assert_n_array_equal(array_1, array_3, 4));
+   assert_test_passes(assert_n_array_equal(array_1, array_2, 3));
+   assert_test_fails(assert_n_array_equal(array_1, array_2, 4));
    assert_test_fails(assert_n_array_equal(array_1, array_2, 0));
  }
  
@@ -118,7 +289,10 @@ index dcf3ef5..1177e7f 100644
    assert_test_passes(assert_string_equal((char *)0, (char *)0));
    assert_test_passes(assert_string_equal("", ""));
    assert_test_passes(assert_string_equal("foo", "foo"));
-@@ -29,33 +29,33 @@ STEST(test_assert_string_equal)
+   assert_test_fails(assert_string_equal((char *)0, "bar"));
+   assert_test_fails(assert_string_equal("foo", (char *)0));
+   assert_test_fails(assert_string_equal("foo", "bar"));
+   assert_test_fails(assert_string_equal("foo", "Foo"));
    assert_test_fails(assert_string_equal("foo", "foo\n"));
  }
  
@@ -158,7 +332,8 @@ index dcf3ef5..1177e7f 100644
    for(int bit = 0, value = 1; bit < sizeof(int) * 8; bit++, value <<= 1) {
      assert_test_passes(assert_bit_set(bit, value));
      if(bit > 0) {
-@@ -64,7 +64,7 @@ STEST(test_assert_bit_set)
+       assert_test_fails(assert_bit_set(bit - 1, value));
+     }
    }
  }
  
@@ -167,7 +342,8 @@ index dcf3ef5..1177e7f 100644
    for(int bit = 0, value = 1; bit < sizeof(int) * 8; bit++, value <<= 1) {
      assert_test_fails(assert_bit_not_set(bit, value));
      if(bit > 0) {
-@@ -73,7 +73,7 @@ STEST(test_assert_bit_not_set)
+       assert_test_passes(assert_bit_not_set(bit - 1, value));
+     }
    }
  }
  
@@ -176,7 +352,8 @@ index dcf3ef5..1177e7f 100644
    // mask in binary => 000100100011010001010110
    int mask = 0x123456;
    for(int i = 0; i < sizeof(int) * 8 - 1; i++) {
-@@ -82,7 +82,7 @@ STEST(test_assert_bit_mask_matches)
+     assert_test_passes(assert_bit_mask_matches((i | mask), mask));
+     assert_test_fails(assert_bit_mask_matches(i, mask));
    }
  }
  
@@ -185,7 +362,10 @@ index dcf3ef5..1177e7f 100644
    const double delta = 0.001;
    assert_test_passes(assert_double_equal(1.0, 1.0, delta));
    assert_test_fails(assert_double_equal(1.0, 2.0, delta));
-@@ -93,43 +93,34 @@ STEST(test_assert_double_equal)
+   double d1 = 1.5;
+   double d2 = 2.5;
+   assert_test_passes(assert_double_equal(d2 - 1, d1, delta));
+   assert_test_passes(assert_double_equal(d1 + 1, d2, delta));
    assert_test_fails(assert_double_equal(d1, d2, delta));
  }
  
@@ -233,7 +413,17 @@ index dcf3ef5..1177e7f 100644
  void test_fixture_stest() {
    test_fixture_start();
    run_test(test_assert_true);
-@@ -147,7 +138,6 @@ void test_fixture_stest() {
+   run_test(test_assert_false);
+   run_test(test_assert_int_equal);
+   run_test(test_assert_ulong_equal);
+   run_test(test_assert_string_equal);
+   run_test(test_assert_n_array_equal);
+   run_test(test_assert_fail);
+   run_test(test_assert_bit_set);
+   run_test(test_assert_bit_not_set);
+   run_test(test_assert_bit_mask_matches);
+   run_test(test_assert_double_equal);
+   run_test(test_assert_string_contains);
    run_test(test_assert_string_not_contains);
    run_test(test_assert_string_starts_with);
    run_test(test_assert_string_ends_with);
@@ -241,3 +431,6 @@ index dcf3ef5..1177e7f 100644
    test_fixture_end();
  }
  
+ int main(int argc, char **argv) {
+   return stest_testrunner(argc, argv, test_fixture_stest, NULL, NULL);
+ }

@@ -10,7 +10,9 @@ diff --git a/tests/test_filter_flags.c b/tests/test_filter_flags.c
 index ccd9ae98..4ddffa7f 100644
 --- a/tests/test_filter_flags.c
 +++ b/tests/test_filter_flags.c
-@@ -3,7 +3,8 @@
+@@ -1,258 +1,517 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
  /// \file       test_filter_flags.c
  /// \brief      Tests Filter Flags coders
  //
@@ -20,7 +22,7 @@ index ccd9ae98..4ddffa7f 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
-@@ -11,248 +12,506 @@
+ //
  ///////////////////////////////////////////////////////////////////////////////
  
  #include "tests.h"

@@ -8,7 +8,27 @@ diff --git a/.github/workflows/windows-ci.yml b/.github/workflows/windows-ci.yml
 index c89eb605..f5c58bac 100644
 --- a/.github/workflows/windows-ci.yml
 +++ b/.github/workflows/windows-ci.yml
-@@ -21,6 +21,7 @@ jobs:
+@@ -1,115 +1,123 @@
+ #############################################################################
+ #
+ # Author: Jia Tan
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ #############################################################################
+ 
+ name: Windows-CI
+ 
+ # Only run the Windows CI manually since it takes much longer than the others.
+ on: workflow_dispatch
+ 
+ jobs:
+   POSIX:
+     strategy:
+       matrix:
+         # Test different environments since the code may change between
+         # them and we want to ensure that we support all potential users.
          # clang64 currently fails due to a warning, so support will be
          # added later.
          msys2_env: [mingw64, mingw32, ucrt64, clang64, msys]
@@ -16,7 +36,44 @@ index c89eb605..f5c58bac 100644
  
      # Set the shell to be msys2 as a default to avoid setting it for
      # every individual run command.
-@@ -65,42 +66,49 @@ jobs:
+     defaults:
+       run:
+         shell: msys2 {0}
+ 
+     runs-on: windows-latest
+ 
+     steps:
+       #####################
+       # Setup Environment #
+       #####################
+ 
+       # Rely on the msys2 GitHub Action to set up the msys2 environment.
+       - name: Setup MSYS2
+         uses: msys2/setup-msys2@v2
+         with:
+           msystem: ${{ matrix.msys2_env }}
+           update: true
+           install: pactoys
+ 
+       - name: Checkout code
+         # Need to explicitly set the shell here since we set the default
+         # shell as msys2 earlier. This avoids an extra msys2 dependency on
+         # git.
+         shell: powershell
+         # Avoid Windows line endings. Otherwise test_scripts.sh will fail
+         # because the expected output is stored in the test framework as a
+         # text file and will not match the output from xzgrep.
+         run: git config --global core.autocrlf false
+ 
+       - uses: actions/checkout@v3
+ 
+ 
+       ########################
+       # Install Dependencies #
+       ########################
+ 
+         # The pacman repository has a different naming scheme for default
+         # msys packages than the others. The pacboy tool allows installing
          # the packages possible in matrix setup without a burdensome amount
          # of ifs.
        - name: Install Dependencies
@@ -78,3 +135,12 @@ index c89eb605..f5c58bac 100644
  
  
        ###############
+       # Upload Logs #
+       ###############
+ 
+       # Upload the test logs as artifacts if any step has failed.
+       - uses: actions/upload-artifact@v3
+         if: ${{ failure() }}
+         with:
+           name: ${{ matrix.msys2_env }} ${{ matrix.build_system }} Test Logs
+           path: build-aux/artifacts

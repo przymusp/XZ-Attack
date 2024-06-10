@@ -8,7 +8,51 @@ diff --git a/README.md b/README.md
 index 13aca8a..84f083c 100644
 --- a/README.md
 +++ b/README.md
-@@ -45,13 +45,14 @@ The test runner can be run with a few simple command line arguments.
+@@ -1,97 +1,104 @@
+ # STest
+ 
+ ## About
+ **STest** is a unit testing framework for C/C++ based on Keith Nicholas's Seatest. **STest** is an xUnit style of unit testing framework, and is made to be portable. Installing **STest** is as easy as dropping the **stest.c** and **stest.h** files into your project.
+ 
+ ## Features
+ - xUnit style asserts
+ - Easily extensible for custom asserts
+ - Optional color-coded output
+ - Cross platform in any C/C++ project
+ - Supports global set-up and tear-down functions
+ - Supports per-test set-up and tear-down functions
+ - Ability to selectively run tests and fixtures
+ 
+ ## Asserts
+ | Assert | Arguments | Meaning |
+ |--------|-----------| ----------- |
+ |assert_true| int test | Asserts test is non-zero|
+ |assert_false| int test | Asserts test is zero|
+ |assert_int_equal| int expected, int actual| Asserts expected == actual|
+ |assert_ulong_equal| unsigned long expected, unsigned long actual| Asserts expected == actual|
+ |assert_string_equal| char* expected, char* actual| Asserts all characters of expected equal all characters of actual|
+ |assert_n_array_equal| void* expected, void* actual, int n| Asserts first n elements from expected to actual|
+ |assert_bit_set| int bit_number, int value| Asserts the bit_number in value is set to a 1|
+ |assert_bit_not_set| int bit_number, int value| Asserts the bit_number in value is set to a 0
+ |assert_bit_mask_matches| \<size> value, \<size> mask|Asserts all 1 bits in mask are set to 1 in value|
+ |assert_fail| char* message | Automatic failing test with a custom message|
+ |assert_float_equal| float expected, float actual, float delta| Asserts expected is within delta above or below value|
+ |assert_double_equal|double expected, double actual, double delta| Asserts expected is within delta above or below value|
+ |assert_string_contains| char* contained, char* container| Asserts contained is a substring of container|
+ |assert_string_not_contains|char* contained, char* container| Asserts contained is not a substring of container|
+ |assert_string_starts_with| char* contained, char* container| Asserts container begins with contained|
+ |assert_string_ends_with| char* contained, char* container| Asserts container ends with contained|
+ 
+ ## Command Line Arguments
+ The test runner can be run with a few simple command line arguments.
+ 
+ | Option           | Meaning                                          |
+ | -----------------| -------------------------------------------------|
+ | -d               | Display tests, do not run tests                  |
+ | -v               | Run tests in verbose mode                        |
+ | -vs              | Alternative display mode                         |
+ | -t \<testname>   | Only run tests that match \<testname>            |
+ | -f \<fixturename>| Only run fixtures that match \<fixturename>      |
  | -m               | Output machine readable                          |
  | -s               | Skip the rest of the test when an assert fails   |
  | -k \<marker>     | prepend \<marker> before machine readable output |
@@ -24,7 +68,7 @@ index 13aca8a..84f083c 100644
    int actual = 10;
    assert_int_equal(10, actual);
  
-@@ -59,10 +60,16 @@ void my_test() {
+   char *actual_str = "Hello World";
    assert_string_contains("Hello", actual_str);
  }
  
@@ -43,11 +87,41 @@ index 13aca8a..84f083c 100644
  }
  
  // Sample fixture
+ // Fixtures are a collection of related tests
+ void test_fixture() {
+   test_fixture_start();
+   run_test(my_test());
+   another_test();
+   test_fixture_end();
+ }
+ 
+ // Sample test suite
+ // Should combine all fixtures that belong in the suite
+ void run_all_tests() { test_fixture(); }
+ 
+ // Keep main simple to run all of your test suites
+ int main(int argc, char **argv) {
+   return stest_testrunner(argc, argv, run_all_tests, NULL, NULL);
+ }
+ ```
+ 
+ ## Contributing
+ 
+ I am happy to accept pull requests for bug fixes and new features. Here are the suggested steps:
+ 1. Fork the repository
+ 2. Create a new branch
+ 3. Implement your feature
+ 4. Reformat your code with the provided .clang-format file
+ 5. Add your commits
+ 6. Create a pull request to master
+ 
+ I will try to keep the issues tab updated with improvements I am envisioning. 
+\ No newline at end of file
 diff --git a/src/stest.c b/src/stest.c
 index 9fe291f..19639ee 100644
 --- a/src/stest.c
 +++ b/src/stest.c
-@@ -1,11 +1,12 @@
+@@ -1,624 +1,574 @@
  /*
 - * Copyright (c) 2021 Jia Tan
   * Copyright (c) 2010 Keith Nicholas
@@ -62,7 +136,32 @@ index 9fe291f..19639ee 100644
  
  #ifdef STEST_INTERNAL_TESTS
  static int stest_last_passed = 0;
-@@ -38,7 +39,6 @@ static int stests_passed = 0;
+ #endif
+ 
+ #define STEST_RET_ERROR (-1)
+ #define STEST_RET_OK 0
+ #define STEST_RET_FAILED_COUNT(tests_failed_count) (tests_failed_count)
+ 
+ #define STEST_GREEN "\e[0;32m"
+ #define STEST_RED "\e[0;31m"
+ #define STEST_COLOR_RESET "\e[0m"
+ 
+ typedef enum {
+   STEST_DISPLAY_TESTS,
+   STEST_RUN_TESTS,
+   STEST_DO_NOTHING,
+   STEST_DO_ABORT
+ } stest_action_t;
+ 
+ typedef struct {
+   int argc;
+   char **argv;
+   stest_action_t action;
+ } stest_testrunner_t;
+ 
+ static int stest_screen_width = 70;
+ static int stests_run = 0;
+ static int stests_passed = 0;
  static int stests_failed = 0;
  static int stest_display_only = 0;
  static int stest_verbose = 0;
@@ -70,7 +169,11 @@ index 9fe291f..19639ee 100644
  static int vs_mode = 0;
  static int stest_machine_readable = 0;
  static int stest_color_output = 0;
-@@ -50,15 +50,14 @@ static int stest_fixture_tests_failed = 0;
+ static const char *stest_current_fixture;
+ static const char *stest_current_fixture_path;
+ static char stest_magic_marker[20];
+ static int stest_fixture_tests_run = 0;
+ static int stest_fixture_tests_failed = 0;
  static const char *stest_fixture_filter;
  static const char *stest_test_filter;
  
@@ -89,7 +192,13 @@ index 9fe291f..19639ee 100644
  int stest_is_display_only(void);
  const char *test_file_name(const char *path);
  static int stest_can_color(void);
-@@ -72,34 +71,6 @@ int stest_parse_commandline_option_with_value(stest_testrunner_t *runner,
+ void stest_header_printer(const char *s, int s_len, int length, char f);
+ void set_magic_marker(const char *marker);
+ void stest_show_help(void);
+ int stest_commandline_has_value_after(stest_testrunner_t *runner, int arg);
+ int stest_parse_commandline_option_with_value(stest_testrunner_t *runner,
+                                               int arg, const char *option,
+                                               stest_void_string setter);
  void stest_interpret_commandline(stest_testrunner_t *runner);
  void stest_testrunner_create(stest_testrunner_t *runner, int argc, char **argv);
  
@@ -124,7 +233,47 @@ index 9fe291f..19639ee 100644
  void (*stest_simple_test_result)(int passed, const char *reason,
                                   const char *function, unsigned int line) =
      stest_simple_test_result_log;
-@@ -147,15 +118,6 @@ const char *test_file_name(const char *path) {
+ 
+ void suite_setup(stest_void_void setup) { stest_suite_setup_func = setup; }
+ void suite_teardown(stest_void_void teardown) {
+   stest_suite_teardown_func = teardown;
+ }
+ 
+ int stest_is_display_only(void) { return stest_display_only; }
+ 
+ void stest_suite_setup(void) {
+   if(stest_suite_setup_func != 0)
+     stest_suite_setup_func();
+ }
+ 
+ void stest_suite_teardown(void) {
+   if(stest_suite_teardown_func != 0)
+     stest_suite_teardown_func();
+ }
+ 
+ void fixture_setup(void (*setup)(void)) { stest_fixture_setup = setup; }
+ void fixture_teardown(void (*teardown)(void)) {
+   stest_fixture_teardown = teardown;
+ }
+ 
+ void stest_setup(void) {
+   if(stest_fixture_setup != 0)
+     stest_fixture_setup();
+ }
+ 
+ void stest_teardown(void) {
+   if(stest_fixture_teardown != 0)
+     stest_fixture_teardown();
+ }
+ 
+ const char *test_file_name(const char *path) {
+   char *file = (char *)path + strlen(path);
+   while(file != path && *file != '\\' && *file != '/')
+     file--;
+   if(*file == '\\' || *file == '/')
+     file++;
+   return file;
+ }
  
  static int stest_can_color(void) { return stest_color_output; }
  
@@ -140,7 +289,12 @@ index 9fe291f..19639ee 100644
  static void stest_add_color(char *outstr, const char *instr,
                              const char *color) {
    if(stest_can_color()) {
-@@ -168,7 +130,7 @@ static void stest_add_color(char *outstr, const char *instr,
+     sprintf(outstr, "%s%s%s", color, instr, STEST_COLOR_RESET);
+   }
+   else {
+     strcpy(outstr, instr);
+   }
+ }
  
  static void stest_log_failure(const char *reason, const char *function,
                                unsigned int line) {
@@ -149,7 +303,11 @@ index 9fe291f..19639ee 100644
    stest_add_color(failed, reason, STEST_RED);
    if(vs_mode) {
      printf("%s (%u)		%s,%s\r\n", stest_current_fixture_path, line,
-@@ -180,7 +142,7 @@ static void stest_log_failure(const char *reason, const char *function,
+            function, failed);
+   }
+   else {
+     printf("%-30s Line %-5d %s\r\n", function, line, failed);
+   }
  }
  
  static void stest_log_success(const char *function, unsigned int line) {
@@ -158,7 +316,22 @@ index 9fe291f..19639ee 100644
    stest_add_color(passed, "Passed", STEST_GREEN);
    printf("%-30s Line %-5d %s\r\n", function, line, passed);
  }
-@@ -203,9 +165,9 @@ void stest_simple_test_result_log(int passed, const char *reason,
+ 
+ void stest_simple_test_result_log(int passed, const char *reason,
+                                   const char *function, unsigned int line) {
+   if(!passed) {
+ 
+     if(stest_machine_readable) {
+       if(vs_mode) {
+         printf("%s (%u)		%s,%s\r\n", stest_current_fixture_path, line,
+                function, reason);
+       }
+       else {
+         printf("%s%s,%s,%u,%s\r\n", stest_magic_marker,
+                stest_current_fixture_path, function, line, reason);
+       }
+     }
+     else {
        stest_log_failure(reason, function, line);
      }
      stests_failed++;
@@ -171,7 +344,207 @@ index 9fe291f..19639ee 100644
    }
    else {
      if(stest_verbose) {
-@@ -413,36 +375,27 @@ void stest_test(const char *test, void (*test_function)(void)) {
+       if(stest_machine_readable) {
+         printf("%s%s,%s,%u,Passed\r\n", stest_magic_marker,
+                stest_current_fixture_path, function, line);
+       }
+       else {
+         stest_log_success(function, line);
+       }
+     }
+     stests_passed++;
+   }
+ }
+ 
+ void stest_assert_true(int test, const char *function, unsigned int line) {
+   stest_simple_test_result(test, "Should have been true", function, line);
+ }
+ 
+ void stest_assert_false(int test, const char *function, unsigned int line) {
+   stest_simple_test_result(!test, "Should have been false", function, line);
+ }
+ 
+ void stest_assert_int_equal(int expected, int actual, const char *function,
+                             unsigned int line) {
+   char s[STEST_PRINT_BUFFER_SIZE];
+   sprintf(s, "Expected %d but was %d", expected, actual);
+   stest_simple_test_result(expected == actual, s, function, line);
+ }
+ 
+ void stest_assert_ulong_equal(unsigned long expected, unsigned long actual,
+                               const char *function, unsigned int line) {
+   char s[STEST_PRINT_BUFFER_SIZE];
+   sprintf(s, "Expected %lu but was %lu", expected, actual);
+   stest_simple_test_result(expected == actual, s, function, line);
+ }
+ 
+ void stest_assert_float_equal(float expected, float actual, float delta,
+                               const char *function, unsigned int line) {
+   char s[STEST_PRINT_BUFFER_SIZE];
+   float result = expected - actual;
+   sprintf(s, "Expected %f but was %f", expected, actual);
+   if(result < 0.0)
+     result = 0.0f - result;
+   stest_simple_test_result(result <= delta, s, function, line);
+ }
+ 
+ void stest_assert_double_equal(double expected, double actual, double delta,
+                                const char *function, unsigned int line) {
+   char s[STEST_PRINT_BUFFER_SIZE];
+   double result = expected - actual;
+   sprintf(s, "Expected %f but was %f", expected, actual);
+   if(result < 0.0)
+     result = 0.0 - result;
+   stest_simple_test_result(result <= delta, s, function, line);
+ }
+ 
+ void stest_assert_string_equal(const char *expected, const char *actual,
+                                const char *function, unsigned int line) {
+   int comparison;
+   char s[STEST_PRINT_BUFFER_SIZE];
+ 
+   if((expected == (char *)0) && (actual == (char *)0)) {
+     sprintf(s, "Expected <NULL> but was <NULL>");
+     comparison = 1;
+   }
+   else if(expected == (char *)0) {
+     sprintf(s, "Expected <NULL> but was %s", actual);
+     comparison = 0;
+   }
+   else if(actual == (char *)0) {
+     sprintf(s, "Expected %s but was <NULL>", expected);
+     comparison = 0;
+   }
+   else {
+     comparison = strcmp(expected, actual) == 0;
+     sprintf(s, "Expected %s but was %s", expected, actual);
+   }
+ 
+   stest_simple_test_result(comparison, s, function, line);
+ }
+ 
+ void stest_assert_string_ends_with(const char *expected, const char *actual,
+                                    const char *function, unsigned int line) {
+   char s[STEST_PRINT_BUFFER_SIZE];
+   sprintf(s, "Expected %s to end with %s", actual, expected);
+   stest_simple_test_result(
+       strcmp(expected, actual + (strlen(actual) - strlen(expected))) == 0, s,
+       function, line);
+ }
+ 
+ void stest_assert_string_starts_with(const char *expected, const char *actual,
+                                      const char *function, unsigned int line) {
+   char s[STEST_PRINT_BUFFER_SIZE];
+   sprintf(s, "Expected %s to start with %s", actual, expected);
+   stest_simple_test_result(strncmp(expected, actual, strlen(expected)) == 0, s,
+                            function, line);
+ }
+ 
+ void stest_assert_string_contains(const char *expected, const char *actual,
+                                   const char *function, unsigned int line) {
+   char s[STEST_PRINT_BUFFER_SIZE];
+   sprintf(s, "Expected %s to be in %s", expected, actual);
+   stest_simple_test_result(strstr(actual, expected) != 0, s, function, line);
+ }
+ 
+ void stest_assert_string_not_contains(const char *expected, const char *actual,
+                                       const char *function, unsigned int line) {
+   char s[STEST_PRINT_BUFFER_SIZE];
+   sprintf(s, "Expected %s not to have %s in it", actual, expected);
+   stest_simple_test_result(strstr(actual, expected) == 0, s, function, line);
+ }
+ 
+ void stest_header_printer(const char *s, int s_len, int length, char f) {
+   int d = (length - (s_len + 2)) / 2;
+   int i;
+   if(stest_is_display_only() || stest_machine_readable)
+     return;
+   for(i = 0; i < d; i++)
+     printf("%c", f);
+   if(s_len == 0)
+     printf("%c%c", f, f);
+   else
+     printf(" %s ", s);
+   for(i = (d + s_len + 2); i < length; i++)
+     printf("%c", f);
+   printf("\r\n");
+ }
+ 
+ void stest_test_fixture_start(const char *filepath) {
+   stest_current_fixture_path = filepath;
+   stest_current_fixture = test_file_name(filepath);
+ 
+   if(!stest_should_run_fixture(stest_current_fixture)) {
+     return;
+   }
+ 
+   if(stest_is_display_only()) {
+     printf("Fixture: %s\n", stest_current_fixture);
+   }
+   else {
+     stest_header_printer(stest_current_fixture, strlen(stest_current_fixture),
+                          stest_screen_width, '-');
+     stest_fixture_tests_failed = stests_failed;
+     stest_fixture_tests_run = stests_run;
+   }
+ 
+   stest_fixture_teardown = 0;
+   stest_fixture_setup = 0;
+ }
+ 
+ void stest_test_fixture_end(void) {
+   char s[STEST_PRINT_BUFFER_SIZE];
+   sprintf(s, "%d run %d failed", stests_run - stest_fixture_tests_run,
+           stests_failed - stest_fixture_tests_failed);
+   stest_header_printer(s, strlen(s), stest_screen_width, ' ');
+   if(stest_is_display_only() || stest_machine_readable)
+     return;
+   printf("\r\n");
+ }
+ 
+ void fixture_filter(const char *filter) { stest_fixture_filter = filter; }
+ 
+ void test_filter(const char *filter) { stest_test_filter = filter; }
+ 
+ void set_magic_marker(const char *marker) {
+   if(marker == NULL)
+     return;
+   strcpy(stest_magic_marker, marker);
+ }
+ 
+ int stest_should_run_test(const char *test) {
+   int run = 1;
+ 
+   if(stest_fixture_filter) {
+     if(strncmp(stest_fixture_filter, stest_current_fixture,
+                strlen(stest_fixture_filter)) != 0)
+       run = 0;
+   }
+ 
+   if(stest_test_filter && test != NULL) {
+     if(strncmp(stest_test_filter, test, strlen(stest_test_filter)) != 0)
+       run = 0;
+   }
+ 
+   return run;
+ }
+ 
+ int stest_should_run_fixture(const char *fixture) {
+   int run = 1;
+ 
+   if(stest_fixture_filter) {
+     if(strncmp(stest_fixture_filter, fixture, strlen(stest_fixture_filter)) !=
+        0)
+       run = 0;
+   }
+ 
+   return run;
+ }
+ 
+ void stest_test(const char *test, void (*test_function)(void)) {
+   if(!stest_should_run_test(test)) {
+     return;
+   }
  
    if(stest_is_display_only()) {
      printf("%s\n", test);
@@ -212,7 +585,31 @@ index 9fe291f..19639ee 100644
    if(stests_failed > 0) {
      if(stest_machine_readable) {
        stest_header_printer("Failed", sizeof("Failed") - 1, stest_screen_width,
-@@ -474,8 +427,6 @@ int run_tests(stest_void_void tests) {
+                            ' ');
+     }
+     else {
+       char failed[30];
+       stest_add_color(failed, "failed", STEST_RED);
+       stest_header_printer(failed, sizeof("Failed") - 1, stest_screen_width,
+                            ' ');
+     }
+   }
+   else {
+     if(stest_machine_readable) {
+       stest_header_printer("ALL TESTS PASSED", sizeof("ALL TESTS PASSED") - 1,
+                            stest_screen_width, ' ');
+     }
+     else {
+       char passed[30];
+       stest_add_color(passed, "ALL TESTS PASSED", STEST_GREEN);
+       stest_header_printer(passed, sizeof("ALL TESTS PASSED") - 1,
+                            stest_screen_width, ' ');
+     }
+   }
+   if(stests_run == 1) {
+     strcpy(s, "1 test run");
+   }
+   else {
      sprintf(s, "%d tests run", stests_run);
    }
    stest_header_printer(s, strlen(s), stest_screen_width, ' ');
@@ -221,7 +618,19 @@ index 9fe291f..19639ee 100644
    printf("\r\n");
    stest_header_printer("", sizeof("") - 1, stest_screen_width, '=');
  
-@@ -495,9 +446,9 @@ void stest_show_help(void) {
+   return STEST_RET_FAILED_COUNT(stests_failed);
+ }
+ 
+ void stest_show_help(void) {
+   printf("Usage: [-t <testname>] [-f <fixturename>] [-d] [-h | --help] [-v] "
+          "[-m] [-k <marker>]\r\n");
+   printf("Flags:\r\n");
+   printf("\thelp:\twill display this help\r\n");
+   printf("\t-t:\twill only run tests that match <testname>\r\n");
+   printf("\t-f:\twill only run fixtures that match <fixturename>\r\n");
+   printf("\t-d:\twill just display test names and fixtures without\r\n");
+   printf("\t\trunning the test\r\n");
+   printf("\t-v:\twill print a more verbose version of the test run\r\n");
    printf("\t-m:\twill print a machine readable format of the test run, ie :- "
           "\r\n");
    printf("\t   \t<textfixture>,<testname>,<linenumber>,<testresult><EOL>\r\n");
@@ -232,7 +641,13 @@ index 9fe291f..19639ee 100644
  }
  
  int stest_commandline_has_value_after(stest_testrunner_t *runner, int arg) {
-@@ -511,7 +462,7 @@ int stest_commandline_has_value_after(stest_testrunner_t *runner, int arg) {
+   if(!((arg + 1) < runner->argc))
+     return 0;
+   if(runner->argv[arg + 1][0] == '-')
+     return 0;
+   return 1;
+ }
+ 
  int stest_parse_commandline_option_with_value(stest_testrunner_t *runner,
                                                int arg, const char *option,
                                                stest_void_string setter) {
@@ -241,7 +656,16 @@ index 9fe291f..19639ee 100644
      if(!stest_commandline_has_value_after(runner, arg)) {
        printf("Error: The %s option expects to be followed by a value\r\n",
               option);
-@@ -528,22 +479,22 @@ void stest_interpret_commandline(stest_testrunner_t *runner) {
+       runner->action = STEST_DO_ABORT;
+       return 0;
+     }
+     setter(runner->argv[arg + 1]);
+     return 1;
+   }
+   return 0;
+ }
+ 
+ void stest_interpret_commandline(stest_testrunner_t *runner) {
    int arg;
    for(arg = 1; (arg < runner->argc) && (runner->action != STEST_DO_ABORT);
        arg++) {
@@ -272,7 +696,31 @@ index 9fe291f..19639ee 100644
      else if(stest_parse_commandline_option_with_value(runner, arg, "-t",
                                                        test_filter))
        arg++;
-@@ -575,7 +526,6 @@ int stest_testrunner(int argc, char **argv, stest_void_void tests,
+     else if(stest_parse_commandline_option_with_value(runner, arg, "-f",
+                                                       fixture_filter))
+       arg++;
+     else if(stest_parse_commandline_option_with_value(runner, arg, "-k",
+                                                       set_magic_marker))
+       arg++;
+     else {
+       printf("Error: %s option is not supported. Here is the help menu:\n",
+              runner->argv[arg]);
+       stest_show_help();
+       runner->action = STEST_DO_NOTHING;
+       return;
+     }
+   }
+ }
+ 
+ void stest_testrunner_create(stest_testrunner_t *runner, int argc,
+                              char **argv) {
+   runner->action = STEST_RUN_TESTS;
+   runner->argc = argc;
+   runner->argv = argv;
+   stest_interpret_commandline(runner);
+ }
+ 
+ int stest_testrunner(int argc, char **argv, stest_void_void tests,
                       stest_void_void setup, stest_void_void teardown) {
    stest_testrunner_t runner;
    stest_testrunner_create(&runner, argc, argv);
@@ -280,6 +728,49 @@ index 9fe291f..19639ee 100644
    switch(runner.action) {
    case STEST_DISPLAY_TESTS: {
      stest_display_only = 1;
+     run_tests(tests);
+     return STEST_RET_OK;
+   }
+   case STEST_RUN_TESTS: {
+     stest_display_only = 0;
+     suite_setup(setup);
+     suite_teardown(teardown);
+     return run_tests(tests);
+   }
+   case STEST_DO_NOTHING: {
+     return STEST_RET_OK;
+   }
+   case STEST_DO_ABORT:
+   default: {
+     /* there was an error which should of been already printed out. */
+     return STEST_RET_ERROR;
+   }
+   }
+   return STEST_RET_ERROR;
+ }
+ 
+ #ifdef STEST_INTERNAL_TESTS
+ void stest_simple_test_result_nolog(int passed, const char *reason,
+                                     const char *function, unsigned int line) {
+   stest_last_passed = passed;
+ }
+ 
+ void stest_assert_last_passed(const char *function, unsigned int line) {
+   stest_assert_true(stest_last_passed, function, line);
+ }
+ 
+ void stest_assert_last_failed(const char *function, unsigned int line) {
+   stest_assert_false(stest_last_passed, function, line);
+ }
+ 
+ void stest_disable_logging() {
+   stest_simple_test_result = stest_simple_test_result_nolog;
+ }
+ 
+ void stest_enable_logging() {
+   stest_simple_test_result = stest_simple_test_result_log;
+ }
+ #endif
 diff --git a/src/stest.h b/src/stest.h
 index 9dadc61..f25dd8f 100644
 --- a/src/stest.h
@@ -516,7 +1007,10 @@ diff --git a/tests/stests.c b/tests/stests.c
 index d5a8b52..dcf3ef5 100644
 --- a/tests/stests.c
 +++ b/tests/stests.c
-@@ -4,8 +4,9 @@
+@@ -1,147 +1,156 @@
+ /*
+  * Copyright (c) 2021 Jia Tan
+  * Copyright (c) 2010 Keith Nicholas
   */
  
  #include "stests.h"
@@ -527,7 +1021,11 @@ index d5a8b52..dcf3ef5 100644
    int array_1[4] = {0, 1, 2, 3};
    int array_2[4] = {0, 1, 2, 4};
    int array_3[4] = {0, 1, 2, 3};
-@@ -17,7 +18,7 @@ void test_assert_n_array_equal() {
+ 
+   assert_test_passes(assert_n_array_equal(array_1, array_1, 4));
+   assert_test_passes(assert_n_array_equal(array_1, array_3, 4));
+   assert_test_passes(assert_n_array_equal(array_1, array_2, 3));
+   assert_test_fails(assert_n_array_equal(array_1, array_2, 4));
    assert_test_fails(assert_n_array_equal(array_1, array_2, 0));
  }
  
@@ -536,7 +1034,10 @@ index d5a8b52..dcf3ef5 100644
    assert_test_passes(assert_string_equal((char *)0, (char *)0));
    assert_test_passes(assert_string_equal("", ""));
    assert_test_passes(assert_string_equal("foo", "foo"));
-@@ -28,33 +29,33 @@ void test_assert_string_equal() {
+   assert_test_fails(assert_string_equal((char *)0, "bar"));
+   assert_test_fails(assert_string_equal("foo", (char *)0));
+   assert_test_fails(assert_string_equal("foo", "bar"));
+   assert_test_fails(assert_string_equal("foo", "Foo"));
    assert_test_fails(assert_string_equal("foo", "foo\n"));
  }
  
@@ -576,7 +1077,8 @@ index d5a8b52..dcf3ef5 100644
    for(int bit = 0, value = 1; bit < sizeof(int) * 8; bit++, value <<= 1) {
      assert_test_passes(assert_bit_set(bit, value));
      if(bit > 0) {
-@@ -63,7 +64,7 @@ void test_assert_bit_set() {
+       assert_test_fails(assert_bit_set(bit - 1, value));
+     }
    }
  }
  
@@ -585,7 +1087,8 @@ index d5a8b52..dcf3ef5 100644
    for(int bit = 0, value = 1; bit < sizeof(int) * 8; bit++, value <<= 1) {
      assert_test_fails(assert_bit_not_set(bit, value));
      if(bit > 0) {
-@@ -72,7 +73,7 @@ void test_assert_bit_not_set() {
+       assert_test_passes(assert_bit_not_set(bit - 1, value));
+     }
    }
  }
  
@@ -594,7 +1097,8 @@ index d5a8b52..dcf3ef5 100644
    // mask in binary => 000100100011010001010110
    int mask = 0x123456;
    for(int i = 0; i < sizeof(int) * 8 - 1; i++) {
-@@ -81,7 +82,7 @@ void test_assert_bit_mask_matches() {
+     assert_test_passes(assert_bit_mask_matches((i | mask), mask));
+     assert_test_fails(assert_bit_mask_matches(i, mask));
    }
  }
  
@@ -603,7 +1107,10 @@ index d5a8b52..dcf3ef5 100644
    const double delta = 0.001;
    assert_test_passes(assert_double_equal(1.0, 1.0, delta));
    assert_test_fails(assert_double_equal(1.0, 2.0, delta));
-@@ -92,34 +93,43 @@ void test_assert_double_equal() {
+   double d1 = 1.5;
+   double d2 = 2.5;
+   assert_test_passes(assert_double_equal(d2 - 1, d1, delta));
+   assert_test_passes(assert_double_equal(d1 + 1, d2, delta));
    assert_test_fails(assert_double_equal(d1, d2, delta));
  }
  
@@ -651,7 +1158,17 @@ index d5a8b52..dcf3ef5 100644
  void test_fixture_stest() {
    test_fixture_start();
    run_test(test_assert_true);
-@@ -137,11 +147,10 @@ void test_fixture_stest() {
+   run_test(test_assert_false);
+   run_test(test_assert_int_equal);
+   run_test(test_assert_ulong_equal);
+   run_test(test_assert_string_equal);
+   run_test(test_assert_n_array_equal);
+   run_test(test_assert_fail);
+   run_test(test_assert_bit_set);
+   run_test(test_assert_bit_not_set);
+   run_test(test_assert_bit_mask_matches);
+   run_test(test_assert_double_equal);
+   run_test(test_assert_string_contains);
    run_test(test_assert_string_not_contains);
    run_test(test_assert_string_starts_with);
    run_test(test_assert_string_ends_with);
@@ -669,7 +1186,20 @@ diff --git a/tests/stests.h b/tests/stests.h
 index 4ae1b43..f635420 100644
 --- a/tests/stests.h
 +++ b/tests/stests.h
-@@ -14,13 +14,3 @@
+@@ -1,26 +1,16 @@
+ /*
+  * Copyright (c) 2021 Jia Tan
+  * Copyright (c) 2010 Keith Nicholas
+  */
+ 
+ #include "../src/stest.h"
+ 
+ #ifndef STEST_INTERNAL_TESTS
+ #error STEST_INTERNAL_TESTS must be defined when compiling tests for stest itself.
+ #endif
+ 
+ // clang-format off
+ #define without_logging(X) stest_disable_logging(); X; stest_enable_logging();
  #define assert_test_passes(X) without_logging(X); stest_assert_last_passed(__FUNCTION__, __LINE__);
  #define assert_test_fails(X) without_logging(X); stest_assert_last_failed(__FUNCTION__, __LINE__);
  // clang-format on

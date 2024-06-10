@@ -15,7 +15,19 @@ diff --git a/cmake/tuklib_progname.cmake b/cmake/tuklib_progname.cmake
 index 0fa1d3d7..d4ab0066 100644
 --- a/cmake/tuklib_progname.cmake
 +++ b/cmake/tuklib_progname.cmake
-@@ -13,7 +13,6 @@ include(CheckSymbolExists)
+@@ -1,19 +1,18 @@
+ #
+ # tuklib_progname.cmake - see tuklib_progname.m4 for description and comments
+ #
+ # Author: Lasse Collin
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ 
+ include("${CMAKE_CURRENT_LIST_DIR}/tuklib_common.cmake")
+ include(CheckSymbolExists)
+ 
  function(tuklib_progname TARGET_OR_ALL)
      # NOTE: This glibc extension requires _GNU_SOURCE.
      check_symbol_exists(program_invocation_name errno.h
@@ -29,7 +41,27 @@ diff --git a/m4/tuklib_progname.m4 b/m4/tuklib_progname.m4
 index f3e158bd..2133e327 100644
 --- a/m4/tuklib_progname.m4
 +++ b/m4/tuklib_progname.m4
-@@ -21,5 +21,8 @@
+@@ -1,25 +1,28 @@
+ #
+ # SYNOPSIS
+ #
+ #   TUKLIB_PROGNAME
+ #
+ # DESCRIPTION
+ #
+ #   Put argv[0] into a global variable progname. On DOS-like systems,
+ #   modify it so that it looks nice (no full path or .exe suffix).
+ #
+ #   This .m4 file is needed allow this module to use glibc's
+ #   program_invocation_name.
+ #
+ # COPYING
+ #
+ #   Author: Lasse Collin
+ #
+ #   This file has been put into the public domain.
+ #   You can do whatever you want with this file.
+ #
  
  AC_DEFUN_ONCE([TUKLIB_PROGNAME], [
  AC_REQUIRE([TUKLIB_COMMON])
@@ -43,7 +75,20 @@ diff --git a/src/common/tuklib_progname.c b/src/common/tuklib_progname.c
 index 7cb7e203..e2ef4e55 100644
 --- a/src/common/tuklib_progname.c
 +++ b/src/common/tuklib_progname.c
-@@ -14,7 +14,7 @@
+@@ -1,50 +1,50 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       tuklib_progname.c
+ /// \brief      Program name to be displayed in messages
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "tuklib_progname.h"
  #include <string.h>
  
  
@@ -52,11 +97,58 @@ index 7cb7e203..e2ef4e55 100644
  char *progname = NULL;
  #endif
  
+ 
+ extern void
+ tuklib_progname_init(char **argv)
+ {
+ #ifdef TUKLIB_DOSLIKE
+ 	// On these systems, argv[0] always has the full path and .exe
+ 	// suffix even if the user just types the plain program name.
+ 	// We modify argv[0] to make it nicer to read.
+ 
+ 	// Strip the leading path.
+ 	char *p = argv[0] + strlen(argv[0]);
+ 	while (argv[0] < p && p[-1] != '/' && p[-1] != '\\')
+ 		--p;
+ 
+ 	argv[0] = p;
+ 
+ 	// Strip the .exe suffix.
+ 	p = strrchr(p, '.');
+ 	if (p != NULL)
+ 		*p = '\0';
+ 
+ 	// Make it lowercase.
+ 	for (p = argv[0]; *p != '\0'; ++p)
+ 		if (*p >= 'A' && *p <= 'Z')
+ 			*p = *p - 'A' + 'a';
+ #endif
+ 
+ 	progname = argv[0];
+ 	return;
+ }
 diff --git a/src/common/tuklib_progname.h b/src/common/tuklib_progname.h
 index 791b1251..bb80f25e 100644
 --- a/src/common/tuklib_progname.h
 +++ b/src/common/tuklib_progname.h
-@@ -18,7 +18,7 @@
+@@ -1,32 +1,32 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       tuklib_progname.h
+ /// \brief      Program name to be displayed in messages
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #ifndef TUKLIB_PROGNAME_H
+ #define TUKLIB_PROGNAME_H
+ 
+ #include "tuklib_common.h"
+ #include <errno.h>
  
  TUKLIB_DECLS_BEGIN
  
@@ -65,3 +157,11 @@ index 791b1251..bb80f25e 100644
  #	define progname program_invocation_name
  #else
  #	define progname TUKLIB_SYMBOL(tuklib_progname)
+ 	extern char *progname;
+ #endif
+ 
+ #define tuklib_progname_init TUKLIB_SYMBOL(tuklib_progname_init)
+ extern void tuklib_progname_init(char **argv);
+ 
+ TUKLIB_DECLS_END
+ #endif

@@ -16,7 +16,85 @@ diff --git a/configure.ac b/configure.ac
 index b40118bc..bb2697f6 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -79,8 +79,8 @@ fi
+@@ -1,1294 +1,1294 @@
+ #                                               -*- Autoconf -*-
+ # Process this file with autoconf to produce a configure script.
+ 
+ ###############################################################################
+ #
+ # Author: Lasse Collin
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ ###############################################################################
+ 
+ # NOTE: Don't add useless checks. autoscan detects this and that, but don't
+ # let it confuse you. For example, we don't care about checking for behavior
+ # of malloc(), stat(), or lstat(), since we don't use those functions in
+ # a way that would cause the problems the autoconf macros check.
+ 
+ AC_PREREQ([2.69])
+ 
+ AC_INIT([XZ Utils], m4_esyscmd([/bin/sh build-aux/version.sh]),
+ 	[xz@tukaani.org], [xz], [https://xz.tukaani.org/xz-utils/])
+ AC_CONFIG_SRCDIR([src/liblzma/common/common.h])
+ AC_CONFIG_AUX_DIR([build-aux])
+ AC_CONFIG_MACRO_DIR([m4])
+ AC_CONFIG_HEADERS([config.h])
+ 
+ echo
+ echo "$PACKAGE_STRING"
+ 
+ echo
+ echo "System type:"
+ # This is needed to know if assembler optimizations can be used.
+ AC_CANONICAL_HOST
+ 
+ # We do some special things on Windows (32-bit or 64-bit) builds.
+ case $host_os in
+ 	mingw* | cygwin | msys) is_w32=yes ;;
+ 	*)                      is_w32=no ;;
+ esac
+ AM_CONDITIONAL([COND_W32], [test "$is_w32" = yes])
+ 
+ # We need to use $EXEEXT with $(LN_S) when creating symlinks to
+ # executables. Cygwin is an exception to this, since it is recommended
+ # that symlinks don't have the .exe suffix. To make this work, we
+ # define LN_EXEEXT.
+ #
+ # MSYS2 is treated the same way as Cygwin. It uses plain "msys" like
+ # the original MSYS when building MSYS/MSYS2-binaries. Hopefully this
+ # doesn't break things for the original MSYS developers. Note that this
+ # doesn't affect normal MSYS/MSYS2 users building non-MSYS/MSYS2 binaries
+ # since in that case the $host_os is usually mingw32.
+ case $host_os in
+ 	cygwin | msys)  LN_EXEEXT= ;;
+ 	*)              LN_EXEEXT='$(EXEEXT)' ;;
+ esac
+ AC_SUBST([LN_EXEEXT])
+ 
+ echo
+ echo "Configure options:"
+ AM_CFLAGS=
+ 
+ 
+ #############
+ # Debugging #
+ #############
+ 
+ AC_MSG_CHECKING([if debugging code should be compiled])
+ AC_ARG_ENABLE([debug], AS_HELP_STRING([--enable-debug], [Enable debugging code.]),
+ 	[], enable_debug=no)
+ if test "x$enable_debug" = xyes; then
+ 	AC_MSG_RESULT([yes])
+ else
+ 	AC_DEFINE([NDEBUG], [1], [Define to 1 to disable debugging code.])
+ 	AC_MSG_RESULT([no])
+ fi
+ 
+ 
+ ###########
  # Filters #
  ###########
  
@@ -27,11 +105,1271 @@ index b40118bc..bb2697f6 100644
  m4_define([LZ_FILTERS], [lzma1,lzma2])
  
  m4_foreach([NAME], [SUPPORTED_FILTERS],
+ [enable_filter_[]NAME=no
+ enable_encoder_[]NAME=no
+ enable_decoder_[]NAME=no
+ ])dnl
+ 
+ AC_MSG_CHECKING([which encoders to build])
+ AC_ARG_ENABLE([encoders], AS_HELP_STRING([--enable-encoders=LIST],
+ 		[Comma-separated list of encoders to build. Default=all.
+ 		Available encoders:]
+ 			m4_translit(m4_defn([SUPPORTED_FILTERS]), [,], [ ])),
+ 	[], [enable_encoders=SUPPORTED_FILTERS])
+ enable_encoders=`echo "$enable_encoders" | sed 's/,/ /g'`
+ if test "x$enable_encoders" = xno || test "x$enable_encoders" = x; then
+ 	enable_encoders=no
+ 	AC_MSG_RESULT([(none)])
+ else
+ 	for arg in $enable_encoders
+ 	do
+ 		case $arg in m4_foreach([NAME], [SUPPORTED_FILTERS], [
+ 			NAME)
+ 				enable_filter_[]NAME=yes
+ 				enable_encoder_[]NAME=yes
+ 				AC_DEFINE(HAVE_ENCODER_[]m4_toupper(NAME), [1],
+ 				[Define to 1 if] NAME [encoder is enabled.])
+ 				;;])
+ 			*)
+ 				AC_MSG_RESULT([])
+ 				AC_MSG_ERROR([unknown filter: $arg])
+ 				;;
+ 		esac
+ 	done
+ 	AC_DEFINE([HAVE_ENCODERS], [1],
+ 		[Define to 1 if any of HAVE_ENCODER_foo have been defined.])
+ 	AC_MSG_RESULT([$enable_encoders])
+ fi
+ 
+ AC_MSG_CHECKING([which decoders to build])
+ AC_ARG_ENABLE([decoders], AS_HELP_STRING([--enable-decoders=LIST],
+ 		[Comma-separated list of decoders to build. Default=all.
+ 		Available decoders are the same as available encoders.]),
+ 	[], [enable_decoders=SUPPORTED_FILTERS])
+ enable_decoders=`echo "$enable_decoders" | sed 's/,/ /g'`
+ if test "x$enable_decoders" = xno || test "x$enable_decoders" = x; then
+ 	enable_decoders=no
+ 	AC_MSG_RESULT([(none)])
+ else
+ 	for arg in $enable_decoders
+ 	do
+ 		case $arg in m4_foreach([NAME], [SUPPORTED_FILTERS], [
+ 			NAME)
+ 				enable_filter_[]NAME=yes
+ 				enable_decoder_[]NAME=yes
+ 				AC_DEFINE(HAVE_DECODER_[]m4_toupper(NAME), [1],
+ 				[Define to 1 if] NAME [decoder is enabled.])
+ 				;;])
+ 			*)
+ 				AC_MSG_RESULT([])
+ 				AC_MSG_ERROR([unknown filter: $arg])
+ 				;;
+ 		esac
+ 	done
+ 	AC_DEFINE([HAVE_DECODERS], [1],
+ 		[Define to 1 if any of HAVE_DECODER_foo have been defined.])
+ 	AC_MSG_RESULT([$enable_decoders])
+ fi
+ 
+ if test "x$enable_encoder_lzma2$enable_encoder_lzma1" = xyesno \
+ 		|| test "x$enable_decoder_lzma2$enable_decoder_lzma1" = xyesno; then
+ 	AC_MSG_ERROR([LZMA2 requires that LZMA1 is also enabled.])
+ fi
+ 
+ AM_CONDITIONAL(COND_MAIN_ENCODER, test "x$enable_encoders" != xno)
+ AM_CONDITIONAL(COND_MAIN_DECODER, test "x$enable_decoders" != xno)
+ 
+ m4_foreach([NAME], [SUPPORTED_FILTERS],
+ [AM_CONDITIONAL(COND_FILTER_[]m4_toupper(NAME), test "x$enable_filter_[]NAME" = xyes)
+ AM_CONDITIONAL(COND_ENCODER_[]m4_toupper(NAME), test "x$enable_encoder_[]NAME" = xyes)
+ AM_CONDITIONAL(COND_DECODER_[]m4_toupper(NAME), test "x$enable_decoder_[]NAME" = xyes)
+ ])dnl
+ 
+ # The so called "simple filters" share common code.
+ enable_filter_simple=no
+ enable_encoder_simple=no
+ enable_decoder_simple=no
+ m4_foreach([NAME], [SIMPLE_FILTERS],
+ [test "x$enable_filter_[]NAME" = xyes && enable_filter_simple=yes
+ test "x$enable_encoder_[]NAME" = xyes && enable_encoder_simple=yes
+ test "x$enable_decoder_[]NAME" = xyes && enable_decoder_simple=yes
+ ])dnl
+ AM_CONDITIONAL(COND_FILTER_SIMPLE, test "x$enable_filter_simple" = xyes)
+ AM_CONDITIONAL(COND_ENCODER_SIMPLE, test "x$enable_encoder_simple" = xyes)
+ AM_CONDITIONAL(COND_DECODER_SIMPLE, test "x$enable_decoder_simple" = xyes)
+ 
+ # LZ-based filters share common code.
+ enable_filter_lz=no
+ enable_encoder_lz=no
+ enable_decoder_lz=no
+ m4_foreach([NAME], [LZ_FILTERS],
+ [test "x$enable_filter_[]NAME" = xyes && enable_filter_lz=yes
+ test "x$enable_encoder_[]NAME" = xyes && enable_encoder_lz=yes
+ test "x$enable_decoder_[]NAME" = xyes && enable_decoder_lz=yes
+ ])dnl
+ AM_CONDITIONAL(COND_FILTER_LZ, test "x$enable_filter_lz" = xyes)
+ AM_CONDITIONAL(COND_ENCODER_LZ, test "x$enable_encoder_lz" = xyes)
+ AM_CONDITIONAL(COND_DECODER_LZ, test "x$enable_decoder_lz" = xyes)
+ 
+ 
+ #################
+ # Match finders #
+ #################
+ 
+ m4_define([SUPPORTED_MATCH_FINDERS], [hc3,hc4,bt2,bt3,bt4])
+ 
+ m4_foreach([NAME], [SUPPORTED_MATCH_FINDERS],
+ [enable_match_finder_[]NAME=no
+ ])
+ 
+ AC_MSG_CHECKING([which match finders to build])
+ AC_ARG_ENABLE([match-finders], AS_HELP_STRING([--enable-match-finders=LIST],
+ 		[Comma-separated list of match finders to build. Default=all.
+ 		At least one match finder is required for encoding with
+ 		the LZMA1 and LZMA2 filters. Available match finders:]
+ 		m4_translit(m4_defn([SUPPORTED_MATCH_FINDERS]), [,], [ ])), [],
+ 	[enable_match_finders=SUPPORTED_MATCH_FINDERS])
+ enable_match_finders=`echo "$enable_match_finders" | sed 's/,/ /g'`
+ if test "x$enable_encoder_lz" = xyes ; then
+ 	if test -z "$enable_match_finders"; then
+ 		AC_MSG_ERROR([At least one match finder is required for an LZ-based encoder.])
+ 	fi
+ 
+ 	for arg in $enable_match_finders
+ 		do
+ 		case $arg in m4_foreach([NAME], [SUPPORTED_MATCH_FINDERS], [
+ 			NAME)
+ 				enable_match_finder_[]NAME=yes
+ 				AC_DEFINE(HAVE_MF_[]m4_toupper(NAME), [1],
+ 				[Define to 1 to enable] NAME [match finder.])
+ 				;;])
+ 			*)
+ 				AC_MSG_RESULT([])
+ 				AC_MSG_ERROR([unknown match finder: $arg])
+ 				;;
+ 		esac
+ 	done
+ 	AC_MSG_RESULT([$enable_match_finders])
+ else
+ 	AC_MSG_RESULT([(none because not building any LZ-based encoder)])
+ fi
+ 
+ 
+ ####################
+ # Integrity checks #
+ ####################
+ 
+ m4_define([SUPPORTED_CHECKS], [crc32,crc64,sha256])
+ 
+ m4_foreach([NAME], [SUPPORTED_CHECKS],
+ [enable_check_[]NAME=no
+ ])dnl
+ 
+ AC_MSG_CHECKING([which integrity checks to build])
+ AC_ARG_ENABLE([checks], AS_HELP_STRING([--enable-checks=LIST],
+ 		[Comma-separated list of integrity checks to build.
+ 		Default=all. Available integrity checks:]
+ 		m4_translit(m4_defn([SUPPORTED_CHECKS]), [,], [ ])),
+ 	[], [enable_checks=SUPPORTED_CHECKS])
+ enable_checks=`echo "$enable_checks" | sed 's/,/ /g'`
+ if test "x$enable_checks" = xno || test "x$enable_checks" = x; then
+ 	AC_MSG_RESULT([(none)])
+ else
+ 	for arg in $enable_checks
+ 	do
+ 		case $arg in m4_foreach([NAME], [SUPPORTED_CHECKS], [
+ 			NAME)
+ 				enable_check_[]NAME=yes
+ 				AC_DEFINE(HAVE_CHECK_[]m4_toupper(NAME), [1],
+ 				[Define to 1 if] NAME
+ 				[integrity check is enabled.])
+ 				;;])
+ 			*)
+ 				AC_MSG_RESULT([])
+ 				AC_MSG_ERROR([unknown integrity check: $arg])
+ 				;;
+ 		esac
+ 	done
+ 	AC_MSG_RESULT([$enable_checks])
+ fi
+ if test "x$enable_check_crc32" = xno ; then
+ 	AC_MSG_ERROR([For now, the CRC32 check must always be enabled.])
+ fi
+ 
+ m4_foreach([NAME], [SUPPORTED_CHECKS],
+ [AM_CONDITIONAL(COND_CHECK_[]m4_toupper(NAME), test "x$enable_check_[]NAME" = xyes)
+ ])dnl
+ 
+ AC_MSG_CHECKING([if external SHA-256 should be used])
+ AC_ARG_ENABLE([external-sha256], AS_HELP_STRING([--enable-external-sha256],
+ 		[Use SHA-256 code from the operating system.
+ 		See INSTALL for possible subtle problems.]),
+ 		[], [enable_external_sha256=no])
+ if test "x$enable_check_sha256" != "xyes"; then
+ 	enable_external_sha256=no
+ fi
+ if test "x$enable_external_sha256" = xyes; then
+ 	AC_MSG_RESULT([yes])
+ else
+ 	AC_MSG_RESULT([no])
+ fi
+ 
+ 
+ #############
+ # MicroLZMA #
+ #############
+ 
+ AC_MSG_CHECKING([if MicroLZMA support should be built])
+ AC_ARG_ENABLE([microlzma], AS_HELP_STRING([--disable-microlzma],
+ 		[Do not build MicroLZMA encoder and decoder.
+ 		It is needed by specific applications only,
+ 		for example, erofs-utils.]),
+ 	[], [enable_microlzma=yes])
+ case $enable_microlzma in
+ 	yes | no)
+ 		AC_MSG_RESULT([$enable_microlzma])
+ 		;;
+ 	*)
+ 		AC_MSG_RESULT([])
+ 		AC_MSG_ERROR([--enable-microlzma accepts only 'yes' or 'no'.])
+ 		;;
+ esac
+ AM_CONDITIONAL(COND_MICROLZMA, test "x$enable_microlzma" = xyes)
+ 
+ 
+ #############################
+ # .lz (lzip) format support #
+ #############################
+ 
+ AC_MSG_CHECKING([if .lz (lzip) decompression support should be built])
+ AC_ARG_ENABLE([lzip-decoder], AS_HELP_STRING([--disable-lzip-decoder],
+ 		[Disable decompression support for .lz (lzip) files.]),
+ 	[], [enable_lzip_decoder=yes])
+ if test "x$enable_decoder_lzma1" != xyes; then
+ 	enable_lzip_decoder=no
+ 	AC_MSG_RESULT([no because LZMA1 decoder is disabled])
+ elif test "x$enable_lzip_decoder" = xyes; then
+ 	AC_DEFINE([HAVE_LZIP_DECODER], [1],
+ 		[Define to 1 if .lz (lzip) decompression support is enabled.])
+ 	AC_MSG_RESULT([yes])
+ else
+ 	AC_MSG_RESULT([no])
+ fi
+ AM_CONDITIONAL(COND_LZIP_DECODER, test "x$enable_lzip_decoder" = xyes)
+ 
+ 
+ ###########################
+ # Assembler optimizations #
+ ###########################
+ 
+ AC_MSG_CHECKING([if assembler optimizations should be used])
+ AC_ARG_ENABLE([assembler], AS_HELP_STRING([--disable-assembler],
+ 		[Do not use assembler optimizations even if such exist
+ 		for the architecture.]),
+ 	[], [enable_assembler=yes])
+ if test "x$enable_assembler" = xyes; then
+ 	enable_assembler=no
+ 	case $host_os in
+ 		# Darwin should work too but only if not creating universal
+ 		# binaries. Solaris x86 could work too but I cannot test.
+ 		linux* | *bsd* | mingw* | cygwin | msys | *djgpp*)
+ 			case $host_cpu in
+ 				i?86)   enable_assembler=x86 ;;
+ 			esac
+ 			;;
+ 	esac
+ fi
+ case $enable_assembler in
+ 	x86 | no)
+ 		AC_MSG_RESULT([$enable_assembler])
+ 		;;
+ 	*)
+ 		AC_MSG_RESULT([])
+ 		AC_MSG_ERROR([--enable-assembler accepts only 'yes', 'no', or 'x86' (32-bit).])
+ 		;;
+ esac
+ AM_CONDITIONAL(COND_ASM_X86, test "x$enable_assembler" = xx86)
+ 
+ 
+ #############
+ # CLMUL CRC #
+ #############
+ 
+ AC_ARG_ENABLE([clmul-crc], AS_HELP_STRING([--disable-clmul-crc],
+ 		[Do not use carryless multiplication for CRC calculation
+ 		even if support for it is detected.]),
+ 	[], [enable_clmul_crc=yes])
+ 
+ 
+ #####################
+ # Size optimization #
+ #####################
+ 
+ AC_MSG_CHECKING([if small size is preferred over speed])
+ AC_ARG_ENABLE([small], AS_HELP_STRING([--enable-small],
+ 		[Make liblzma smaller and a little slower.
+ 		This is disabled by default to optimize for speed.]),
+ 	[], [enable_small=no])
+ if test "x$enable_small" = xyes; then
+ 	AC_DEFINE([HAVE_SMALL], [1], [Define to 1 if optimizing for size.])
+ elif test "x$enable_small" != xno; then
+ 	AC_MSG_RESULT([])
+ 	AC_MSG_ERROR([--enable-small accepts only 'yes' or 'no'])
+ fi
+ AC_MSG_RESULT([$enable_small])
+ AM_CONDITIONAL(COND_SMALL, test "x$enable_small" = xyes)
+ 
+ 
+ #############
+ # Threading #
+ #############
+ 
+ AC_MSG_CHECKING([if threading support is wanted])
+ AC_ARG_ENABLE([threads], AS_HELP_STRING([--enable-threads=METHOD],
+ 		[Supported METHODS are 'yes', 'no', 'posix', 'win95', and
+ 		'vista'. The default is 'yes'. Using 'no' together with
+ 		--enable-small makes liblzma thread unsafe.]),
+ 	[], [enable_threads=yes])
+ 
+ if test "x$enable_threads" = xyes; then
+ 	case $host_os in
+ 		mingw*)
+ 			case $host_cpu in
+ 				i?86)   enable_threads=win95 ;;
+ 				*)      enable_threads=vista ;;
+ 			esac
+ 			;;
+ 		*)
+ 			enable_threads=posix
+ 			;;
+ 	esac
+ fi
+ 
+ case $enable_threads in
+ 	posix | win95 | vista)
+ 		AC_MSG_RESULT([yes, $enable_threads])
+ 		;;
+ 	no)
+ 		AC_MSG_RESULT([no])
+ 		;;
+ 	*)
+ 		AC_MSG_RESULT([])
+ 		AC_MSG_ERROR([--enable-threads only accepts 'yes', 'no', 'posix', 'win95', or 'vista'])
+ 		;;
+ esac
+ 
+ # We use the actual result a little later.
+ 
+ 
+ #########################
+ # Assumed amount of RAM #
+ #########################
+ 
+ # We use 128 MiB as default, because it will allow decompressing files
+ # created with "xz -9". It would be slightly safer to guess a lower value,
+ # but most systems, on which we don't have any way to determine the amount
+ # of RAM, will probably have at least 128 MiB of RAM.
+ AC_MSG_CHECKING([how much RAM to assume if the real amount is unknown])
+ AC_ARG_ENABLE([assume-ram], AS_HELP_STRING([--enable-assume-ram=SIZE],
+ 		[If and only if the real amount of RAM cannot be determined,
+ 		assume SIZE MiB. The default is 128 MiB. This affects the
+ 		default memory usage limit.]),
+ 	[], [enable_assume_ram=128])
+ assume_ram_check=`echo "$enable_assume_ram" | tr -d 0123456789`
+ if test -z "$enable_assume_ram" || test -n "$assume_ram_check"; then
+ 	AC_MSG_RESULT([])
+ 	AC_MSG_ERROR([--enable-assume-ram accepts only an integer argument])
+ fi
+ AC_MSG_RESULT([$enable_assume_ram MiB])
+ AC_DEFINE_UNQUOTED([ASSUME_RAM], [$enable_assume_ram],
+ 		[How many MiB of RAM to assume if the real amount cannot
+ 		be determined.])
+ 
+ 
+ #########################
+ # Components to install #
+ #########################
+ 
+ AC_ARG_ENABLE([xz], [AS_HELP_STRING([--disable-xz],
+ 		[do not build the xz tool])],
+ 	[], [enable_xz=yes])
+ AM_CONDITIONAL([COND_XZ], [test x$enable_xz != xno])
+ 
+ AC_ARG_ENABLE([xzdec], [AS_HELP_STRING([--disable-xzdec],
+ 		[do not build xzdec])],
+ 	[], [enable_xzdec=yes])
+ test "x$enable_decoders" = xno && enable_xzdec=no
+ AM_CONDITIONAL([COND_XZDEC], [test x$enable_xzdec != xno])
+ 
+ AC_ARG_ENABLE([lzmadec], [AS_HELP_STRING([--disable-lzmadec],
+ 		[do not build lzmadec
+ 		(it exists primarily for LZMA Utils compatibility)])],
+ 	[], [enable_lzmadec=yes])
+ test "x$enable_decoder_lzma1" = xno && enable_lzmadec=no
+ AM_CONDITIONAL([COND_LZMADEC], [test x$enable_lzmadec != xno])
+ 
+ AC_ARG_ENABLE([lzmainfo], [AS_HELP_STRING([--disable-lzmainfo],
+ 		[do not build lzmainfo
+ 		(it exists primarily for LZMA Utils compatibility)])],
+ 	[], [enable_lzmainfo=yes])
+ test "x$enable_decoder_lzma1" = xno && enable_lzmainfo=no
+ AM_CONDITIONAL([COND_LZMAINFO], [test x$enable_lzmainfo != xno])
+ 
+ AC_ARG_ENABLE([lzma-links], [AS_HELP_STRING([--disable-lzma-links],
+ 		[do not create symlinks for LZMA Utils compatibility])],
+ 	[], [enable_lzma_links=yes])
+ AM_CONDITIONAL([COND_LZMALINKS], [test x$enable_lzma_links != xno])
+ 
+ AC_ARG_ENABLE([scripts], [AS_HELP_STRING([--disable-scripts],
+ 		[do not install the scripts xzdiff, xzgrep, xzless, xzmore,
+ 		and their symlinks])],
+ 	[], [enable_scripts=yes])
+ AM_CONDITIONAL([COND_SCRIPTS], [test x$enable_scripts != xno])
+ 
+ AC_ARG_ENABLE([doc], [AS_HELP_STRING([--disable-doc],
+ 		[do not install documentation files to docdir
+ 		(man pages will still be installed)])],
+ 	[], [enable_doc=yes])
+ AM_CONDITIONAL([COND_DOC], [test x$enable_doc != xno])
+ 
+ 
+ ##############
+ # Sandboxing #
+ ##############
+ 
+ AC_MSG_CHECKING([if sandboxing should be used])
+ AC_ARG_ENABLE([sandbox], [AS_HELP_STRING([--enable-sandbox=METHOD],
+ 		[Sandboxing METHOD can be
+ 		'auto', 'no', 'capsicum', 'pledge', or 'landlock'.
+ 		The default is 'auto' which enables sandboxing if
+ 		a supported sandboxing method is found.])],
+ 	[], [enable_sandbox=auto])
+ case $enable_xzdec-$enable_xz-$enable_sandbox in
+ 	no-no-*)
+ 		enable_sandbox=no
+ 		AC_MSG_RESULT([no, --disable-xz and --disable-xzdec was used])
+ 		;;
+ 	*-*-auto)
+ 		AC_MSG_RESULT([maybe (autodetect)])
+ 		;;
+ 	*-*-no | *-*-capsicum | *-*-pledge | *-*-landlock)
+ 		AC_MSG_RESULT([$enable_sandbox])
+ 		;;
+ 	*)
+ 		AC_MSG_RESULT([])
+ 		AC_MSG_ERROR([--enable-sandbox only accepts 'auto', 'no', 'capsicum', 'pledge', or 'landlock'.])
+ 		;;
+ esac
+ 
+ 
+ ###########################
+ # PATH prefix for scripts #
+ ###########################
+ 
+ # The scripts can add a prefix to the search PATH so that POSIX tools
+ # or the xz binary is always in the PATH.
+ AC_ARG_ENABLE([path-for-scripts],
+ 	[AS_HELP_STRING([--enable-path-for-scripts=PREFIX],
+ 		[If PREFIX isn't empty, PATH=PREFIX:$PATH will be set in
+ 		the beginning of the scripts (xzgrep and others).
+ 		The default is empty except on Solaris the default is
+ 		/usr/xpg4/bin.])],
+ 	[], [
+ 		case $host_os in
+ 			solaris*) enable_path_for_scripts=/usr/xpg4/bin ;;
+ 			*)        enable_path_for_scripts= ;;
+ 		esac
+ 	])
+ if test -n "$enable_path_for_scripts" && test "x$enable_path_for_scripts" != xno ; then
+ 	enable_path_for_scripts="PATH=$enable_path_for_scripts:\$PATH"
+ else
+ 	enable_path_for_scripts=
+ fi
+ AC_SUBST([enable_path_for_scripts])
+ 
+ 
+ ###############################################################################
+ # Checks for programs.
+ ###############################################################################
+ 
+ echo
+ case $host_os in
+ 	solaris*)
+ 		# The gnulib POSIX shell macro below may pick a shell that
+ 		# doesn't work with xzgrep. Workaround by picking a shell
+ 		# that is known to work.
+ 		if test -z "$gl_cv_posix_shell" && test -x /usr/xpg4/bin/sh; then
+ 			gl_cv_posix_shell=/usr/xpg4/bin/sh
+ 		fi
+ 		;;
+ esac
+ gl_POSIX_SHELL
+ if test -z "$POSIX_SHELL" && test "x$enable_scripts" = xyes ; then
+ 	AC_MSG_ERROR([No POSIX conforming shell (sh) was found.])
+ fi
+ 
+ echo
+ echo "Initializing Automake:"
+ 
+ # We don't use "subdir-objects" yet because it breaks "make distclean" when
+ # dependencies are enabled (as of Automake 1.14.1) due to this bug:
+ # https://debbugs.gnu.org/cgi/bugreport.cgi?bug=17354
+ # The -Wno-unsupported is used to silence warnings about missing
+ # "subdir-objects".
+ AM_INIT_AUTOMAKE([1.12 foreign tar-v7 filename-length-max=99 -Wno-unsupported])
+ AC_PROG_LN_S
+ 
+ dnl # Autoconf >= 2.70 warns that AC_PROG_CC_C99 is obsolete. However,
+ dnl # we have to keep using AC_PROG_CC_C99 instead of AC_PROG_CC
+ dnl # as long as we try to be compatible with Autoconf 2.69.
+ AC_PROG_CC_C99
+ if test x$ac_cv_prog_cc_c99 = xno ; then
+ 	AC_MSG_ERROR([No C99 compiler was found.])
+ fi
+ 
+ AM_PROG_CC_C_O
+ AM_PROG_AS
+ AC_USE_SYSTEM_EXTENSIONS
+ 
+ AS_CASE([$enable_threads],
+ 	[posix], [
+ 		echo
+ 		echo "POSIX threading support:"
+ 		AX_PTHREAD([:]) dnl We don't need the HAVE_PTHREAD macro.
+ 		LIBS="$LIBS $PTHREAD_LIBS"
+ 		AM_CFLAGS="$AM_CFLAGS $PTHREAD_CFLAGS"
+ 
+ 		dnl NOTE: PTHREAD_CC is ignored. It would be useful on AIX,
+ 		dnl but it's tricky to get it right together with
+ 		dnl AC_PROG_CC_C99. Thus, this is handled by telling the
+ 		dnl user in INSTALL to set the correct CC manually.
+ 
+ 		AC_DEFINE([MYTHREAD_POSIX], [1],
+ 			[Define to 1 when using POSIX threads (pthreads).])
+ 
+ 		# This is nice to have but not mandatory.
+ 		OLD_CFLAGS=$CFLAGS
+ 		CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+ 		AC_CHECK_FUNCS([pthread_condattr_setclock])
+ 		CFLAGS=$OLD_CFLAGS
+ 	],
+ 	[win95], [
+ 		AC_DEFINE([MYTHREAD_WIN95], [1], [Define to 1 when using
+ 			Windows 95 (and thus XP) compatible threads.
+ 			This avoids use of features that were added in
+ 			Windows Vista.])
+ 	],
+ 	[vista], [
+ 		AC_DEFINE([MYTHREAD_VISTA], [1], [Define to 1 when using
+ 			Windows Vista compatible threads. This uses
+ 			features that are not available on Windows XP.])
+ 	]
+ )
+ AM_CONDITIONAL([COND_THREADS], [test "x$enable_threads" != xno])
+ 
+ echo
+ echo "Initializing Libtool:"
+ LT_PREREQ([2.4])
+ LT_INIT([win32-dll])
+ LT_LANG([Windows Resource])
+ 
+ # This is a bit wrong since it is possible to request that only some libs
+ # are built as shared. Using that feature isn't so common though, and this
+ # breaks only on Windows (at least for now) if the user enables only some
+ # libs as shared.
+ AM_CONDITIONAL([COND_SHARED], [test "x$enable_shared" != xno])
+ 
+ #####################
+ # Symbol versioning #
+ #####################
+ 
+ # NOTE: This checks if we are building shared or static library
+ # and if --with-pic or --without-pic was used. Thus this check
+ # must be after Libtool initialization.
+ AC_MSG_CHECKING([if library symbol versioning should be used])
+ AC_ARG_ENABLE([symbol-versions], [AS_HELP_STRING([--enable-symbol-versions],
+ 		[Use symbol versioning for liblzma. Enabled by default on
+ 		GNU/Linux, other GNU-based systems, and FreeBSD.])],
+ 	[], [enable_symbol_versions=auto])
+ if test "x$enable_symbol_versions" = xauto; then
+ 	case $host_os in
+ 		# NOTE: Even if one omits -gnu on GNU/Linux (e.g.
+ 		# i486-slackware-linux), configure will (via config.sub)
+ 		# append -gnu (e.g. i486-slackware-linux-gnu), and this
+ 		# test will work correctly.
+ 		gnu* | *-gnu* | freebsd*)
+ 			enable_symbol_versions=yes
+ 			;;
+ 		*)
+ 			enable_symbol_versions=no
+ 			;;
+ 	esac
+ fi
+ 
+ # There are two variants for symbol versioning.
+ # See src/liblzma/validate_map.sh for details.
+ #
+ # On GNU/Linux, extra symbols are added in the C code. These extra symbols
+ # must not be put into a static library as they can cause problems (and
+ # even if they didn't cause problems, they would be useless). On other
+ # systems symbol versioning may be used too but there is no problem as only
+ # a linker script is specified in src/liblzma/Makefile.am and that isn't
+ # used when creating a static library.
+ #
+ # Libtool always uses -DPIC when building shared libraries by default and
+ # doesn't use it for static libs by default. This can be overridden with
+ # --with-pic and --without-pic though. As long as neither --with-pic nor
+ # --without-pic is used then we can use #ifdef PIC to detect if the file is
+ # being built for a shared library.
+ if test "x$enable_symbol_versions" = xno ; then
+ 	enable_symbol_versions=no
+ 	AC_MSG_RESULT([no])
+ elif test "x$enable_shared" = xno ; then
+ 	enable_symbol_versions=no
+ 	AC_MSG_RESULT([no (not building a shared library)])
+ else
+ 	case "$host_cpu-$host_os" in
+ 		microblaze*)
+ 			# GCC 12 on MicroBlaze doesn't support __symver__
+ 			# attribute. It's simplest and safest to use the
+ 			# generic version on that platform since then only
+ 			# the linker script is needed. The RHEL/CentOS 7
+ 			# compatibility symbols don't matter on MicroBlaze.
+ 			enable_symbol_versions=generic
+ 			;;
+ 		*-linux*)
+ 			case "$pic_mode-$enable_static" in
+ 				default-*)
+ 					# Use symvers if PIC is defined.
+ 					have_symbol_versions_linux=2
+ 					;;
+ 				*-no)
+ 					# Not building static library.
+ 					# Use symvers unconditionally.
+ 					have_symbol_versions_linux=1
+ 					;;
+ 				*)
+ 					AC_MSG_RESULT([])
+ 					AC_MSG_ERROR([
+     On GNU/Linux, building both shared and static library at the same time
+     is not supported if --with-pic or --without-pic is used.
+     Use either --disable-shared or --disable-static to build one type
+     of library at a time. If both types are needed, build one at a time,
+     possibly picking only src/liblzma/.libs/liblzma.a from the static build.])
+ 					;;
+ 			esac
+ 			enable_symbol_versions=linux
+ 			AC_DEFINE_UNQUOTED([HAVE_SYMBOL_VERSIONS_LINUX],
+ 				[$have_symbol_versions_linux],
+ 				[Define to 1 to if GNU/Linux-specific details
+ 				are unconditionally wanted for symbol
+ 				versioning. Define to 2 to if these are wanted
+ 				only if also PIC is defined (allows building
+ 				both shared and static liblzma at the same
+ 				time with Libtool if neither --with-pic nor
+ 				--without-pic is used). This define must be
+ 				used together with liblzma_linux.map.])
+ 			;;
+ 		*)
+ 			enable_symbol_versions=generic
+ 			;;
+ 	esac
+ 	AC_MSG_RESULT([yes ($enable_symbol_versions)])
+ fi
+ 
+ AM_CONDITIONAL([COND_SYMVERS_LINUX],
+ 	[test "x$enable_symbol_versions" = xlinux])
+ AM_CONDITIONAL([COND_SYMVERS_GENERIC],
+ 	[test "x$enable_symbol_versions" = xgeneric])
+ 
+ 
+ ###############################################################################
+ # Checks for libraries.
+ ###############################################################################
+ 
+ dnl Support for _REQUIRE_VERSION was added in gettext 0.19.6. If both
+ dnl _REQUIRE_VERSION and _VERSION are present, the _VERSION is ignored.
+ dnl We use both for compatibility with other programs in the Autotools family.
+ echo
+ echo "Initializing gettext:"
+ AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.6])
+ AM_GNU_GETTEXT_VERSION([0.19.6])
+ AM_GNU_GETTEXT([external])
+ 
+ 
+ ###############################################################################
+ # Checks for header files.
+ ###############################################################################
+ 
+ echo
+ echo "System headers and functions:"
+ 
+ # There is currently no workarounds in this package if some of
+ # these headers are missing.
+ AC_CHECK_HEADERS([fcntl.h limits.h sys/time.h],
+ 	[],
+ 	[AC_MSG_ERROR([Required header file(s) are missing.])])
+ 
+ # immintrin.h allows the use of the intrinsic functions if they are available.
+ # cpuid.h may be used for detecting x86 processor features at runtime.
+ AC_CHECK_HEADERS([immintrin.h cpuid.h])
+ 
+ 
+ ###############################################################################
+ # Checks for typedefs, structures, and compiler characteristics.
+ ###############################################################################
+ 
+ AC_HEADER_STDBOOL
+ 
+ AC_TYPE_UINT8_T
+ AC_TYPE_UINT16_T
+ AC_TYPE_INT32_T
+ AC_TYPE_UINT32_T
+ AC_TYPE_INT64_T
+ AC_TYPE_UINT64_T
+ AC_TYPE_UINTPTR_T
+ 
+ AC_CHECK_SIZEOF([size_t])
+ 
+ # The command line tool can copy high resolution timestamps if such
+ # information is available in struct stat. Otherwise one second accuracy
+ # is used.
+ AC_CHECK_MEMBERS([
+ 	struct stat.st_atim.tv_nsec,
+ 	struct stat.st_atimespec.tv_nsec,
+ 	struct stat.st_atimensec,
+ 	struct stat.st_uatime,
+ 	struct stat.st_atim.st__tim.tv_nsec])
+ 
+ AC_SYS_LARGEFILE
+ AC_C_BIGENDIAN
+ 
+ # __attribute__((__constructor__)) can be used for one-time initializations.
+ # Use -Werror because some compilers accept unknown attributes and just
+ # give a warning.
+ #
+ # FIXME? Unfortunately -Werror can cause trouble if CFLAGS contains options
+ # that produce warnings for unrelated reasons. For example, GCC and Clang
+ # support -Wunused-macros which will warn about "#define _GNU_SOURCE 1"
+ # which will be among the #defines that Autoconf inserts to the beginning of
+ # the test program. There seems to be no nice way to prevent Autoconf from
+ # inserting the any defines to the test program.
+ AC_MSG_CHECKING([if __attribute__((__constructor__)) can be used])
+ have_func_attribute_constructor=no
+ OLD_CFLAGS="$CFLAGS"
+ CFLAGS="$CFLAGS -Werror"
+ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+ 	__attribute__((__constructor__))
+ 	static void my_constructor_func(void) { return; }
+ ]])], [
+ 	AC_DEFINE([HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR], [1],
+ 		[Define to 1 if __attribute__((__constructor__))
+ 		is supported for functions.])
+ 	have_func_attribute_constructor=yes
+ 	AC_MSG_RESULT([yes])
+ ], [
+ 	AC_MSG_RESULT([no])
+ ])
+ CFLAGS="$OLD_CFLAGS"
+ 
+ # The Win95 threading lacks a thread-safe one-time initialization function.
+ # The one-time initialization is needed for crc32_small.c and crc64_small.c
+ # create the CRC tables. So if small mode is enabled, the threading mode is
+ # win95, and the compiler does not support attribute constructor, then we
+ # would end up with a multithreaded build that is thread-unsafe. As a
+ # result this configuration is not allowed.
+ if test "x$enable_small$enable_threads$have_func_attribute_constructor" \
+ 		= xyeswin95no; then
+ 	AC_MSG_ERROR([
+     --enable-threads=win95 and --enable-small cannot be used
+     at the same time with a compiler that doesn't support
+     __attribute__((__constructor__))])
+ fi
+ 
+ # __attribute__((__ifunc__())) can be used to choose between different
+ # implementations of the same function at runtime. This is slightly more
+ # efficient than using __attribute__((__constructor__)) and setting
+ # a function pointer.
+ AC_ARG_ENABLE([ifunc], [AS_HELP_STRING([--enable-ifunc],
+ 		[Use __attribute__((__ifunc__())). Enabled by default on
+ 		GNU/Linux (glibc) and FreeBSD.])],
+ 	[], [enable_ifunc=auto])
+ 
+ # When enable_ifunc is 'auto', allow the use of __attribute__((__ifunc__()))
+ # if compiler support is detected and we are building for GNU/Linux (glibc)
+ # or FreeBSD. uClibc and musl don't support ifunc in their dynamic linkers
+ # but some compilers still accept the attribute when compiling for these
+ # C libraries, which results in broken binaries. That's why we need to
+ # check which libc is being used.
+ if test "x$enable_ifunc" = xauto ; then
+ 	OLD_CFLAGS="$CFLAGS"
+ 	CFLAGS="$CFLAGS -Werror"
+ 	AC_MSG_CHECKING([if __attribute__((__ifunc__())) can be used])
+ 	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+ 		/*
+ 		 * Force a compilation error when not using glibc on Linux
+ 		 * or if we are not using FreeBSD. uClibc will define
+ 		 * __GLIBC__ but does not support ifunc, so we must have
+ 		 * an extra check to disable with uClibc.
+ 		 */
+ 		#if defined(__linux__)
+ 		#	include <features.h>
+ 		#	if !defined(__GLIBC__) || defined(__UCLIBC__)
+ 				compile error
+ 		#	endif
+ 		#elif !defined(__FreeBSD__)
+ 			compile error
+ 		#endif
+ 
+ 		static void func(void) { return; }
+ 		static void (*resolve_func (void)) (void) { return func; }
+ 		void func_ifunc (void)
+ 				__attribute__((__ifunc__("resolve_func")));
+ 		/*
+ 		 * 'clang -Wall' incorrectly warns that resolve_func is
+ 		 * unused (-Wunused-function). Correct assembly output is
+ 		 * still produced. This problem exists at least in Clang
+ 		 * versions 4 to 17. The following silences the bogus warning:
+ 		 */
+ 		void make_clang_quiet(void);
+ 		void make_clang_quiet(void) { resolve_func()(); }
+ 	]])], [
+ 		enable_ifunc=yes
+ 	], [
+ 		enable_ifunc=no
+ 	])
+ 
+ 	AC_MSG_RESULT([$enable_ifunc])
+ 
+ 	CFLAGS="$OLD_CFLAGS"
+ fi
+ 
+ if test "x$enable_ifunc" = xyes ; then
+ 	AC_DEFINE([HAVE_FUNC_ATTRIBUTE_IFUNC], [1],
+ 			[Define to 1 if __attribute__((__ifunc__()))
+ 			is supported for functions.])
+ 
+ 	# ifunc explicitly does not work with -fsanitize=address.
+ 	# If configured, it will result in a liblzma build that will fail
+ 	# when liblzma is loaded at runtime (when the ifunc resolver
+ 	# executes).
+ 	AS_CASE([$CFLAGS], [*-fsanitize=*], [AC_MSG_ERROR([
+     CFLAGS contains '-fsanitize=' which is incompatible with ifunc.
+     Use --disable-ifunc when using '-fsanitize'.])])
+ fi
+ 
+ 
+ ###############################################################################
+ # Checks for library functions.
+ ###############################################################################
+ 
+ # Gnulib replacements as needed
+ gl_GETOPT
+ 
+ # If clock_gettime() is available, liblzma with pthreads may use it, and
+ # xz may use it even when threading support is disabled. In XZ Utils 5.4.x
+ # and older, configure checked for clock_gettime() only when using pthreads.
+ # This way non-threaded builds of liblzma didn't get a useless dependency on
+ # librt which further had a dependency on libpthread. Avoiding these was
+ # useful when a small build was needed, for example, for initramfs use.
+ #
+ # The above reasoning is thoroughly obsolete: On GNU/Linux, librt hasn't
+ # been needed for clock_gettime() since glibc 2.17 (2012-12-25).
+ # Solaris 10 needs librt but Solaris 11 doesn't anymore.
+ AC_SEARCH_LIBS([clock_gettime], [rt])
+ AC_CHECK_FUNCS([clock_gettime])
+ AC_CHECK_DECL([CLOCK_MONOTONIC], [AC_DEFINE([HAVE_CLOCK_MONOTONIC], [1],
+ 	[Define to 1 if 'CLOCK_MONOTONIC' is declared in <time.h>.])], [],
+ 	[[#include <time.h>]])
+ 
+ # Find the best function to set timestamps.
+ AC_CHECK_FUNCS([futimens futimes futimesat utimes _futime utime], [break])
+ 
+ # This is nice to have but not mandatory.
+ AC_CHECK_FUNCS([posix_fadvise])
+ 
+ TUKLIB_PROGNAME
+ TUKLIB_INTEGER
+ TUKLIB_PHYSMEM
+ TUKLIB_CPUCORES
+ TUKLIB_MBSTR
+ 
+ # If requested, check for system-provided SHA-256. At least the following
+ # implementations are supported:
+ #
+ # OS       Headers                     Library  Type           Function
+ # FreeBSD  sys/types.h + sha256.h      libmd    SHA256_CTX     SHA256_Init
+ # NetBSD   sys/types.h + sha2.h                 SHA256_CTX     SHA256_Init
+ # OpenBSD  sys/types.h + sha2.h                 SHA2_CTX       SHA256Init
+ # Solaris  sys/types.h + sha2.h        libmd    SHA256_CTX     SHA256Init
+ # MINIX 3  sys/types.h + sha2.h                 SHA256_CTX     SHA256_Init
+ # Darwin   CommonCrypto/CommonDigest.h          CC_SHA256_CTX  CC_SHA256_Init
+ #
+ # Note that Darwin's CC_SHA256_Update takes buffer size as uint32_t instead
+ # of size_t.
+ #
+ sha256_header_found=no
+ sha256_type_found=no
+ sha256_func_found=no
+ AS_IF([test "x$enable_external_sha256" = "xyes"], [
+ 	# Test for Common Crypto before others, because Darwin has sha256.h
+ 	# too and we don't want to use that, because on older versions it
+ 	# uses OpenSSL functions, whose SHA256_Init is not guaranteed to
+ 	# succeed.
+ 	AC_CHECK_HEADERS(
+ 		[CommonCrypto/CommonDigest.h sha256.h sha2.h],
+ 		[sha256_header_found=yes ; break])
+ 	if test "x$sha256_header_found" = xyes; then
+ 		AC_CHECK_TYPES([CC_SHA256_CTX, SHA256_CTX, SHA2_CTX],
+ 			[sha256_type_found=yes], [],
+ 			[[#ifdef HAVE_SYS_TYPES_H
+ 			  # include <sys/types.h>
+ 			  #endif
+ 			  #ifdef HAVE_COMMONCRYPTO_COMMONDIGEST_H
+ 			  # include <CommonCrypto/CommonDigest.h>
+ 			  #endif
+ 			  #ifdef HAVE_SHA256_H
+ 			  # include <sha256.h>
+ 			  #endif
+ 			  #ifdef HAVE_SHA2_H
+ 			  # include <sha2.h>
+ 			  #endif]])
+ 		if test "x$sha256_type_found" = xyes ; then
+ 			AC_SEARCH_LIBS([SHA256Init], [md])
+ 			AC_SEARCH_LIBS([SHA256_Init], [md])
+ 			AC_CHECK_FUNCS([CC_SHA256_Init SHA256Init SHA256_Init],
+ 				[sha256_func_found=yes ; break])
+ 		fi
+ 	fi
+ ])
+ AM_CONDITIONAL([COND_INTERNAL_SHA256], [test "x$sha256_func_found" = xno])
+ if test "x$enable_external_sha256$sha256_func_found" = xyesno; then
+ 	AC_MSG_ERROR([--enable-external-sha256 was specified but no supported external SHA-256 implementation was found])
+ fi
+ 
+ # Check for SSE2 intrinsics. There is no run-time detection for SSE2 so if
+ # compiler options enable SSE2 then SSE2 support is required by the binaries.
+ # The compile-time check for SSE2 is done with #ifdefs because some compilers
+ # (ICC, MSVC) allow SSE2 intrinsics even when SSE2 isn't enabled.
+ AC_CHECK_DECL([_mm_movemask_epi8],
+ 	[AC_DEFINE([HAVE__MM_MOVEMASK_EPI8], [1],
+ 		[Define to 1 if _mm_movemask_epi8 is available.])],
+ 	[],
+ [#ifdef HAVE_IMMINTRIN_H
+ #include <immintrin.h>
+ #endif])
+ 
+ # For faster CRC on 32/64-bit x86 and E2K (see also crc64_fast.c):
+ #
+ #   - Check for the CLMUL intrinsic _mm_clmulepi64_si128 in <immintrin.h>.
+ #     Check also for _mm_set_epi64x for consistency with CMake build
+ #     where it's needed to disable CLMUL with VS2013.
+ #
+ #   - Check that __attribute__((__target__("ssse3,sse4.1,pclmul"))) works
+ #     together with _mm_clmulepi64_si128 from <immintrin.h>. The attribute
+ #     was added in GCC 4.4 but some GCC 4.x versions don't allow intrinsics
+ #     with it. Exception: it must be not be used with EDG-based compilers
+ #     like ICC and the compiler on E2K.
+ #
+ # If everything above is supported, runtime detection will be used to keep the
+ # binaries working on systems that don't support the required extensions.
+ AC_MSG_CHECKING([if _mm_clmulepi64_si128 is usable])
+ AS_IF([test "x$enable_clmul_crc" = xno], [
+ 	AC_MSG_RESULT([no, --disable-clmul-crc was used])
+ ], [
+ 	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+ #include <immintrin.h>
+ 
+ // CLMUL works on older E2K instruction set but it is slow due to emulation.
+ #if defined(__e2k__) && __iset__ < 6
+ #	error
+ #endif
+ 
+ // Intel's old compiler (ICC) can define __GNUC__ but the attribute must not
+ // be used with it. The new Clang-based ICX needs the attribute.
+ // Checking for !defined(__EDG__) catches ICC and other EDG-based compilers.
+ #if (defined(__GNUC__) || defined(__clang__)) && !defined(__EDG__)
+ __attribute__((__target__("ssse3,sse4.1,pclmul")))
+ #endif
+ __m128i my_clmul(__m128i a)
+ {
+ 	const __m128i b = _mm_set_epi64x(1, 2);
+ 	return _mm_clmulepi64_si128(a, b, 0);
+ }
+ 	]])], [
+ 		AC_DEFINE([HAVE_USABLE_CLMUL], [1],
+ 			[Define to 1 if _mm_set_epi64x and
+ 			_mm_clmulepi64_si128 are usable.
+ 			See configure.ac for details.])
+ 		enable_clmul_crc=yes
+ 	], [
+ 		enable_clmul_crc=no
+ 	])
+ 	AC_MSG_RESULT([$enable_clmul_crc])
+ ])
+ 
+ # Check for sandbox support. If one is found, set enable_sandbox=found.
+ #
+ # About -fsanitize: Of our three sandbox methods, only Landlock is
+ # incompatible with -fsanitize. FreeBSD 13.2 with Capsicum was tested with
+ # -fsanitize=address,undefined and had no issues. OpenBSD (as of version
+ # 7.4) has minimal support for process instrumentation. OpenBSD does not
+ # distribute the additional libraries needed (libasan, libubsan, etc.) with
+ # GCC or Clang needed for runtime sanitization support and instead only
+ # support -fsanitize-minimal-runtime for minimal undefined behavior
+ # sanitization. This minimal support is compatible with our use of the
+ # Pledge sandbox. So only Landlock will result in a build that cannot
+ # compress or decompress a single file to standard out.
+ AS_CASE([$enable_sandbox],
+ 	[auto | capsicum], [
+ 		AC_CHECK_FUNCS([cap_rights_limit], [enable_sandbox=found])
+ 	]
+ )
+ AS_CASE([$enable_sandbox],
+ 	[auto | pledge], [
+ 		AC_CHECK_FUNCS([pledge], [enable_sandbox=found])
+ 	]
+ )
+ AS_CASE([$enable_sandbox],
+ 	[auto | landlock], [
+ 		AC_CHECK_HEADERS([linux/landlock.h], [
+ 			enable_sandbox=found
+ 
+ 			AS_CASE([$CFLAGS], [*-fsanitize=*], [AC_MSG_ERROR([
+     CFLAGS contains '-fsanitize=' which is incompatible with the Landlock
+     sandboxing. Use --disable-sandbox when using '-fsanitize'.])])
+ 		])
+ 	]
+ )
+ 
+ # If a specific sandboxing method was explicitly requested and it wasn't
+ # found, give an error.
+ case $enable_sandbox in
+ 	auto | no | found)
+ 		;;
+ 	*)
+ 		AC_MSG_ERROR([$enable_sandbox support not found])
+ 		;;
+ esac
+ 
+ 
+ ###############################################################################
+ # If using GCC, set some additional AM_CFLAGS:
+ ###############################################################################
+ 
+ if test "$GCC" = yes ; then
+ 	echo
+ 	echo "GCC extensions:"
+ fi
+ 
+ # Always do the visibility check but don't set AM_CFLAGS on Windows.
+ # This way things get set properly even on Windows.
+ gl_VISIBILITY
+ if test -n "$CFLAG_VISIBILITY" && test "$is_w32" = no; then
+ 	AM_CFLAGS="$AM_CFLAGS $CFLAG_VISIBILITY"
+ fi
+ 
+ AS_IF([test "$GCC" = yes], [
+ 	# Enable as much warnings as possible. These commented warnings won't
+ 	# work for this package though:
+ 	#   * -Wunreachable-code breaks several assert(0) cases, which are
+ 	#     backed up with "return LZMA_PROG_ERROR".
+ 	#   * -Wcast-qual would break various things where we need a non-const
+ 	#     pointer although we don't modify anything through it.
+ 	#   * -Winline, -Wdisabled-optimization, -Wunsafe-loop-optimizations
+ 	#     don't seem so useful here; at least the last one gives some
+ 	#     warnings which are not bugs.
+ 	#   * -Wconversion still shows too many warnings.
+ 	#
+ 	# The flags before the empty line are for GCC and many of them
+ 	# are supported by Clang too. The flags after the empty line are
+ 	# for Clang.
+ 	for NEW_FLAG in \
+ 			-Wall \
+ 			-Wextra \
+ 			-Wvla \
+ 			-Wformat=2 \
+ 			-Winit-self \
+ 			-Wmissing-include-dirs \
+ 			-Wshift-overflow=2 \
+ 			-Wstrict-overflow=3 \
+ 			-Walloc-zero \
+ 			-Wduplicated-cond \
+ 			-Wfloat-equal \
+ 			-Wundef \
+ 			-Wshadow \
+ 			-Wpointer-arith \
+ 			-Wbad-function-cast \
+ 			-Wwrite-strings \
+ 			-Wdate-time \
+ 			-Wsign-conversion \
+ 			-Wfloat-conversion \
+ 			-Wlogical-op \
+ 			-Waggregate-return \
+ 			-Wstrict-prototypes \
+ 			-Wold-style-definition \
+ 			-Wmissing-prototypes \
+ 			-Wmissing-declarations \
+ 			-Wredundant-decls \
+ 			\
+ 			-Wc99-compat \
+ 			-Wc11-extensions \
+ 			-Wc2x-compat \
+ 			-Wc2x-extensions \
+ 			-Wpre-c2x-compat \
+ 			-Warray-bounds-pointer-arithmetic \
+ 			-Wassign-enum \
+ 			-Wconditional-uninitialized \
+ 			-Wdocumentation \
+ 			-Wduplicate-enum \
+ 			-Wempty-translation-unit \
+ 			-Wflexible-array-extensions \
+ 			-Wmissing-variable-declarations \
+ 			-Wnewline-eof \
+ 			-Wshift-sign-overflow \
+ 			-Wstring-conversion
+ 	do
+ 		AC_MSG_CHECKING([if $CC accepts $NEW_FLAG])
+ 		OLD_CFLAGS="$CFLAGS"
+ 		CFLAGS="$CFLAGS $NEW_FLAG -Werror"
+ 		AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+ 				[[void foo(void); void foo(void) { }]])], [
+ 			AM_CFLAGS="$AM_CFLAGS $NEW_FLAG"
+ 			AC_MSG_RESULT([yes])
+ 		], [
+ 			AC_MSG_RESULT([no])
+ 		])
+ 		CFLAGS="$OLD_CFLAGS"
+ 	done
+ 
+ 	AC_ARG_ENABLE([werror],
+ 		AS_HELP_STRING([--enable-werror], [Enable -Werror to abort
+ 			compilation on all compiler warnings.]),
+ 		[], [enable_werror=no])
+ 	if test "x$enable_werror" = "xyes"; then
+ 		AM_CFLAGS="$AM_CFLAGS -Werror"
+ 	fi
+ ])
+ 
+ 
+ ###############################################################################
+ # Create the makefiles and config.h
+ ###############################################################################
+ 
+ echo
+ 
+ # Don't build the lib directory at all if we don't need any replacement
+ # functions.
+ AM_CONDITIONAL([COND_GNULIB], test -n "$LIBOBJS")
+ 
+ # Add default AM_CFLAGS.
+ AC_SUBST([AM_CFLAGS])
+ 
+ # This is needed for src/scripts.
+ xz=`echo xz | sed "$program_transform_name"`
+ AC_SUBST([xz])
+ 
+ AC_CONFIG_FILES([
+ 	Makefile
+ 	po/Makefile.in
+ 	lib/Makefile
+ 	src/Makefile
+ 	src/liblzma/Makefile
+ 	src/liblzma/api/Makefile
+ 	src/xz/Makefile
+ 	src/xzdec/Makefile
+ 	src/lzmainfo/Makefile
+ 	src/scripts/Makefile
+ 	tests/Makefile
+ 	debug/Makefile
+ ])
+ AC_CONFIG_FILES([src/scripts/xzdiff], [chmod +x src/scripts/xzdiff])
+ AC_CONFIG_FILES([src/scripts/xzgrep], [chmod +x src/scripts/xzgrep])
+ AC_CONFIG_FILES([src/scripts/xzmore], [chmod +x src/scripts/xzmore])
+ AC_CONFIG_FILES([src/scripts/xzless], [chmod +x src/scripts/xzless])
+ 
+ AC_OUTPUT
+ 
+ # Some warnings
+ if test x$tuklib_cv_physmem_method = xunknown; then
+ 	echo
+ 	echo "WARNING:"
+ 	echo "No supported method to detect the amount of RAM."
+ 	echo "Consider using --enable-assume-ram (if you didn't already)"
+ 	echo "or make a patch to add support for this operating system."
+ fi
+ 
+ if test x$tuklib_cv_cpucores_method = xunknown; then
+ 	echo
+ 	echo "WARNING:"
+ 	echo "No supported method to detect the number of CPU cores."
+ fi
+ 
+ if test "x$enable_threads$enable_small$have_func_attribute_constructor" \
+ 		= xnoyesno; then
+ 	echo
+ 	echo "NOTE:"
+ 	echo "liblzma will be thread-unsafe due to the combination"
+ 	echo "of --disable-threads --enable-small when using a compiler"
+ 	echo "that doesn't support __attribute__((__constructor__))."
+ fi
 diff --git a/src/liblzma/api/lzma/bcj.h b/src/liblzma/api/lzma/bcj.h
 index 0c84e0cf..6c700c75 100644
 --- a/src/liblzma/api/lzma/bcj.h
 +++ b/src/liblzma/api/lzma/bcj.h
-@@ -53,6 +53,11 @@
+@@ -1,94 +1,99 @@
+ /**
+  * \file        lzma/bcj.h
+  * \brief       Branch/Call/Jump conversion filters
+  * \note        Never include this file directly. Use <lzma.h> instead.
+  */
+ 
+ /*
+  * Author: Lasse Collin
+  *
+  * This file has been put into the public domain.
+  * You can do whatever you want with this file.
+  */
+ 
+ #ifndef LZMA_H_INTERNAL
+ #	error Never include this file directly. Use <lzma.h> instead.
+ #endif
+ 
+ 
+ /* Filter IDs for lzma_filter.id */
+ 
+ /**
+  * \brief       Filter for x86 binaries
+  */
+ #define LZMA_FILTER_X86         LZMA_VLI_C(0x04)
+ 
+ /**
+  * \brief       Filter for Big endian PowerPC binaries
+  */
+ #define LZMA_FILTER_POWERPC     LZMA_VLI_C(0x05)
+ 
+ /**
+  * \brief       Filter for IA-64 (Itanium) binaries
+  */
+ #define LZMA_FILTER_IA64        LZMA_VLI_C(0x06)
+ 
+ /**
+  * \brief       Filter for ARM binaries
+  */
+ #define LZMA_FILTER_ARM         LZMA_VLI_C(0x07)
+ 
+ /**
+  * \brief       Filter for ARM-Thumb binaries
+  */
+ #define LZMA_FILTER_ARMTHUMB    LZMA_VLI_C(0x08)
+ 
+ /**
+  * \brief       Filter for SPARC binaries
+  */
+ #define LZMA_FILTER_SPARC       LZMA_VLI_C(0x09)
+ 
+ /**
+  * \brief       Filter for ARM64 binaries
   */
  #define LZMA_FILTER_ARM64       LZMA_VLI_C(0x0A)
  
@@ -43,11 +1381,168 @@ index 0c84e0cf..6c700c75 100644
  
  /**
   * \brief       Options for BCJ filters
+  *
+  * The BCJ filters never change the size of the data. Specifying options
+  * for them is optional: if pointer to options is NULL, default value is
+  * used. You probably never need to specify options to BCJ filters, so just
+  * set the options pointer to NULL and be happy.
+  *
+  * If options with non-default values have been specified when encoding,
+  * the same options must also be specified when decoding.
+  *
+  * \note        At the moment, none of the BCJ filters support
+  *              LZMA_SYNC_FLUSH. If LZMA_SYNC_FLUSH is specified,
+  *              LZMA_OPTIONS_ERROR will be returned. If there is need,
+  *              partial support for LZMA_SYNC_FLUSH can be added in future.
+  *              Partial means that flushing would be possible only at
+  *              offsets that are multiple of 2, 4, or 16 depending on
+  *              the filter, except x86 which cannot be made to support
+  *              LZMA_SYNC_FLUSH predictably.
+  */
+ typedef struct {
+ 	/**
+ 	 * \brief       Start offset for conversions
+ 	 *
+ 	 * This setting is useful only when the same filter is used
+ 	 * _separately_ for multiple sections of the same executable file,
+ 	 * and the sections contain cross-section branch/call/jump
+ 	 * instructions. In that case it is beneficial to set the start
+ 	 * offset of the non-first sections so that the relative addresses
+ 	 * of the cross-section branch/call/jump instructions will use the
+ 	 * same absolute addresses as in the first section.
+ 	 *
+ 	 * When the pointer to options is NULL, the default value (zero)
+ 	 * is used.
+ 	 */
+ 	uint32_t start_offset;
+ 
+ } lzma_options_bcj;
 diff --git a/src/liblzma/common/filter_common.c b/src/liblzma/common/filter_common.c
 index fa0927cf..bff68b61 100644
 --- a/src/liblzma/common/filter_common.c
 +++ b/src/liblzma/common/filter_common.c
-@@ -122,6 +122,15 @@ static const struct {
+@@ -1,385 +1,394 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       filter_common.c
+ /// \brief      Filter-specific stuff common for both encoder and decoder
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "filter_common.h"
+ 
+ 
+ static const struct {
+ 	/// Filter ID
+ 	lzma_vli id;
+ 
+ 	/// Size of the filter-specific options structure
+ 	size_t options_size;
+ 
+ 	/// True if it is OK to use this filter as non-last filter in
+ 	/// the chain.
+ 	bool non_last_ok;
+ 
+ 	/// True if it is OK to use this filter as the last filter in
+ 	/// the chain.
+ 	bool last_ok;
+ 
+ 	/// True if the filter may change the size of the data (that is, the
+ 	/// amount of encoded output can be different than the amount of
+ 	/// uncompressed input).
+ 	bool changes_size;
+ 
+ } features[] = {
+ #if defined (HAVE_ENCODER_LZMA1) || defined(HAVE_DECODER_LZMA1)
+ 	{
+ 		.id = LZMA_FILTER_LZMA1,
+ 		.options_size = sizeof(lzma_options_lzma),
+ 		.non_last_ok = false,
+ 		.last_ok = true,
+ 		.changes_size = true,
+ 	},
+ 	{
+ 		.id = LZMA_FILTER_LZMA1EXT,
+ 		.options_size = sizeof(lzma_options_lzma),
+ 		.non_last_ok = false,
+ 		.last_ok = true,
+ 		.changes_size = true,
+ 	},
+ #endif
+ #if defined(HAVE_ENCODER_LZMA2) || defined(HAVE_DECODER_LZMA2)
+ 	{
+ 		.id = LZMA_FILTER_LZMA2,
+ 		.options_size = sizeof(lzma_options_lzma),
+ 		.non_last_ok = false,
+ 		.last_ok = true,
+ 		.changes_size = true,
+ 	},
+ #endif
+ #if defined(HAVE_ENCODER_X86) || defined(HAVE_DECODER_X86)
+ 	{
+ 		.id = LZMA_FILTER_X86,
+ 		.options_size = sizeof(lzma_options_bcj),
+ 		.non_last_ok = true,
+ 		.last_ok = false,
+ 		.changes_size = false,
+ 	},
+ #endif
+ #if defined(HAVE_ENCODER_POWERPC) || defined(HAVE_DECODER_POWERPC)
+ 	{
+ 		.id = LZMA_FILTER_POWERPC,
+ 		.options_size = sizeof(lzma_options_bcj),
+ 		.non_last_ok = true,
+ 		.last_ok = false,
+ 		.changes_size = false,
+ 	},
+ #endif
+ #if defined(HAVE_ENCODER_IA64) || defined(HAVE_DECODER_IA64)
+ 	{
+ 		.id = LZMA_FILTER_IA64,
+ 		.options_size = sizeof(lzma_options_bcj),
+ 		.non_last_ok = true,
+ 		.last_ok = false,
+ 		.changes_size = false,
+ 	},
+ #endif
+ #if defined(HAVE_ENCODER_ARM) || defined(HAVE_DECODER_ARM)
+ 	{
+ 		.id = LZMA_FILTER_ARM,
+ 		.options_size = sizeof(lzma_options_bcj),
+ 		.non_last_ok = true,
+ 		.last_ok = false,
+ 		.changes_size = false,
+ 	},
+ #endif
+ #if defined(HAVE_ENCODER_ARMTHUMB) || defined(HAVE_DECODER_ARMTHUMB)
+ 	{
+ 		.id = LZMA_FILTER_ARMTHUMB,
+ 		.options_size = sizeof(lzma_options_bcj),
+ 		.non_last_ok = true,
+ 		.last_ok = false,
+ 		.changes_size = false,
+ 	},
+ #endif
+ #if defined(HAVE_ENCODER_ARM64) || defined(HAVE_DECODER_ARM64)
+ 	{
+ 		.id = LZMA_FILTER_ARM64,
+ 		.options_size = sizeof(lzma_options_bcj),
+ 		.non_last_ok = true,
+ 		.last_ok = false,
+ 		.changes_size = false,
+ 	},
+ #endif
+ #if defined(HAVE_ENCODER_SPARC) || defined(HAVE_DECODER_SPARC)
+ 	{
+ 		.id = LZMA_FILTER_SPARC,
+ 		.options_size = sizeof(lzma_options_bcj),
+ 		.non_last_ok = true,
+ 		.last_ok = false,
  		.changes_size = false,
  	},
  #endif
@@ -63,11 +1558,389 @@ index fa0927cf..bff68b61 100644
  #if defined(HAVE_ENCODER_DELTA) || defined(HAVE_DECODER_DELTA)
  	{
  		.id = LZMA_FILTER_DELTA,
+ 		.options_size = sizeof(lzma_options_delta),
+ 		.non_last_ok = true,
+ 		.last_ok = false,
+ 		.changes_size = false,
+ 	},
+ #endif
+ 	{
+ 		.id = LZMA_VLI_UNKNOWN
+ 	}
+ };
+ 
+ 
+ extern LZMA_API(lzma_ret)
+ lzma_filters_copy(const lzma_filter *src, lzma_filter *real_dest,
+ 		const lzma_allocator *allocator)
+ {
+ 	if (src == NULL || real_dest == NULL)
+ 		return LZMA_PROG_ERROR;
+ 
+ 	// Use a temporary destination so that the real destination
+ 	// will never be modied if an error occurs.
+ 	lzma_filter dest[LZMA_FILTERS_MAX + 1];
+ 
+ 	lzma_ret ret;
+ 	size_t i;
+ 	for (i = 0; src[i].id != LZMA_VLI_UNKNOWN; ++i) {
+ 		// There must be a maximum of four filters plus
+ 		// the array terminator.
+ 		if (i == LZMA_FILTERS_MAX) {
+ 			ret = LZMA_OPTIONS_ERROR;
+ 			goto error;
+ 		}
+ 
+ 		dest[i].id = src[i].id;
+ 
+ 		if (src[i].options == NULL) {
+ 			dest[i].options = NULL;
+ 		} else {
+ 			// See if the filter is supported only when the
+ 			// options is not NULL. This might be convenient
+ 			// sometimes if the app is actually copying only
+ 			// a partial filter chain with a place holder ID.
+ 			//
+ 			// When options is not NULL, the Filter ID must be
+ 			// supported by us, because otherwise we don't know
+ 			// how big the options are.
+ 			size_t j;
+ 			for (j = 0; src[i].id != features[j].id; ++j) {
+ 				if (features[j].id == LZMA_VLI_UNKNOWN) {
+ 					ret = LZMA_OPTIONS_ERROR;
+ 					goto error;
+ 				}
+ 			}
+ 
+ 			// Allocate and copy the options.
+ 			dest[i].options = lzma_alloc(features[j].options_size,
+ 					allocator);
+ 			if (dest[i].options == NULL) {
+ 				ret = LZMA_MEM_ERROR;
+ 				goto error;
+ 			}
+ 
+ 			memcpy(dest[i].options, src[i].options,
+ 					features[j].options_size);
+ 		}
+ 	}
+ 
+ 	// Terminate the filter array.
+ 	assert(i < LZMA_FILTERS_MAX + 1);
+ 	dest[i].id = LZMA_VLI_UNKNOWN;
+ 	dest[i].options = NULL;
+ 
+ 	// Copy it to the caller-supplied array now that we know that
+ 	// no errors occurred.
+ 	memcpy(real_dest, dest, (i + 1) * sizeof(lzma_filter));
+ 
+ 	return LZMA_OK;
+ 
+ error:
+ 	// Free the options which we have already allocated.
+ 	while (i-- > 0)
+ 		lzma_free(dest[i].options, allocator);
+ 
+ 	return ret;
+ }
+ 
+ 
+ extern LZMA_API(void)
+ lzma_filters_free(lzma_filter *filters, const lzma_allocator *allocator)
+ {
+ 	if (filters == NULL)
+ 		return;
+ 
+ 	for (size_t i = 0; filters[i].id != LZMA_VLI_UNKNOWN; ++i) {
+ 		if (i == LZMA_FILTERS_MAX) {
+ 			// The API says that LZMA_FILTERS_MAX + 1 is the
+ 			// maximum allowed size including the terminating
+ 			// element. Thus, we should never get here but in
+ 			// case there is a bug and we do anyway, don't go
+ 			// past the (probable) end of the array.
+ 			assert(0);
+ 			break;
+ 		}
+ 
+ 		lzma_free(filters[i].options, allocator);
+ 		filters[i].options = NULL;
+ 		filters[i].id = LZMA_VLI_UNKNOWN;
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ extern lzma_ret
+ lzma_validate_chain(const lzma_filter *filters, size_t *count)
+ {
+ 	// There must be at least one filter.
+ 	if (filters == NULL || filters[0].id == LZMA_VLI_UNKNOWN)
+ 		return LZMA_PROG_ERROR;
+ 
+ 	// Number of non-last filters that may change the size of the data
+ 	// significantly (that is, more than 1-2 % or so).
+ 	size_t changes_size_count = 0;
+ 
+ 	// True if it is OK to add a new filter after the current filter.
+ 	bool non_last_ok = true;
+ 
+ 	// True if the last filter in the given chain is actually usable as
+ 	// the last filter. Only filters that support embedding End of Payload
+ 	// Marker can be used as the last filter in the chain.
+ 	bool last_ok = false;
+ 
+ 	size_t i = 0;
+ 	do {
+ 		size_t j;
+ 		for (j = 0; filters[i].id != features[j].id; ++j)
+ 			if (features[j].id == LZMA_VLI_UNKNOWN)
+ 				return LZMA_OPTIONS_ERROR;
+ 
+ 		// If the previous filter in the chain cannot be a non-last
+ 		// filter, the chain is invalid.
+ 		if (!non_last_ok)
+ 			return LZMA_OPTIONS_ERROR;
+ 
+ 		non_last_ok = features[j].non_last_ok;
+ 		last_ok = features[j].last_ok;
+ 		changes_size_count += features[j].changes_size;
+ 
+ 	} while (filters[++i].id != LZMA_VLI_UNKNOWN);
+ 
+ 	// There must be 1-4 filters. The last filter must be usable as
+ 	// the last filter in the chain. A maximum of three filters are
+ 	// allowed to change the size of the data.
+ 	if (i > LZMA_FILTERS_MAX || !last_ok || changes_size_count > 3)
+ 		return LZMA_OPTIONS_ERROR;
+ 
+ 	*count = i;
+ 	return LZMA_OK;
+ }
+ 
+ 
+ extern lzma_ret
+ lzma_raw_coder_init(lzma_next_coder *next, const lzma_allocator *allocator,
+ 		const lzma_filter *options,
+ 		lzma_filter_find coder_find, bool is_encoder)
+ {
+ 	// Do some basic validation and get the number of filters.
+ 	size_t count;
+ 	return_if_error(lzma_validate_chain(options, &count));
+ 
+ 	// Set the filter functions and copy the options pointer.
+ 	lzma_filter_info filters[LZMA_FILTERS_MAX + 1];
+ 	if (is_encoder) {
+ 		for (size_t i = 0; i < count; ++i) {
+ 			// The order of the filters is reversed in the
+ 			// encoder. It allows more efficient handling
+ 			// of the uncompressed data.
+ 			const size_t j = count - i - 1;
+ 
+ 			const lzma_filter_coder *const fc
+ 					= coder_find(options[i].id);
+ 			if (fc == NULL || fc->init == NULL)
+ 				return LZMA_OPTIONS_ERROR;
+ 
+ 			filters[j].id = options[i].id;
+ 			filters[j].init = fc->init;
+ 			filters[j].options = options[i].options;
+ 		}
+ 	} else {
+ 		for (size_t i = 0; i < count; ++i) {
+ 			const lzma_filter_coder *const fc
+ 					= coder_find(options[i].id);
+ 			if (fc == NULL || fc->init == NULL)
+ 				return LZMA_OPTIONS_ERROR;
+ 
+ 			filters[i].id = options[i].id;
+ 			filters[i].init = fc->init;
+ 			filters[i].options = options[i].options;
+ 		}
+ 	}
+ 
+ 	// Terminate the array.
+ 	filters[count].id = LZMA_VLI_UNKNOWN;
+ 	filters[count].init = NULL;
+ 
+ 	// Initialize the filters.
+ 	const lzma_ret ret = lzma_next_filter_init(next, allocator, filters);
+ 	if (ret != LZMA_OK)
+ 		lzma_next_end(next, allocator);
+ 
+ 	return ret;
+ }
+ 
+ 
+ extern uint64_t
+ lzma_raw_coder_memusage(lzma_filter_find coder_find,
+ 		const lzma_filter *filters)
+ {
+ 	// The chain has to have at least one filter.
+ 	{
+ 		size_t tmp;
+ 		if (lzma_validate_chain(filters, &tmp) != LZMA_OK)
+ 			return UINT64_MAX;
+ 	}
+ 
+ 	uint64_t total = 0;
+ 	size_t i = 0;
+ 
+ 	do {
+ 		const lzma_filter_coder *const fc
+ 				 = coder_find(filters[i].id);
+ 		if (fc == NULL)
+ 			return UINT64_MAX; // Unsupported Filter ID
+ 
+ 		if (fc->memusage == NULL) {
+ 			// This filter doesn't have a function to calculate
+ 			// the memory usage and validate the options. Such
+ 			// filters need only little memory, so we use 1 KiB
+ 			// as a good estimate. They also accept all possible
+ 			// options, so there's no need to worry about lack
+ 			// of validation.
+ 			total += 1024;
+ 		} else {
+ 			// Call the filter-specific memory usage calculation
+ 			// function.
+ 			const uint64_t usage
+ 					= fc->memusage(filters[i].options);
+ 			if (usage == UINT64_MAX)
+ 				return UINT64_MAX; // Invalid options
+ 
+ 			total += usage;
+ 		}
+ 	} while (filters[++i].id != LZMA_VLI_UNKNOWN);
+ 
+ 	// Add some fixed amount of extra. It's to compensate memory usage
+ 	// of Stream, Block etc. coders, malloc() overhead, stack etc.
+ 	return total + LZMA_MEMUSAGE_BASE;
+ }
 diff --git a/src/liblzma/common/filter_decoder.c b/src/liblzma/common/filter_decoder.c
 index fa53f5bd..fedd7978 100644
 --- a/src/liblzma/common/filter_decoder.c
 +++ b/src/liblzma/common/filter_decoder.c
-@@ -121,6 +121,14 @@ static const lzma_filter_decoder decoders[] = {
+@@ -1,198 +1,206 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       filter_decoder.c
+ /// \brief      Filter ID mapping to filter-specific functions
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "filter_decoder.h"
+ #include "filter_common.h"
+ #include "lzma_decoder.h"
+ #include "lzma2_decoder.h"
+ #include "simple_decoder.h"
+ #include "delta_decoder.h"
+ 
+ 
+ typedef struct {
+ 	/// Filter ID
+ 	lzma_vli id;
+ 
+ 	/// Initializes the filter encoder and calls lzma_next_filter_init()
+ 	/// for filters + 1.
+ 	lzma_init_function init;
+ 
+ 	/// Calculates memory usage of the encoder. If the options are
+ 	/// invalid, UINT64_MAX is returned.
+ 	uint64_t (*memusage)(const void *options);
+ 
+ 	/// Decodes Filter Properties.
+ 	///
+ 	/// \return     - LZMA_OK: Properties decoded successfully.
+ 	///             - LZMA_OPTIONS_ERROR: Unsupported properties
+ 	///             - LZMA_MEM_ERROR: Memory allocation failed.
+ 	lzma_ret (*props_decode)(
+ 			void **options, const lzma_allocator *allocator,
+ 			const uint8_t *props, size_t props_size);
+ 
+ } lzma_filter_decoder;
+ 
+ 
+ static const lzma_filter_decoder decoders[] = {
+ #ifdef HAVE_DECODER_LZMA1
+ 	{
+ 		.id = LZMA_FILTER_LZMA1,
+ 		.init = &lzma_lzma_decoder_init,
+ 		.memusage = &lzma_lzma_decoder_memusage,
+ 		.props_decode = &lzma_lzma_props_decode,
+ 	},
+ 	{
+ 		.id = LZMA_FILTER_LZMA1EXT,
+ 		.init = &lzma_lzma_decoder_init,
+ 		.memusage = &lzma_lzma_decoder_memusage,
+ 		.props_decode = &lzma_lzma_props_decode,
+ 	},
+ #endif
+ #ifdef HAVE_DECODER_LZMA2
+ 	{
+ 		.id = LZMA_FILTER_LZMA2,
+ 		.init = &lzma_lzma2_decoder_init,
+ 		.memusage = &lzma_lzma2_decoder_memusage,
+ 		.props_decode = &lzma_lzma2_props_decode,
+ 	},
+ #endif
+ #ifdef HAVE_DECODER_X86
+ 	{
+ 		.id = LZMA_FILTER_X86,
+ 		.init = &lzma_simple_x86_decoder_init,
+ 		.memusage = NULL,
+ 		.props_decode = &lzma_simple_props_decode,
+ 	},
+ #endif
+ #ifdef HAVE_DECODER_POWERPC
+ 	{
+ 		.id = LZMA_FILTER_POWERPC,
+ 		.init = &lzma_simple_powerpc_decoder_init,
+ 		.memusage = NULL,
+ 		.props_decode = &lzma_simple_props_decode,
+ 	},
+ #endif
+ #ifdef HAVE_DECODER_IA64
+ 	{
+ 		.id = LZMA_FILTER_IA64,
+ 		.init = &lzma_simple_ia64_decoder_init,
+ 		.memusage = NULL,
+ 		.props_decode = &lzma_simple_props_decode,
+ 	},
+ #endif
+ #ifdef HAVE_DECODER_ARM
+ 	{
+ 		.id = LZMA_FILTER_ARM,
+ 		.init = &lzma_simple_arm_decoder_init,
+ 		.memusage = NULL,
+ 		.props_decode = &lzma_simple_props_decode,
+ 	},
+ #endif
+ #ifdef HAVE_DECODER_ARMTHUMB
+ 	{
+ 		.id = LZMA_FILTER_ARMTHUMB,
+ 		.init = &lzma_simple_armthumb_decoder_init,
+ 		.memusage = NULL,
+ 		.props_decode = &lzma_simple_props_decode,
+ 	},
+ #endif
+ #ifdef HAVE_DECODER_ARM64
+ 	{
+ 		.id = LZMA_FILTER_ARM64,
+ 		.init = &lzma_simple_arm64_decoder_init,
+ 		.memusage = NULL,
+ 		.props_decode = &lzma_simple_props_decode,
+ 	},
+ #endif
+ #ifdef HAVE_DECODER_SPARC
+ 	{
+ 		.id = LZMA_FILTER_SPARC,
+ 		.init = &lzma_simple_sparc_decoder_init,
+ 		.memusage = NULL,
  		.props_decode = &lzma_simple_props_decode,
  	},
  #endif
@@ -82,11 +1955,241 @@ index fa53f5bd..fedd7978 100644
  #ifdef HAVE_DECODER_DELTA
  	{
  		.id = LZMA_FILTER_DELTA,
+ 		.init = &lzma_delta_decoder_init,
+ 		.memusage = &lzma_delta_coder_memusage,
+ 		.props_decode = &lzma_delta_props_decode,
+ 	},
+ #endif
+ };
+ 
+ 
+ static const lzma_filter_decoder *
+ decoder_find(lzma_vli id)
+ {
+ 	for (size_t i = 0; i < ARRAY_SIZE(decoders); ++i)
+ 		if (decoders[i].id == id)
+ 			return decoders + i;
+ 
+ 	return NULL;
+ }
+ 
+ 
+ extern LZMA_API(lzma_bool)
+ lzma_filter_decoder_is_supported(lzma_vli id)
+ {
+ 	return decoder_find(id) != NULL;
+ }
+ 
+ 
+ extern lzma_ret
+ lzma_raw_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator,
+ 		const lzma_filter *options)
+ {
+ 	return lzma_raw_coder_init(next, allocator,
+ 			options, (lzma_filter_find)(&decoder_find), false);
+ }
+ 
+ 
+ extern LZMA_API(lzma_ret)
+ lzma_raw_decoder(lzma_stream *strm, const lzma_filter *options)
+ {
+ 	lzma_next_strm_init(lzma_raw_decoder_init, strm, options);
+ 
+ 	strm->internal->supported_actions[LZMA_RUN] = true;
+ 	strm->internal->supported_actions[LZMA_FINISH] = true;
+ 
+ 	return LZMA_OK;
+ }
+ 
+ 
+ extern LZMA_API(uint64_t)
+ lzma_raw_decoder_memusage(const lzma_filter *filters)
+ {
+ 	return lzma_raw_coder_memusage(
+ 			(lzma_filter_find)(&decoder_find), filters);
+ }
+ 
+ 
+ extern LZMA_API(lzma_ret)
+ lzma_properties_decode(lzma_filter *filter, const lzma_allocator *allocator,
+ 		const uint8_t *props, size_t props_size)
+ {
+ 	// Make it always NULL so that the caller can always safely free() it.
+ 	filter->options = NULL;
+ 
+ 	const lzma_filter_decoder *const fd = decoder_find(filter->id);
+ 	if (fd == NULL)
+ 		return LZMA_OPTIONS_ERROR;
+ 
+ 	if (fd->props_decode == NULL)
+ 		return props_size == 0 ? LZMA_OK : LZMA_OPTIONS_ERROR;
+ 
+ 	return fd->props_decode(
+ 			&filter->options, allocator, props, props_size);
+ }
 diff --git a/src/liblzma/common/filter_encoder.c b/src/liblzma/common/filter_encoder.c
 index 821a84f0..45a215aa 100644
 --- a/src/liblzma/common/filter_encoder.c
 +++ b/src/liblzma/common/filter_encoder.c
-@@ -159,6 +159,16 @@ static const lzma_filter_encoder encoders[] = {
+@@ -1,312 +1,322 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       filter_decoder.c
+ /// \brief      Filter ID mapping to filter-specific functions
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "filter_encoder.h"
+ #include "filter_common.h"
+ #include "lzma_encoder.h"
+ #include "lzma2_encoder.h"
+ #include "simple_encoder.h"
+ #include "delta_encoder.h"
+ 
+ 
+ typedef struct {
+ 	/// Filter ID
+ 	lzma_vli id;
+ 
+ 	/// Initializes the filter encoder and calls lzma_next_filter_init()
+ 	/// for filters + 1.
+ 	lzma_init_function init;
+ 
+ 	/// Calculates memory usage of the encoder. If the options are
+ 	/// invalid, UINT64_MAX is returned.
+ 	uint64_t (*memusage)(const void *options);
+ 
+ 	/// Calculates the recommended Uncompressed Size for .xz Blocks to
+ 	/// which the input data can be split to make multithreaded
+ 	/// encoding possible. If this is NULL, it is assumed that
+ 	/// the encoder is fast enough with single thread. If the options
+ 	/// are invalid, UINT64_MAX is returned.
+ 	uint64_t (*block_size)(const void *options);
+ 
+ 	/// Tells the size of the Filter Properties field. If options are
+ 	/// invalid, LZMA_OPTIONS_ERROR is returned and size is set to
+ 	/// UINT32_MAX.
+ 	lzma_ret (*props_size_get)(uint32_t *size, const void *options);
+ 
+ 	/// Some filters will always have the same size Filter Properties
+ 	/// field. If props_size_get is NULL, this value is used.
+ 	uint32_t props_size_fixed;
+ 
+ 	/// Encodes Filter Properties.
+ 	///
+ 	/// \return     - LZMA_OK: Properties encoded successfully.
+ 	///             - LZMA_OPTIONS_ERROR: Unsupported options
+ 	///             - LZMA_PROG_ERROR: Invalid options or not enough
+ 	///               output space
+ 	lzma_ret (*props_encode)(const void *options, uint8_t *out);
+ 
+ } lzma_filter_encoder;
+ 
+ 
+ static const lzma_filter_encoder encoders[] = {
+ #ifdef HAVE_ENCODER_LZMA1
+ 	{
+ 		.id = LZMA_FILTER_LZMA1,
+ 		.init = &lzma_lzma_encoder_init,
+ 		.memusage = &lzma_lzma_encoder_memusage,
+ 		.block_size = NULL, // Not needed for LZMA1
+ 		.props_size_get = NULL,
+ 		.props_size_fixed = 5,
+ 		.props_encode = &lzma_lzma_props_encode,
+ 	},
+ 	{
+ 		.id = LZMA_FILTER_LZMA1EXT,
+ 		.init = &lzma_lzma_encoder_init,
+ 		.memusage = &lzma_lzma_encoder_memusage,
+ 		.block_size = NULL, // Not needed for LZMA1
+ 		.props_size_get = NULL,
+ 		.props_size_fixed = 5,
+ 		.props_encode = &lzma_lzma_props_encode,
+ 	},
+ #endif
+ #ifdef HAVE_ENCODER_LZMA2
+ 	{
+ 		.id = LZMA_FILTER_LZMA2,
+ 		.init = &lzma_lzma2_encoder_init,
+ 		.memusage = &lzma_lzma2_encoder_memusage,
+ 		.block_size = &lzma_lzma2_block_size,
+ 		.props_size_get = NULL,
+ 		.props_size_fixed = 1,
+ 		.props_encode = &lzma_lzma2_props_encode,
+ 	},
+ #endif
+ #ifdef HAVE_ENCODER_X86
+ 	{
+ 		.id = LZMA_FILTER_X86,
+ 		.init = &lzma_simple_x86_encoder_init,
+ 		.memusage = NULL,
+ 		.block_size = NULL,
+ 		.props_size_get = &lzma_simple_props_size,
+ 		.props_encode = &lzma_simple_props_encode,
+ 	},
+ #endif
+ #ifdef HAVE_ENCODER_POWERPC
+ 	{
+ 		.id = LZMA_FILTER_POWERPC,
+ 		.init = &lzma_simple_powerpc_encoder_init,
+ 		.memusage = NULL,
+ 		.block_size = NULL,
+ 		.props_size_get = &lzma_simple_props_size,
+ 		.props_encode = &lzma_simple_props_encode,
+ 	},
+ #endif
+ #ifdef HAVE_ENCODER_IA64
+ 	{
+ 		.id = LZMA_FILTER_IA64,
+ 		.init = &lzma_simple_ia64_encoder_init,
+ 		.memusage = NULL,
+ 		.block_size = NULL,
+ 		.props_size_get = &lzma_simple_props_size,
+ 		.props_encode = &lzma_simple_props_encode,
+ 	},
+ #endif
+ #ifdef HAVE_ENCODER_ARM
+ 	{
+ 		.id = LZMA_FILTER_ARM,
+ 		.init = &lzma_simple_arm_encoder_init,
+ 		.memusage = NULL,
+ 		.block_size = NULL,
+ 		.props_size_get = &lzma_simple_props_size,
+ 		.props_encode = &lzma_simple_props_encode,
+ 	},
+ #endif
+ #ifdef HAVE_ENCODER_ARMTHUMB
+ 	{
+ 		.id = LZMA_FILTER_ARMTHUMB,
+ 		.init = &lzma_simple_armthumb_encoder_init,
+ 		.memusage = NULL,
+ 		.block_size = NULL,
+ 		.props_size_get = &lzma_simple_props_size,
+ 		.props_encode = &lzma_simple_props_encode,
+ 	},
+ #endif
+ #ifdef HAVE_ENCODER_ARM64
+ 	{
+ 		.id = LZMA_FILTER_ARM64,
+ 		.init = &lzma_simple_arm64_encoder_init,
+ 		.memusage = NULL,
+ 		.block_size = NULL,
+ 		.props_size_get = &lzma_simple_props_size,
+ 		.props_encode = &lzma_simple_props_encode,
+ 	},
+ #endif
+ #ifdef HAVE_ENCODER_SPARC
+ 	{
+ 		.id = LZMA_FILTER_SPARC,
+ 		.init = &lzma_simple_sparc_encoder_init,
+ 		.memusage = NULL,
+ 		.block_size = NULL,
+ 		.props_size_get = &lzma_simple_props_size,
  		.props_encode = &lzma_simple_props_encode,
  	},
  #endif
@@ -103,11 +2206,207 @@ index 821a84f0..45a215aa 100644
  #ifdef HAVE_ENCODER_DELTA
  	{
  		.id = LZMA_FILTER_DELTA,
+ 		.init = &lzma_delta_encoder_init,
+ 		.memusage = &lzma_delta_coder_memusage,
+ 		.block_size = NULL,
+ 		.props_size_get = NULL,
+ 		.props_size_fixed = 1,
+ 		.props_encode = &lzma_delta_props_encode,
+ 	},
+ #endif
+ };
+ 
+ 
+ static const lzma_filter_encoder *
+ encoder_find(lzma_vli id)
+ {
+ 	for (size_t i = 0; i < ARRAY_SIZE(encoders); ++i)
+ 		if (encoders[i].id == id)
+ 			return encoders + i;
+ 
+ 	return NULL;
+ }
+ 
+ 
+ extern LZMA_API(lzma_bool)
+ lzma_filter_encoder_is_supported(lzma_vli id)
+ {
+ 	return encoder_find(id) != NULL;
+ }
+ 
+ 
+ extern LZMA_API(lzma_ret)
+ lzma_filters_update(lzma_stream *strm, const lzma_filter *filters)
+ {
+ 	if (strm->internal->next.update == NULL)
+ 		return LZMA_PROG_ERROR;
+ 
+ 	// Validate the filter chain.
+ 	if (lzma_raw_encoder_memusage(filters) == UINT64_MAX)
+ 		return LZMA_OPTIONS_ERROR;
+ 
+ 	// The actual filter chain in the encoder is reversed. Some things
+ 	// still want the normal order chain, so we provide both.
+ 	size_t count = 1;
+ 	while (filters[count].id != LZMA_VLI_UNKNOWN)
+ 		++count;
+ 
+ 	lzma_filter reversed_filters[LZMA_FILTERS_MAX + 1];
+ 	for (size_t i = 0; i < count; ++i)
+ 		reversed_filters[count - i - 1] = filters[i];
+ 
+ 	reversed_filters[count].id = LZMA_VLI_UNKNOWN;
+ 
+ 	return strm->internal->next.update(strm->internal->next.coder,
+ 			strm->allocator, filters, reversed_filters);
+ }
+ 
+ 
+ extern lzma_ret
+ lzma_raw_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator,
+ 		const lzma_filter *filters)
+ {
+ 	return lzma_raw_coder_init(next, allocator,
+ 			filters, (lzma_filter_find)(&encoder_find), true);
+ }
+ 
+ 
+ extern LZMA_API(lzma_ret)
+ lzma_raw_encoder(lzma_stream *strm, const lzma_filter *filters)
+ {
+ 	lzma_next_strm_init(lzma_raw_coder_init, strm, filters,
+ 			(lzma_filter_find)(&encoder_find), true);
+ 
+ 	strm->internal->supported_actions[LZMA_RUN] = true;
+ 	strm->internal->supported_actions[LZMA_SYNC_FLUSH] = true;
+ 	strm->internal->supported_actions[LZMA_FINISH] = true;
+ 
+ 	return LZMA_OK;
+ }
+ 
+ 
+ extern LZMA_API(uint64_t)
+ lzma_raw_encoder_memusage(const lzma_filter *filters)
+ {
+ 	return lzma_raw_coder_memusage(
+ 			(lzma_filter_find)(&encoder_find), filters);
+ }
+ 
+ 
+ extern LZMA_API(uint64_t)
+ lzma_mt_block_size(const lzma_filter *filters)
+ {
+ 	if (filters == NULL)
+ 		return UINT64_MAX;
+ 
+ 	uint64_t max = 0;
+ 
+ 	for (size_t i = 0; filters[i].id != LZMA_VLI_UNKNOWN; ++i) {
+ 		const lzma_filter_encoder *const fe
+ 				= encoder_find(filters[i].id);
+ 		if (fe == NULL)
+ 			return UINT64_MAX;
+ 
+ 		if (fe->block_size != NULL) {
+ 			const uint64_t size
+ 					= fe->block_size(filters[i].options);
+ 			if (size > max)
+ 				max = size;
+ 		}
+ 	}
+ 
+ 	return max == 0 ? UINT64_MAX : max;
+ }
+ 
+ 
+ extern LZMA_API(lzma_ret)
+ lzma_properties_size(uint32_t *size, const lzma_filter *filter)
+ {
+ 	const lzma_filter_encoder *const fe = encoder_find(filter->id);
+ 	if (fe == NULL) {
+ 		// Unknown filter - if the Filter ID is a proper VLI,
+ 		// return LZMA_OPTIONS_ERROR instead of LZMA_PROG_ERROR,
+ 		// because it's possible that we just don't have support
+ 		// compiled in for the requested filter.
+ 		return filter->id <= LZMA_VLI_MAX
+ 				? LZMA_OPTIONS_ERROR : LZMA_PROG_ERROR;
+ 	}
+ 
+ 	if (fe->props_size_get == NULL) {
+ 		// No props_size_get() function, use props_size_fixed.
+ 		*size = fe->props_size_fixed;
+ 		return LZMA_OK;
+ 	}
+ 
+ 	return fe->props_size_get(size, filter->options);
+ }
+ 
+ 
+ extern LZMA_API(lzma_ret)
+ lzma_properties_encode(const lzma_filter *filter, uint8_t *props)
+ {
+ 	const lzma_filter_encoder *const fe = encoder_find(filter->id);
+ 	if (fe == NULL)
+ 		return LZMA_PROG_ERROR;
+ 
+ 	if (fe->props_encode == NULL)
+ 		return LZMA_OK;
+ 
+ 	return fe->props_encode(filter->options, props);
+ }
 diff --git a/src/liblzma/simple/Makefile.inc b/src/liblzma/simple/Makefile.inc
 index dc092f95..360db723 100644
 --- a/src/liblzma/simple/Makefile.inc
 +++ b/src/liblzma/simple/Makefile.inc
-@@ -49,3 +49,7 @@ endif
+@@ -1,51 +1,55 @@
+ ##
+ ## Author: Lasse Collin
+ ##
+ ## This file has been put into the public domain.
+ ## You can do whatever you want with this file.
+ ##
+ 
+ liblzma_la_SOURCES += \
+ 	simple/simple_coder.c \
+ 	simple/simple_coder.h \
+ 	simple/simple_private.h
+ 
+ if COND_ENCODER_SIMPLE
+ liblzma_la_SOURCES += \
+ 	simple/simple_encoder.c \
+ 	simple/simple_encoder.h
+ endif
+ 
+ if COND_DECODER_SIMPLE
+ liblzma_la_SOURCES += \
+ 	simple/simple_decoder.c \
+ 	simple/simple_decoder.h
+ endif
+ 
+ if COND_FILTER_X86
+ liblzma_la_SOURCES += simple/x86.c
+ endif
+ 
+ if COND_FILTER_POWERPC
+ liblzma_la_SOURCES += simple/powerpc.c
+ endif
+ 
+ if COND_FILTER_IA64
+ liblzma_la_SOURCES += simple/ia64.c
+ endif
+ 
+ if COND_FILTER_ARM
+ liblzma_la_SOURCES += simple/arm.c
+ endif
+ 
+ if COND_FILTER_ARMTHUMB
+ liblzma_la_SOURCES += simple/armthumb.c
+ endif
+ 
+ if COND_FILTER_ARM64
+ liblzma_la_SOURCES += simple/arm64.c
+ endif
+ 
  if COND_FILTER_SPARC
  liblzma_la_SOURCES += simple/sparc.c
  endif
@@ -813,7 +3112,84 @@ diff --git a/src/liblzma/simple/simple_coder.h b/src/liblzma/simple/simple_coder
 index 668a5092..1bb22217 100644
 --- a/src/liblzma/simple/simple_coder.h
 +++ b/src/liblzma/simple/simple_coder.h
-@@ -78,4 +78,13 @@ extern lzma_ret lzma_simple_sparc_decoder_init(lzma_next_coder *next,
+@@ -1,81 +1,90 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       simple_coder.h
+ /// \brief      Wrapper for simple filters
+ //
+ //  Author:     Lasse Collin
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #ifndef LZMA_SIMPLE_CODER_H
+ #define LZMA_SIMPLE_CODER_H
+ 
+ #include "common.h"
+ 
+ 
+ extern lzma_ret lzma_simple_x86_encoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ extern lzma_ret lzma_simple_x86_decoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ 
+ extern lzma_ret lzma_simple_powerpc_encoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ extern lzma_ret lzma_simple_powerpc_decoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ 
+ extern lzma_ret lzma_simple_ia64_encoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ extern lzma_ret lzma_simple_ia64_decoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ 
+ extern lzma_ret lzma_simple_arm_encoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ extern lzma_ret lzma_simple_arm_decoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ 
+ extern lzma_ret lzma_simple_armthumb_encoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ extern lzma_ret lzma_simple_armthumb_decoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ 
+ extern lzma_ret lzma_simple_arm64_encoder_init(lzma_next_coder *next,
+                const lzma_allocator *allocator,
+                const lzma_filter_info *filters);
+ 
+ extern lzma_ret lzma_simple_arm64_decoder_init(lzma_next_coder *next,
+                const lzma_allocator *allocator,
+                const lzma_filter_info *filters);
+ 
+ 
+ extern lzma_ret lzma_simple_sparc_encoder_init(lzma_next_coder *next,
+ 		const lzma_allocator *allocator,
+ 		const lzma_filter_info *filters);
+ 
+ extern lzma_ret lzma_simple_sparc_decoder_init(lzma_next_coder *next,
  		const lzma_allocator *allocator,
  		const lzma_filter_info *filters);
  
@@ -831,7 +3207,196 @@ diff --git a/src/xz/args.c b/src/xz/args.c
 index 31c071ce..e8b07af3 100644
 --- a/src/xz/args.c
 +++ b/src/xz/args.c
-@@ -190,6 +190,7 @@ parse_real(args_info *args, int argc, char **argv)
+@@ -1,870 +1,877 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       args.c
+ /// \brief      Argument parsing
+ ///
+ /// \note       Filter-specific options parsing is in options.c.
+ //
+ //  Authors:    Lasse Collin
+ //              Jia Tan
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #include "private.h"
+ 
+ #include "getopt.h"
+ #include <ctype.h>
+ 
+ 
+ bool opt_stdout = false;
+ bool opt_force = false;
+ bool opt_keep_original = false;
+ bool opt_robot = false;
+ bool opt_ignore_check = false;
+ 
+ // We don't modify or free() this, but we need to assign it in some
+ // non-const pointers.
+ const char stdin_filename[] = "(stdin)";
+ 
+ 
+ /// Parse and set the memory usage limit for compression, decompression,
+ /// and/or multithreaded decompression.
+ static void
+ parse_memlimit(const char *name, const char *name_percentage, const char *str,
+ 		bool set_compress, bool set_decompress, bool set_mtdec)
+ {
+ 	bool is_percentage = false;
+ 	uint64_t value;
+ 
+ 	const size_t len = strlen(str);
+ 	if (len > 0 && str[len - 1] == '%') {
+ 		// Make a copy so that we can get rid of %.
+ 		//
+ 		// In the past str wasn't const and we modified it directly
+ 		// but that modified argv[] and thus affected what was visible
+ 		// in "ps auxf" or similar tools which was confusing. For
+ 		// example, --memlimit=50% would show up as --memlimit=50
+ 		// since the percent sign was overwritten here.
+ 		char *s = xstrdup(str);
+ 		s[len - 1] = '\0';
+ 		is_percentage = true;
+ 		value = str_to_uint64(name_percentage, s, 1, 100);
+ 		free(s);
+ 	} else {
+ 		// On 32-bit systems, SIZE_MAX would make more sense than
+ 		// UINT64_MAX. But use UINT64_MAX still so that scripts
+ 		// that assume > 4 GiB values don't break.
+ 		value = str_to_uint64(name, str, 0, UINT64_MAX);
+ 	}
+ 
+ 	hardware_memlimit_set(value, set_compress, set_decompress, set_mtdec,
+ 			is_percentage);
+ 	return;
+ }
+ 
+ 
+ static void
+ parse_block_list(const char *str_const)
+ {
+ 	// We need a modifiable string in the for-loop.
+ 	char *str_start = xstrdup(str_const);
+ 	char *str = str_start;
+ 
+ 	// It must be non-empty and not begin with a comma.
+ 	if (str[0] == '\0' || str[0] == ',')
+ 		message_fatal(_("%s: Invalid argument to --block-list"), str);
+ 
+ 	// Count the number of comma-separated strings.
+ 	size_t count = 1;
+ 	for (size_t i = 0; str[i] != '\0'; ++i)
+ 		if (str[i] == ',')
+ 			++count;
+ 
+ 	// Prevent an unlikely integer overflow.
+ 	if (count > SIZE_MAX / sizeof(block_list_entry) - 1)
+ 		message_fatal(_("%s: Too many arguments to --block-list"),
+ 				str);
+ 
+ 	// Allocate memory to hold all the sizes specified.
+ 	// If --block-list was specified already, its value is forgotten.
+ 	free(opt_block_list);
+ 	opt_block_list = xmalloc((count + 1) * sizeof(block_list_entry));
+ 
+ 	for (size_t i = 0; i < count; ++i) {
+ 		// Locate the next comma and replace it with \0.
+ 		char *p = strchr(str, ',');
+ 		if (p != NULL)
+ 			*p = '\0';
+ 
+ 		// Use the default filter chain unless overridden.
+ 		opt_block_list[i].filters_index = 0;
+ 
+ 		// To specify a filter chain, the block list entry may be
+ 		// prepended with "[filter-chain-number]:". The size is
+ 		// still required for every block.
+ 		// For instance:
+ 		// --block-list=2:10MiB,1:5MiB,,8MiB,0:0
+ 		//
+ 		// Translates to:
+ 		// 1. Block of 10 MiB using filter chain 2
+ 		// 2. Block of 5 MiB using filter chain 1
+ 		// 3. Block of 5 MiB using filter chain 1
+ 		// 4. Block of 8 MiB using the default filter chain
+ 		// 5. The last block uses the default filter chain
+ 		//
+ 		// The block list:
+ 		// --block-list=2:MiB,1:,0
+ 		//
+ 		// Is not allowed because the second block does not specify
+ 		// the block size, only the filter chain.
+ 		if (str[0] >= '0' && str[0] <= '9' && str[1] == ':') {
+ 			if (str[2] == '\0')
+ 				message_fatal(_("In --block-list, block "
+ 						"size is missing after "
+ 						"filter chain number '%c:'"),
+ 						str[0]);
+ 
+ 			int filter_num = str[0] - '0';
+ 			opt_block_list[i].filters_index =
+ 					(uint32_t)filter_num;
+ 			str += 2;
+ 		}
+ 
+ 		if (str[0] == '\0') {
+ 			// There is no string, that is, a comma follows
+ 			// another comma. Use the previous value.
+ 			//
+ 			// NOTE: We checked earlier that the first char
+ 			// of the whole list cannot be a comma.
+ 			assert(i > 0);
+ 			opt_block_list[i] = opt_block_list[i - 1];
+ 		} else {
+ 			opt_block_list[i].size = str_to_uint64("block-list",
+ 					str, 0, UINT64_MAX);
+ 
+ 			// Zero indicates no more new Blocks.
+ 			if (opt_block_list[i].size == 0) {
+ 				if (i + 1 != count)
+ 					message_fatal(_("0 can only be used "
+ 							"as the last element "
+ 							"in --block-list"));
+ 
+ 				opt_block_list[i].size = UINT64_MAX;
+ 			}
+ 		}
+ 
+ 		str = p + 1;
+ 	}
+ 
+ 	// Terminate the array.
+ 	opt_block_list[count].size = 0;
+ 
+ 	free(str_start);
+ 	return;
+ }
+ 
+ 
+ static void
+ parse_real(args_info *args, int argc, char **argv)
+ {
+ 	enum {
+ 		OPT_FILTERS = INT_MIN,
+ 		OPT_FILTERS1,
+ 		OPT_FILTERS2,
+ 		OPT_FILTERS3,
+ 		OPT_FILTERS4,
+ 		OPT_FILTERS5,
+ 		OPT_FILTERS6,
+ 		OPT_FILTERS7,
+ 		OPT_FILTERS8,
+ 		OPT_FILTERS9,
+ 		OPT_FILTERS_HELP,
+ 
+ 		OPT_X86,
+ 		OPT_POWERPC,
+ 		OPT_IA64,
+ 		OPT_ARM,
  		OPT_ARMTHUMB,
  		OPT_ARM64,
  		OPT_SPARC,
@@ -839,7 +3404,84 @@ index 31c071ce..e8b07af3 100644
  		OPT_DELTA,
  		OPT_LZMA1,
  		OPT_LZMA2,
-@@ -274,6 +275,7 @@ parse_real(args_info *args, int argc, char **argv)
+ 
+ 		OPT_SINGLE_STREAM,
+ 		OPT_NO_SPARSE,
+ 		OPT_FILES,
+ 		OPT_FILES0,
+ 		OPT_BLOCK_SIZE,
+ 		OPT_BLOCK_LIST,
+ 		OPT_MEM_COMPRESS,
+ 		OPT_MEM_DECOMPRESS,
+ 		OPT_MEM_MT_DECOMPRESS,
+ 		OPT_NO_ADJUST,
+ 		OPT_INFO_MEMORY,
+ 		OPT_ROBOT,
+ 		OPT_FLUSH_TIMEOUT,
+ 		OPT_IGNORE_CHECK,
+ 	};
+ 
+ 	static const char short_opts[]
+ 			= "cC:defF:hHlkM:qQrS:tT:vVz0123456789";
+ 
+ 	static const struct option long_opts[] = {
+ 		// Operation mode
+ 		{ "compress",     no_argument,       NULL,  'z' },
+ 		{ "decompress",   no_argument,       NULL,  'd' },
+ 		{ "uncompress",   no_argument,       NULL,  'd' },
+ 		{ "test",         no_argument,       NULL,  't' },
+ 		{ "list",         no_argument,       NULL,  'l' },
+ 
+ 		// Operation modifiers
+ 		{ "keep",         no_argument,       NULL,  'k' },
+ 		{ "force",        no_argument,       NULL,  'f' },
+ 		{ "stdout",       no_argument,       NULL,  'c' },
+ 		{ "to-stdout",    no_argument,       NULL,  'c' },
+ 		{ "single-stream", no_argument,      NULL,  OPT_SINGLE_STREAM },
+ 		{ "no-sparse",    no_argument,       NULL,  OPT_NO_SPARSE },
+ 		{ "suffix",       required_argument, NULL,  'S' },
+ 		// { "recursive",      no_argument,       NULL,  'r' }, // TODO
+ 		{ "files",        optional_argument, NULL,  OPT_FILES },
+ 		{ "files0",       optional_argument, NULL,  OPT_FILES0 },
+ 
+ 		// Basic compression settings
+ 		{ "format",       required_argument, NULL,  'F' },
+ 		{ "check",        required_argument, NULL,  'C' },
+ 		{ "ignore-check", no_argument,       NULL,  OPT_IGNORE_CHECK },
+ 		{ "block-size",   required_argument, NULL,  OPT_BLOCK_SIZE },
+ 		{ "block-list",  required_argument, NULL,  OPT_BLOCK_LIST },
+ 		{ "memlimit-compress",   required_argument, NULL, OPT_MEM_COMPRESS },
+ 		{ "memlimit-decompress", required_argument, NULL, OPT_MEM_DECOMPRESS },
+ 		{ "memlimit-mt-decompress", required_argument, NULL, OPT_MEM_MT_DECOMPRESS },
+ 		{ "memlimit",     required_argument, NULL,  'M' },
+ 		{ "memory",       required_argument, NULL,  'M' }, // Old alias
+ 		{ "no-adjust",    no_argument,       NULL,  OPT_NO_ADJUST },
+ 		{ "threads",      required_argument, NULL,  'T' },
+ 		{ "flush-timeout", required_argument, NULL, OPT_FLUSH_TIMEOUT },
+ 
+ 		{ "extreme",      no_argument,       NULL,  'e' },
+ 		{ "fast",         no_argument,       NULL,  '0' },
+ 		{ "best",         no_argument,       NULL,  '9' },
+ 
+ 		// Filters
+ 		{ "filters",      optional_argument, NULL,  OPT_FILTERS},
+ 		{ "filters1",     optional_argument, NULL,  OPT_FILTERS1},
+ 		{ "filters2",     optional_argument, NULL,  OPT_FILTERS2},
+ 		{ "filters3",     optional_argument, NULL,  OPT_FILTERS3},
+ 		{ "filters4",     optional_argument, NULL,  OPT_FILTERS4},
+ 		{ "filters5",     optional_argument, NULL,  OPT_FILTERS5},
+ 		{ "filters6",     optional_argument, NULL,  OPT_FILTERS6},
+ 		{ "filters7",     optional_argument, NULL,  OPT_FILTERS7},
+ 		{ "filters8",     optional_argument, NULL,  OPT_FILTERS8},
+ 		{ "filters9",     optional_argument, NULL,  OPT_FILTERS9},
+ 		{ "filters-help", optional_argument, NULL,  OPT_FILTERS_HELP},
+ 
+ 		{ "lzma1",        optional_argument, NULL,  OPT_LZMA1 },
+ 		{ "lzma2",        optional_argument, NULL,  OPT_LZMA2 },
+ 		{ "x86",          optional_argument, NULL,  OPT_X86 },
+ 		{ "powerpc",      optional_argument, NULL,  OPT_POWERPC },
+ 		{ "ia64",         optional_argument, NULL,  OPT_IA64 },
+ 		{ "arm",          optional_argument, NULL,  OPT_ARM },
  		{ "armthumb",     optional_argument, NULL,  OPT_ARMTHUMB },
  		{ "arm64",        optional_argument, NULL,  OPT_ARM64 },
  		{ "sparc",        optional_argument, NULL,  OPT_SPARC },
@@ -847,7 +3489,217 @@ index 31c071ce..e8b07af3 100644
  		{ "delta",        optional_argument, NULL,  OPT_DELTA },
  
  		// Other options
-@@ -491,6 +493,11 @@ parse_real(args_info *args, int argc, char **argv)
+ 		{ "quiet",        no_argument,       NULL,  'q' },
+ 		{ "verbose",      no_argument,       NULL,  'v' },
+ 		{ "no-warn",      no_argument,       NULL,  'Q' },
+ 		{ "robot",        no_argument,       NULL,  OPT_ROBOT },
+ 		{ "info-memory",  no_argument,       NULL,  OPT_INFO_MEMORY },
+ 		{ "help",         no_argument,       NULL,  'h' },
+ 		{ "long-help",    no_argument,       NULL,  'H' },
+ 		{ "version",      no_argument,       NULL,  'V' },
+ 
+ 		{ NULL,           0,                 NULL,   0 }
+ 	};
+ 
+ 	int c;
+ 
+ 	while ((c = getopt_long(argc, argv, short_opts, long_opts, NULL))
+ 			!= -1) {
+ 		switch (c) {
+ 		// Compression preset (also for decompression if --format=raw)
+ 		case '0': case '1': case '2': case '3': case '4':
+ 		case '5': case '6': case '7': case '8': case '9':
+ 			coder_set_preset((uint32_t)(c - '0'));
+ 			break;
+ 
+ 		// --memlimit-compress
+ 		case OPT_MEM_COMPRESS:
+ 			parse_memlimit("memlimit-compress",
+ 					"memlimit-compress%", optarg,
+ 					true, false, false);
+ 			break;
+ 
+ 		// --memlimit-decompress
+ 		case OPT_MEM_DECOMPRESS:
+ 			parse_memlimit("memlimit-decompress",
+ 					"memlimit-decompress%", optarg,
+ 					false, true, false);
+ 			break;
+ 
+ 		// --memlimit-mt-decompress
+ 		case OPT_MEM_MT_DECOMPRESS:
+ 			parse_memlimit("memlimit-mt-decompress",
+ 					"memlimit-mt-decompress%", optarg,
+ 					false, false, true);
+ 			break;
+ 
+ 		// --memlimit
+ 		case 'M':
+ 			parse_memlimit("memlimit", "memlimit%", optarg,
+ 					true, true, true);
+ 			break;
+ 
+ 		// --suffix
+ 		case 'S':
+ 			suffix_set(optarg);
+ 			break;
+ 
+ 		case 'T': {
+ 			// Since xz 5.4.0: Ignore leading '+' first.
+ 			const char *s = optarg;
+ 			if (optarg[0] == '+')
+ 				++s;
+ 
+ 			// The max is from src/liblzma/common/common.h.
+ 			uint32_t t = str_to_uint64("threads", s, 0, 16384);
+ 
+ 			// If leading '+' was used then use multi-threaded
+ 			// mode even if exactly one thread was specified.
+ 			if (t == 1 && optarg[0] == '+')
+ 				t = UINT32_MAX;
+ 
+ 			hardware_threads_set(t);
+ 			break;
+ 		}
+ 
+ 		// --version
+ 		case 'V':
+ 			// This doesn't return.
+ 			message_version();
+ 
+ 		// --stdout
+ 		case 'c':
+ 			opt_stdout = true;
+ 			break;
+ 
+ 		// --decompress
+ 		case 'd':
+ 			opt_mode = MODE_DECOMPRESS;
+ 			break;
+ 
+ 		// --extreme
+ 		case 'e':
+ 			coder_set_extreme();
+ 			break;
+ 
+ 		// --force
+ 		case 'f':
+ 			opt_force = true;
+ 			break;
+ 
+ 		// --info-memory
+ 		case OPT_INFO_MEMORY:
+ 			// This doesn't return.
+ 			hardware_memlimit_show();
+ 
+ 		// --help
+ 		case 'h':
+ 			// This doesn't return.
+ 			message_help(false);
+ 
+ 		// --long-help
+ 		case 'H':
+ 			// This doesn't return.
+ 			message_help(true);
+ 
+ 		// --list
+ 		case 'l':
+ 			opt_mode = MODE_LIST;
+ 			break;
+ 
+ 		// --keep
+ 		case 'k':
+ 			opt_keep_original = true;
+ 			break;
+ 
+ 		// --quiet
+ 		case 'q':
+ 			message_verbosity_decrease();
+ 			break;
+ 
+ 		case 'Q':
+ 			set_exit_no_warn();
+ 			break;
+ 
+ 		case 't':
+ 			opt_mode = MODE_TEST;
+ 			break;
+ 
+ 		// --verbose
+ 		case 'v':
+ 			message_verbosity_increase();
+ 			break;
+ 
+ 		// --robot
+ 		case OPT_ROBOT:
+ 			opt_robot = true;
+ 
+ 			// This is to make sure that floating point numbers
+ 			// always have a dot as decimal separator.
+ 			setlocale(LC_NUMERIC, "C");
+ 			break;
+ 
+ 		case 'z':
+ 			opt_mode = MODE_COMPRESS;
+ 			break;
+ 
+ 		// --filters
+ 		case OPT_FILTERS:
+ 			coder_add_filters_from_str(optarg);
+ 			break;
+ 
+ 		// --filters1...--filters9
+ 		case OPT_FILTERS1:
+ 		case OPT_FILTERS2:
+ 		case OPT_FILTERS3:
+ 		case OPT_FILTERS4:
+ 		case OPT_FILTERS5:
+ 		case OPT_FILTERS6:
+ 		case OPT_FILTERS7:
+ 		case OPT_FILTERS8:
+ 		case OPT_FILTERS9:
+ 			coder_add_block_filters(optarg,
+ 					(size_t)(c - OPT_FILTERS));
+ 			break;
+ 
+ 		// --filters-help
+ 		case OPT_FILTERS_HELP:
+ 			// This doesn't return.
+ 			message_filters_help();
+ 			break;
+ 
+ 		case OPT_X86:
+ 			coder_add_filter(LZMA_FILTER_X86,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_POWERPC:
+ 			coder_add_filter(LZMA_FILTER_POWERPC,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_IA64:
+ 			coder_add_filter(LZMA_FILTER_IA64,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_ARM:
+ 			coder_add_filter(LZMA_FILTER_ARM,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_ARMTHUMB:
+ 			coder_add_filter(LZMA_FILTER_ARMTHUMB,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_ARM64:
+ 			coder_add_filter(LZMA_FILTER_ARM64,
+ 					options_bcj(optarg));
+ 			break;
+ 
+ 		case OPT_SPARC:
+ 			coder_add_filter(LZMA_FILTER_SPARC,
  					options_bcj(optarg));
  			break;
  
@@ -859,3 +3711,377 @@ index 31c071ce..e8b07af3 100644
  		case OPT_DELTA:
  			coder_add_filter(LZMA_FILTER_DELTA,
  					options_delta(optarg));
+ 			break;
+ 
+ 		case OPT_LZMA1:
+ 			coder_add_filter(LZMA_FILTER_LZMA1,
+ 					options_lzma(optarg));
+ 			break;
+ 
+ 		case OPT_LZMA2:
+ 			coder_add_filter(LZMA_FILTER_LZMA2,
+ 					options_lzma(optarg));
+ 			break;
+ 
+ 		// Other
+ 
+ 		// --format
+ 		case 'F': {
+ 			// Just in case, support both "lzma" and "alone" since
+ 			// the latter was used for forward compatibility in
+ 			// LZMA Utils 4.32.x.
+ 			static const struct {
+ 				char str[8];
+ 				enum format_type format;
+ 			} types[] = {
+ 				{ "auto",   FORMAT_AUTO },
+ 				{ "xz",     FORMAT_XZ },
+ 				{ "lzma",   FORMAT_LZMA },
+ 				{ "alone",  FORMAT_LZMA },
+ #ifdef HAVE_LZIP_DECODER
+ 				{ "lzip",   FORMAT_LZIP },
+ #endif
+ 				{ "raw",    FORMAT_RAW },
+ 			};
+ 
+ 			size_t i = 0;
+ 			while (strcmp(types[i].str, optarg) != 0)
+ 				if (++i == ARRAY_SIZE(types))
+ 					message_fatal(_("%s: Unknown file "
+ 							"format type"),
+ 							optarg);
+ 
+ 			opt_format = types[i].format;
+ 			break;
+ 		}
+ 
+ 		// --check
+ 		case 'C': {
+ 			static const struct {
+ 				char str[8];
+ 				lzma_check check;
+ 			} types[] = {
+ 				{ "none",   LZMA_CHECK_NONE },
+ 				{ "crc32",  LZMA_CHECK_CRC32 },
+ 				{ "crc64",  LZMA_CHECK_CRC64 },
+ 				{ "sha256", LZMA_CHECK_SHA256 },
+ 			};
+ 
+ 			size_t i = 0;
+ 			while (strcmp(types[i].str, optarg) != 0) {
+ 				if (++i == ARRAY_SIZE(types))
+ 					message_fatal(_("%s: Unsupported "
+ 							"integrity "
+ 							"check type"), optarg);
+ 			}
+ 
+ 			// Use a separate check in case we are using different
+ 			// liblzma than what was used to compile us.
+ 			if (!lzma_check_is_supported(types[i].check))
+ 				message_fatal(_("%s: Unsupported integrity "
+ 						"check type"), optarg);
+ 
+ 			coder_set_check(types[i].check);
+ 			break;
+ 		}
+ 
+ 		case OPT_IGNORE_CHECK:
+ 			opt_ignore_check = true;
+ 			break;
+ 
+ 		case OPT_BLOCK_SIZE:
+ 			opt_block_size = str_to_uint64("block-size", optarg,
+ 					0, LZMA_VLI_MAX);
+ 			break;
+ 
+ 		case OPT_BLOCK_LIST: {
+ 			parse_block_list(optarg);
+ 			break;
+ 		}
+ 
+ 		case OPT_SINGLE_STREAM:
+ 			opt_single_stream = true;
+ 			break;
+ 
+ 		case OPT_NO_SPARSE:
+ 			io_no_sparse();
+ 			break;
+ 
+ 		case OPT_FILES:
+ 			args->files_delim = '\n';
+ 
+ 		// Fall through
+ 
+ 		case OPT_FILES0:
+ 			if (args->files_name != NULL)
+ 				message_fatal(_("Only one file can be "
+ 						"specified with '--files' "
+ 						"or '--files0'."));
+ 
+ 			if (optarg == NULL) {
+ 				args->files_name = stdin_filename;
+ 				args->files_file = stdin;
+ 			} else {
+ 				args->files_name = optarg;
+ 				args->files_file = fopen(optarg,
+ 						c == OPT_FILES ? "r" : "rb");
+ 				if (args->files_file == NULL)
+ 					// TRANSLATORS: This is a translatable
+ 					// string because French needs a space
+ 					// before the colon ("%s : %s").
+ 					message_fatal(_("%s: %s"), optarg,
+ 							strerror(errno));
+ 			}
+ 
+ 			break;
+ 
+ 		case OPT_NO_ADJUST:
+ 			opt_auto_adjust = false;
+ 			break;
+ 
+ 		case OPT_FLUSH_TIMEOUT:
+ 			opt_flush_timeout = str_to_uint64("flush-timeout",
+ 					optarg, 0, UINT64_MAX);
+ 			break;
+ 
+ 		default:
+ 			message_try_help();
+ 			tuklib_exit(E_ERROR, E_ERROR, false);
+ 		}
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ static void
+ parse_environment(args_info *args, char *argv0, const char *varname)
+ {
+ 	char *env = getenv(varname);
+ 	if (env == NULL)
+ 		return;
+ 
+ 	// We modify the string, so make a copy of it.
+ 	env = xstrdup(env);
+ 
+ 	// Calculate the number of arguments in env. argc stats at one
+ 	// to include space for the program name.
+ 	int argc = 1;
+ 	bool prev_was_space = true;
+ 	for (size_t i = 0; env[i] != '\0'; ++i) {
+ 		// NOTE: Cast to unsigned char is needed so that correct
+ 		// value gets passed to isspace(), which expects
+ 		// unsigned char cast to int. Casting to int is done
+ 		// automatically due to integer promotion, but we need to
+ 		// force char to unsigned char manually. Otherwise 8-bit
+ 		// characters would get promoted to wrong value if
+ 		// char is signed.
+ 		if (isspace((unsigned char)env[i])) {
+ 			prev_was_space = true;
+ 		} else if (prev_was_space) {
+ 			prev_was_space = false;
+ 
+ 			// Keep argc small enough to fit into a signed int
+ 			// and to keep it usable for memory allocation.
+ 			if (++argc == my_min(
+ 					INT_MAX, SIZE_MAX / sizeof(char *)))
+ 				message_fatal(_("The environment variable "
+ 						"%s contains too many "
+ 						"arguments"), varname);
+ 		}
+ 	}
+ 
+ 	// Allocate memory to hold pointers to the arguments. Add one to get
+ 	// space for the terminating NULL (if some systems happen to need it).
+ 	char **argv = xmalloc(((size_t)(argc) + 1) * sizeof(char *));
+ 	argv[0] = argv0;
+ 	argv[argc] = NULL;
+ 
+ 	// Go through the string again. Split the arguments using '\0'
+ 	// characters and add pointers to the resulting strings to argv.
+ 	argc = 1;
+ 	prev_was_space = true;
+ 	for (size_t i = 0; env[i] != '\0'; ++i) {
+ 		if (isspace((unsigned char)env[i])) {
+ 			prev_was_space = true;
+ 			env[i] = '\0';
+ 		} else if (prev_was_space) {
+ 			prev_was_space = false;
+ 			argv[argc++] = env + i;
+ 		}
+ 	}
+ 
+ 	// Parse the argument list we got from the environment. All non-option
+ 	// arguments i.e. filenames are ignored.
+ 	parse_real(args, argc, argv);
+ 
+ 	// Reset the state of the getopt_long() so that we can parse the
+ 	// command line options too. There are two incompatible ways to
+ 	// do it.
+ #ifdef HAVE_OPTRESET
+ 	// BSD
+ 	optind = 1;
+ 	optreset = 1;
+ #else
+ 	// GNU, Solaris
+ 	optind = 0;
+ #endif
+ 
+ 	// We don't need the argument list from environment anymore.
+ 	free(argv);
+ 	free(env);
+ 
+ 	return;
+ }
+ 
+ 
+ extern void
+ args_parse(args_info *args, int argc, char **argv)
+ {
+ 	// Initialize those parts of *args that we need later.
+ 	args->files_name = NULL;
+ 	args->files_file = NULL;
+ 	args->files_delim = '\0';
+ 
+ 	// Check how we were called.
+ 	{
+ 		// Remove the leading path name, if any.
+ 		const char *name = strrchr(argv[0], '/');
+ 		if (name == NULL)
+ 			name = argv[0];
+ 		else
+ 			++name;
+ 
+ 		// NOTE: It's possible that name[0] is now '\0' if argv[0]
+ 		// is weird, but it doesn't matter here.
+ 
+ 		// Look for full command names instead of substrings like
+ 		// "un", "cat", and "lz" to reduce possibility of false
+ 		// positives when the programs have been renamed.
+ 		if (strstr(name, "xzcat") != NULL) {
+ 			opt_mode = MODE_DECOMPRESS;
+ 			opt_stdout = true;
+ 		} else if (strstr(name, "unxz") != NULL) {
+ 			opt_mode = MODE_DECOMPRESS;
+ 		} else if (strstr(name, "lzcat") != NULL) {
+ 			opt_format = FORMAT_LZMA;
+ 			opt_mode = MODE_DECOMPRESS;
+ 			opt_stdout = true;
+ 		} else if (strstr(name, "unlzma") != NULL) {
+ 			opt_format = FORMAT_LZMA;
+ 			opt_mode = MODE_DECOMPRESS;
+ 		} else if (strstr(name, "lzma") != NULL) {
+ 			opt_format = FORMAT_LZMA;
+ 		}
+ 	}
+ 
+ 	// First the flags from the environment
+ 	parse_environment(args, argv[0], "XZ_DEFAULTS");
+ 	parse_environment(args, argv[0], "XZ_OPT");
+ 
+ 	// Then from the command line
+ 	parse_real(args, argc, argv);
+ 
+ 	// If encoder or decoder support was omitted at build time,
+ 	// show an error now so that the rest of the code can rely on
+ 	// that whatever is in opt_mode is also supported.
+ #ifndef HAVE_ENCODERS
+ 	if (opt_mode == MODE_COMPRESS)
+ 		message_fatal(_("Compression support was disabled "
+ 				"at build time"));
+ #endif
+ #ifndef HAVE_DECODERS
+ 	// Even MODE_LIST cannot work without decoder support so MODE_COMPRESS
+ 	// is the only valid choice.
+ 	if (opt_mode != MODE_COMPRESS)
+ 		message_fatal(_("Decompression support was disabled "
+ 				"at build time"));
+ #endif
+ 
+ #ifdef HAVE_LZIP_DECODER
+ 	if (opt_mode == MODE_COMPRESS && opt_format == FORMAT_LZIP)
+ 		message_fatal(_("Compression of lzip files (.lz) "
+ 				"is not supported"));
+ #endif
+ 
+ 	// Never remove the source file when the destination is not on disk.
+ 	// In test mode the data is written nowhere, but setting opt_stdout
+ 	// will make the rest of the code behave well.
+ 	if (opt_stdout || opt_mode == MODE_TEST) {
+ 		opt_keep_original = true;
+ 		opt_stdout = true;
+ 	}
+ 
+ 	// When compressing, if no --format flag was used, or it
+ 	// was --format=auto, we compress to the .xz format.
+ 	if (opt_mode == MODE_COMPRESS && opt_format == FORMAT_AUTO)
+ 		opt_format = FORMAT_XZ;
+ 
+ 	// Set opt_block_list to NULL if we are not compressing to the .xz
+ 	// format. This option cannot be used outside of this case, and
+ 	// simplifies the implementation later.
+ 	if ((opt_mode != MODE_COMPRESS || opt_format != FORMAT_XZ)
+ 			&& opt_block_list != NULL) {
+ 		message(V_WARNING, _("--block-list is ignored unless "
+ 				"compressing to the .xz format"));
+ 		free(opt_block_list);
+ 		opt_block_list = NULL;
+ 	}
+ 
+ 	// If raw format is used and a custom suffix is not provided,
+ 	// then only stdout mode can be used when compressing or
+ 	// decompressing.
+ 	if (opt_format == FORMAT_RAW && !suffix_is_set() && !opt_stdout
+ 			&& (opt_mode == MODE_COMPRESS
+ 				|| opt_mode == MODE_DECOMPRESS)) {
+ 		if (args->files_name != NULL)
+ 			message_fatal(_("With --format=raw, "
+ 					"--suffix=.SUF is required "
+ 					"unless writing to stdout"));
+ 
+ 		// If all of the filenames provided are "-" (more than one
+ 		// "-" could be specified) or no filenames are provided,
+ 		// then we are only going to be writing to standard out.
+ 		for (int i = optind; i < argc; i++) {
+ 			if (strcmp(argv[i], "-") != 0)
+ 				message_fatal(_("With --format=raw, "
+ 						"--suffix=.SUF is required "
+ 						"unless writing to stdout"));
+ 		}
+ 	}
+ 
+ 	// Compression settings need to be validated (options themselves and
+ 	// their memory usage) when compressing to any file format. It has to
+ 	// be done also when uncompressing raw data, since for raw decoding
+ 	// the options given on the command line are used to know what kind
+ 	// of raw data we are supposed to decode.
+ 	if (opt_mode == MODE_COMPRESS || (opt_format == FORMAT_RAW
+ 			&& opt_mode != MODE_LIST))
+ 		coder_set_compression_settings();
+ 
+ 	// If no filenames are given, use stdin.
+ 	if (argv[optind] == NULL && args->files_name == NULL) {
+ 		// We don't modify or free() the "-" constant. The caller
+ 		// modifies this so don't make the struct itself const.
+ 		static char *names_stdin[2] = { (char *)"-", NULL };
+ 		args->arg_names = names_stdin;
+ 		args->arg_count = 1;
+ 	} else {
+ 		// We got at least one filename from the command line, or
+ 		// --files or --files0 was specified.
+ 		args->arg_names = argv + optind;
+ 		args->arg_count = (unsigned int)(argc - optind);
+ 	}
+ 
+ 	return;
+ }
+ 
+ 
+ #ifndef NDEBUG
+ extern void
+ args_free(void)
+ {
+ 	free(opt_block_list);
+ 	return;
+ }
+ #endif

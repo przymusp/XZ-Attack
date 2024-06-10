@@ -8,7 +8,19 @@ diff --git a/README.md b/README.md
 index 0d9923c..1856f72 100644
 --- a/README.md
 +++ b/README.md
-@@ -13,24 +13,38 @@
+@@ -1,37 +1,51 @@
+ # STest
+ 
+ ## About
+ **STest** is a unit testing framework for C/C++ based on Keith Nicholas's Seatest. **STest** is an xUnit style of unit testing framework, and is made to be portable. Installing **STest** is as easy as dropping the **stest.c** and **stest.h** files into your project.
+ 
+ ## Features
+ - xUnit style asserts
+ - Easily extensible for custom asserts
+ - Optional color-coded output
+ - Cross platform in any C/C++ project
+ - Supports global set-up and tear-down functions
+ - Supports per-test set-up and tear-down functions
  - Ability to selectively run tests and fixtures
  
  ## Asserts
@@ -63,3 +75,5 @@ index 0d9923c..1856f72 100644
  
  ## Example Usage
  
+ ## Contributing
+\ No newline at end of file

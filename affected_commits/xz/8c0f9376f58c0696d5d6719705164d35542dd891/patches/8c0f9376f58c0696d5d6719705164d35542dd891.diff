@@ -30,7 +30,851 @@ diff --git a/CMakeLists.txt b/CMakeLists.txt
 index ecbb7b2d..6e3cd6f8 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -845,7 +845,11 @@ if(HAVE_IMMINTRIN_H)
+@@ -1,1404 +1,1408 @@
+ #############################################################################
+ #
+ # Very limited CMake support for building some parts of XZ Utils
+ #
+ # For now, this is intended to be useful to build static or shared liblzma
+ # on Windows with MSVC (to avoid the need to maintain Visual Studio project
+ # files). Building liblzma on a few other platforms should work too but it
+ # is somewhat experimental and not as portable as using ./configure.
+ #
+ # On some platforms this builds also xz and xzdec, but these are
+ # highly experimental and meant for testing only:
+ #   - No large file support on those 32-bit platforms that need it
+ #   - No sandboxing support
+ #   - No translations
+ #
+ # Other missing things:
+ #   - No xzgrep or other scripts or their symlinks
+ #   - No xz tests (liblzma tests only)
+ #
+ # NOTE: Even if the code compiles without warnings, the end result may be
+ # different than via ./configure. Specifically, the list of #defines
+ # may be different (if so, probably this CMakeLists.txt got them wrong).
+ #
+ # This file provides the following installation components (if you only
+ # need liblzma, install only its components!):
+ #   - liblzma_Runtime
+ #   - liblzma_Development
+ #   - xz (on some platforms only)
+ #   - xzdec (on some platforms only)
+ #
+ # To find the target liblzma::liblzma from other packages, use the CONFIG
+ # option with find_package() to avoid a conflict with the FindLibLZMA module
+ # with case-insensitive file systems. For example, to require liblzma 5.2.5
+ # or a newer compatible version:
+ #
+ #     find_package(liblzma 5.2.5 REQUIRED CONFIG)
+ #     target_link_libraries(my_application liblzma::liblzma)
+ #
+ #############################################################################
+ #
+ # Author: Lasse Collin
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ #############################################################################
+ 
+ cmake_minimum_required(VERSION 3.13...3.27 FATAL_ERROR)
+ 
+ include(CMakePushCheckState)
+ include(CheckIncludeFile)
+ include(CheckSymbolExists)
+ include(CheckStructHasMember)
+ include(CheckCSourceCompiles)
+ include(cmake/tuklib_integer.cmake)
+ include(cmake/tuklib_cpucores.cmake)
+ include(cmake/tuklib_physmem.cmake)
+ include(cmake/tuklib_progname.cmake)
+ include(cmake/tuklib_mbstr.cmake)
+ 
+ # Get the package version from version.h into XZ_VERSION variable.
+ file(READ src/liblzma/api/lzma/version.h XZ_VERSION)
+ string(REGEX REPLACE
+ "^.*\n\
+ #define LZMA_VERSION_MAJOR ([0-9]+)\n\
+ .*\
+ #define LZMA_VERSION_MINOR ([0-9]+)\n\
+ .*\
+ #define LZMA_VERSION_PATCH ([0-9]+)\n\
+ .*$"
+        "\\1.\\2.\\3" XZ_VERSION "${XZ_VERSION}")
+ 
+ # Among other things, this gives us variables xz_VERSION and xz_VERSION_MAJOR.
+ project(xz VERSION "${XZ_VERSION}" LANGUAGES C)
+ 
+ # We need a compiler that supports enough C99 or newer (variable-length arrays
+ # aren't needed, those are optional in C17). Setting CMAKE_C_STANDARD here
+ # makes it the default for all targets. It doesn't affect the INTERFACE so
+ # liblzma::liblzma won't end up with INTERFACE_COMPILE_FEATURES "c_std_99"
+ # (the API headers are C89 and C++ compatible).
+ set(CMAKE_C_STANDARD 99)
+ set(CMAKE_C_STANDARD_REQUIRED ON)
+ 
+ # On Apple OSes, don't build executables as bundles:
+ set(CMAKE_MACOSX_BUNDLE OFF)
+ 
+ # windres from GNU binutils can be tricky with command line arguments
+ # that contain spaces or other funny characters. Unfortunately we need
+ # a space in PACKAGE_NAME. Using \x20 to encode the US-ASCII space seems
+ # to work in both cmd.exe and /bin/sh.
+ #
+ # However, even \x20 isn't enough in all situations, resulting in
+ # "syntax error" from windres. Using --use-temp-file prevents windres
+ # from using popen() and this seems to fix the problem.
+ #
+ # llvm-windres from Clang/LLVM 16.0.6 and older: The \x20 results
+ # in "XZx20Utils" in the compiled binary. The option --use-temp-file
+ # makes no difference.
+ #
+ # llvm-windres 17.0.0 and later: It emulates GNU windres more accurately, so
+ # the workarounds used with GNU windres must be used with llvm-windres too.
+ #
+ # CMake 3.27 doesn't have CMAKE_RC_COMPILER_ID so we rely on
+ # CMAKE_C_COMPILER_ID.
+ if((MINGW OR CYGWIN OR MSYS) AND (
+         NOT CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
+         CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "17"))
+     # Use workarounds with GNU windres and llvm-windres >= 17.0.0. The \x20
+     # in PACKAGE_NAME works with gcc and clang too so we don't need to worry
+     # how to pass different flags to windres and the C compiler.
+     string(APPEND CMAKE_RC_FLAGS " --use-temp-file")
+     set(PACKAGE_NAME "XZ\\x20Utils")
+ else()
+     # Elsewhere a space is safe. This also keeps things compatible with
+     # EBCDIC in case CMake-based build is ever done on such a system.
+     set(PACKAGE_NAME "XZ Utils")
+ endif()
+ 
+ # Definitions common to all targets:
+ add_compile_definitions(
+     # Package info:
+     PACKAGE_NAME="${PACKAGE_NAME}"
+     PACKAGE_BUGREPORT="xz@tukaani.org"
+     PACKAGE_URL="https://tukaani.org/xz/"
+ 
+     # Standard headers and types are available:
+     HAVE_STDBOOL_H
+     HAVE__BOOL
+     HAVE_STDINT_H
+     HAVE_INTTYPES_H
+ 
+     # Always enable CRC32 since liblzma should never build without it.
+     HAVE_CHECK_CRC32
+ 
+     # Disable assert() checks when no build type has been specified. Non-empty
+     # build types like "Release" and "Debug" handle this by default.
+     $<$<CONFIG:>:NDEBUG>
+ )
+ 
+ 
+ ######################
+ # System definitions #
+ ######################
+ 
+ # _GNU_SOURCE and such definitions. This specific macro is special since
+ # it also adds the definitions to CMAKE_REQUIRED_DEFINITIONS.
+ tuklib_use_system_extensions(ALL)
+ 
+ # This is needed by liblzma and xz.
+ tuklib_integer(ALL)
+ 
+ # Check for clock_gettime(). Do this before checking for threading so
+ # that we know there if CLOCK_MONOTONIC is available.
+ if(NOT WIN32)
+     check_symbol_exists(clock_gettime time.h HAVE_CLOCK_GETTIME)
+ 
+     if(NOT HAVE_CLOCK_GETTIME)
+         # With glibc <= 2.17 or Solaris 10 this needs librt.
+         # Add librt for the next check for HAVE_CLOCK_GETTIME. If it is
+         # found after including the library, we know that librt is required.
+         list(INSERT CMAKE_REQUIRED_LIBRARIES 0 rt)
+         check_symbol_exists(clock_gettime time.h HAVE_CLOCK_GETTIME_LIBRT)
+ 
+         # If it was found now, add librt to all targets and keep it in
+         # CMAKE_REQUIRED_LIBRARIES for further tests too.
+         if(HAVE_CLOCK_GETTIME_LIBRT)
+             link_libraries(rt)
+         else()
+             list(REMOVE_AT CMAKE_REQUIRED_LIBRARIES 0)
+         endif()
+     endif()
+ 
+     if(HAVE_CLOCK_GETTIME OR HAVE_CLOCK_GETTIME_LIBRT)
+         add_compile_definitions(HAVE_CLOCK_GETTIME)
+ 
+         # Check if CLOCK_MONOTONIC is available for clock_gettime().
+         check_symbol_exists(CLOCK_MONOTONIC time.h HAVE_CLOCK_MONOTONIC)
+         tuklib_add_definition_if(ALL HAVE_CLOCK_MONOTONIC)
+     endif()
+ endif()
+ 
+ # Options for new enough GCC or Clang on any arch or operating system:
+ if(CMAKE_C_COMPILER_ID MATCHES GNU|Clang)
+     # configure.ac has a long list but it won't be copied here:
+     add_compile_options(-Wall -Wextra)
+ endif()
+ 
+ 
+ #############################################################################
+ # liblzma
+ #############################################################################
+ 
+ option(BUILD_SHARED_LIBS "Build liblzma as a shared library instead of static")
+ 
+ add_library(liblzma
+     src/common/mythread.h
+     src/common/sysdefs.h
+     src/common/tuklib_common.h
+     src/common/tuklib_config.h
+     src/common/tuklib_integer.h
+     src/common/tuklib_physmem.c
+     src/common/tuklib_physmem.h
+     src/liblzma/api/lzma.h
+     src/liblzma/api/lzma/base.h
+     src/liblzma/api/lzma/bcj.h
+     src/liblzma/api/lzma/block.h
+     src/liblzma/api/lzma/check.h
+     src/liblzma/api/lzma/container.h
+     src/liblzma/api/lzma/delta.h
+     src/liblzma/api/lzma/filter.h
+     src/liblzma/api/lzma/hardware.h
+     src/liblzma/api/lzma/index.h
+     src/liblzma/api/lzma/index_hash.h
+     src/liblzma/api/lzma/lzma12.h
+     src/liblzma/api/lzma/stream_flags.h
+     src/liblzma/api/lzma/version.h
+     src/liblzma/api/lzma/vli.h
+     src/liblzma/check/check.c
+     src/liblzma/check/check.h
+     src/liblzma/check/crc_common.h
+     src/liblzma/common/block_util.c
+     src/liblzma/common/common.c
+     src/liblzma/common/common.h
+     src/liblzma/common/easy_preset.c
+     src/liblzma/common/easy_preset.h
+     src/liblzma/common/filter_common.c
+     src/liblzma/common/filter_common.h
+     src/liblzma/common/hardware_physmem.c
+     src/liblzma/common/index.c
+     src/liblzma/common/index.h
+     src/liblzma/common/memcmplen.h
+     src/liblzma/common/stream_flags_common.c
+     src/liblzma/common/stream_flags_common.h
+     src/liblzma/common/string_conversion.c
+     src/liblzma/common/vli_size.c
+ )
+ 
+ target_include_directories(liblzma PRIVATE
+     src/liblzma/api
+     src/liblzma/common
+     src/liblzma/check
+     src/liblzma/lz
+     src/liblzma/rangecoder
+     src/liblzma/lzma
+     src/liblzma/delta
+     src/liblzma/simple
+     src/common
+ )
+ 
+ 
+ ######################
+ # Size optimizations #
+ ######################
+ 
+ option(ENABLE_SMALL "Reduce code size at expense of speed. \
+ This may be useful together with CMAKE_BUILD_TYPE=MinSizeRel.")
+ 
+ if(ENABLE_SMALL)
+     add_compile_definitions(HAVE_SMALL)
+ endif()
+ 
+ 
+ ##########
+ # Checks #
+ ##########
+ 
+ set(ADDITIONAL_SUPPORTED_CHECKS crc64 sha256)
+ 
+ set(ADDITIONAL_CHECK_TYPES "${ADDITIONAL_SUPPORTED_CHECKS}" CACHE STRING
+     "Additional check types to support (crc32 is always built)")
+ 
+ foreach(CHECK IN LISTS ADDITIONAL_CHECK_TYPES)
+     if(NOT CHECK IN_LIST ADDITIONAL_SUPPORTED_CHECKS)
+         message(SEND_ERROR "'${CHECK}' is not a supported check type")
+     endif()
+ endforeach()
+ 
+ if(ENABLE_SMALL)
+     target_sources(liblzma PRIVATE src/liblzma/check/crc32_small.c)
+ else()
+     target_sources(liblzma PRIVATE
+         src/liblzma/check/crc32_fast.c
+         src/liblzma/check/crc32_table.c
+         src/liblzma/check/crc32_table_be.h
+         src/liblzma/check/crc32_table_le.h
+     )
+ endif()
+ 
+ if("crc64" IN_LIST ADDITIONAL_CHECK_TYPES)
+     add_compile_definitions("HAVE_CHECK_CRC64")
+ 
+     if(ENABLE_SMALL)
+         target_sources(liblzma PRIVATE src/liblzma/check/crc64_small.c)
+     else()
+         target_sources(liblzma PRIVATE
+             src/liblzma/check/crc64_fast.c
+             src/liblzma/check/crc64_table.c
+             src/liblzma/check/crc64_table_be.h
+             src/liblzma/check/crc64_table_le.h
+         )
+     endif()
+ endif()
+ 
+ if("sha256" IN_LIST ADDITIONAL_CHECK_TYPES)
+     add_compile_definitions("HAVE_CHECK_SHA256")
+     target_sources(liblzma PRIVATE src/liblzma/check/sha256.c)
+ endif()
+ 
+ 
+ #################
+ # Match finders #
+ #################
+ 
+ set(SUPPORTED_MATCH_FINDERS hc3 hc4 bt2 bt3 bt4)
+ 
+ set(MATCH_FINDERS "${SUPPORTED_MATCH_FINDERS}" CACHE STRING
+     "Match finders to support (at least one is required for LZMA1 or LZMA2)")
+ 
+ foreach(MF IN LISTS MATCH_FINDERS)
+     if(MF IN_LIST SUPPORTED_MATCH_FINDERS)
+         string(TOUPPER "${MF}" MF_UPPER)
+         add_compile_definitions("HAVE_MF_${MF_UPPER}")
+     else()
+         message(SEND_ERROR "'${MF}' is not a supported match finder")
+     endif()
+ endforeach()
+ 
+ 
+ #############
+ # Threading #
+ #############
+ 
+ # Supported thread methods:
+ # ON    - autodetect the best threading method. The autodetection will
+ #         prefer Windows threading (win95 or vista) over posix if both are
+ #         available. vista threads will be used over win95 unless it is a
+ #         32-bit build.
+ # OFF   - Disable threading.
+ # posix - Use posix threading, or throw an error if not available.
+ # win95 - Use Windows win95 threading, or throw an error if not available.
+ # vista - Use Windows vista threading, or throw an error if not available.
+ set(SUPPORTED_THREAD_METHODS ON OFF posix win95 vista)
+ 
+ set(ENABLE_THREADS ON CACHE STRING
+         "Threading method type to support. Set to 'OFF' to disable threading")
+ 
+ # Create dropdown in CMake GUI since only 1 threading method is possible
+ # to select in a build.
+ set_property(CACHE ENABLE_THREADS
+         PROPERTY STRINGS "${SUPPORTED_THREAD_METHODS}")
+ 
+ # This is a flag variable set when win95 threads are used. We must ensure
+ # the combination of enable_small and win95 threads is not used without a
+ # compiler supporting attribute __constructor__.
+ set(USE_WIN95_THREADS OFF)
+ 
+ if(NOT ENABLE_THREADS IN_LIST SUPPORTED_THREAD_METHODS)
+     message(SEND_ERROR "'${ENABLE_THREADS}' is not a supported thread type")
+ endif()
+ 
+ if(ENABLE_THREADS)
+     # Also set THREADS_PREFER_PTHREAD_FLAG since the flag has no effect
+     # for Windows threading.
+     set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+     find_package(Threads REQUIRED)
+ 
+     # If both Windows and posix threading are available, prefer Windows.
+     # Note that on Cygwin CMAKE_USE_WIN32_THREADS_INIT is false.
+     if(CMAKE_USE_WIN32_THREADS_INIT AND NOT ENABLE_THREADS STREQUAL "posix")
+         if(ENABLE_THREADS STREQUAL "win95"
+                 OR (ENABLE_THREADS STREQUAL "ON"
+                 AND CMAKE_SIZEOF_VOID_P EQUAL 4))
+             # Use Windows 95 (and thus XP) compatible threads.
+             # This avoids use of features that were added in
+             # Windows Vista. This is used for 32-bit x86 builds for
+             # compatibility reasons since it makes no measurable difference
+             # in performance compared to Vista threads.
+             set(USE_WIN95_THREADS ON)
+             add_compile_definitions(MYTHREAD_WIN95)
+         else()
+             add_compile_definitions(MYTHREAD_VISTA)
+         endif()
+     elseif(CMAKE_USE_PTHREADS_INIT)
+         if(ENABLE_THREADS STREQUAL "posix" OR ENABLE_THREADS STREQUAL "ON")
+             # Overwrite ENABLE_THREADS in case it was set to "ON".
+             # The threading library only needs to be explicitly linked
+             # for posix threads, so this is needed for creating
+             # liblzma-config.cmake later.
+             set(ENABLE_THREADS "posix")
+ 
+             target_link_libraries(liblzma Threads::Threads)
+             add_compile_definitions(MYTHREAD_POSIX)
+ 
+             # Check if pthread_condattr_setclock() exists to
+             # use CLOCK_MONOTONIC.
+             if(HAVE_CLOCK_MONOTONIC)
+                 list(INSERT CMAKE_REQUIRED_LIBRARIES 0
+                      "${CMAKE_THREAD_LIBS_INIT}")
+                 check_symbol_exists(pthread_condattr_setclock pthread.h
+                                     HAVE_PTHREAD_CONDATTR_SETCLOCK)
+                 tuklib_add_definition_if(ALL HAVE_PTHREAD_CONDATTR_SETCLOCK)
+             endif()
+         else()
+             message(SEND_ERROR
+                     "Windows thread method requested, but a compatible "
+                     "library could not be found")
+         endif()
+     else()
+         message(SEND_ERROR "No supported threading library found")
+     endif()
+ 
+     target_sources(liblzma PRIVATE
+         src/common/tuklib_cpucores.c
+         src/common/tuklib_cpucores.h
+         src/liblzma/common/hardware_cputhreads.c
+         src/liblzma/common/outqueue.c
+         src/liblzma/common/outqueue.h
+     )
+ endif()
+ 
+ 
+ ############
+ # Encoders #
+ ############
+ 
+ set(SIMPLE_FILTERS
+     x86
+     arm
+     armthumb
+     arm64
+     powerpc
+     ia64
+     sparc
+ )
+ 
+ # The SUPPORTED_FILTERS are shared between Encoders and Decoders
+ # since only lzip does not appear in both lists. lzip is a special
+ # case anyway, so it is handled separately in the Decoders section.
+ set(SUPPORTED_FILTERS
+     lzma1
+     lzma2
+     delta
+     "${SIMPLE_FILTERS}"
+ )
+ 
+ set(ENCODERS "${SUPPORTED_FILTERS}" CACHE STRING "Encoders to support")
+ 
+ # If LZMA2 is enabled, then LZMA1 must also be enabled.
+ if(NOT "lzma1" IN_LIST ENCODERS AND "lzma2" IN_LIST ENCODERS)
+     message(SEND_ERROR "LZMA2 encoder requires that LZMA1 is also enabled")
+ endif()
+ 
+ # If LZMA1 is enabled, then at least one match finder must be enabled.
+ if(MATCH_FINDERS STREQUAL "" AND "lzma1" IN_LIST ENCODERS)
+     message(SEND_ERROR "At least 1 match finder is required for an "
+                        "LZ-based encoder")
+ endif()
+ 
+ set(HAVE_DELTA_CODER OFF)
+ set(SIMPLE_ENCODERS OFF)
+ set(HAVE_ENCODERS OFF)
+ 
+ foreach(ENCODER IN LISTS ENCODERS)
+     if(ENCODER IN_LIST SUPPORTED_FILTERS)
+         set(HAVE_ENCODERS ON)
+ 
+         if(NOT SIMPLE_ENCODERS AND ENCODER IN_LIST SIMPLE_FILTERS)
+             set(SIMPLE_ENCODERS ON)
+         endif()
+ 
+         string(TOUPPER "${ENCODER}" ENCODER_UPPER)
+         add_compile_definitions("HAVE_ENCODER_${ENCODER_UPPER}")
+     else()
+         message(SEND_ERROR "'${ENCODER}' is not a supported encoder")
+     endif()
+ endforeach()
+ 
+ if(HAVE_ENCODERS)
+     add_compile_definitions(HAVE_ENCODERS)
+ 
+     target_sources(liblzma PRIVATE
+         src/liblzma/common/alone_encoder.c
+         src/liblzma/common/block_buffer_encoder.c
+         src/liblzma/common/block_buffer_encoder.h
+         src/liblzma/common/block_encoder.c
+         src/liblzma/common/block_encoder.h
+         src/liblzma/common/block_header_encoder.c
+         src/liblzma/common/easy_buffer_encoder.c
+         src/liblzma/common/easy_encoder.c
+         src/liblzma/common/easy_encoder_memusage.c
+         src/liblzma/common/filter_buffer_encoder.c
+         src/liblzma/common/filter_encoder.c
+         src/liblzma/common/filter_encoder.h
+         src/liblzma/common/filter_flags_encoder.c
+         src/liblzma/common/index_encoder.c
+         src/liblzma/common/index_encoder.h
+         src/liblzma/common/stream_buffer_encoder.c
+         src/liblzma/common/stream_encoder.c
+         src/liblzma/common/stream_flags_encoder.c
+         src/liblzma/common/vli_encoder.c
+     )
+ 
+     if(ENABLE_THREADS)
+         target_sources(liblzma PRIVATE
+             src/liblzma/common/stream_encoder_mt.c
+         )
+     endif()
+ 
+     if(SIMPLE_ENCODERS)
+         target_sources(liblzma PRIVATE
+             src/liblzma/simple/simple_encoder.c
+             src/liblzma/simple/simple_encoder.h
+         )
+     endif()
+ 
+     if("lzma1" IN_LIST ENCODERS)
+         target_sources(liblzma PRIVATE
+             src/liblzma/lzma/lzma_encoder.c
+             src/liblzma/lzma/lzma_encoder.h
+             src/liblzma/lzma/lzma_encoder_optimum_fast.c
+             src/liblzma/lzma/lzma_encoder_optimum_normal.c
+             src/liblzma/lzma/lzma_encoder_private.h
+             src/liblzma/lzma/fastpos.h
+             src/liblzma/lz/lz_encoder.c
+             src/liblzma/lz/lz_encoder.h
+             src/liblzma/lz/lz_encoder_hash.h
+             src/liblzma/lz/lz_encoder_hash_table.h
+             src/liblzma/lz/lz_encoder_mf.c
+             src/liblzma/rangecoder/price.h
+             src/liblzma/rangecoder/price_table.c
+             src/liblzma/rangecoder/range_encoder.h
+         )
+ 
+         if(NOT ENABLE_SMALL)
+             target_sources(liblzma PRIVATE src/liblzma/lzma/fastpos_table.c)
+         endif()
+     endif()
+ 
+     if("lzma2" IN_LIST ENCODERS)
+         target_sources(liblzma PRIVATE
+             src/liblzma/lzma/lzma2_encoder.c
+             src/liblzma/lzma/lzma2_encoder.h
+         )
+     endif()
+ 
+     if("delta" IN_LIST ENCODERS)
+         set(HAVE_DELTA_CODER ON)
+         target_sources(liblzma PRIVATE
+             src/liblzma/delta/delta_encoder.c
+             src/liblzma/delta/delta_encoder.h
+         )
+     endif()
+ endif()
+ 
+ 
+ ############
+ # Decoders #
+ ############
+ 
+ set(DECODERS "${SUPPORTED_FILTERS}" CACHE STRING "Decoders to support")
+ 
+ set(SIMPLE_DECODERS OFF)
+ set(HAVE_DECODERS OFF)
+ 
+ foreach(DECODER IN LISTS DECODERS)
+     if(DECODER IN_LIST SUPPORTED_FILTERS)
+         set(HAVE_DECODERS ON)
+ 
+         if(NOT SIMPLE_DECODERS AND DECODER IN_LIST SIMPLE_FILTERS)
+             set(SIMPLE_DECODERS ON)
+         endif()
+ 
+         string(TOUPPER "${DECODER}" DECODER_UPPER)
+         add_compile_definitions("HAVE_DECODER_${DECODER_UPPER}")
+     else()
+         message(SEND_ERROR "'${DECODER}' is not a supported decoder")
+     endif()
+ endforeach()
+ 
+ if(HAVE_DECODERS)
+     add_compile_definitions(HAVE_DECODERS)
+ 
+     target_sources(liblzma PRIVATE
+         src/liblzma/common/alone_decoder.c
+         src/liblzma/common/alone_decoder.h
+         src/liblzma/common/auto_decoder.c
+         src/liblzma/common/block_buffer_decoder.c
+         src/liblzma/common/block_decoder.c
+         src/liblzma/common/block_decoder.h
+         src/liblzma/common/block_header_decoder.c
+         src/liblzma/common/easy_decoder_memusage.c
+         src/liblzma/common/file_info.c
+         src/liblzma/common/filter_buffer_decoder.c
+         src/liblzma/common/filter_decoder.c
+         src/liblzma/common/filter_decoder.h
+         src/liblzma/common/filter_flags_decoder.c
+         src/liblzma/common/index_decoder.c
+         src/liblzma/common/index_decoder.h
+         src/liblzma/common/index_hash.c
+         src/liblzma/common/stream_buffer_decoder.c
+         src/liblzma/common/stream_decoder.c
+         src/liblzma/common/stream_flags_decoder.c
+         src/liblzma/common/stream_decoder.h
+         src/liblzma/common/vli_decoder.c
+     )
+ 
+     if(ENABLE_THREADS)
+         target_sources(liblzma PRIVATE
+             src/liblzma/common/stream_decoder_mt.c
+         )
+     endif()
+ 
+     if(SIMPLE_DECODERS)
+         target_sources(liblzma PRIVATE
+             src/liblzma/simple/simple_decoder.c
+             src/liblzma/simple/simple_decoder.h
+         )
+     endif()
+ 
+     if("lzma1" IN_LIST DECODERS)
+         target_sources(liblzma PRIVATE
+             src/liblzma/lzma/lzma_decoder.c
+             src/liblzma/lzma/lzma_decoder.h
+             src/liblzma/rangecoder/range_decoder.h
+             src/liblzma/lz/lz_decoder.c
+             src/liblzma/lz/lz_decoder.h
+         )
+     endif()
+ 
+     if("lzma2" IN_LIST DECODERS)
+         target_sources(liblzma PRIVATE
+             src/liblzma/lzma/lzma2_decoder.c
+             src/liblzma/lzma/lzma2_decoder.h
+         )
+     endif()
+ 
+     if("delta" IN_LIST DECODERS)
+         set(HAVE_DELTA_CODER ON)
+         target_sources(liblzma PRIVATE
+             src/liblzma/delta/delta_decoder.c
+             src/liblzma/delta/delta_decoder.h
+         )
+     endif()
+ endif()
+ 
+ # Some sources must appear if the filter is configured as either
+ # an encoder or decoder.
+ if("lzma1" IN_LIST ENCODERS OR "lzma1" IN_LIST DECODERS)
+     target_sources(liblzma PRIVATE
+         src/liblzma/rangecoder/range_common.h
+         src/liblzma/lzma/lzma_encoder_presets.c
+         src/liblzma/lzma/lzma_common.h
+     )
+ endif()
+ 
+ if(HAVE_DELTA_CODER)
+     target_sources(liblzma PRIVATE
+         src/liblzma/delta/delta_common.c
+         src/liblzma/delta/delta_common.h
+         src/liblzma/delta/delta_private.h
+     )
+ endif()
+ 
+ if(SIMPLE_ENCODERS OR SIMPLE_DECODERS)
+     target_sources(liblzma PRIVATE
+         src/liblzma/simple/simple_coder.c
+         src/liblzma/simple/simple_coder.h
+         src/liblzma/simple/simple_private.h
+     )
+ endif()
+ 
+ foreach(SIMPLE_CODER IN LISTS SIMPLE_FILTERS)
+     if(SIMPLE_CODER IN_LIST ENCODERS OR SIMPLE_CODER IN_LIST DECODERS)
+         target_sources(liblzma PRIVATE "src/liblzma/simple/${SIMPLE_CODER}.c")
+     endif()
+ endforeach()
+ 
+ 
+ #############
+ # MicroLZMA #
+ #############
+ 
+ option(MICROLZMA_ENCODER
+        "MicroLZMA encoder (needed by specific applications only)" ON)
+ 
+ option(MICROLZMA_DECODER
+        "MicroLZMA decoder (needed by specific applications only)" ON)
+ 
+ if(MICROLZMA_ENCODER)
+     if(NOT "lzma1" IN_LIST ENCODERS)
+         message(SEND_ERROR "The LZMA1 encoder is required to support the "
+                            "MicroLZMA encoder")
+     endif()
+ 
+     target_sources(liblzma PRIVATE src/liblzma/common/microlzma_encoder.c)
+ endif()
+ 
+ if(MICROLZMA_DECODER)
+     if(NOT "lzma1" IN_LIST DECODERS)
+         message(SEND_ERROR "The LZMA1 decoder is required to support the "
+                            "MicroLZMA decoder")
+     endif()
+ 
+     target_sources(liblzma PRIVATE src/liblzma/common/microlzma_decoder.c)
+ endif()
+ 
+ 
+ #############################
+ # lzip (.lz) format support #
+ #############################
+ 
+ option(LZIP_DECODER "Support lzip decoder" ON)
+ 
+ if(LZIP_DECODER)
+     # If lzip decoder support is requested, make sure LZMA1 decoder is enabled.
+     if(NOT "lzma1" IN_LIST DECODERS)
+         message(SEND_ERROR "The LZMA1 decoder is required to support the "
+                            "lzip decoder")
+     endif()
+ 
+     add_compile_definitions(HAVE_LZIP_DECODER)
+ 
+     target_sources(liblzma PRIVATE
+         src/liblzma/common/lzip_decoder.c
+         src/liblzma/common/lzip_decoder.h
+     )
+ endif()
+ 
+ ###
+ 
+ # Put the tuklib functions under the lzma_ namespace.
+ target_compile_definitions(liblzma PRIVATE TUKLIB_SYMBOL_PREFIX=lzma_)
+ tuklib_cpucores(liblzma)
+ tuklib_physmem(liblzma)
+ 
+ # While liblzma can be built without tuklib_cpucores or tuklib_physmem
+ # modules, the liblzma API functions lzma_cputhreads() and lzma_physmem()
+ # will then be useless (which isn't too bad but still unfortunate). Since
+ # I expect the CMake-based builds to be only used on systems that are
+ # supported by these tuklib modules, problems with these tuklib modules
+ # are considered a hard error for now. This hopefully helps to catch bugs
+ # in the CMake versions of the tuklib checks.
+ if(NOT TUKLIB_CPUCORES_FOUND OR NOT TUKLIB_PHYSMEM_FOUND)
+     # Use SEND_ERROR instead of FATAL_ERROR. If someone reports a bug,
+     # seeing the results of the remaining checks can be useful too.
+     message(SEND_ERROR
+             "tuklib_cpucores() or tuklib_physmem() failed. "
+             "Unless you really are building for a system where these "
+             "modules are not supported (unlikely), this is a bug in the "
+             "included cmake/tuklib_*.cmake files that should be fixed. "
+             "To build anyway, edit this CMakeLists.txt to ignore this error.")
+ endif()
+ 
+ # Check for __attribute__((__constructor__)) support.
+ # This needs -Werror because some compilers just warn
+ # about this being unsupported.
+ cmake_push_check_state()
+ set(CMAKE_REQUIRED_FLAGS "-Werror")
+ check_c_source_compiles("
+         __attribute__((__constructor__))
+         static void my_constructor_func(void) { return; }
+         int main(void) { return 0; }
+     "
+     HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR)
+ cmake_pop_check_state()
+ tuklib_add_definition_if(liblzma HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR)
+ 
+ # The Win95 threading lacks a thread-safe one-time initialization function.
+ # The one-time initialization is needed for crc32_small.c and crc64_small.c
+ # create the CRC tables. So if small mode is enabled, the threading mode is
+ # win95, and the compiler does not support attribute constructor, then we
+ # would end up with a multithreaded build that is thread-unsafe. As a
+ # result this configuration is not allowed.
+ if(USE_WIN95_THREADS AND ENABLE_SMALL AND NOT HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR)
+     message(SEND_ERROR "Threading method win95 and ENABLE_SMALL "
+                         "cannot be used at the same time with a compiler "
+                         "that doesn't support "
+                         "__attribute__((__constructor__))")
+ endif()
+ 
+ 
+ # Check for __attribute__((__ifunc__())) support.
+ option(ALLOW_ATTR_IFUNC "Allow use of __attribute__((__ifunc__())) if \
+ supported by the system" ON)
+ 
+ if(ALLOW_ATTR_IFUNC)
+     cmake_push_check_state()
+     set(CMAKE_REQUIRED_FLAGS "-Werror")
+     check_c_source_compiles("
+             static void func(void) { return; }
+             static void (*resolve_func(void)) (void) { return func; }
+             void func_ifunc(void)
+                     __attribute__((__ifunc__(\"resolve_func\")));
+             int main(void) { return 0; }
+             /*
+              * 'clang -Wall' incorrectly warns that resolve_func is
+              * unused (-Wunused-function). Correct assembly output is
+              * still produced. This problem exists at least in Clang
+              * versions 4 to 17. The following silences the bogus warning:
+              */
+             void make_clang_quiet(void);
+             void make_clang_quiet(void) { resolve_func()(); }
+         "
+         HAVE_FUNC_ATTRIBUTE_IFUNC)
+     cmake_pop_check_state()
+     tuklib_add_definition_if(liblzma HAVE_FUNC_ATTRIBUTE_IFUNC)
+ endif()
+ 
+ # cpuid.h
+ check_include_file(cpuid.h HAVE_CPUID_H)
+ tuklib_add_definition_if(liblzma HAVE_CPUID_H)
+ 
+ # immintrin.h:
+ check_include_file(immintrin.h HAVE_IMMINTRIN_H)
+ if(HAVE_IMMINTRIN_H)
+     target_compile_definitions(liblzma PRIVATE HAVE_IMMINTRIN_H)
+ 
+     # SSE2 intrinsics:
+     check_c_source_compiles("
+             #include <immintrin.h>
+             int main(void)
+             {
+                 __m128i x = { 0 };
+                 _mm_movemask_epi8(x);
+                 return 0;
+             }
+         "
+         HAVE__MM_MOVEMASK_EPI8)
+     tuklib_add_definition_if(liblzma HAVE__MM_MOVEMASK_EPI8)
+ 
+     # CLMUL intrinsic:
+     check_c_source_compiles("
+             #include <immintrin.h>
+             #if defined(__e2k__) && __iset__ < 6
+             #   error
+             #endif
+             #if (defined(__GNUC__) || defined(__clang__)) && !defined(__EDG__)
+             __attribute__((__target__(\"ssse3,sse4.1,pclmul\")))
+             #endif
+             __m128i my_clmul(__m128i a)
+             {
+                 const __m128i b = _mm_set_epi64x(1, 2);
+                 return _mm_clmulepi64_si128(a, b, 0);
+             }
              int main(void) { return 0; }
      "
      HAVE_USABLE_CLMUL)
@@ -43,11 +887,1598 @@ index ecbb7b2d..6e3cd6f8 100644
  endif()
  
  # Support -fvisiblity=hidden when building shared liblzma.
+ # These lines do nothing on Windows (even under Cygwin).
+ # HAVE_VISIBILITY should always be defined to 0 or 1.
+ if(BUILD_SHARED_LIBS)
+     set_target_properties(liblzma PROPERTIES C_VISIBILITY_PRESET hidden)
+     target_compile_definitions(liblzma PRIVATE HAVE_VISIBILITY=1)
+ else()
+     target_compile_definitions(liblzma PRIVATE HAVE_VISIBILITY=0)
+ endif()
+ 
+ if(WIN32)
+     if(BUILD_SHARED_LIBS)
+         # Add the Windows resource file for liblzma.dll.
+         target_sources(liblzma PRIVATE src/liblzma/liblzma_w32res.rc)
+ 
+         set_target_properties(liblzma PROPERTIES
+             LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/common/common_w32res.rc"
+         )
+ 
+         # Export the public API symbols with __declspec(dllexport).
+         target_compile_definitions(liblzma PRIVATE DLL_EXPORT)
+     else()
+         # Disable __declspec(dllimport) when linking against static liblzma.
+         target_compile_definitions(liblzma INTERFACE LZMA_API_STATIC)
+     endif()
+ elseif(BUILD_SHARED_LIBS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+     # GNU/Linux-specific symbol versioning for shared liblzma.
+     # Note that adding link options doesn't affect static builds
+     # but HAVE_SYMBOL_VERSIONS_LINUX must not be used with static builds
+     # because it would put symbol versions into the static library which
+     # can cause problems. It's clearer if all symver related things are
+     # omitted when not building a shared library.
+     #
+     # NOTE: Set it explicitly to 1 to make it clear that versioning is
+     # done unconditionally in the C files.
+     target_compile_definitions(liblzma PRIVATE HAVE_SYMBOL_VERSIONS_LINUX=1)
+     target_link_options(liblzma PRIVATE
+         "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/liblzma_linux.map"
+     )
+     set_target_properties(liblzma PROPERTIES
+         LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/liblzma_linux.map"
+     )
+ elseif(BUILD_SHARED_LIBS AND CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+     # Symbol versioning for shared liblzma for non-GNU/Linux.
+     # FIXME? What about Solaris?
+     target_link_options(liblzma PRIVATE
+         "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/liblzma_generic.map"
+     )
+     set_target_properties(liblzma PROPERTIES
+         LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/liblzma_generic.map"
+     )
+ endif()
+ 
+ set_target_properties(liblzma PROPERTIES
+     # At least for now the package versioning matches the rules used for
+     # shared library versioning (excluding development releases) so it is
+     # fine to use the package version here.
+     SOVERSION "${xz_VERSION_MAJOR}"
+     VERSION "${xz_VERSION}"
+ 
+     # It's liblzma.so or liblzma.dll, not libliblzma.so or lzma.dll.
+     # Avoid the name lzma.dll because it would conflict with LZMA SDK.
+     PREFIX ""
+ )
+ 
+ # Create liblzma-config-version.cmake.
+ #
+ # FIXME: SameMajorVersion is correct for stable releases but it is wrong
+ # for development releases where each release may have incompatible changes.
+ include(CMakePackageConfigHelpers)
+ write_basic_package_version_file(
+     "${CMAKE_CURRENT_BINARY_DIR}/liblzma-config-version.cmake"
+     VERSION "${liblzma_VERSION}"
+     COMPATIBILITY SameMajorVersion)
+ 
+ # Create liblzma-config.cmake. We use this spelling instead of
+ # liblzmaConfig.cmake to make find_package work in case insensitive
+ # manner even with case sensitive file systems. This gives more consistent
+ # behavior between operating systems. This optionally includes a dependency
+ # on a threading library, so the contents are created in two separate parts.
+ # The "second half" is always needed, so create it first.
+ set(LZMA_CONFIG_CONTENTS
+ "include(\"\${CMAKE_CURRENT_LIST_DIR}/liblzma-targets.cmake\")
+ 
+ if(NOT TARGET LibLZMA::LibLZMA)
+     # Be compatible with the spelling used by the FindLibLZMA module. This
+     # doesn't use ALIAS because it would make CMake resolve LibLZMA::LibLZMA
+     # to liblzma::liblzma instead of keeping the original spelling. Keeping
+     # the original spelling is important for good FindLibLZMA compatibility.
+     add_library(LibLZMA::LibLZMA INTERFACE IMPORTED)
+     set_target_properties(LibLZMA::LibLZMA PROPERTIES
+                           INTERFACE_LINK_LIBRARIES liblzma::liblzma)
+ endif()
+ ")
+ 
+ if(ENABLE_THREADS STREQUAL "posix")
+     set(LZMA_CONFIG_CONTENTS
+ "include(CMakeFindDependencyMacro)
+ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+ find_dependency(Threads)
+ 
+ ${LZMA_CONFIG_CONTENTS}
+ ")
+ endif()
+ 
+ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/liblzma-config.cmake"
+         "${LZMA_CONFIG_CONTENTS}")
+ 
+ # Set CMAKE_INSTALL_LIBDIR and friends.
+ include(GNUInstallDirs)
+ 
+ # Install the library binary. The INCLUDES specifies the include path that
+ # is exported for other projects to use but it doesn't install any files.
+ install(TARGETS liblzma EXPORT liblzmaTargets
+         RUNTIME  DESTINATION "${CMAKE_INSTALL_BINDIR}"
+                  COMPONENT liblzma_Runtime
+         LIBRARY  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+                  COMPONENT liblzma_Runtime
+                  NAMELINK_COMPONENT liblzma_Development
+         ARCHIVE  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+                  COMPONENT liblzma_Development
+         INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+ 
+ # Install the liblzma API headers. These use a subdirectory so
+ # this has to be done as a separate step.
+ install(DIRECTORY src/liblzma/api/
+         COMPONENT liblzma_Development
+         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+         FILES_MATCHING PATTERN "*.h")
+ 
+ # Install the CMake files that other packages can use to find liblzma.
+ set(liblzma_INSTALL_CMAKEDIR
+     "${CMAKE_INSTALL_LIBDIR}/cmake/liblzma"
+     CACHE STRING "Path to liblzma's .cmake files")
+ 
+ install(EXPORT liblzmaTargets
+         NAMESPACE liblzma::
+         FILE liblzma-targets.cmake
+         DESTINATION "${liblzma_INSTALL_CMAKEDIR}"
+         COMPONENT liblzma_Development)
+ 
+ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/liblzma-config.cmake"
+               "${CMAKE_CURRENT_BINARY_DIR}/liblzma-config-version.cmake"
+         DESTINATION "${liblzma_INSTALL_CMAKEDIR}"
+         COMPONENT liblzma_Development)
+ 
+ 
+ #############################################################################
+ # libgnu (getopt_long)
+ #############################################################################
+ 
+ # This mirrors how the Autotools build system handles the getopt_long
+ # replacement, calling the object library libgnu since the replacement
+ # version comes from Gnulib.
+ add_library(libgnu OBJECT)
+ 
+ # CMake requires that even an object library must have at least once source
+ # file. So we give it a header file that results in no output files.
+ target_sources(libgnu PRIVATE lib/getopt.in.h)
+ 
+ # The Ninja Generator requires setting the linker language since it cannot
+ # guess the programming language of just a header file. Setting this
+ # property avoids needing an empty .c file or an non-empty unnecessary .c
+ # file.
+ set_target_properties(libgnu PROPERTIES LINKER_LANGUAGE C)
+ 
+ # Create /lib directory in the build directory and add it to the include path.
+ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
+ target_include_directories(libgnu PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/lib")
+ 
+ # Include /lib from the source directory. It does no harm even if none of
+ # the Gnulib replacements are used.
+ target_include_directories(libgnu PUBLIC lib)
+ 
+ # The command line tools need getopt_long in order to parse arguments. If
+ # the system does not have a getopt_long implementation we can use the one
+ # from Gnulib instead.
+ check_symbol_exists(getopt_long getopt.h HAVE_GETOPT_LONG)
+ 
+ if(NOT HAVE_GETOPT_LONG)
+     # Set the __GETOPT_PREFIX definition to "rpl_" (replacement) to avoid
+     # name conflicts with libc symbols. The same prefix is set if using
+     # the Autotools build (m4/getopt.m4).
+     target_compile_definitions(libgnu PUBLIC "__GETOPT_PREFIX=rpl_")
+ 
+     # Create a custom copy command to copy the getopt header to the build
+     # directory and re-copy it if it is updated. (Gnulib does it this way
+     # because it allows choosing which .in.h files to actually use in the
+     # build. We need just getopt.h so this is a bit overcomplicated for
+     # a single header file only.)
+     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/lib/getopt.h"
+         COMMAND "${CMAKE_COMMAND}" -E copy
+             "${CMAKE_CURRENT_SOURCE_DIR}/lib/getopt.in.h"
+             "${CMAKE_CURRENT_BINARY_DIR}/lib/getopt.h"
+         MAIN_DEPENDENCY "${CMAKE_CURRENT_SOURCE_DIR}/lib/getopt.in.h"
+         VERBATIM)
+ 
+     target_sources(libgnu PRIVATE
+         lib/getopt1.c
+         lib/getopt.c
+         lib/getopt_int.h
+         lib/getopt-cdefs.h
+         lib/getopt-core.h
+         lib/getopt-ext.h
+         lib/getopt-pfx-core.h
+         lib/getopt-pfx-ext.h
+         "${CMAKE_CURRENT_BINARY_DIR}/lib/getopt.h"
+     )
+ endif()
+ 
+ 
+ #############################################################################
+ # xzdec
+ #############################################################################
+ 
+ if(HAVE_DECODERS AND (NOT MSVC OR MSVC_VERSION GREATER_EQUAL 1900))
+     add_executable(xzdec
+         src/common/sysdefs.h
+         src/common/tuklib_common.h
+         src/common/tuklib_config.h
+         src/common/tuklib_exit.c
+         src/common/tuklib_exit.h
+         src/common/tuklib_gettext.h
+         src/common/tuklib_progname.c
+         src/common/tuklib_progname.h
+         src/xzdec/xzdec.c
+     )
+ 
+     target_include_directories(xzdec PRIVATE
+         src/common
+         src/liblzma/api
+     )
+ 
+     target_link_libraries(xzdec PRIVATE liblzma libgnu)
+ 
+     if(WIN32)
+         # Add the Windows resource file for xzdec.exe.
+         target_sources(xzdec PRIVATE src/xzdec/xzdec_w32res.rc)
+         set_target_properties(xzdec PROPERTIES
+             LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/common/common_w32res.rc"
+         )
+     endif()
+ 
+     tuklib_progname(xzdec)
+ 
+     install(TARGETS xzdec
+             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+                     COMPONENT xzdec)
+ 
+     if(UNIX)
+         install(FILES src/xzdec/xzdec.1
+                 DESTINATION "${CMAKE_INSTALL_MANDIR}/man1"
+                 COMPONENT xzdec)
+     endif()
+ endif()
+ 
+ 
+ #############################################################################
+ # xz
+ #############################################################################
+ 
+ if(NOT MSVC OR MSVC_VERSION GREATER_EQUAL 1900)
+     add_executable(xz
+         src/common/mythread.h
+         src/common/sysdefs.h
+         src/common/tuklib_common.h
+         src/common/tuklib_config.h
+         src/common/tuklib_exit.c
+         src/common/tuklib_exit.h
+         src/common/tuklib_gettext.h
+         src/common/tuklib_integer.h
+         src/common/tuklib_mbstr.h
+         src/common/tuklib_mbstr_fw.c
+         src/common/tuklib_mbstr_width.c
+         src/common/tuklib_open_stdxxx.c
+         src/common/tuklib_open_stdxxx.h
+         src/common/tuklib_progname.c
+         src/common/tuklib_progname.h
+         src/xz/args.c
+         src/xz/args.h
+         src/xz/coder.c
+         src/xz/coder.h
+         src/xz/file_io.c
+         src/xz/file_io.h
+         src/xz/hardware.c
+         src/xz/hardware.h
+         src/xz/main.c
+         src/xz/main.h
+         src/xz/message.c
+         src/xz/message.h
+         src/xz/mytime.c
+         src/xz/mytime.h
+         src/xz/options.c
+         src/xz/options.h
+         src/xz/private.h
+         src/xz/signals.c
+         src/xz/signals.h
+         src/xz/suffix.c
+         src/xz/suffix.h
+         src/xz/util.c
+         src/xz/util.h
+     )
+ 
+     target_include_directories(xz PRIVATE
+         src/common
+         src/liblzma/api
+     )
+ 
+     if(HAVE_DECODERS)
+         target_sources(xz PRIVATE
+             src/xz/list.c
+             src/xz/list.h
+         )
+     endif()
+ 
+     target_link_libraries(xz PRIVATE liblzma libgnu)
+ 
+     target_compile_definitions(xz PRIVATE ASSUME_RAM=128)
+ 
+     if(WIN32)
+         # Add the Windows resource file for xz.exe.
+         target_sources(xz PRIVATE src/xz/xz_w32res.rc)
+         set_target_properties(xz PROPERTIES
+             LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/common/common_w32res.rc"
+         )
+     endif()
+ 
+     tuklib_progname(xz)
+     tuklib_mbstr(xz)
+ 
+     check_symbol_exists(optreset getopt.h HAVE_OPTRESET)
+     tuklib_add_definition_if(xz HAVE_OPTRESET)
+ 
+     check_symbol_exists(posix_fadvise fcntl.h HAVE_POSIX_FADVISE)
+     tuklib_add_definition_if(xz HAVE_POSIX_FADVISE)
+ 
+     # How to get file time:
+     check_struct_has_member("struct stat" st_atim.tv_nsec
+                             "sys/types.h;sys/stat.h"
+                             HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC)
+     if(HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC)
+         tuklib_add_definitions(xz HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC)
+     else()
+         check_struct_has_member("struct stat" st_atimespec.tv_nsec
+                                 "sys/types.h;sys/stat.h"
+                                 HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC)
+         if(HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC)
+             tuklib_add_definitions(xz HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC)
+         else()
+             check_struct_has_member("struct stat" st_atimensec
+                                     "sys/types.h;sys/stat.h"
+                                     HAVE_STRUCT_STAT_ST_ATIMENSEC)
+             tuklib_add_definition_if(xz HAVE_STRUCT_STAT_ST_ATIMENSEC)
+         endif()
+     endif()
+ 
+     # How to set file time:
+     check_symbol_exists(futimens "sys/types.h;sys/stat.h" HAVE_FUTIMENS)
+     if(HAVE_FUTIMENS)
+         tuklib_add_definitions(xz HAVE_FUTIMENS)
+     else()
+         check_symbol_exists(futimes "sys/time.h" HAVE_FUTIMES)
+         if(HAVE_FUTIMES)
+             tuklib_add_definitions(xz HAVE_FUTIMES)
+         else()
+             check_symbol_exists(futimesat "sys/time.h" HAVE_FUTIMESAT)
+             if(HAVE_FUTIMESAT)
+                 tuklib_add_definitions(xz HAVE_FUTIMESAT)
+             else()
+                 check_symbol_exists(utimes "sys/time.h" HAVE_UTIMES)
+                 if(HAVE_UTIMES)
+                     tuklib_add_definitions(xz HAVE_UTIMES)
+                 else()
+                     check_symbol_exists(_futime "sys/utime.h" HAVE__FUTIME)
+                     if(HAVE__FUTIME)
+                         tuklib_add_definitions(xz HAVE__FUTIME)
+                     else()
+                         check_symbol_exists(utime "utime.h" HAVE_UTIME)
+                         tuklib_add_definition_if(xz HAVE_UTIME)
+                     endif()
+                 endif()
+             endif()
+         endif()
+     endif()
+ 
+     install(TARGETS xz
+             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+                     COMPONENT xz)
+ 
+     if(UNIX)
+         install(FILES src/xz/xz.1
+                 DESTINATION "${CMAKE_INSTALL_MANDIR}/man1"
+                 COMPONENT xz)
+ 
+         option(CREATE_XZ_SYMLINKS "Create unxz and xzcat symlinks" ON)
+         option(CREATE_LZMA_SYMLINKS "Create lzma, unlzma, and lzcat symlinks"
+                ON)
+         set(XZ_LINKS)
+ 
+         if(CREATE_XZ_SYMLINKS)
+             list(APPEND XZ_LINKS "unxz" "xzcat")
+         endif()
+ 
+         if(CREATE_LZMA_SYMLINKS)
+             list(APPEND XZ_LINKS "lzma" "unlzma" "lzcat")
+         endif()
+ 
+         # With Windows Cygwin and MSYS2 the symlinking is complicated. Both
+         # of these environments set the UNIX variable so they will try to
+         # make the symlinks. The ability for Cygwin and MSYS2 to make
+         # broken symlinks is determined by the CYGWIN and MSYS2 environment
+         # variables, respectively. Broken symlinks are needed for the man
+         # page symlinks and for determining if the xz and lzma symlinks need
+         # to depend on the xz target or not. If broken symlinks cannot be
+         # made then the xz binary must be created before the symlinks.
+         set(ALLOW_BROKEN_SYMLINKS ON)
+ 
+         if(CMAKE_SYSTEM_NAME STREQUAL "CYGWIN")
+             # The Cygwin env variable can be set to four possible values:
+             #
+             # 1. "lnk". Create symlinks as Windows shortcuts.
+             #
+             # 2. "native". Create symlinks as native Windows symlinks
+             #    if supported by the system. Fallback to "lnk" if native
+             #    symlinks are not supported.
+             #
+             # 3. "nativestrict". Create symlinks as native Windows symlinks
+             #    if supported by the system. If the target of the symlink
+             #    does not exist or the creation of the symlink fails for any
+             #    reason, do not create the symlink.
+             #
+             # 4. "sys". Create symlinks as plain files with a special
+             #    system attribute containing the path to the symlink target.
+             #
+             # So, the only case we care about for broken symlinks is
+             # "nativestrict" since all other values mean that broken
+             # symlinks are allowed. If the env variable is not set the
+             # default is "native". If the env variable is set but not
+             # assigned one of the four values, then the default is the same
+             # as option 1 "lnk".
+             string(FIND "$ENV{CYGWIN}" "winsymlinks:nativestrict" SYMLINK_POS)
+             if(SYMLINK_POS GREATER -1)
+                 set(ALLOW_BROKEN_SYMLINKS OFF)
+             endif()
+         elseif(CMAKE_SYSTEM_NAME STREQUAL "MSYS")
+             # The MSYS env variable behaves similar to the CYGWIN but has a
+             # different default behavior. If winsymlinks is set but not
+             # assigned one of the four supported values, the default is to
+             # *copy* the target to the symlink destination. This will fail
+             # if the target does not exist so broken symlinks cannot be
+             # allowed.
+             string(FIND "$ENV{MSYS}" "winsymlinks" SYMLINK_POS)
+             if(SYMLINK_POS GREATER -1)
+                 string(FIND "$ENV{MSYS}" "winsymlinks:nativestrict"
+                         SYMLINK_POS)
+                 if(SYMLINK_POS GREATER -1)
+                     set(ALLOW_BROKEN_SYMLINKS OFF)
+                 endif()
+             else()
+                 set(ALLOW_BROKEN_SYMLINKS OFF)
+             endif()
+         endif()
+ 
+         # Create symlinks in the build directory and then install them.
+         #
+         # The symlinks do not likely need any special extension since
+         # even on Windows the symlink can still be executed without
+         # the .exe extension.
+         foreach(LINK IN LISTS XZ_LINKS)
+             add_custom_target("create_${LINK}" ALL
+                 "${CMAKE_COMMAND}" -E create_symlink
+                     "$<TARGET_FILE_NAME:xz>" "${LINK}"
+                 BYPRODUCTS "${LINK}"
+                 VERBATIM)
+             install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${LINK}"
+                     DESTINATION "${CMAKE_INSTALL_BINDIR}"
+                     COMPONENT xz)
+ 
+             # Only create the man page symlinks if the symlinks can be
+             # created broken. The symlinks will not be valid until install
+             # so they cannot be created on these system environments.
+             if(ALLOW_BROKEN_SYMLINKS)
+                 add_custom_target("create_${LINK}.1" ALL
+                     "${CMAKE_COMMAND}" -E create_symlink "xz.1" "${LINK}.1"
+                     BYPRODUCTS "${LINK}.1"
+                     VERBATIM)
+                 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${LINK}.1"
+                         DESTINATION "${CMAKE_INSTALL_MANDIR}/man1"
+                         COMPONENT xz)
+             else()
+                 # Add the xz target as dependency when broken symlinks
+                 # cannot be made. This ensures parallel builds do not fail
+                 # since it will enforce the order of creating xz first, then
+                 # the symlinks.
+                 add_dependencies("create_${LINK}" xz)
+             endif()
+         endforeach()
+     endif()
+ endif()
+ 
+ 
+ #############################################################################
+ # Tests
+ #############################################################################
+ 
+ include(CTest)
+ 
+ if(BUILD_TESTING)
+     set(LIBLZMA_TESTS
+         test_bcj_exact_size
+         test_block_header
+         test_check
+         test_filter_flags
+         test_filter_str
+         test_hardware
+         test_index
+         test_index_hash
+         test_lzip_decoder
+         test_memlimit
+         test_stream_flags
+         test_vli
+     )
+ 
+     foreach(TEST IN LISTS LIBLZMA_TESTS)
+         add_executable("${TEST}" "tests/${TEST}.c")
+ 
+         target_include_directories("${TEST}" PRIVATE
+             src/common
+             src/liblzma/api
+             src/liblzma
+         )
+ 
+         target_link_libraries("${TEST}" PRIVATE liblzma)
+ 
+         # Put the test programs into their own subdirectory so they don't
+         # pollute the top-level dir which might contain xz and xzdec.
+         set_target_properties("${TEST}" PROPERTIES
+             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/tests_bin"
+         )
+ 
+         add_test(NAME "${TEST}"
+                  COMMAND "${CMAKE_CURRENT_BINARY_DIR}/tests_bin/${TEST}"
+         )
+ 
+         # Set srcdir environment variable so that the tests find their
+         # input files from the source tree.
+         #
+         # Set the return code for skipped tests to match Automake convention.
+         set_tests_properties("${TEST}" PROPERTIES
+             ENVIRONMENT "srcdir=${CMAKE_CURRENT_LIST_DIR}/tests"
+             SKIP_RETURN_CODE 77
+         )
+     endforeach()
+ endif()
 diff --git a/configure.ac b/configure.ac
 index 4d298430..19dbf1d7 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1035,11 +1035,13 @@ __m128i my_clmul(__m128i a)
+@@ -1,1226 +1,1228 @@
+ #                                               -*- Autoconf -*-
+ # Process this file with autoconf to produce a configure script.
+ 
+ ###############################################################################
+ #
+ # Author: Lasse Collin
+ #
+ # This file has been put into the public domain.
+ # You can do whatever you want with this file.
+ #
+ ###############################################################################
+ 
+ # NOTE: Don't add useless checks. autoscan detects this and that, but don't
+ # let it confuse you. For example, we don't care about checking for behavior
+ # of malloc(), stat(), or lstat(), since we don't use those functions in
+ # a way that would cause the problems the autoconf macros check.
+ 
+ AC_PREREQ([2.69])
+ 
+ AC_INIT([XZ Utils], m4_esyscmd([/bin/sh build-aux/version.sh]),
+ 	[xz@tukaani.org], [xz], [https://tukaani.org/xz/])
+ AC_CONFIG_SRCDIR([src/liblzma/common/common.h])
+ AC_CONFIG_AUX_DIR([build-aux])
+ AC_CONFIG_MACRO_DIR([m4])
+ AC_CONFIG_HEADERS([config.h])
+ 
+ echo
+ echo "$PACKAGE_STRING"
+ 
+ echo
+ echo "System type:"
+ # This is needed to know if assembler optimizations can be used.
+ AC_CANONICAL_HOST
+ 
+ # We do some special things on Windows (32-bit or 64-bit) builds.
+ case $host_os in
+ 	mingw* | cygwin | msys) is_w32=yes ;;
+ 	*)                      is_w32=no ;;
+ esac
+ AM_CONDITIONAL([COND_W32], [test "$is_w32" = yes])
+ 
+ # We need to use $EXEEXT with $(LN_S) when creating symlinks to
+ # executables. Cygwin is an exception to this, since it is recommended
+ # that symlinks don't have the .exe suffix. To make this work, we
+ # define LN_EXEEXT.
+ #
+ # MSYS2 is treated the same way as Cygwin. It uses plain "msys" like
+ # the original MSYS when building MSYS/MSYS2-binaries. Hopefully this
+ # doesn't break things for the original MSYS developers. Note that this
+ # doesn't affect normal MSYS/MSYS2 users building non-MSYS/MSYS2 binaries
+ # since in that case the $host_os is usually mingw32.
+ case $host_os in
+ 	cygwin | msys)  LN_EXEEXT= ;;
+ 	*)              LN_EXEEXT='$(EXEEXT)' ;;
+ esac
+ AC_SUBST([LN_EXEEXT])
+ 
+ echo
+ echo "Configure options:"
+ AM_CFLAGS=
+ 
+ 
+ #############
+ # Debugging #
+ #############
+ 
+ AC_MSG_CHECKING([if debugging code should be compiled])
+ AC_ARG_ENABLE([debug], AS_HELP_STRING([--enable-debug], [Enable debugging code.]),
+ 	[], enable_debug=no)
+ if test "x$enable_debug" = xyes; then
+ 	AC_MSG_RESULT([yes])
+ else
+ 	AC_DEFINE([NDEBUG], [1], [Define to 1 to disable debugging code.])
+ 	AC_MSG_RESULT([no])
+ fi
+ 
+ 
+ ###########
+ # Filters #
+ ###########
+ 
+ m4_define([SUPPORTED_FILTERS], [lzma1,lzma2,delta,x86,powerpc,ia64,arm,armthumb,arm64,sparc])dnl
+ m4_define([SIMPLE_FILTERS], [x86,powerpc,ia64,arm,armthumb,arm64,sparc])
+ m4_define([LZ_FILTERS], [lzma1,lzma2])
+ 
+ m4_foreach([NAME], [SUPPORTED_FILTERS],
+ [enable_filter_[]NAME=no
+ enable_encoder_[]NAME=no
+ enable_decoder_[]NAME=no
+ ])dnl
+ 
+ AC_MSG_CHECKING([which encoders to build])
+ AC_ARG_ENABLE([encoders], AS_HELP_STRING([--enable-encoders=LIST],
+ 		[Comma-separated list of encoders to build. Default=all.
+ 		Available encoders:]
+ 			m4_translit(m4_defn([SUPPORTED_FILTERS]), [,], [ ])),
+ 	[], [enable_encoders=SUPPORTED_FILTERS])
+ enable_encoders=`echo "$enable_encoders" | sed 's/,/ /g'`
+ if test "x$enable_encoders" = xno || test "x$enable_encoders" = x; then
+ 	enable_encoders=no
+ 	AC_MSG_RESULT([(none)])
+ else
+ 	for arg in $enable_encoders
+ 	do
+ 		case $arg in m4_foreach([NAME], [SUPPORTED_FILTERS], [
+ 			NAME)
+ 				enable_filter_[]NAME=yes
+ 				enable_encoder_[]NAME=yes
+ 				AC_DEFINE(HAVE_ENCODER_[]m4_toupper(NAME), [1],
+ 				[Define to 1 if] NAME [encoder is enabled.])
+ 				;;])
+ 			*)
+ 				AC_MSG_RESULT([])
+ 				AC_MSG_ERROR([unknown filter: $arg])
+ 				;;
+ 		esac
+ 	done
+ 	AC_DEFINE([HAVE_ENCODERS], [1],
+ 		[Define to 1 if any of HAVE_ENCODER_foo have been defined.])
+ 	AC_MSG_RESULT([$enable_encoders])
+ fi
+ 
+ AC_MSG_CHECKING([which decoders to build])
+ AC_ARG_ENABLE([decoders], AS_HELP_STRING([--enable-decoders=LIST],
+ 		[Comma-separated list of decoders to build. Default=all.
+ 		Available decoders are the same as available encoders.]),
+ 	[], [enable_decoders=SUPPORTED_FILTERS])
+ enable_decoders=`echo "$enable_decoders" | sed 's/,/ /g'`
+ if test "x$enable_decoders" = xno || test "x$enable_decoders" = x; then
+ 	enable_decoders=no
+ 	AC_MSG_RESULT([(none)])
+ else
+ 	for arg in $enable_decoders
+ 	do
+ 		case $arg in m4_foreach([NAME], [SUPPORTED_FILTERS], [
+ 			NAME)
+ 				enable_filter_[]NAME=yes
+ 				enable_decoder_[]NAME=yes
+ 				AC_DEFINE(HAVE_DECODER_[]m4_toupper(NAME), [1],
+ 				[Define to 1 if] NAME [decoder is enabled.])
+ 				;;])
+ 			*)
+ 				AC_MSG_RESULT([])
+ 				AC_MSG_ERROR([unknown filter: $arg])
+ 				;;
+ 		esac
+ 	done
+ 	AC_DEFINE([HAVE_DECODERS], [1],
+ 		[Define to 1 if any of HAVE_DECODER_foo have been defined.])
+ 	AC_MSG_RESULT([$enable_decoders])
+ fi
+ 
+ if test "x$enable_encoder_lzma2$enable_encoder_lzma1" = xyesno \
+ 		|| test "x$enable_decoder_lzma2$enable_decoder_lzma1" = xyesno; then
+ 	AC_MSG_ERROR([LZMA2 requires that LZMA1 is also enabled.])
+ fi
+ 
+ AM_CONDITIONAL(COND_MAIN_ENCODER, test "x$enable_encoders" != xno)
+ AM_CONDITIONAL(COND_MAIN_DECODER, test "x$enable_decoders" != xno)
+ 
+ m4_foreach([NAME], [SUPPORTED_FILTERS],
+ [AM_CONDITIONAL(COND_FILTER_[]m4_toupper(NAME), test "x$enable_filter_[]NAME" = xyes)
+ AM_CONDITIONAL(COND_ENCODER_[]m4_toupper(NAME), test "x$enable_encoder_[]NAME" = xyes)
+ AM_CONDITIONAL(COND_DECODER_[]m4_toupper(NAME), test "x$enable_decoder_[]NAME" = xyes)
+ ])dnl
+ 
+ # The so called "simple filters" share common code.
+ enable_filter_simple=no
+ enable_encoder_simple=no
+ enable_decoder_simple=no
+ m4_foreach([NAME], [SIMPLE_FILTERS],
+ [test "x$enable_filter_[]NAME" = xyes && enable_filter_simple=yes
+ test "x$enable_encoder_[]NAME" = xyes && enable_encoder_simple=yes
+ test "x$enable_decoder_[]NAME" = xyes && enable_decoder_simple=yes
+ ])dnl
+ AM_CONDITIONAL(COND_FILTER_SIMPLE, test "x$enable_filter_simple" = xyes)
+ AM_CONDITIONAL(COND_ENCODER_SIMPLE, test "x$enable_encoder_simple" = xyes)
+ AM_CONDITIONAL(COND_DECODER_SIMPLE, test "x$enable_decoder_simple" = xyes)
+ 
+ # LZ-based filters share common code.
+ enable_filter_lz=no
+ enable_encoder_lz=no
+ enable_decoder_lz=no
+ m4_foreach([NAME], [LZ_FILTERS],
+ [test "x$enable_filter_[]NAME" = xyes && enable_filter_lz=yes
+ test "x$enable_encoder_[]NAME" = xyes && enable_encoder_lz=yes
+ test "x$enable_decoder_[]NAME" = xyes && enable_decoder_lz=yes
+ ])dnl
+ AM_CONDITIONAL(COND_FILTER_LZ, test "x$enable_filter_lz" = xyes)
+ AM_CONDITIONAL(COND_ENCODER_LZ, test "x$enable_encoder_lz" = xyes)
+ AM_CONDITIONAL(COND_DECODER_LZ, test "x$enable_decoder_lz" = xyes)
+ 
+ 
+ #################
+ # Match finders #
+ #################
+ 
+ m4_define([SUPPORTED_MATCH_FINDERS], [hc3,hc4,bt2,bt3,bt4])
+ 
+ m4_foreach([NAME], [SUPPORTED_MATCH_FINDERS],
+ [enable_match_finder_[]NAME=no
+ ])
+ 
+ AC_MSG_CHECKING([which match finders to build])
+ AC_ARG_ENABLE([match-finders], AS_HELP_STRING([--enable-match-finders=LIST],
+ 		[Comma-separated list of match finders to build. Default=all.
+ 		At least one match finder is required for encoding with
+ 		the LZMA1 and LZMA2 filters. Available match finders:]
+ 		m4_translit(m4_defn([SUPPORTED_MATCH_FINDERS]), [,], [ ])), [],
+ 	[enable_match_finders=SUPPORTED_MATCH_FINDERS])
+ enable_match_finders=`echo "$enable_match_finders" | sed 's/,/ /g'`
+ if test "x$enable_encoder_lz" = xyes ; then
+ 	if test -z "$enable_match_finders"; then
+ 		AC_MSG_ERROR([At least one match finder is required for an LZ-based encoder.])
+ 	fi
+ 
+ 	for arg in $enable_match_finders
+ 		do
+ 		case $arg in m4_foreach([NAME], [SUPPORTED_MATCH_FINDERS], [
+ 			NAME)
+ 				enable_match_finder_[]NAME=yes
+ 				AC_DEFINE(HAVE_MF_[]m4_toupper(NAME), [1],
+ 				[Define to 1 to enable] NAME [match finder.])
+ 				;;])
+ 			*)
+ 				AC_MSG_RESULT([])
+ 				AC_MSG_ERROR([unknown match finder: $arg])
+ 				;;
+ 		esac
+ 	done
+ 	AC_MSG_RESULT([$enable_match_finders])
+ else
+ 	AC_MSG_RESULT([(none because not building any LZ-based encoder)])
+ fi
+ 
+ 
+ ####################
+ # Integrity checks #
+ ####################
+ 
+ m4_define([SUPPORTED_CHECKS], [crc32,crc64,sha256])
+ 
+ m4_foreach([NAME], [SUPPORTED_CHECKS],
+ [enable_check_[]NAME=no
+ ])dnl
+ 
+ AC_MSG_CHECKING([which integrity checks to build])
+ AC_ARG_ENABLE([checks], AS_HELP_STRING([--enable-checks=LIST],
+ 		[Comma-separated list of integrity checks to build.
+ 		Default=all. Available integrity checks:]
+ 		m4_translit(m4_defn([SUPPORTED_CHECKS]), [,], [ ])),
+ 	[], [enable_checks=SUPPORTED_CHECKS])
+ enable_checks=`echo "$enable_checks" | sed 's/,/ /g'`
+ if test "x$enable_checks" = xno || test "x$enable_checks" = x; then
+ 	AC_MSG_RESULT([(none)])
+ else
+ 	for arg in $enable_checks
+ 	do
+ 		case $arg in m4_foreach([NAME], [SUPPORTED_CHECKS], [
+ 			NAME)
+ 				enable_check_[]NAME=yes
+ 				AC_DEFINE(HAVE_CHECK_[]m4_toupper(NAME), [1],
+ 				[Define to 1 if] NAME
+ 				[integrity check is enabled.])
+ 				;;])
+ 			*)
+ 				AC_MSG_RESULT([])
+ 				AC_MSG_ERROR([unknown integrity check: $arg])
+ 				;;
+ 		esac
+ 	done
+ 	AC_MSG_RESULT([$enable_checks])
+ fi
+ if test "x$enable_check_crc32" = xno ; then
+ 	AC_MSG_ERROR([For now, the CRC32 check must always be enabled.])
+ fi
+ 
+ m4_foreach([NAME], [SUPPORTED_CHECKS],
+ [AM_CONDITIONAL(COND_CHECK_[]m4_toupper(NAME), test "x$enable_check_[]NAME" = xyes)
+ ])dnl
+ 
+ AC_MSG_CHECKING([if external SHA-256 should be used])
+ AC_ARG_ENABLE([external-sha256], AS_HELP_STRING([--enable-external-sha256],
+ 		[Use SHA-256 code from the operating system.
+ 		See INSTALL for possible subtle problems.]),
+ 		[], [enable_external_sha256=no])
+ if test "x$enable_check_sha256" != "xyes"; then
+ 	enable_external_sha256=no
+ fi
+ if test "x$enable_external_sha256" = xyes; then
+ 	AC_MSG_RESULT([yes])
+ else
+ 	AC_MSG_RESULT([no])
+ fi
+ 
+ 
+ #############
+ # MicroLZMA #
+ #############
+ 
+ AC_MSG_CHECKING([if MicroLZMA support should be built])
+ AC_ARG_ENABLE([microlzma], AS_HELP_STRING([--disable-microlzma],
+ 		[Do not build MicroLZMA encoder and decoder.
+ 		It is needed by specific applications only,
+ 		for example, erofs-utils.]),
+ 	[], [enable_microlzma=yes])
+ case $enable_microlzma in
+ 	yes | no)
+ 		AC_MSG_RESULT([$enable_microlzma])
+ 		;;
+ 	*)
+ 		AC_MSG_RESULT([])
+ 		AC_MSG_ERROR([--enable-microlzma accepts only 'yes' or 'no'.])
+ 		;;
+ esac
+ AM_CONDITIONAL(COND_MICROLZMA, test "x$enable_microlzma" = xyes)
+ 
+ 
+ #############################
+ # .lz (lzip) format support #
+ #############################
+ 
+ AC_MSG_CHECKING([if .lz (lzip) decompression support should be built])
+ AC_ARG_ENABLE([lzip-decoder], AS_HELP_STRING([--disable-lzip-decoder],
+ 		[Disable decompression support for .lz (lzip) files.]),
+ 	[], [enable_lzip_decoder=yes])
+ if test "x$enable_decoder_lzma1" != xyes; then
+ 	enable_lzip_decoder=no
+ 	AC_MSG_RESULT([no because LZMA1 decoder is disabled])
+ elif test "x$enable_lzip_decoder" = xyes; then
+ 	AC_DEFINE([HAVE_LZIP_DECODER], [1],
+ 		[Define to 1 if .lz (lzip) decompression support is enabled.])
+ 	AC_MSG_RESULT([yes])
+ else
+ 	AC_MSG_RESULT([no])
+ fi
+ AM_CONDITIONAL(COND_LZIP_DECODER, test "x$enable_lzip_decoder" = xyes)
+ 
+ 
+ ###########################
+ # Assembler optimizations #
+ ###########################
+ 
+ AC_MSG_CHECKING([if assembler optimizations should be used])
+ AC_ARG_ENABLE([assembler], AS_HELP_STRING([--disable-assembler],
+ 		[Do not use assembler optimizations even if such exist
+ 		for the architecture.]),
+ 	[], [enable_assembler=yes])
+ if test "x$enable_assembler" = xyes; then
+ 	enable_assembler=no
+ 	case $host_os in
+ 		# Darwin should work too but only if not creating universal
+ 		# binaries. Solaris x86 could work too but I cannot test.
+ 		linux* | *bsd* | mingw* | cygwin | msys | *djgpp*)
+ 			case $host_cpu in
+ 				i?86)   enable_assembler=x86 ;;
+ 			esac
+ 			;;
+ 	esac
+ fi
+ case $enable_assembler in
+ 	x86 | no)
+ 		AC_MSG_RESULT([$enable_assembler])
+ 		;;
+ 	*)
+ 		AC_MSG_RESULT([])
+ 		AC_MSG_ERROR([--enable-assembler accepts only 'yes', 'no', or 'x86' (32-bit).])
+ 		;;
+ esac
+ AM_CONDITIONAL(COND_ASM_X86, test "x$enable_assembler" = xx86)
+ 
+ 
+ #############
+ # CLMUL CRC #
+ #############
+ 
+ AC_ARG_ENABLE([clmul-crc], AS_HELP_STRING([--disable-clmul-crc],
+ 		[Do not use carryless multiplication for CRC calculation
+ 		even if support for it is detected.]),
+ 	[], [enable_clmul_crc=yes])
+ 
+ 
+ #####################
+ # Size optimization #
+ #####################
+ 
+ AC_MSG_CHECKING([if small size is preferred over speed])
+ AC_ARG_ENABLE([small], AS_HELP_STRING([--enable-small],
+ 		[Make liblzma smaller and a little slower.
+ 		This is disabled by default to optimize for speed.]),
+ 	[], [enable_small=no])
+ if test "x$enable_small" = xyes; then
+ 	AC_DEFINE([HAVE_SMALL], [1], [Define to 1 if optimizing for size.])
+ elif test "x$enable_small" != xno; then
+ 	AC_MSG_RESULT([])
+ 	AC_MSG_ERROR([--enable-small accepts only 'yes' or 'no'])
+ fi
+ AC_MSG_RESULT([$enable_small])
+ AM_CONDITIONAL(COND_SMALL, test "x$enable_small" = xyes)
+ 
+ 
+ #############
+ # Threading #
+ #############
+ 
+ AC_MSG_CHECKING([if threading support is wanted])
+ AC_ARG_ENABLE([threads], AS_HELP_STRING([--enable-threads=METHOD],
+ 		[Supported METHODS are 'yes', 'no', 'posix', 'win95', and
+ 		'vista'. The default is 'yes'. Using 'no' together with
+ 		--enable-small makes liblzma thread unsafe.]),
+ 	[], [enable_threads=yes])
+ 
+ if test "x$enable_threads" = xyes; then
+ 	case $host_os in
+ 		mingw*)
+ 			case $host_cpu in
+ 				i?86)   enable_threads=win95 ;;
+ 				*)      enable_threads=vista ;;
+ 			esac
+ 			;;
+ 		*)
+ 			enable_threads=posix
+ 			;;
+ 	esac
+ fi
+ 
+ case $enable_threads in
+ 	posix | win95 | vista)
+ 		AC_MSG_RESULT([yes, $enable_threads])
+ 		;;
+ 	no)
+ 		AC_MSG_RESULT([no])
+ 		;;
+ 	*)
+ 		AC_MSG_RESULT([])
+ 		AC_MSG_ERROR([--enable-threads only accepts 'yes', 'no', 'posix', 'win95', or 'vista'])
+ 		;;
+ esac
+ 
+ # We use the actual result a little later.
+ 
+ 
+ #########################
+ # Assumed amount of RAM #
+ #########################
+ 
+ # We use 128 MiB as default, because it will allow decompressing files
+ # created with "xz -9". It would be slightly safer to guess a lower value,
+ # but most systems, on which we don't have any way to determine the amount
+ # of RAM, will probably have at least 128 MiB of RAM.
+ AC_MSG_CHECKING([how much RAM to assume if the real amount is unknown])
+ AC_ARG_ENABLE([assume-ram], AS_HELP_STRING([--enable-assume-ram=SIZE],
+ 		[If and only if the real amount of RAM cannot be determined,
+ 		assume SIZE MiB. The default is 128 MiB. This affects the
+ 		default memory usage limit.]),
+ 	[], [enable_assume_ram=128])
+ assume_ram_check=`echo "$enable_assume_ram" | tr -d 0123456789`
+ if test -z "$enable_assume_ram" || test -n "$assume_ram_check"; then
+ 	AC_MSG_RESULT([])
+ 	AC_MSG_ERROR([--enable-assume-ram accepts only an integer argument])
+ fi
+ AC_MSG_RESULT([$enable_assume_ram MiB])
+ AC_DEFINE_UNQUOTED([ASSUME_RAM], [$enable_assume_ram],
+ 		[How many MiB of RAM to assume if the real amount cannot
+ 		be determined.])
+ 
+ 
+ #########################
+ # Components to install #
+ #########################
+ 
+ AC_ARG_ENABLE([xz], [AS_HELP_STRING([--disable-xz],
+ 		[do not build the xz tool])],
+ 	[], [enable_xz=yes])
+ AM_CONDITIONAL([COND_XZ], [test x$enable_xz != xno])
+ 
+ AC_ARG_ENABLE([xzdec], [AS_HELP_STRING([--disable-xzdec],
+ 		[do not build xzdec])],
+ 	[], [enable_xzdec=yes])
+ test "x$enable_decoders" = xno && enable_xzdec=no
+ AM_CONDITIONAL([COND_XZDEC], [test x$enable_xzdec != xno])
+ 
+ AC_ARG_ENABLE([lzmadec], [AS_HELP_STRING([--disable-lzmadec],
+ 		[do not build lzmadec
+ 		(it exists primarily for LZMA Utils compatibility)])],
+ 	[], [enable_lzmadec=yes])
+ test "x$enable_decoder_lzma1" = xno && enable_lzmadec=no
+ AM_CONDITIONAL([COND_LZMADEC], [test x$enable_lzmadec != xno])
+ 
+ AC_ARG_ENABLE([lzmainfo], [AS_HELP_STRING([--disable-lzmainfo],
+ 		[do not build lzmainfo
+ 		(it exists primarily for LZMA Utils compatibility)])],
+ 	[], [enable_lzmainfo=yes])
+ test "x$enable_decoder_lzma1" = xno && enable_lzmainfo=no
+ AM_CONDITIONAL([COND_LZMAINFO], [test x$enable_lzmainfo != xno])
+ 
+ AC_ARG_ENABLE([lzma-links], [AS_HELP_STRING([--disable-lzma-links],
+ 		[do not create symlinks for LZMA Utils compatibility])],
+ 	[], [enable_lzma_links=yes])
+ AM_CONDITIONAL([COND_LZMALINKS], [test x$enable_lzma_links != xno])
+ 
+ AC_ARG_ENABLE([scripts], [AS_HELP_STRING([--disable-scripts],
+ 		[do not install the scripts xzdiff, xzgrep, xzless, xzmore,
+ 		and their symlinks])],
+ 	[], [enable_scripts=yes])
+ AM_CONDITIONAL([COND_SCRIPTS], [test x$enable_scripts != xno])
+ 
+ AC_ARG_ENABLE([doc], [AS_HELP_STRING([--disable-doc],
+ 		[do not install documentation files to docdir
+ 		(man pages will still be installed)])],
+ 	[], [enable_doc=yes])
+ AM_CONDITIONAL([COND_DOC], [test x$enable_doc != xno])
+ 
+ 
+ ##############
+ # Sandboxing #
+ ##############
+ 
+ AC_MSG_CHECKING([if sandboxing should be used])
+ AC_ARG_ENABLE([sandbox], [AS_HELP_STRING([--enable-sandbox=METHOD],
+ 		[Sandboxing METHOD can be
+ 		'auto', 'no', 'capsicum', or 'pledge'.
+ 		The default is 'auto' which enables sandboxing if
+ 		a supported sandboxing method is found.])],
+ 	[], [enable_sandbox=auto])
+ case $enable_sandbox in
+ 	auto)
+ 		AC_MSG_RESULT([maybe (autodetect)])
+ 		;;
+ 	no | capsicum | pledge)
+ 		AC_MSG_RESULT([$enable_sandbox])
+ 		;;
+ 	*)
+ 		AC_MSG_RESULT([])
+ 		AC_MSG_ERROR([--enable-sandbox only accepts 'auto', 'no', 'capsicum', or 'pledge'.])
+ 		;;
+ esac
+ 
+ 
+ ###########################
+ # PATH prefix for scripts #
+ ###########################
+ 
+ # The scripts can add a prefix to the search PATH so that POSIX tools
+ # or the xz binary is always in the PATH.
+ AC_ARG_ENABLE([path-for-scripts],
+ 	[AS_HELP_STRING([--enable-path-for-scripts=PREFIX],
+ 		[If PREFIX isn't empty, PATH=PREFIX:$PATH will be set in
+ 		the beginning of the scripts (xzgrep and others).
+ 		The default is empty except on Solaris the default is
+ 		/usr/xpg4/bin.])],
+ 	[], [
+ 		case $host_os in
+ 			solaris*) enable_path_for_scripts=/usr/xpg4/bin ;;
+ 			*)        enable_path_for_scripts= ;;
+ 		esac
+ 	])
+ if test -n "$enable_path_for_scripts" && test "x$enable_path_for_scripts" != xno ; then
+ 	enable_path_for_scripts="PATH=$enable_path_for_scripts:\$PATH"
+ else
+ 	enable_path_for_scripts=
+ fi
+ AC_SUBST([enable_path_for_scripts])
+ 
+ 
+ ###############################################################################
+ # Checks for programs.
+ ###############################################################################
+ 
+ echo
+ case $host_os in
+ 	solaris*)
+ 		# The gnulib POSIX shell macro below may pick a shell that
+ 		# doesn't work with xzgrep. Workaround by picking a shell
+ 		# that is known to work.
+ 		if test -z "$gl_cv_posix_shell" && test -x /usr/xpg4/bin/sh; then
+ 			gl_cv_posix_shell=/usr/xpg4/bin/sh
+ 		fi
+ 		;;
+ esac
+ gl_POSIX_SHELL
+ if test -z "$POSIX_SHELL" && test "x$enable_scripts" = xyes ; then
+ 	AC_MSG_ERROR([No POSIX conforming shell (sh) was found.])
+ fi
+ 
+ echo
+ echo "Initializing Automake:"
+ 
+ # We don't use "subdir-objects" yet because it breaks "make distclean" when
+ # dependencies are enabled (as of Automake 1.14.1) due to this bug:
+ # https://debbugs.gnu.org/cgi/bugreport.cgi?bug=17354
+ # The -Wno-unsupported is used to silence warnings about missing
+ # "subdir-objects".
+ AM_INIT_AUTOMAKE([1.12 foreign tar-v7 filename-length-max=99 -Wno-unsupported])
+ AC_PROG_LN_S
+ 
+ dnl # Autoconf >= 2.70 warns that AC_PROG_CC_C99 is obsolete. However,
+ dnl # we have to keep using AC_PROG_CC_C99 instead of AC_PROG_CC
+ dnl # as long as we try to be compatible with Autoconf 2.69.
+ AC_PROG_CC_C99
+ if test x$ac_cv_prog_cc_c99 = xno ; then
+ 	AC_MSG_ERROR([No C99 compiler was found.])
+ fi
+ 
+ AM_PROG_CC_C_O
+ AM_PROG_AS
+ AC_USE_SYSTEM_EXTENSIONS
+ 
+ AS_CASE([$enable_threads],
+ 	[posix], [
+ 		echo
+ 		echo "POSIX threading support:"
+ 		AX_PTHREAD([:]) dnl We don't need the HAVE_PTHREAD macro.
+ 		LIBS="$LIBS $PTHREAD_LIBS"
+ 		AM_CFLAGS="$AM_CFLAGS $PTHREAD_CFLAGS"
+ 
+ 		dnl NOTE: PTHREAD_CC is ignored. It would be useful on AIX,
+ 		dnl but it's tricky to get it right together with
+ 		dnl AC_PROG_CC_C99. Thus, this is handled by telling the
+ 		dnl user in INSTALL to set the correct CC manually.
+ 
+ 		AC_DEFINE([MYTHREAD_POSIX], [1],
+ 			[Define to 1 when using POSIX threads (pthreads).])
+ 
+ 		# These are nice to have but not mandatory.
+ 		#
+ 		# FIXME: xz uses clock_gettime if it is available and can do
+ 		# it even when threading is disabled. Moving this outside
+ 		# of pthread detection may be undesirable because then
+ 		# liblzma may get linked against librt even when librt isn't
+ 		# needed by liblzma.
+ 		OLD_CFLAGS=$CFLAGS
+ 		CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+ 		AC_SEARCH_LIBS([clock_gettime], [rt])
+ 		AC_CHECK_FUNCS([clock_gettime pthread_condattr_setclock])
+ 		AC_CHECK_DECL([CLOCK_MONOTONIC], [AC_DEFINE(
+ 			[HAVE_CLOCK_MONOTONIC], [1], [Define to 1 if
+ 			`CLOCK_MONOTONIC' is declared in <time.h>.])], [],
+ 			[[#include <time.h>]])
+ 		CFLAGS=$OLD_CFLAGS
+ 	],
+ 	[win95], [
+ 		AC_DEFINE([MYTHREAD_WIN95], [1], [Define to 1 when using
+ 			Windows 95 (and thus XP) compatible threads.
+ 			This avoids use of features that were added in
+ 			Windows Vista.])
+ 	],
+ 	[vista], [
+ 		AC_DEFINE([MYTHREAD_VISTA], [1], [Define to 1 when using
+ 			Windows Vista compatible threads. This uses
+ 			features that are not available on Windows XP.])
+ 	]
+ )
+ AM_CONDITIONAL([COND_THREADS], [test "x$enable_threads" != xno])
+ 
+ echo
+ echo "Initializing Libtool:"
+ LT_PREREQ([2.4])
+ LT_INIT([win32-dll])
+ LT_LANG([Windows Resource])
+ 
+ # This is a bit wrong since it is possible to request that only some libs
+ # are built as shared. Using that feature isn't so common though, and this
+ # breaks only on Windows (at least for now) if the user enables only some
+ # libs as shared.
+ AM_CONDITIONAL([COND_SHARED], [test "x$enable_shared" != xno])
+ 
+ #####################
+ # Symbol versioning #
+ #####################
+ 
+ # NOTE: This checks if we are building shared or static library
+ # and if --with-pic or --without-pic was used. Thus this check
+ # must be after Libtool initialization.
+ AC_MSG_CHECKING([if library symbol versioning should be used])
+ AC_ARG_ENABLE([symbol-versions], [AS_HELP_STRING([--enable-symbol-versions],
+ 		[Use symbol versioning for liblzma. Enabled by default on
+ 		GNU/Linux, other GNU-based systems, and FreeBSD.])],
+ 	[], [enable_symbol_versions=auto])
+ if test "x$enable_symbol_versions" = xauto; then
+ 	case $host_os in
+ 		# NOTE: Even if one omits -gnu on GNU/Linux (e.g.
+ 		# i486-slackware-linux), configure will (via config.sub)
+ 		# append -gnu (e.g. i486-slackware-linux-gnu), and this
+ 		# test will work correctly.
+ 		gnu* | *-gnu* | freebsd*)
+ 			enable_symbol_versions=yes
+ 			;;
+ 		*)
+ 			enable_symbol_versions=no
+ 			;;
+ 	esac
+ fi
+ 
+ # There are two variants for symbol versioning.
+ # See src/liblzma/validate_map.sh for details.
+ #
+ # On GNU/Linux, extra symbols are added in the C code. These extra symbols
+ # must not be put into a static library as they can cause problems (and
+ # even if they didn't cause problems, they would be useless). On other
+ # systems symbol versioning may be used too but there is no problem as only
+ # a linker script is specified in src/liblzma/Makefile.am and that isn't
+ # used when creating a static library.
+ #
+ # Libtool always uses -DPIC when building shared libraries by default and
+ # doesn't use it for static libs by default. This can be overridden with
+ # --with-pic and --without-pic though. As long as neither --with-pic nor
+ # --without-pic is used then we can use #ifdef PIC to detect if the file is
+ # being built for a shared library.
+ if test "x$enable_symbol_versions" = xno ; then
+ 	enable_symbol_versions=no
+ 	AC_MSG_RESULT([no])
+ elif test "x$enable_shared" = xno ; then
+ 	enable_symbol_versions=no
+ 	AC_MSG_RESULT([no (not building a shared library)])
+ else
+ 	case "$host_cpu-$host_os" in
+ 		microblaze*)
+ 			# GCC 12 on MicroBlaze doesn't support __symver__
+ 			# attribute. It's simplest and safest to use the
+ 			# generic version on that platform since then only
+ 			# the linker script is needed. The RHEL/CentOS 7
+ 			# compatibility symbols don't matter on MicroBlaze.
+ 			enable_symbol_versions=generic
+ 			;;
+ 		*-linux*)
+ 			case "$pic_mode-$enable_static" in
+ 				default-*)
+ 					# Use symvers if PIC is defined.
+ 					have_symbol_versions_linux=2
+ 					;;
+ 				*-no)
+ 					# Not building static library.
+ 					# Use symvers unconditionally.
+ 					have_symbol_versions_linux=1
+ 					;;
+ 				*)
+ 					AC_MSG_RESULT([])
+ 					AC_MSG_ERROR([
+     On GNU/Linux, building both shared and static library at the same time
+     is not supported if --with-pic or --without-pic is used.
+     Use either --disable-shared or --disable-static to build one type
+     of library at a time. If both types are needed, build one at a time,
+     possibly picking only src/liblzma/.libs/liblzma.a from the static build.])
+ 					;;
+ 			esac
+ 			enable_symbol_versions=linux
+ 			AC_DEFINE_UNQUOTED([HAVE_SYMBOL_VERSIONS_LINUX],
+ 				[$have_symbol_versions_linux],
+ 				[Define to 1 to if GNU/Linux-specific details
+ 				are unconditionally wanted for symbol
+ 				versioning. Define to 2 to if these are wanted
+ 				only if also PIC is defined (allows building
+ 				both shared and static liblzma at the same
+ 				time with Libtool if neither --with-pic nor
+ 				--without-pic is used). This define must be
+ 				used together with liblzma_linux.map.])
+ 			;;
+ 		*)
+ 			enable_symbol_versions=generic
+ 			;;
+ 	esac
+ 	AC_MSG_RESULT([yes ($enable_symbol_versions)])
+ fi
+ 
+ AM_CONDITIONAL([COND_SYMVERS_LINUX],
+ 	[test "x$enable_symbol_versions" = xlinux])
+ AM_CONDITIONAL([COND_SYMVERS_GENERIC],
+ 	[test "x$enable_symbol_versions" = xgeneric])
+ 
+ 
+ ###############################################################################
+ # Checks for libraries.
+ ###############################################################################
+ 
+ dnl Support for _REQUIRE_VERSION was added in gettext 0.19.6. If both
+ dnl _REQUIRE_VERSION and _VERSION are present, the _VERSION is ignored.
+ dnl We use both for compatibility with other programs in the Autotools family.
+ echo
+ echo "Initializing gettext:"
+ AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.6])
+ AM_GNU_GETTEXT_VERSION([0.19.6])
+ AM_GNU_GETTEXT([external])
+ 
+ 
+ ###############################################################################
+ # Checks for header files.
+ ###############################################################################
+ 
+ echo
+ echo "System headers and functions:"
+ 
+ # There is currently no workarounds in this package if some of
+ # these headers are missing.
+ AC_CHECK_HEADERS([fcntl.h limits.h sys/time.h],
+ 	[],
+ 	[AC_MSG_ERROR([Required header file(s) are missing.])])
+ 
+ # immintrin.h allows the use of the intrinsic functions if they are available.
+ # cpuid.h may be used for detecting x86 processor features at runtime.
+ AC_CHECK_HEADERS([immintrin.h cpuid.h])
+ 
+ 
+ ###############################################################################
+ # Checks for typedefs, structures, and compiler characteristics.
+ ###############################################################################
+ 
+ AC_HEADER_STDBOOL
+ 
+ AC_TYPE_UINT8_T
+ AC_TYPE_UINT16_T
+ AC_TYPE_INT32_T
+ AC_TYPE_UINT32_T
+ AC_TYPE_INT64_T
+ AC_TYPE_UINT64_T
+ AC_TYPE_UINTPTR_T
+ 
+ AC_CHECK_SIZEOF([size_t])
+ 
+ # The command line tool can copy high resolution timestamps if such
+ # information is available in struct stat. Otherwise one second accuracy
+ # is used.
+ AC_CHECK_MEMBERS([
+ 	struct stat.st_atim.tv_nsec,
+ 	struct stat.st_atimespec.tv_nsec,
+ 	struct stat.st_atimensec,
+ 	struct stat.st_uatime,
+ 	struct stat.st_atim.st__tim.tv_nsec])
+ 
+ AC_SYS_LARGEFILE
+ AC_C_BIGENDIAN
+ 
+ # __attribute__((__constructor__)) can be used for one-time initializations.
+ # Use -Werror because some compilers accept unknown attributes and just
+ # give a warning.
+ #
+ # FIXME? Unfortunately -Werror can cause trouble if CFLAGS contains options
+ # that produce warnings for unrelated reasons. For example, GCC and Clang
+ # support -Wunused-macros which will warn about "#define _GNU_SOURCE 1"
+ # which will be among the #defines that Autoconf inserts to the beginning of
+ # the test program. There seems to be no nice way to prevent Autoconf from
+ # inserting the any defines to the test program.
+ AC_MSG_CHECKING([if __attribute__((__constructor__)) can be used])
+ have_func_attribute_constructor=no
+ OLD_CFLAGS="$CFLAGS"
+ CFLAGS="$CFLAGS -Werror"
+ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+ 	__attribute__((__constructor__))
+ 	static void my_constructor_func(void) { return; }
+ ]])], [
+ 	AC_DEFINE([HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR], [1],
+ 		[Define to 1 if __attribute__((__constructor__))
+ 		is supported for functions.])
+ 	have_func_attribute_constructor=yes
+ 	AC_MSG_RESULT([yes])
+ ], [
+ 	AC_MSG_RESULT([no])
+ ])
+ CFLAGS="$OLD_CFLAGS"
+ 
+ # The Win95 threading lacks a thread-safe one-time initialization function.
+ # The one-time initialization is needed for crc32_small.c and crc64_small.c
+ # create the CRC tables. So if small mode is enabled, the threading mode is
+ # win95, and the compiler does not support attribute constructor, then we
+ # would end up with a multithreaded build that is thread-unsafe. As a
+ # result this configuration is not allowed.
+ if test "x$enable_small$enable_threads$have_func_attribute_constructor"\
+ 		= xyeswin95no; then
+ 	AC_MSG_ERROR([--enable-threads=win95 and --enable-small cannot be
+ 		used at the same time with a compiler that doesn't support
+ 		__attribute__((__constructor__))])
+ fi
+ 
+ # __attribute__((__ifunc__())) can be used to choose between different
+ # implementations of the same function at runtime. This is slightly more
+ # efficient than using __attribute__((__constructor__)) and setting
+ # a function pointer.
+ AC_ARG_ENABLE([ifunc], [AS_HELP_STRING([--disable-ifunc],
+ 		[do not use __attribute__((__ifunc__()))])],
+ 	[], [enable_ifunc=yes])
+ 
+ if test "x$enable_ifunc" = xyes ; then
+ 	OLD_CFLAGS="$CFLAGS"
+ 	CFLAGS="$CFLAGS -Werror"
+ 	AC_MSG_CHECKING([if __attribute__((__ifunc__())) can be used])
+ 	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+ 		static void func(void) { return; }
+ 		static void (*resolve_func (void)) (void) { return func; }
+ 		void func_ifunc (void)
+ 				__attribute__((__ifunc__("resolve_func")));
+ 		/*
+ 		 * 'clang -Wall' incorrectly warns that resolve_func is
+ 		 * unused (-Wunused-function). Correct assembly output is
+ 		 * still produced. This problem exists at least in Clang
+ 		 * versions 4 to 17. The following silences the bogus warning:
+ 		 */
+ 		void make_clang_quiet(void);
+ 		void make_clang_quiet(void) { resolve_func()(); }
+ 	]])], [
+ 		AC_DEFINE([HAVE_FUNC_ATTRIBUTE_IFUNC], [1],
+ 			[Define to 1 if __attribute__((__ifunc__()))
+ 			is supported for functions.])
+ 		AC_MSG_RESULT([yes])
+ 	], [
+ 		AC_MSG_RESULT([no])
+ 	])
+ 
+ 	CFLAGS="$OLD_CFLAGS"
+ fi
+ 
+ 
+ ###############################################################################
+ # Checks for library functions.
+ ###############################################################################
+ 
+ # Gnulib replacements as needed
+ gl_GETOPT
+ 
+ # Find the best function to set timestamps.
+ AC_CHECK_FUNCS([futimens futimes futimesat utimes _futime utime], [break])
+ 
+ # This is nice to have but not mandatory.
+ AC_CHECK_FUNCS([posix_fadvise])
+ 
+ TUKLIB_PROGNAME
+ TUKLIB_INTEGER
+ TUKLIB_PHYSMEM
+ TUKLIB_CPUCORES
+ TUKLIB_MBSTR
+ 
+ # If requested, check for system-provided SHA-256. At least the following
+ # implementations are supported:
+ #
+ # OS       Headers                     Library  Type           Function
+ # FreeBSD  sys/types.h + sha256.h      libmd    SHA256_CTX     SHA256_Init
+ # NetBSD   sys/types.h + sha2.h                 SHA256_CTX     SHA256_Init
+ # OpenBSD  sys/types.h + sha2.h                 SHA2_CTX       SHA256Init
+ # Solaris  sys/types.h + sha2.h        libmd    SHA256_CTX     SHA256Init
+ # MINIX 3  sys/types.h + sha2.h                 SHA256_CTX     SHA256_Init
+ # Darwin   CommonCrypto/CommonDigest.h          CC_SHA256_CTX  CC_SHA256_Init
+ #
+ # Note that Darwin's CC_SHA256_Update takes buffer size as uint32_t instead
+ # of size_t.
+ #
+ sha256_header_found=no
+ sha256_type_found=no
+ sha256_func_found=no
+ AS_IF([test "x$enable_external_sha256" = "xyes"], [
+ 	# Test for Common Crypto before others, because Darwin has sha256.h
+ 	# too and we don't want to use that, because on older versions it
+ 	# uses OpenSSL functions, whose SHA256_Init is not guaranteed to
+ 	# succeed.
+ 	AC_CHECK_HEADERS(
+ 		[CommonCrypto/CommonDigest.h sha256.h sha2.h],
+ 		[sha256_header_found=yes ; break])
+ 	if test "x$sha256_header_found" = xyes; then
+ 		AC_CHECK_TYPES([CC_SHA256_CTX, SHA256_CTX, SHA2_CTX],
+ 			[sha256_type_found=yes], [],
+ 			[[#ifdef HAVE_SYS_TYPES_H
+ 			  # include <sys/types.h>
+ 			  #endif
+ 			  #ifdef HAVE_COMMONCRYPTO_COMMONDIGEST_H
+ 			  # include <CommonCrypto/CommonDigest.h>
+ 			  #endif
+ 			  #ifdef HAVE_SHA256_H
+ 			  # include <sha256.h>
+ 			  #endif
+ 			  #ifdef HAVE_SHA2_H
+ 			  # include <sha2.h>
+ 			  #endif]])
+ 		if test "x$sha256_type_found" = xyes ; then
+ 			AC_SEARCH_LIBS([SHA256Init], [md])
+ 			AC_SEARCH_LIBS([SHA256_Init], [md])
+ 			AC_CHECK_FUNCS([CC_SHA256_Init SHA256Init SHA256_Init],
+ 				[sha256_func_found=yes ; break])
+ 		fi
+ 	fi
+ ])
+ AM_CONDITIONAL([COND_INTERNAL_SHA256], [test "x$sha256_func_found" = xno])
+ if test "x$enable_external_sha256$sha256_func_found" = xyesno; then
+ 	AC_MSG_ERROR([--enable-external-sha256 was specified but no supported external SHA-256 implementation was found])
+ fi
+ 
+ # Check for SSE2 intrinsics. There is no run-time detection for SSE2 so if
+ # compiler options enable SSE2 then SSE2 support is required by the binaries.
+ # The compile-time check for SSE2 is done with #ifdefs because some compilers
+ # (ICC, MSVC) allow SSE2 intrinsics even when SSE2 isn't enabled.
+ AC_CHECK_DECL([_mm_movemask_epi8],
+ 	[AC_DEFINE([HAVE__MM_MOVEMASK_EPI8], [1],
+ 		[Define to 1 if _mm_movemask_epi8 is available.])],
+ 	[],
+ [#ifdef HAVE_IMMINTRIN_H
+ #include <immintrin.h>
+ #endif])
+ 
+ # For faster CRC on 32/64-bit x86 and E2K (see also crc64_fast.c):
+ #
+ #   - Check for the CLMUL intrinsic _mm_clmulepi64_si128 in <immintrin.h>.
+ #     Check also for _mm_set_epi64x for consistency with CMake build
+ #     where it's needed to disable CLMUL with VS2013.
+ #
+ #   - Check that __attribute__((__target__("ssse3,sse4.1,pclmul"))) works
+ #     together with _mm_clmulepi64_si128 from <immintrin.h>. The attribute
+ #     was added in GCC 4.4 but some GCC 4.x versions don't allow intrinsics
+ #     with it. Exception: it must be not be used with EDG-based compilers
+ #     like ICC and the compiler on E2K.
+ #
+ # If everything above is supported, runtime detection will be used to keep the
+ # binaries working on systems that don't support the required extensions.
+ AC_MSG_CHECKING([if _mm_clmulepi64_si128 is usable])
+ AS_IF([test "x$enable_clmul_crc" = xno], [
+ 	AC_MSG_RESULT([no, --disable-clmul-crc was used])
+ ], [
+ 	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+ #include <immintrin.h>
+ 
+ // CLMUL works on older E2K instruction set but it is slow due to emulation.
+ #if defined(__e2k__) && __iset__ < 6
+ #	error
+ #endif
+ 
+ // Intel's old compiler (ICC) can define __GNUC__ but the attribute must not
+ // be used with it. The new Clang-based ICX needs the attribute.
+ // Checking for !defined(__EDG__) catches ICC and other EDG-based compilers.
+ #if (defined(__GNUC__) || defined(__clang__)) && !defined(__EDG__)
+ __attribute__((__target__("ssse3,sse4.1,pclmul")))
+ #endif
+ __m128i my_clmul(__m128i a)
+ {
+ 	const __m128i b = _mm_set_epi64x(1, 2);
+ 	return _mm_clmulepi64_si128(a, b, 0);
+ }
+ 	]])], [
+ 		AC_DEFINE([HAVE_USABLE_CLMUL], [1],
  			[Define to 1 if _mm_set_epi64x and
  			_mm_clmulepi64_si128 are usable.
  			See configure.ac for details.])
@@ -63,11 +2494,217 @@ index 4d298430..19dbf1d7 100644
  
  # Check for sandbox support. If one is found, set enable_sandbox=found.
  AS_CASE([$enable_sandbox],
+ 	[auto | capsicum], [
+ 		AX_CHECK_CAPSICUM([enable_sandbox=found], [:])
+ 	]
+ )
+ AS_CASE([$enable_sandbox],
+ 	[auto | pledge], [
+ 		AC_CHECK_FUNCS([pledge], [enable_sandbox=found ; break])
+ 	]
+ )
+ 
+ # If a specific sandboxing method was explicitly requested and it wasn't
+ # found, give an error.
+ case $enable_sandbox in
+ 	auto | no | found)
+ 		;;
+ 	*)
+ 		AC_MSG_ERROR([$enable_sandbox support not found])
+ 		;;
+ esac
+ 
+ 
+ ###############################################################################
+ # If using GCC, set some additional AM_CFLAGS:
+ ###############################################################################
+ 
+ if test "$GCC" = yes ; then
+ 	echo
+ 	echo "GCC extensions:"
+ fi
+ 
+ # Always do the visibility check but don't set AM_CFLAGS on Windows.
+ # This way things get set properly even on Windows.
+ gl_VISIBILITY
+ if test -n "$CFLAG_VISIBILITY" && test "$is_w32" = no; then
+ 	AM_CFLAGS="$AM_CFLAGS $CFLAG_VISIBILITY"
+ fi
+ 
+ AS_IF([test "$GCC" = yes], [
+ 	# Enable as much warnings as possible. These commented warnings won't
+ 	# work for this package though:
+ 	#   * -Wunreachable-code breaks several assert(0) cases, which are
+ 	#     backed up with "return LZMA_PROG_ERROR".
+ 	#   * -Wcast-qual would break various things where we need a non-const
+ 	#     pointer although we don't modify anything through it.
+ 	#   * -Winline, -Wdisabled-optimization, -Wunsafe-loop-optimizations
+ 	#     don't seem so useful here; at least the last one gives some
+ 	#     warnings which are not bugs.
+ 	#   * -Wconversion still shows too many warnings.
+ 	#
+ 	# The flags before the empty line are for GCC and many of them
+ 	# are supported by Clang too. The flags after the empty line are
+ 	# for Clang.
+ 	for NEW_FLAG in \
+ 			-Wall \
+ 			-Wextra \
+ 			-Wvla \
+ 			-Wformat=2 \
+ 			-Winit-self \
+ 			-Wmissing-include-dirs \
+ 			-Wshift-overflow=2 \
+ 			-Wstrict-overflow=3 \
+ 			-Walloc-zero \
+ 			-Wduplicated-cond \
+ 			-Wfloat-equal \
+ 			-Wundef \
+ 			-Wshadow \
+ 			-Wpointer-arith \
+ 			-Wbad-function-cast \
+ 			-Wwrite-strings \
+ 			-Wdate-time \
+ 			-Wsign-conversion \
+ 			-Wfloat-conversion \
+ 			-Wlogical-op \
+ 			-Waggregate-return \
+ 			-Wstrict-prototypes \
+ 			-Wold-style-definition \
+ 			-Wmissing-prototypes \
+ 			-Wmissing-declarations \
+ 			-Wredundant-decls \
+ 			\
+ 			-Wc99-compat \
+ 			-Wc11-extensions \
+ 			-Wc2x-compat \
+ 			-Wc2x-extensions \
+ 			-Wpre-c2x-compat \
+ 			-Warray-bounds-pointer-arithmetic \
+ 			-Wassign-enum \
+ 			-Wconditional-uninitialized \
+ 			-Wdocumentation \
+ 			-Wduplicate-enum \
+ 			-Wempty-translation-unit \
+ 			-Wflexible-array-extensions \
+ 			-Wmissing-variable-declarations \
+ 			-Wnewline-eof \
+ 			-Wshift-sign-overflow \
+ 			-Wstring-conversion
+ 	do
+ 		AC_MSG_CHECKING([if $CC accepts $NEW_FLAG])
+ 		OLD_CFLAGS="$CFLAGS"
+ 		CFLAGS="$CFLAGS $NEW_FLAG -Werror"
+ 		AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+ 				[[void foo(void); void foo(void) { }]])], [
+ 			AM_CFLAGS="$AM_CFLAGS $NEW_FLAG"
+ 			AC_MSG_RESULT([yes])
+ 		], [
+ 			AC_MSG_RESULT([no])
+ 		])
+ 		CFLAGS="$OLD_CFLAGS"
+ 	done
+ 
+ 	AC_ARG_ENABLE([werror],
+ 		AS_HELP_STRING([--enable-werror], [Enable -Werror to abort
+ 			compilation on all compiler warnings.]),
+ 		[], [enable_werror=no])
+ 	if test "x$enable_werror" = "xyes"; then
+ 		AM_CFLAGS="$AM_CFLAGS -Werror"
+ 	fi
+ ])
+ 
+ 
+ ###############################################################################
+ # Create the makefiles and config.h
+ ###############################################################################
+ 
+ echo
+ 
+ # Don't build the lib directory at all if we don't need any replacement
+ # functions.
+ AM_CONDITIONAL([COND_GNULIB], test -n "$LIBOBJS")
+ 
+ # Add default AM_CFLAGS.
+ AC_SUBST([AM_CFLAGS])
+ 
+ # This is needed for src/scripts.
+ xz=`echo xz | sed "$program_transform_name"`
+ AC_SUBST([xz])
+ 
+ AC_CONFIG_FILES([
+ 	Makefile
+ 	po/Makefile.in
+ 	lib/Makefile
+ 	src/Makefile
+ 	src/liblzma/Makefile
+ 	src/liblzma/api/Makefile
+ 	src/xz/Makefile
+ 	src/xzdec/Makefile
+ 	src/lzmainfo/Makefile
+ 	src/scripts/Makefile
+ 	tests/Makefile
+ 	debug/Makefile
+ ])
+ AC_CONFIG_FILES([src/scripts/xzdiff], [chmod +x src/scripts/xzdiff])
+ AC_CONFIG_FILES([src/scripts/xzgrep], [chmod +x src/scripts/xzgrep])
+ AC_CONFIG_FILES([src/scripts/xzmore], [chmod +x src/scripts/xzmore])
+ AC_CONFIG_FILES([src/scripts/xzless], [chmod +x src/scripts/xzless])
+ 
+ AC_OUTPUT
+ 
+ # Some warnings
+ if test x$tuklib_cv_physmem_method = xunknown; then
+ 	echo
+ 	echo "WARNING:"
+ 	echo "No supported method to detect the amount of RAM."
+ 	echo "Consider using --enable-assume-ram (if you didn't already)"
+ 	echo "or make a patch to add support for this operating system."
+ fi
+ 
+ if test x$tuklib_cv_cpucores_method = xunknown; then
+ 	echo
+ 	echo "WARNING:"
+ 	echo "No supported method to detect the number of CPU cores."
+ fi
+ 
+ if test "x$enable_threads$enable_small$have_func_attribute_constructor" \
+ 		= xnoyesno; then
+ 	echo
+ 	echo "NOTE:"
+ 	echo "liblzma will be thread-unsafe due to the combination"
+ 	echo "of --disable-threads --enable-small when using a compiler"
+ 	echo "that doesn't support __attribute__((__constructor__))."
+ fi
 diff --git a/src/liblzma/check/Makefile.inc b/src/liblzma/check/Makefile.inc
 index 1b016356..7780d20d 100644
 --- a/src/liblzma/check/Makefile.inc
 +++ b/src/liblzma/check/Makefile.inc
-@@ -26,6 +26,9 @@ if COND_ASM_X86
+@@ -1,53 +1,56 @@
+ ##
+ ## Author: Lasse Collin
+ ##
+ ## This file has been put into the public domain.
+ ## You can do whatever you want with this file.
+ ##
+ 
+ EXTRA_DIST += \
+ 	check/crc32_tablegen.c \
+ 	check/crc64_tablegen.c
+ 
+ liblzma_la_SOURCES += \
+ 	check/check.c \
+ 	check/check.h \
+ 	check/crc_common.h
+ 
+ if COND_CHECK_CRC32
+ if COND_SMALL
+ liblzma_la_SOURCES += check/crc32_small.c
+ else
+ liblzma_la_SOURCES += \
+ 	check/crc32_table.c \
+ 	check/crc32_table_le.h \
+ 	check/crc32_table_be.h
+ if COND_ASM_X86
  liblzma_la_SOURCES += check/crc32_x86.S
  else
  liblzma_la_SOURCES += check/crc32_fast.c
@@ -77,11 +2714,66 @@ index 1b016356..7780d20d 100644
  endif
  endif
  endif
+ 
+ if COND_CHECK_CRC64
+ if COND_SMALL
+ liblzma_la_SOURCES += check/crc64_small.c
+ else
+ liblzma_la_SOURCES += \
+ 	check/crc64_table.c \
+ 	check/crc64_table_le.h \
+ 	check/crc64_table_be.h
+ if COND_ASM_X86
+ liblzma_la_SOURCES += check/crc64_x86.S
+ else
+ liblzma_la_SOURCES += check/crc64_fast.c
+ endif
+ endif
+ endif
+ 
+ if COND_CHECK_SHA256
+ if COND_INTERNAL_SHA256
+ liblzma_la_SOURCES += check/sha256.c
+ endif
+ endif
 diff --git a/src/liblzma/check/crc32_fast.c b/src/liblzma/check/crc32_fast.c
 index 3ac9b6d7..8849a476 100644
 --- a/src/liblzma/check/crc32_fast.c
 +++ b/src/liblzma/check/crc32_fast.c
-@@ -34,11 +34,11 @@
+@@ -1,314 +1,202 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       crc32.c
+ /// \brief      CRC32 calculation
+ ///
+ /// There are two methods in this file.
+ /// crc32_generic uses the slice-by-eight algorithm.
+ /// It is explained in this document:
+ /// http://www.intel.com/technology/comms/perfnet/download/CRC_generators.pdf
+ /// The code in this file is not the same as in Intel's paper, but
+ /// the basic principle is identical.
+ ///
+ /// crc32_clmul uses 32/64-bit x86 SSSE3, SSE4.1, and CLMUL instructions.
+ /// It was derived from
+ /// https://www.researchgate.net/publication/263424619_Fast_CRC_computation
+ /// and the public domain code from https://github.com/rawrunprotected/crc
+ /// (URLs were checked on 2023-09-29).
+ ///
+ /// FIXME: Builds for 32-bit x86 use crc32_x86.S by default instead
+ /// of this file and thus CLMUL version isn't available on 32-bit x86
+ /// unless configured with --disable-assembler. Even then the lookup table
+ /// isn't omitted in crc32_table.c since it doesn't know that assembly
+ /// code has been disabled.
+ //
+ //  Authors:    Lasse Collin
+ //              Ilya Kurdyukov
+ //              Hans Jansen
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
  #include "check.h"
  #include "crc_common.h"
  
@@ -95,7 +2787,60 @@ index 3ac9b6d7..8849a476 100644
  
  static uint32_t
  crc32_generic(const uint8_t *buf, size_t size, uint32_t crc)
-@@ -99,118 +99,6 @@ crc32_generic(const uint8_t *buf, size_t size, uint32_t crc)
+ {
+ 	crc = ~crc;
+ 
+ #ifdef WORDS_BIGENDIAN
+ 	crc = bswap32(crc);
+ #endif
+ 
+ 	if (size > 8) {
+ 		// Fix the alignment, if needed. The if statement above
+ 		// ensures that this won't read past the end of buf[].
+ 		while ((uintptr_t)(buf) & 7) {
+ 			crc = lzma_crc32_table[0][*buf++ ^ A(crc)] ^ S8(crc);
+ 			--size;
+ 		}
+ 
+ 		// Calculate the position where to stop.
+ 		const uint8_t *const limit = buf + (size & ~(size_t)(7));
+ 
+ 		// Calculate how many bytes must be calculated separately
+ 		// before returning the result.
+ 		size &= (size_t)(7);
+ 
+ 		// Calculate the CRC32 using the slice-by-eight algorithm.
+ 		while (buf < limit) {
+ 			crc ^= aligned_read32ne(buf);
+ 			buf += 4;
+ 
+ 			crc = lzma_crc32_table[7][A(crc)]
+ 			    ^ lzma_crc32_table[6][B(crc)]
+ 			    ^ lzma_crc32_table[5][C(crc)]
+ 			    ^ lzma_crc32_table[4][D(crc)];
+ 
+ 			const uint32_t tmp = aligned_read32ne(buf);
+ 			buf += 4;
+ 
+ 			// At least with some compilers, it is critical for
+ 			// performance, that the crc variable is XORed
+ 			// between the two table-lookup pairs.
+ 			crc = lzma_crc32_table[3][A(tmp)]
+ 			    ^ lzma_crc32_table[2][B(tmp)]
+ 			    ^ crc
+ 			    ^ lzma_crc32_table[1][C(tmp)]
+ 			    ^ lzma_crc32_table[0][D(tmp)];
+ 		}
+ 	}
+ 
+ 	while (size-- != 0)
+ 		crc = lzma_crc32_table[0][*buf++ ^ A(crc)] ^ S8(crc);
+ 
+ #ifdef WORDS_BIGENDIAN
+ 	crc = bswap32(crc);
+ #endif
+ 
+ 	return ~crc;
  }
  #endif
  
@@ -214,7 +2959,15 @@ index 3ac9b6d7..8849a476 100644
  #if defined(CRC_GENERIC) && defined(CRC_CLMUL)
  typedef uint32_t (*crc32_func_type)(
  		const uint8_t *buf, size_t size, uint32_t crc);
-@@ -226,7 +114,7 @@ typedef uint32_t (*crc32_func_type)(
+ 
+ // Clang 16.0.0 and older has a bug where it marks the ifunc resolver
+ // function as unused since it is static and never used outside of
+ // __attribute__((__ifunc__())).
+ #if defined(HAVE_FUNC_ATTRIBUTE_IFUNC) && defined(__clang__)
+ #	pragma GCC diagnostic push
+ #	pragma GCC diagnostic ignored "-Wunused-function"
+ #endif
+ 
  static crc32_func_type
  crc32_resolve(void)
  {
@@ -223,7 +2976,78 @@ index 3ac9b6d7..8849a476 100644
  }
  
  #if defined(HAVE_FUNC_ATTRIBUTE_IFUNC) && defined(__clang__)
-@@ -305,7 +193,7 @@ lzma_crc32(const uint8_t *buf, size_t size, uint32_t crc)
+ #	pragma GCC diagnostic pop
+ #endif
+ 
+ #ifndef HAVE_FUNC_ATTRIBUTE_IFUNC
+ 
+ #ifdef HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR
+ #	define CRC32_SET_FUNC_ATTR __attribute__((__constructor__))
+ static crc32_func_type crc32_func;
+ #else
+ #	define CRC32_SET_FUNC_ATTR
+ static uint32_t crc32_dispatch(const uint8_t *buf, size_t size, uint32_t crc);
+ static crc32_func_type crc32_func = &crc32_dispatch;
+ #endif
+ 
+ CRC32_SET_FUNC_ATTR
+ static void
+ crc32_set_func(void)
+ {
+ 	crc32_func = crc32_resolve();
+ 	return;
+ }
+ 
+ #ifndef HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR
+ static uint32_t
+ crc32_dispatch(const uint8_t *buf, size_t size, uint32_t crc)
+ {
+ 	// When __attribute__((__ifunc__(...))) and
+ 	// __attribute__((__constructor__)) isn't supported, set the
+ 	// function pointer without any locking. If multiple threads run
+ 	// the detection code in parallel, they will all end up setting
+ 	// the pointer to the same value. This avoids the use of
+ 	// mythread_once() on every call to lzma_crc32() but this likely
+ 	// isn't strictly standards compliant. Let's change it if it breaks.
+ 	crc32_set_func();
+ 	return crc32_func(buf, size, crc);
+ }
+ 
+ #endif
+ #endif
+ #endif
+ 
+ 
+ #ifdef CRC_USE_IFUNC
+ extern LZMA_API(uint32_t)
+ lzma_crc32(const uint8_t *buf, size_t size, uint32_t crc)
+ 		__attribute__((__ifunc__("crc32_resolve")));
+ #else
+ extern LZMA_API(uint32_t)
+ lzma_crc32(const uint8_t *buf, size_t size, uint32_t crc)
+ {
+ #if defined(CRC_GENERIC) && defined(CRC_CLMUL)
+ 	// If CLMUL is available, it is the best for non-tiny inputs,
+ 	// being over twice as fast as the generic slice-by-four version.
+ 	// However, for size <= 16 it's different. In the extreme case
+ 	// of size == 1 the generic version can be five times faster.
+ 	// At size >= 8 the CLMUL starts to become reasonable. It
+ 	// varies depending on the alignment of buf too.
+ 	//
+ 	// The above doesn't include the overhead of mythread_once().
+ 	// At least on x86-64 GNU/Linux, pthread_once() is very fast but
+ 	// it still makes lzma_crc32(buf, 1, crc) 50-100 % slower. When
+ 	// size reaches 12-16 bytes the overhead becomes negligible.
+ 	//
+ 	// So using the generic version for size <= 16 may give better
+ 	// performance with tiny inputs but if such inputs happen rarely
+ 	// it's not so obvious because then the lookup table of the
+ 	// generic version may not be in the processor cache.
+ #ifdef CRC_USE_GENERIC_FOR_SMALL_INPUTS
+ 	if (size <= 16)
+ 		return crc32_generic(buf, size, crc);
+ #endif
+ 
  	return crc32_func(buf, size, crc);
  
  #elif defined(CRC_CLMUL)
@@ -232,11 +3056,44 @@ index 3ac9b6d7..8849a476 100644
  
  #else
  	return crc32_generic(buf, size, crc);
+ #endif
+ }
+ #endif
 diff --git a/src/liblzma/check/crc64_fast.c b/src/liblzma/check/crc64_fast.c
 index 79b662a4..07f4f576 100644
 --- a/src/liblzma/check/crc64_fast.c
 +++ b/src/liblzma/check/crc64_fast.c
-@@ -31,13 +31,12 @@
+@@ -1,331 +1,211 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       crc64.c
+ /// \brief      CRC64 calculation
+ ///
+ /// There are two methods in this file. crc64_generic uses the
+ /// the slice-by-four algorithm. This is the same idea that is
+ /// used in crc32_fast.c, but for CRC64 we use only four tables
+ /// instead of eight to avoid increasing CPU cache usage.
+ ///
+ /// crc64_clmul uses 32/64-bit x86 SSSE3, SSE4.1, and CLMUL instructions.
+ /// It was derived from
+ /// https://www.researchgate.net/publication/263424619_Fast_CRC_computation
+ /// and the public domain code from https://github.com/rawrunprotected/crc
+ /// (URLs were checked on 2023-09-29).
+ ///
+ /// FIXME: Builds for 32-bit x86 use crc64_x86.S by default instead
+ /// of this file and thus CLMUL version isn't available on 32-bit x86
+ /// unless configured with --disable-assembler. Even then the lookup table
+ /// isn't omitted in crc64_table.c since it doesn't know that assembly
+ /// code has been disabled.
+ //
+ //  Authors:    Lasse Collin
+ //              Ilya Kurdyukov
+ //
+ //  This file has been put into the public domain.
+ //  You can do whatever you want with this file.
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
  #include "check.h"
  #include "crc_common.h"
  
@@ -252,7 +3109,55 @@ index 79b662a4..07f4f576 100644
  #ifdef WORDS_BIGENDIAN
  #	define A1(x) ((x) >> 56)
  #else
-@@ -93,125 +92,6 @@ crc64_generic(const uint8_t *buf, size_t size, uint64_t crc)
+ #	define A1 A
+ #endif
+ 
+ 
+ // See the comments in crc32_fast.c. They aren't duplicated here.
+ static uint64_t
+ crc64_generic(const uint8_t *buf, size_t size, uint64_t crc)
+ {
+ 	crc = ~crc;
+ 
+ #ifdef WORDS_BIGENDIAN
+ 	crc = bswap64(crc);
+ #endif
+ 
+ 	if (size > 4) {
+ 		while ((uintptr_t)(buf) & 3) {
+ 			crc = lzma_crc64_table[0][*buf++ ^ A1(crc)] ^ S8(crc);
+ 			--size;
+ 		}
+ 
+ 		const uint8_t *const limit = buf + (size & ~(size_t)(3));
+ 		size &= (size_t)(3);
+ 
+ 		while (buf < limit) {
+ #ifdef WORDS_BIGENDIAN
+ 			const uint32_t tmp = (uint32_t)(crc >> 32)
+ 					^ aligned_read32ne(buf);
+ #else
+ 			const uint32_t tmp = (uint32_t)crc
+ 					^ aligned_read32ne(buf);
+ #endif
+ 			buf += 4;
+ 
+ 			crc = lzma_crc64_table[3][A(tmp)]
+ 			    ^ lzma_crc64_table[2][B(tmp)]
+ 			    ^ S32(crc)
+ 			    ^ lzma_crc64_table[1][C(tmp)]
+ 			    ^ lzma_crc64_table[0][D(tmp)];
+ 		}
+ 	}
+ 
+ 	while (size-- != 0)
+ 		crc = lzma_crc64_table[0][*buf++ ^ A1(crc)] ^ S8(crc);
+ 
+ #ifdef WORDS_BIGENDIAN
+ 	crc = bswap64(crc);
+ #endif
+ 
+ 	return ~crc;
  }
  #endif
  
@@ -378,7 +3283,15 @@ index 79b662a4..07f4f576 100644
  #if defined(CRC_GENERIC) && defined(CRC_CLMUL)
  typedef uint64_t (*crc64_func_type)(
  		const uint8_t *buf, size_t size, uint64_t crc);
-@@ -227,7 +107,7 @@ typedef uint64_t (*crc64_func_type)(
+ 
+ // Clang 16.0.0 and older has a bug where it marks the ifunc resolver
+ // function as unused since it is static and never used outside of
+ // __attribute__((__ifunc__())).
+ #if defined(HAVE_FUNC_ATTRIBUTE_IFUNC) && defined(__clang__)
+ #	pragma GCC diagnostic push
+ #	pragma GCC diagnostic ignored "-Wunused-function"
+ #endif
+ 
  static crc64_func_type
  crc64_resolve(void)
  {
@@ -387,7 +3300,94 @@ index 79b662a4..07f4f576 100644
  }
  
  #if defined(HAVE_FUNC_ATTRIBUTE_IFUNC) && defined(__clang__)
-@@ -322,7 +202,7 @@ lzma_crc64(const uint8_t *buf, size_t size, uint64_t crc)
+ #	pragma GCC diagnostic pop
+ #endif
+ 
+ #ifndef HAVE_FUNC_ATTRIBUTE_IFUNC
+ 
+ #ifdef HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR
+ #	define CRC64_SET_FUNC_ATTR __attribute__((__constructor__))
+ static crc64_func_type crc64_func;
+ #else
+ #	define CRC64_SET_FUNC_ATTR
+ static uint64_t crc64_dispatch(const uint8_t *buf, size_t size, uint64_t crc);
+ static crc64_func_type crc64_func = &crc64_dispatch;
+ #endif
+ 
+ 
+ CRC64_SET_FUNC_ATTR
+ static void
+ crc64_set_func(void)
+ {
+ 	crc64_func = crc64_resolve();
+ 	return;
+ }
+ 
+ 
+ #ifndef HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR
+ static uint64_t
+ crc64_dispatch(const uint8_t *buf, size_t size, uint64_t crc)
+ {
+ 	// When __attribute__((__ifunc__(...))) and
+ 	// __attribute__((__constructor__)) isn't supported, set the
+ 	// function pointer without any locking. If multiple threads run
+ 	// the detection code in parallel, they will all end up setting
+ 	// the pointer to the same value. This avoids the use of
+ 	// mythread_once() on every call to lzma_crc64() but this likely
+ 	// isn't strictly standards compliant. Let's change it if it breaks.
+ 	crc64_set_func();
+ 	return crc64_func(buf, size, crc);
+ }
+ #endif
+ #endif
+ #endif
+ 
+ 
+ #ifdef CRC_USE_IFUNC
+ extern LZMA_API(uint64_t)
+ lzma_crc64(const uint8_t *buf, size_t size, uint64_t crc)
+ 		__attribute__((__ifunc__("crc64_resolve")));
+ #else
+ extern LZMA_API(uint64_t)
+ lzma_crc64(const uint8_t *buf, size_t size, uint64_t crc)
+ {
+ #if defined(CRC_GENERIC) && defined(CRC_CLMUL)
+ 	// If CLMUL is available, it is the best for non-tiny inputs,
+ 	// being over twice as fast as the generic slice-by-four version.
+ 	// However, for size <= 16 it's different. In the extreme case
+ 	// of size == 1 the generic version can be five times faster.
+ 	// At size >= 8 the CLMUL starts to become reasonable. It
+ 	// varies depending on the alignment of buf too.
+ 	//
+ 	// The above doesn't include the overhead of mythread_once().
+ 	// At least on x86-64 GNU/Linux, pthread_once() is very fast but
+ 	// it still makes lzma_crc64(buf, 1, crc) 50-100 % slower. When
+ 	// size reaches 12-16 bytes the overhead becomes negligible.
+ 	//
+ 	// So using the generic version for size <= 16 may give better
+ 	// performance with tiny inputs but if such inputs happen rarely
+ 	// it's not so obvious because then the lookup table of the
+ 	// generic version may not be in the processor cache.
+ #ifdef CRC_USE_GENERIC_FOR_SMALL_INPUTS
+ 	if (size <= 16)
+ 		return crc64_generic(buf, size, crc);
+ #endif
+ 
+ /*
+ #ifndef HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR
+ 	// See crc64_dispatch(). This would be the alternative which uses
+ 	// locking and doesn't use crc64_dispatch(). Note that on Windows
+ 	// this method needs Vista threads.
+ 	mythread_once(crc64_set_func);
+ #endif
+ */
+ 
+ 	return crc64_func(buf, size, crc);
+ 
+ #elif defined(CRC_CLMUL)
+ 	// If CLMUL is used unconditionally without runtime CPU detection
+ 	// then omitting the generic version and its 8 KiB lookup table
+ 	// makes the library smaller.
  	//
  	// FIXME: Lookup table isn't currently omitted on 32-bit x86,
  	// see crc64_table.c.
@@ -396,6 +3396,9 @@ index 79b662a4..07f4f576 100644
  
  #else
  	return crc64_generic(buf, size, crc);
+ #endif
+ }
+ #endif
 diff --git a/src/liblzma/check/crc_clmul.c b/src/liblzma/check/crc_clmul.c
 new file mode 100644
 index 00000000..f53fcc92
@@ -820,7 +3823,12 @@ diff --git a/src/liblzma/check/crc_common.h b/src/liblzma/check/crc_common.h
 index 55fdd55e..b0176adc 100644
 --- a/src/liblzma/check/crc_common.h
 +++ b/src/liblzma/check/crc_common.h
-@@ -6,6 +6,7 @@
+@@ -1,261 +1,91 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       crc_common.h
+ /// \brief      Some functions and macros for CRC32 and CRC64
+ //
  //  Authors:    Lasse Collin
  //              Ilya Kurdyukov
  //              Hans Jansen
@@ -828,7 +3836,71 @@ index 55fdd55e..b0176adc 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
-@@ -77,185 +78,14 @@
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+ #ifdef WORDS_BIGENDIAN
+ #	define A(x) ((x) >> 24)
+ #	define B(x) (((x) >> 16) & 0xFF)
+ #	define C(x) (((x) >> 8) & 0xFF)
+ #	define D(x) ((x) & 0xFF)
+ 
+ #	define S8(x) ((x) << 8)
+ #	define S32(x) ((x) << 32)
+ 
+ #else
+ #	define A(x) ((x) & 0xFF)
+ #	define B(x) (((x) >> 8) & 0xFF)
+ #	define C(x) (((x) >> 16) & 0xFF)
+ #	define D(x) ((x) >> 24)
+ 
+ #	define S8(x) ((x) >> 8)
+ #	define S32(x) ((x) >> 32)
+ #endif
+ 
+ 
+ #undef CRC_GENERIC
+ #undef CRC_CLMUL
+ #undef CRC_USE_IFUNC
+ #undef CRC_USE_GENERIC_FOR_SMALL_INPUTS
+ 
+ // If CLMUL cannot be used then only the generic slice-by-four is built.
+ #if !defined(HAVE_USABLE_CLMUL)
+ #	define CRC_GENERIC 1
+ 
+ // If CLMUL is allowed unconditionally in the compiler options then the
+ // generic version can be omitted. Note that this doesn't work with MSVC
+ // as I don't know how to detect the features here.
+ //
+ // NOTE: Keep this this in sync with crc32_table.c.
+ #elif (defined(__SSSE3__) && defined(__SSE4_1__) && defined(__PCLMUL__)) \
+ 		|| (defined(__e2k__) && __iset__ >= 6)
+ #	define CRC_CLMUL 1
+ 
+ // Otherwise build both and detect at runtime which version to use.
+ #else
+ #	define CRC_GENERIC 1
+ #	define CRC_CLMUL 1
+ 
+ #	ifdef HAVE_FUNC_ATTRIBUTE_IFUNC
+ #		define CRC_USE_IFUNC 1
+ #	endif
+ 
+ /*
+ 	// The generic code is much faster with 1-8-byte inputs and has
+ 	// similar performance up to 16 bytes  at least in microbenchmarks
+ 	// (it depends on input buffer alignment too). If both versions are
+ 	// built, this #define will use the generic version for inputs up to
+ 	// 16 bytes and CLMUL for bigger inputs. It saves a little in code
+ 	// size since the special cases for 0-16-byte inputs will be omitted
+ 	// from the CLMUL code.
+ #	define CRC_USE_GENERIC_FOR_SMALL_INPUTS 1
+ */
+ 
+ #	if defined(_MSC_VER)
+ #		include <intrin.h>
+ #	elif defined(HAVE_CPUID_H)
+ #		include <cpuid.h>
  #	endif
  #endif
  

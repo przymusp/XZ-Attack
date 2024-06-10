@@ -1,0 +1,1 @@
+{"src/liblzma/api/lzma/block.h": {"language": "C", "type": "programming", "purpose": "programming", "+": [{"id": 65, "type": "documentation", "purpose": "programming"}, {"id": 81, "type": "documentation", "purpose": "programming"}], "-": [{"id": 64, "type": "documentation", "purpose": "programming"}]}}

@@ -14,7 +14,9 @@ diff --git a/tests/test_block_header.c b/tests/test_block_header.c
 index 2f0184ac..6b42df22 100644
 --- a/tests/test_block_header.c
 +++ b/tests/test_block_header.c
-@@ -3,7 +3,8 @@
+@@ -1,256 +1,510 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
  /// \file       test_block_header.c
  /// \brief      Tests Block Header coders
  //
@@ -24,7 +26,9 @@ index 2f0184ac..6b42df22 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
-@@ -13,12 +14,10 @@
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
  #include "tests.h"
  
  
@@ -39,7 +43,56 @@ index 2f0184ac..6b42df22 100644
  static lzma_filter filters_none[1] = {
  	{
  		.id = LZMA_VLI_UNKNOWN,
-@@ -75,163 +74,423 @@ static lzma_filter filters_five[6] = {
+ 	},
+ };
+ 
+ 
+ static lzma_filter filters_one[2] = {
+ 	{
+ 		.id = LZMA_FILTER_LZMA2,
+ 		.options = &opt_lzma,
+ 	}, {
+ 		.id = LZMA_VLI_UNKNOWN,
+ 	}
+ };
+ 
+ 
+ static lzma_filter filters_four[5] = {
+ 	{
+ 		.id = LZMA_FILTER_X86,
+ 		.options = NULL,
+ 	}, {
+ 		.id = LZMA_FILTER_X86,
+ 		.options = NULL,
+ 	}, {
+ 		.id = LZMA_FILTER_X86,
+ 		.options = NULL,
+ 	}, {
+ 		.id = LZMA_FILTER_LZMA2,
+ 		.options = &opt_lzma,
+ 	}, {
+ 		.id = LZMA_VLI_UNKNOWN,
+ 	}
+ };
+ 
+ 
+ static lzma_filter filters_five[6] = {
+ 	{
+ 		.id = LZMA_FILTER_X86,
+ 		.options = NULL,
+ 	}, {
+ 		.id = LZMA_FILTER_X86,
+ 		.options = NULL,
+ 	}, {
+ 		.id = LZMA_FILTER_X86,
+ 		.options = NULL,
+ 	}, {
+ 		.id = LZMA_FILTER_X86,
+ 		.options = NULL,
+ 	}, {
+ 		.id = LZMA_FILTER_LZMA2,
+ 		.options = &opt_lzma,
+ 	}, {
  		.id = LZMA_VLI_UNKNOWN,
  	}
  };
@@ -566,7 +619,8 @@ index 2f0184ac..6b42df22 100644
  }
  
  
-@@ -240,17 +499,12 @@ main(int argc, char **argv)
+ extern int
+ main(int argc, char **argv)
  {
  	tuktest_start(argc, argv);
  

@@ -13,7 +13,9 @@ diff --git a/tests/test_stream_flags.c b/tests/test_stream_flags.c
 index 39304cd4..b8ec546d 100644
 --- a/tests/test_stream_flags.c
 +++ b/tests/test_stream_flags.c
-@@ -3,7 +3,8 @@
+@@ -1,180 +1,479 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
  /// \file       test_stream_flags.c
  /// \brief      Tests Stream Header and Stream Footer coders
  //
@@ -23,7 +25,9 @@ index 39304cd4..b8ec546d 100644
  //
  //  This file has been put into the public domain.
  //  You can do whatever you want with this file.
-@@ -13,168 +14,466 @@
+ //
+ ///////////////////////////////////////////////////////////////////////////////
+ 
  #include "tests.h"
  
  

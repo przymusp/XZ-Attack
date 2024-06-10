@@ -1,0 +1,1 @@
+{"src/liblzma/check/crc64_table.c": {"language": "C", "type": "programming", "purpose": "programming", "+": [{"id": 18, "type": "documentation", "purpose": "programming"}, {"id": 21, "type": "code", "purpose": "programming"}], "-": [{"id": 17, "type": "documentation", "purpose": "programming"}, {"id": 20, "type": "documentation", "purpose": "programming"}]}}

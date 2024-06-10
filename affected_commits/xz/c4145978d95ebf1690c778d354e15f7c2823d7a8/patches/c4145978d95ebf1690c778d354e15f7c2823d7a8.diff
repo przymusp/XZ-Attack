@@ -8,7 +8,7 @@ diff --git a/po/eo.po b/po/eo.po
 index 4d8d4976..a22e53f4 100644
 --- a/po/eo.po
 +++ b/po/eo.po
-@@ -1,13 +1,13 @@
+@@ -1,984 +1,1028 @@
  # Esperanto translations for xz package.
  # This file is put in the public domain.
 -# Keith Bowes <zooplah@gmail.com>, 2019.
@@ -27,7 +27,9 @@ index 4d8d4976..a22e53f4 100644
  "Last-Translator: Keith Bowes <zooplah@gmail.com>\n"
  "Language-Team: Esperanto <translation-team-eo@lists.sourceforge.net>\n"
  "Language: eo\n"
-@@ -17,121 +17,127 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
  "X-Bugs: Report translation errors to the Language-Team address.\n"
  "Plural-Forms: nplurals=2; plural=(n != 1);\n"
  
@@ -195,7 +197,14 @@ index 4d8d4976..a22e53f4 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s: poll() malsukcesis: %s"
-@@ -146,195 +152,321 @@ msgstr "%s: poll() malsukcesis: %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -575,7 +584,8 @@ index 4d8d4976..a22e53f4 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s: Tro malgranda por esti valida .xz-dosiero"
-@@ -343,125 +475,41 @@ msgstr "%s: Tro malgranda por esti valida .xz-dosiero"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -709,7 +719,18 @@ index 4d8d4976..a22e53f4 100644
  msgid "--list does not support reading from standard input"
  msgstr "--list ne regas legadon el la ĉefenigujo"
  
-@@ -480,80 +528,80 @@ msgstr "%s: Neatendita fino de enigo dum legi dosiernomojn"
+ #: src/xz/main.c:89
+ #, c-format
+ msgid "%s: Error reading filenames: %s"
+ msgstr "%s: Eraro dum legi dosiernomojn: %s"
+ 
+ #: src/xz/main.c:96
+ #, c-format
+ msgid "%s: Unexpected end of input when reading filenames"
+ msgstr "%s: Neatendita fino de enigo dum legi dosiernomojn"
+ 
+ #: src/xz/main.c:120
+ #, c-format
  msgid "%s: Null character found when reading filenames; maybe you meant to use `--files0' instead of `--files'?"
  msgstr "%s: Nula signo trovita dum legi dosiernomojn; eble vi celis uzi la parametron`--files0' anstataŭ `--files'"
  
@@ -810,7 +831,10 @@ index 4d8d4976..a22e53f4 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -564,17 +612,17 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Uzado: %s [ELEKTO].. [DOSIERO]...\n"
  "Kunpremi aŭ malkunpremi DOSIEROjN laŭ la .xz-formato.\n"
  "\n"
  
@@ -832,7 +856,11 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -586,7 +634,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      eldevigi kunpremon\n"
+ "  -d, --decompress    eldevigi malkunpremon\n"
  "  -t, --test          certigi la integron de kunpremitan dosieron\n"
  "  -l, --list          listigi informojn pri .xz-dosierojn"
  
@@ -841,7 +869,7 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -594,7 +642,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Operacia modifiloj:\n"
  
@@ -850,7 +878,10 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -605,7 +653,7 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          ne forigi enigajn dosierojn\n"
+ "  -f, --force         eldevigi anstataŭigi eligajn dosierojn kaj\n"
  "                      (mal)kunpmremajn ligilojn \n"
  "  -c, --stdout        skribi al la ĉefeligujo kaj ne forigi enigajn dosierojn"
  
@@ -859,7 +890,8 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
-@@ -614,7 +662,7 @@ msgstr ""
+ msgstr ""
+ "      --single-stream\n"
  "                      malkunpremi nur la unuan fluon kaj silente\n"
  "                      ignori eventualajn ceterajn enigajn datumojn"
  
@@ -868,7 +900,17 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "      --no-sparse     do not create sparse files when decompressing\n"
  "  -S, --suffix=.SUF   use the suffix `.SUF' on compressed files\n"
-@@ -632,7 +680,7 @@ msgstr ""
+ "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
+ "                      omitted, filenames are read from the standard input;\n"
+ "                      filenames must be terminated with the newline character\n"
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     ne krei maldensajn dosierojn dum malkunpremi\n"
+ "  -S, --suffix=.SUF   uzi la sufikson `.SUF' ĉe kunpremataj dosieroj\n"
+ "      --files[=DOSIERO]\n"
+ "                      legi dosiernomojn traktotajn de DOSIERO; se DOSIERO estas\n"
+ "                      forlasita, dosieroj estas legotaj el la ĉefenigujo;\n"
+ "                      dosiernomojn devas finigi novlinio signo\n"
  "      --files0[=DOSIERO]\n"
  "                      kiel --files sed uzi la nulan signon por finigi"
  
@@ -877,7 +919,7 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -640,23 +688,23 @@ msgstr ""
+ msgstr ""
  "\n"
  " Bazaj dosierformataj kaj kunpremaj elektoj:\n"
  
@@ -906,7 +948,7 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -664,7 +712,7 @@ msgstr ""
+ msgstr ""
  "  -0 ... -9           kunpremnivelo; apriore 6; pripensu memoruzadon antaŭ ol\n"
  "                      uzi la nivelojn 7-9!"
  
@@ -915,7 +957,8 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -673,16 +721,16 @@ msgstr ""
+ msgstr ""
+ "  -e, --extreme       provi plibonigi kunpreman proporcion per uzado de\n"
  "                      ĉefprocesoran tempon; ne influas la memorajn postulojn\n"
  "                      de malkunpremo"
  
@@ -935,7 +978,9 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "      --block-size=SIZE\n"
  "                      start a new .xz block after every SIZE bytes of input;\n"
-@@ -692,7 +740,7 @@ msgstr ""
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=GRANDO\n"
  "                      komenci novan .xz-blokon post ĉiu GRANDO bajtoj da enigo;\n"
  "                      uzi por agordi la blokan grandon por kunfadena kunpremo"
  
@@ -944,7 +989,9 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "      --block-list=SIZES\n"
  "                      start a new .xz block after the given comma-separated\n"
-@@ -702,7 +750,7 @@ msgstr ""
+ "                      intervals of uncompressed data"
+ msgstr ""
+ "      --block-list=GRANDOJ\n"
  "                      komenci novan .xz-blokon post la donitajn intertempojn de\n"
  "                      nekunpremitaj datumoj, apartigataj de komoj"
  
@@ -953,7 +1000,11 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -714,31 +762,34 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
+ "      --flush-timeout=TEMPOLIMO\n"
+ "                      dum kunpremo se pli ol TEMPOLIMO milisekundoj\n"
  "                      okazis post la antaŭan elbufrigo kaj legi pliajn enigojn\n"
  "                      paŭzigus, ĉiuj atendataj datumoj estas elbufrigataj"
  
@@ -997,7 +1048,7 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -746,7 +797,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Propra filtrila ĉeno por kunpremo (alternativaj por uzi antaŭagordaĵon):"
  
@@ -1006,7 +1057,32 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -779,30 +830,32 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=ELEKTOJ]   LZMA1 aŭ LZMA2; OPTS estas listo de nul aŭ pliaj\n"
+ "  --lzma2[=ELEKTOJ]   de la jenaj elektoj (validaj valoroj; apriora),\n"
+ "                      apartigataj de komoj:\n"
+ "                        preset=ANT restarigi agordon al antaŭagordaĵon (0-9[e])\n"
+ "                        dict=NOM   vortara grando (4 kilobajtoj - 1536\n"
+ "                                   megabajtoj; 8 megabajtoj)\n"
+ "                        lc=NOM     nombro da laŭvortaj kuntekstaj bitoj\n"
+ "                                   (0-4; 3)\n"
+ "                        lp=NOM     nombro da laŭvortaj poziciaj bitoj (0-4; 0)\n"
+ "                        pb=NOM     nombro da poziciaj bitoj (0-4; 2)\n"
+ "                        mode=REĜI  kunprema reĝimo (fast, normal; normal)\n"
+ "                        nice=NOM   bona longo de kongruaĵo (2-273; 64)\n"
+ "                        mf=NOMO    kongruaĵa trovilo (hc3, hc4, bt2, bt3, bt4;\n"
+ "                                   bt4)\n"
  "                        depth=NUM  maksimuma profundo de serĉo; 0=aŭtomata\n"
  "                                   (apriore)"
  
@@ -1047,7 +1123,11 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -814,7 +867,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=ELEKTOJ]   Delta filtriloj; validaj valoroj:\n"
  "                        dist=NOMBRO  distanco inter bajtoj subtrahataj de unu\n"
  "                                     la alia (1-256; 1)"
  
@@ -1056,7 +1136,7 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -822,7 +875,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Aliaj elektoj:\n"
  
@@ -1065,7 +1145,8 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -831,45 +884,45 @@ msgstr ""
+ msgstr ""
+ "  -q, --quiet         silentigi avertojn; uzu dufoje por ankaŭ silentigi erarojn\n"
  "  -v, --verbose       eligi superfluajn informojn; uzu dufoje por pliigi la\n"
  "                      superfluecon"
  
@@ -1122,7 +1203,11 @@ index 4d8d4976..a22e53f4 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -881,17 +934,17 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "Kun neniu DOSIERO aŭ kiam DOSIERO estas -, legi el la ĉefenigujo.\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -1143,7 +1228,25 @@ index 4d8d4976..a22e53f4 100644
  msgid "THIS IS A DEVELOPMENT VERSION NOT INTENDED FOR PRODUCTION USE."
  msgstr "ĈI TIU ESTAS DISVOLVA REDAKCIO, NE CELATA POR ĈIUTAGA UZADO."
  
-@@ -917,29 +970,24 @@ msgstr "Nevalida LZMA1/LZMA2 antaŭagordaĵo: %s"
+ #: src/xz/options.c:86
+ #, c-format
+ msgid "%s: Options must be `name=value' pairs separated with commas"
+ msgstr "%s: Elektoj devas esti paroj de `name=value`, apartigitaj de komoj"
+ 
+ #: src/xz/options.c:93
+ #, c-format
+ msgid "%s: Invalid option name"
+ msgstr "%s: Nevalida elekto-nomo"
+ 
+ #: src/xz/options.c:113
+ #, c-format
+ msgid "%s: Invalid option value"
+ msgstr "%s: Nevalida elekto-valoro"
+ 
+ #: src/xz/options.c:247
+ #, c-format
+ msgid "Unsupported LZMA1/LZMA2 preset: %s"
+ msgstr "Nevalida LZMA1/LZMA2 antaŭagordaĵo: %s"
  
  #: src/xz/options.c:355
  msgid "The sum of lc and lp must not exceed 4"
@@ -1179,7 +1282,23 @@ index 4d8d4976..a22e53f4 100644
  #, c-format
  msgid "%s: Invalid filename suffix"
  msgstr "%s: Nevalida dosiernoma sufikso"
-@@ -963,22 +1011,18 @@ msgstr "Validaj sufiksoj estas `KiB' (2^10), `MiB' (2^20) kaj `GiB' (2^30)."
+ 
+ #: src/xz/util.c:71
+ #, c-format
+ msgid "%s: Value is not a non-negative decimal integer"
+ msgstr "%s: Valoro ne estas nenegativa dekuma entjero"
+ 
+ #: src/xz/util.c:113
+ #, c-format
+ msgid "%s: Invalid multiplier suffix"
+ msgstr "%s: Nevalida multiplika sufikso"
+ 
+ #: src/xz/util.c:115
+ msgid "Valid suffixes are `KiB' (2^10), `MiB' (2^20), and `GiB' (2^30)."
+ msgstr "Validaj sufiksoj estas `KiB' (2^10), `MiB' (2^20) kaj `GiB' (2^30)."
+ 
+ #: src/xz/util.c:132
+ #, c-format
  msgid "Value of the option `%s' must be in the range [%<PRIu64>, %<PRIu64>]"
  msgstr "Valoro de la elekto `%s' devas esti inkluzive inter %<PRIu64> kaj %<PRIu64>"
  

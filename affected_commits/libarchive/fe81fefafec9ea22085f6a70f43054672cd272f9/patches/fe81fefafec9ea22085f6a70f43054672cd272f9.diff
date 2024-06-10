@@ -8,7 +8,47 @@ diff --git a/libarchive/test/test_write_format_zip_entry_size_unset.c b/libarchi
 index e92515a2..13b5f1b2 100644
 --- a/libarchive/test/test_write_format_zip_entry_size_unset.c
 +++ b/libarchive/test/test_write_format_zip_entry_size_unset.c
-@@ -41,7 +41,7 @@ static const int folder_perm = 00755;
+@@ -1,317 +1,321 @@
+ /*-
+  * Copyright (c) 2021 Jia Cheong Tan
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted provided that the following conditions
+  * are met:
+  * 1. Redistributions of source code must retain the above copyright
+  *    notice, this list of conditions and the following disclaimer
+  *    in this position and unchanged.
+  * 2. Redistributions in binary form must reproduce the above copyright
+  *    notice, this list of conditions and the following disclaimer in the
+  *    documentation and/or other materials provided with the distribution.
+  *
+  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
+  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+  * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
+ #include "test.h"
+ __FBSDID("$FreeBSD$");
+ 
+ /* File data */
+ static const char file_name[] = "file";
+ static const char file_data1[] = {'a', 'b', 'c', 'd', 'e'};
+ static const char file_data2[] = {'f', 'g', 'h', 'i', 'j'};
+ static const int file_perm = 00644;
+ static const short file_uid = 10;
+ static const short file_gid = 20;
+ 
+ /* Folder data */
+ static const char folder_name[] = "folder/";
+ static const int folder_perm = 00755;
  static const short folder_uid = 30;
  static const short folder_gid = 40;
  
@@ -17,7 +57,22 @@ index e92515a2..13b5f1b2 100644
  
  /* Quick and dirty: Read 2-byte and 4-byte integers from Zip file. */
  static unsigned i2(const char *p) { return ((p[0] & 0xff) | ((p[1] & 0xff) << 8)); }
-@@ -64,25 +64,28 @@ bitcrc32(unsigned long c, const void *_p, size_t s)
+ static unsigned i4(const char *p) { return (i2(p) | (i2(p + 2) << 16)); }
+ 
+ static unsigned long
+ bitcrc32(unsigned long c, const void *_p, size_t s)
+ {
+ 	/* This is a drop-in replacement for crc32() from zlib.
+ 	 * Libarchive should be able to correctly generate
+ 	 * uncompressed zip archives (including correct CRCs) even
+ 	 * when zlib is unavailable, and this function helps us verify
+ 	 * that.  Yes, this is very, very slow and unsuitable for
+ 	 * production use, but it's correct, compact, and works well
+ 	 * enough for this particular usage.  Libarchive internally
+ 	 * uses a much more efficient implementation.  */
+ 	const unsigned char *p = _p;
+ 	int bitctr;
+ 
  	if (p == NULL)
  		return (0);
  
@@ -55,7 +110,19 @@ index e92515a2..13b5f1b2 100644
  	archive_entry_set_mode(entry, S_IFREG | 0644);
  	archive_entry_set_uid(entry, file_uid);
  	archive_entry_set_gid(entry, file_gid);
-@@ -102,171 +105,172 @@ static void write_archive(struct archive *a)
+ 	assertEqualIntA(a, ARCHIVE_OK, archive_write_header(a, entry));
+ 	assertEqualIntA(a, sizeof(file_data1), archive_write_data(a, file_data1, sizeof(file_data1)));
+ 	assertEqualIntA(a, sizeof(file_data2), archive_write_data(a, file_data2, sizeof(file_data2)));
+ 	archive_entry_free(entry);
+ 
+ 	/* Folder */
+ 	assert((entry = archive_entry_new()) != NULL);
+ 	archive_entry_set_pathname(entry, folder_name);
+ 	archive_entry_set_mode(entry, S_IFDIR | folder_perm);
+ 	archive_entry_set_size(entry, 0);
+ 	archive_entry_set_uid(entry, folder_uid);
+ 	archive_entry_set_gid(entry, folder_gid);
+ 	assertEqualIntA(a, ARCHIVE_OK, archive_write_header(a, entry));
  	archive_entry_free(entry);
  }
  
@@ -379,7 +446,8 @@ index e92515a2..13b5f1b2 100644
  }
  
  DEFINE_TEST(test_write_format_zip_size_unset)
-@@ -275,43 +279,43 @@ DEFINE_TEST(test_write_format_zip_size_unset)
+ {
+ 	struct archive *a;
  	char zip_buffer[100000];
  	size_t size;
  

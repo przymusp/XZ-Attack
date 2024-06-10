@@ -57,7 +57,22 @@ diff --git a/src/org/tukaani/xz/BCJCoder.java b/src/org/tukaani/xz/BCJCoder.java
 index 81862f7..10a58ac 100644
 --- a/src/org/tukaani/xz/BCJCoder.java
 +++ b/src/org/tukaani/xz/BCJCoder.java
-@@ -16,9 +16,10 @@ abstract class BCJCoder implements FilterCoder {
+@@ -1,35 +1,36 @@
+ /*
+  * BCJCoder
+  *
+  * Author: Lasse Collin <lasse.collin@tukaani.org>
+  *
+  * This file has been put into the public domain.
+  * You can do whatever you want with this file.
+  */
+ 
+ package org.tukaani.xz;
+ 
+ abstract class BCJCoder implements FilterCoder {
+     public static final long X86_FILTER_ID = 0x04;
+     public static final long POWERPC_FILTER_ID = 0x05;
+     public static final long IA64_FILTER_ID = 0x06;
      public static final long ARM_FILTER_ID = 0x07;
      public static final long ARMTHUMB_FILTER_ID = 0x08;
      public static final long SPARC_FILTER_ID = 0x09;
@@ -69,11 +84,75 @@ index 81862f7..10a58ac 100644
      }
  
      public boolean changesSize() {
+         return false;
+     }
+ 
+     public boolean nonLastOK() {
+         return true;
+     }
+ 
+     public boolean lastOK() {
+         return false;
+     }
+ }
 diff --git a/src/org/tukaani/xz/BCJDecoder.java b/src/org/tukaani/xz/BCJDecoder.java
 index 31251f2..c8d916a 100644
 --- a/src/org/tukaani/xz/BCJDecoder.java
 +++ b/src/org/tukaani/xz/BCJDecoder.java
-@@ -54,6 +54,8 @@ class BCJDecoder extends BCJCoder implements FilterDecoder {
+@@ -1,62 +1,64 @@
+ /*
+  * BCJDecoder
+  *
+  * Author: Lasse Collin <lasse.collin@tukaani.org>
+  *
+  * This file has been put into the public domain.
+  * You can do whatever you want with this file.
+  */
+ 
+ package org.tukaani.xz;
+ 
+ import java.io.InputStream;
+ import org.tukaani.xz.simple.*;
+ 
+ class BCJDecoder extends BCJCoder implements FilterDecoder {
+     private final long filterID;
+     private final int startOffset;
+ 
+     BCJDecoder(long filterID, byte[] props)
+             throws UnsupportedOptionsException {
+         assert isBCJFilterID(filterID);
+         this.filterID = filterID;
+ 
+         if (props.length == 0) {
+             startOffset = 0;
+         } else if (props.length == 4) {
+             int n = 0;
+             for (int i = 0; i < 4; ++i)
+                 n |= (props[i] & 0xFF) << (i * 8);
+ 
+             startOffset = n;
+         } else {
+             throw new UnsupportedOptionsException(
+                     "Unsupported BCJ filter properties");
+         }
+     }
+ 
+     public int getMemoryUsage() {
+         return SimpleInputStream.getMemoryUsage();
+     }
+ 
+     public InputStream getInputStream(InputStream in, ArrayCache arrayCache) {
+         SimpleFilter simpleFilter = null;
+ 
+         if (filterID == X86_FILTER_ID)
+             simpleFilter = new X86(false, startOffset);
+         else if (filterID == POWERPC_FILTER_ID)
+             simpleFilter = new PowerPC(false, startOffset);
+         else if (filterID == IA64_FILTER_ID)
+             simpleFilter = new IA64(false, startOffset);
+         else if (filterID == ARM_FILTER_ID)
+             simpleFilter = new ARM(false, startOffset);
+         else if (filterID == ARMTHUMB_FILTER_ID)
              simpleFilter = new ARMThumb(false, startOffset);
          else if (filterID == SPARC_FILTER_ID)
              simpleFilter = new SPARC(false, startOffset);
@@ -82,6 +161,9 @@ index 31251f2..c8d916a 100644
          else
              assert false;
  
+         return new SimpleInputStream(in, simpleFilter);
+     }
+ }
 diff --git a/src/org/tukaani/xz/simple/ARM64.java b/src/org/tukaani/xz/simple/ARM64.java
 new file mode 100644
 index 0000000..f8d556e

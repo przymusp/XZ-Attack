@@ -8,7 +8,10 @@ diff --git a/po4a/ko.po b/po4a/ko.po
 index 3e901181..7d4331b0 100644
 --- a/po4a/ko.po
 +++ b/po4a/ko.po
-@@ -4,18 +4,18 @@
+@@ -1,5552 +1,3673 @@
+ # Korean translation for the xz-man
+ # This file is put in the public domain.
+ # Seong-ho Cho <darkcircle.0426@gmail.com>, 2023.
  #
  msgid ""
  msgstr ""
@@ -32,7 +35,39 @@ index 3e901181..7d4331b0 100644
  
  #. type: TH
  #: ../src/xz/xz.1:8
-@@ -55,12 +55,8 @@ msgstr "이름"
+ #, no-wrap
+ msgid "XZ"
+ msgstr "XZ"
+ 
+ #. type: TH
+ #: ../src/xz/xz.1:8
+ #, no-wrap
+ msgid "2022-12-01"
+ msgstr "2022-12-01"
+ 
+ #. type: TH
+ #: ../src/xz/xz.1:8 ../src/xzdec/xzdec.1:7 ../src/lzmainfo/lzmainfo.1:7
+ #: ../src/scripts/xzdiff.1:9 ../src/scripts/xzgrep.1:9
+ #: ../src/scripts/xzless.1:10 ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "Tukaani"
+ msgstr "Tukaani"
+ 
+ #. type: TH
+ #: ../src/xz/xz.1:8 ../src/xzdec/xzdec.1:7 ../src/lzmainfo/lzmainfo.1:7
+ #: ../src/scripts/xzdiff.1:9 ../src/scripts/xzgrep.1:9
+ #: ../src/scripts/xzless.1:10 ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "XZ Utils"
+ msgstr "XZ 유틸리티"
+ 
+ #. type: SH
+ #: ../src/xz/xz.1:10 ../src/xzdec/xzdec.1:8 ../src/lzmainfo/lzmainfo.1:8
+ #: ../src/scripts/xzdiff.1:10 ../src/scripts/xzgrep.1:10
+ #: ../src/scripts/xzless.1:11 ../src/scripts/xzmore.1:8
+ #, no-wrap
+ msgid "NAME"
+ msgstr "이름"
  
  #. type: Plain text
  #: ../src/xz/xz.1:12
@@ -47,7 +82,43 @@ index 3e901181..7d4331b0 100644
  
  #. type: SH
  #: ../src/xz/xz.1:13 ../src/xzdec/xzdec.1:10 ../src/lzmainfo/lzmainfo.1:10
-@@ -104,19 +100,12 @@ msgstr "B<unlzma> 명령은 B<xz --format=lzma --decompress> 명령과 동일합
+ #: ../src/scripts/xzdiff.1:12 ../src/scripts/xzgrep.1:12
+ #: ../src/scripts/xzless.1:13 ../src/scripts/xzmore.1:10
+ #, no-wrap
+ msgid "SYNOPSIS"
+ msgstr "요약"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:17
+ msgid "B<xz> [I<option...>] [I<file...>]"
+ msgstr "B<xz> [I<<옵션>...>] [I<E<lt>파일E<gt>...>]"
+ 
+ #. type: SH
+ #: ../src/xz/xz.1:18
+ #, no-wrap
+ msgid "COMMAND ALIASES"
+ msgstr "명령 별칭"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:22
+ msgid "B<unxz> is equivalent to B<xz --decompress>."
+ msgstr "B<unxz> 명령은 B<xz --decompress> 명령과 동일합니다."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:26
+ msgid "B<xzcat> is equivalent to B<xz --decompress --stdout>."
+ msgstr "B<xzcat> 명령은 B<xz --decompress --stdout> 명령과 동일합니다."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:30
+ msgid "B<lzma> is equivalent to B<xz --format=lzma>."
+ msgstr "B<lzma> 명령은 B<xz --format=lzma> 명령과 동일합니다."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:34
+ msgid "B<unlzma> is equivalent to B<xz --format=lzma --decompress>."
+ msgstr "B<unlzma> 명령은 B<xz --format=lzma --decompress> 명령과 동일합니다."
+ 
  #. type: Plain text
  #: ../src/xz/xz.1:38
  msgid "B<lzcat> is equivalent to B<xz --format=lzma --decompress --stdout>."
@@ -70,7 +141,11 @@ index 3e901181..7d4331b0 100644
  
  #. type: SH
  #: ../src/xz/xz.1:51 ../src/xzdec/xzdec.1:18 ../src/lzmainfo/lzmainfo.1:15
-@@ -128,43 +117,18 @@ msgstr "설명"
+ #: ../src/scripts/xzdiff.1:24 ../src/scripts/xzgrep.1:33
+ #: ../src/scripts/xzless.1:19 ../src/scripts/xzmore.1:16
+ #, no-wrap
+ msgid "DESCRIPTION"
+ msgstr "설명"
  
  #. type: Plain text
  #: ../src/xz/xz.1:70
@@ -120,7 +195,16 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:102 ../src/xz/xz.1:108 ../src/xz/xz.1:133 ../src/xz/xz.1:138
-@@ -181,49 +145,28 @@ msgstr "\\(bu"
+ #: ../src/xz/xz.1:141 ../src/xz/xz.1:144 ../src/xz/xz.1:160 ../src/xz/xz.1:421
+ #: ../src/xz/xz.1:424 ../src/xz/xz.1:431 ../src/xz/xz.1:676 ../src/xz/xz.1:678
+ #: ../src/xz/xz.1:777 ../src/xz/xz.1:788 ../src/xz/xz.1:797 ../src/xz/xz.1:805
+ #: ../src/xz/xz.1:1033 ../src/xz/xz.1:1042 ../src/xz/xz.1:1054
+ #: ../src/xz/xz.1:1729 ../src/xz/xz.1:1735 ../src/xz/xz.1:1853
+ #: ../src/xz/xz.1:1857 ../src/xz/xz.1:1860 ../src/xz/xz.1:1863
+ #: ../src/xz/xz.1:1867 ../src/xz/xz.1:1874 ../src/xz/xz.1:1876
+ #, no-wrap
+ msgid "\\(bu"
+ msgstr "\\(bu"
  
  #. type: Plain text
  #: ../src/xz/xz.1:108
@@ -180,7 +264,13 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:141
-@@ -237,65 +180,28 @@ msgstr "I<E<lt>파일E<gt>>에 setuid, setgid, 끈적이 비트 집합이 붙어
+ msgid "I<File> has more than one hard link."
+ msgstr "I<E<lt>파일E<gt>>이 하나 이상의 하드 링크일 떄."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:144
+ msgid "I<File> has setuid, setgid, or sticky bit set."
+ msgstr "I<E<lt>파일E<gt>>에 setuid, setgid, 끈적이 비트 집합이 붙어있을 떄."
  
  #. type: Plain text
  #: ../src/xz/xz.1:160
@@ -256,7 +346,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:208
-@@ -305,87 +211,23 @@ msgstr "메모리 사용"
+ #, no-wrap
+ msgid "Memory usage"
+ msgstr "메모리 사용"
  
  #. type: Plain text
  #: ../src/xz/xz.1:224
@@ -352,7 +444,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:278
-@@ -395,30 +237,17 @@ msgstr ".xz 파일 결합 및 패딩"
+ #, no-wrap
+ msgid "Concatenation and padding with .xz files"
+ msgstr ".xz 파일 결합 및 패딩"
  
  #. type: Plain text
  #: ../src/xz/xz.1:286
@@ -388,7 +482,16 @@ index 3e901181..7d4331b0 100644
  msgstr "B<.lzma> 파일 또는 원시 스트림의 경우 결합과 패딩을 허용하지 않습니다."
  
  #. type: SH
-@@ -435,13 +264,8 @@ msgstr "정수 접두사와 별도 값"
+ #: ../src/xz/xz.1:300 ../src/xzdec/xzdec.1:61
+ #, no-wrap
+ msgid "OPTIONS"
+ msgstr "옵션"
+ 
+ #. type: SS
+ #: ../src/xz/xz.1:302
+ #, no-wrap
+ msgid "Integer suffixes and special values"
+ msgstr "정수 접두사와 별도 값"
  
  #. type: Plain text
  #: ../src/xz/xz.1:306
@@ -404,7 +507,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:306
-@@ -451,12 +275,8 @@ msgstr "B<KiB>"
+ #, no-wrap
+ msgid "B<KiB>"
+ msgstr "B<KiB>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:317
@@ -419,7 +524,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:317
-@@ -466,12 +286,8 @@ msgstr "B<MiB>"
+ #, no-wrap
+ msgid "B<MiB>"
+ msgstr "B<MiB>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:327
@@ -434,7 +541,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:327
-@@ -481,21 +297,13 @@ msgstr "B<GiB>"
+ #, no-wrap
+ msgid "B<GiB>"
+ msgstr "B<GiB>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:337
@@ -460,7 +569,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:343
-@@ -505,10 +313,8 @@ msgstr "동작 모드"
+ #, no-wrap
+ msgid "Operation mode"
+ msgstr "동작 모드"
  
  #. type: Plain text
  #: ../src/xz/xz.1:346
@@ -473,7 +584,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:346
-@@ -518,14 +324,8 @@ msgstr "B<-z>, B<--compress>"
+ #, no-wrap
+ msgid "B<-z>, B<--compress>"
+ msgstr "B<-z>, B<--compress>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:355
@@ -490,7 +603,20 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:355 ../src/xzdec/xzdec.1:62
-@@ -546,14 +346,8 @@ msgstr "B<-t>, B<--test>"
+ #, no-wrap
+ msgid "B<-d>, B<--decompress>, B<--uncompress>"
+ msgstr "B<-d>, B<--decompress>, B<--uncompress>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:358
+ msgid "Decompress."
+ msgstr "압축을 해제합니다."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:358
+ #, no-wrap
+ msgid "B<-t>, B<--test>"
+ msgstr "B<-t>, B<--test>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:367
@@ -507,7 +633,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:367
-@@ -563,41 +357,18 @@ msgstr "B<-l>, B<--list>"
+ #, no-wrap
+ msgid "B<-l>, B<--list>"
+ msgstr "B<-l>, B<--list>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:376
@@ -555,7 +683,20 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:399
-@@ -618,18 +389,8 @@ msgstr "입력 파일을 삭제하지 않습니다."
+ #, no-wrap
+ msgid "Operation modifiers"
+ msgstr "동작 수정자"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:400 ../src/xzdec/xzdec.1:69
+ #, no-wrap
+ msgid "B<-k>, B<--keep>"
+ msgstr "B<-k>, B<--keep>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:403
+ msgid "Don't delete the input files."
+ msgstr "입력 파일을 삭제하지 않습니다."
  
  #. type: Plain text
  #: ../src/xz/xz.1:417
@@ -576,7 +717,14 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:417
-@@ -644,42 +405,18 @@ msgstr "이 옵션은 몇가지 동작에 영향을 줍니다:"
+ #, no-wrap
+ msgid "B<-f>, B<--force>"
+ msgstr "B<-f>, B<--force>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:420
+ msgid "This option has several effects:"
+ msgstr "이 옵션은 몇가지 동작에 영향을 줍니다:"
  
  #. type: Plain text
  #: ../src/xz/xz.1:424
@@ -624,7 +772,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:457 ../src/xzdec/xzdec.1:76
-@@ -689,12 +426,8 @@ msgstr "B<-c>, B<--stdout>, B<--to-stdout>"
+ #, no-wrap
+ msgid "B<-c>, B<--stdout>, B<--to-stdout>"
+ msgstr "B<-c>, B<--stdout>, B<--to-stdout>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:463
@@ -639,7 +789,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:463
-@@ -704,34 +437,18 @@ msgstr "B<--single-stream>"
+ #, no-wrap
+ msgid "B<--single-stream>"
+ msgstr "B<--single-stream>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:472
@@ -680,7 +832,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:486
-@@ -741,21 +458,8 @@ msgstr "B<--no-sparse>"
+ #, no-wrap
+ msgid "B<--no-sparse>"
+ msgstr "B<--no-sparse>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:498
@@ -704,7 +858,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:498
-@@ -765,37 +469,18 @@ msgstr "B<-S> I<.suf>, B<--suffix=>I<.suf>"
+ #, no-wrap
+ msgid "B<-S> I<.suf>, B<--suffix=>I<.suf>"
+ msgstr "B<-S> I<.suf>, B<--suffix=>I<.suf>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:510
@@ -748,7 +904,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:530
-@@ -805,18 +490,8 @@ msgstr "B<--files>[B<=>I<E<lt>파일E<gt>>]"
+ #, no-wrap
+ msgid "B<--files>[B<=>I<file>]"
+ msgstr "B<--files>[B<=>I<E<lt>파일E<gt>>]"
  
  #. type: Plain text
  #: ../src/xz/xz.1:544
@@ -769,7 +927,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:544
-@@ -826,12 +501,8 @@ msgstr "B<--files0>[B<=>I<E<lt>파일E<gt>>]"
+ #, no-wrap
+ msgid "B<--files0>[B<=>I<file>]"
+ msgstr "B<--files0>[B<=>I<E<lt>파일E<gt>>]"
  
  #. type: Plain text
  #: ../src/xz/xz.1:548
@@ -784,7 +944,26 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:549
-@@ -858,15 +529,8 @@ msgstr "B<auto>"
+ #, no-wrap
+ msgid "Basic file format and compression options"
+ msgstr "기본 파일 형식 및 압축 옵션"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:550
+ #, no-wrap
+ msgid "B<-F> I<format>, B<--format=>I<format>"
+ msgstr "B<-F> I<format>, B<--format=>I<E<lt>형식E<gt>>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:555
+ msgid "Specify the file I<format> to compress or decompress:"
+ msgstr "압축 또는 압축해제 파일 I<E<lt>형식E<gt>>을 지정합니다:"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:556
+ #, no-wrap
+ msgid "B<auto>"
+ msgstr "B<auto>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:568
@@ -802,7 +981,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:568
-@@ -876,11 +540,8 @@ msgstr "B<xz>"
+ #, no-wrap
+ msgid "B<xz>"
+ msgstr "B<xz>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:575
@@ -816,7 +997,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:575
-@@ -890,13 +551,8 @@ msgstr "B<lzma>, B<alone>"
+ #, no-wrap
+ msgid "B<lzma>, B<alone>"
+ msgstr "B<lzma>, B<alone>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:585
@@ -832,7 +1015,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:585
-@@ -906,37 +562,18 @@ msgstr "B<lzip>"
+ #, no-wrap
+ msgid "B<lzip>"
+ msgstr "B<lzip>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:591
@@ -875,7 +1060,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:613
-@@ -946,15 +583,8 @@ msgstr "B<raw>"
+ #, no-wrap
+ msgid "B<raw>"
+ msgstr "B<raw>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:621
@@ -893,7 +1080,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:622
-@@ -964,17 +594,8 @@ msgstr "B<-C> I<E<lt>검사방식E<gt>>, B<--check=>I<E<lt>검사방식E<gt>>"
+ #, no-wrap
+ msgid "B<-C> I<check>, B<--check=>I<check>"
+ msgstr "B<-C> I<E<lt>검사방식E<gt>>, B<--check=>I<E<lt>검사방식E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:637
@@ -913,7 +1102,14 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:641
-@@ -989,14 +610,8 @@ msgstr "B<none>"
+ msgid "Supported I<check> types:"
+ msgstr "지원 I<검사> 형식:"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:642
+ #, no-wrap
+ msgid "B<none>"
+ msgstr "B<none>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:648
@@ -930,7 +1126,20 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:648
-@@ -1017,14 +632,8 @@ msgstr "B<crc64>"
+ #, no-wrap
+ msgid "B<crc32>"
+ msgstr "B<crc32>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:651
+ msgid "Calculate CRC32 using the polynomial from IEEE-802.3 (Ethernet)."
+ msgstr "IEEE-802.3 (이더넷)의 다항 연산으로 CRC32를 계산합니다."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:651
+ #, no-wrap
+ msgid "B<crc64>"
+ msgstr "B<crc64>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:656
@@ -947,7 +1156,14 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:656
-@@ -1039,12 +648,8 @@ msgstr "SHA-256 해시를 계산합니다.  CRC32와 CRC64 보다는 좀 느립
+ #, no-wrap
+ msgid "B<sha256>"
+ msgstr "B<sha256>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:660
+ msgid "Calculate SHA-256.  This is somewhat slower than CRC32 and CRC64."
+ msgstr "SHA-256 해시를 계산합니다.  CRC32와 CRC64 보다는 좀 느립니다."
  
  #. type: Plain text
  #: ../src/xz/xz.1:666
@@ -962,7 +1178,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:666
-@@ -1054,21 +659,13 @@ msgstr "B<--ignore-check>"
+ #, no-wrap
+ msgid "B<--ignore-check>"
+ msgstr "B<--ignore-check>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:672
@@ -988,7 +1206,8 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:678
-@@ -1077,15 +674,8 @@ msgstr "깨진 .xz 파일에서 데이터 복구를 시도합니다."
+ msgid "Trying to recover data from a corrupt .xz file."
+ msgstr "깨진 .xz 파일에서 데이터 복구를 시도합니다."
  
  #. type: Plain text
  #: ../src/xz/xz.1:684
@@ -1006,7 +1225,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:685
-@@ -1095,31 +685,13 @@ msgstr "B<-0> ... B<-9>"
+ #, no-wrap
+ msgid "B<-0> ... B<-9>"
+ msgstr "B<-0> ... B<-9>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:694
@@ -1042,7 +1263,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:710
-@@ -1129,16 +701,8 @@ msgstr "B<-0> ... B<-3>"
+ #, no-wrap
+ msgid "B<-0> ... B<-3>"
+ msgstr "B<-0> ... B<-3>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:722
@@ -1061,7 +1284,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:722
-@@ -1148,18 +712,8 @@ msgstr "B<-4> ... B<-6>"
+ #, no-wrap
+ msgid "B<-4> ... B<-6>"
+ msgstr "B<-4> ... B<-6>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:736
@@ -1082,7 +1307,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:736
-@@ -1169,26 +723,13 @@ msgstr "B<-7 ... -9>"
+ #, no-wrap
+ msgid "B<-7 ... -9>"
+ msgstr "B<-7 ... -9>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:743
@@ -1113,7 +1340,56 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:753
-@@ -1245,7 +786,8 @@ msgid "0"
+ msgid "The following table summarises the features of the presets:"
+ msgstr "다음 표에 사전 설정 기능을 정리했습니다:"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:760 ../src/xz/xz.1:841 ../src/xz/xz.1:2839
+ #, no-wrap
+ msgid "Preset"
+ msgstr "Preset"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:760 ../src/xz/xz.1:841
+ #, no-wrap
+ msgid "DictSize"
+ msgstr "DictSize"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:760 ../src/xz/xz.1:841 ../src/xz/xz.1:2839
+ #, no-wrap
+ msgid "CompCPU"
+ msgstr "CompCPU"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:760 ../src/xz/xz.1:841
+ #, no-wrap
+ msgid "CompMem"
+ msgstr "CompMem"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:760 ../src/xz/xz.1:841
+ #, no-wrap
+ msgid "DecMem"
+ msgstr "DecMem"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:761 ../src/xz/xz.1:2450 ../src/xz/xz.1:2475
+ #: ../src/xz/xz.1:2840
+ #, no-wrap
+ msgid "-0"
+ msgstr "-0"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:761 ../src/xz/xz.1:842 ../src/xz/xz.1:2450
+ #, no-wrap
+ msgid "256 KiB"
+ msgstr "256 KiB"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:761 ../src/xz/xz.1:2840 ../src/scripts/xzgrep.1:82
+ #, no-wrap
+ msgid "0"
  msgstr "0"
  
  #. type: tbl table
@@ -1123,7 +1399,53 @@ index 3e901181..7d4331b0 100644
  #, no-wrap
  msgid "3 MiB"
  msgstr "3 MiB"
-@@ -1299,7 +841,8 @@ msgid "2"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:761 ../src/xz/xz.1:762 ../src/xz/xz.1:842 ../src/xz/xz.1:843
+ #: ../src/xz/xz.1:2451 ../src/xz/xz.1:2452 ../src/xz/xz.1:2454
+ #, no-wrap
+ msgid "1 MiB"
+ msgstr "1 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:762 ../src/xz/xz.1:2451 ../src/xz/xz.1:2476
+ #: ../src/xz/xz.1:2841
+ #, no-wrap
+ msgid "-1"
+ msgstr "-1"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:762 ../src/xz/xz.1:1758 ../src/xz/xz.1:2841
+ #: ../src/scripts/xzgrep.1:86
+ #, no-wrap
+ msgid "1"
+ msgstr "1"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:762 ../src/xz/xz.1:766 ../src/xz/xz.1:767 ../src/xz/xz.1:847
+ #: ../src/xz/xz.1:848 ../src/xz/xz.1:2476
+ #, no-wrap
+ msgid "9 MiB"
+ msgstr "9 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:762 ../src/xz/xz.1:763 ../src/xz/xz.1:843 ../src/xz/xz.1:844
+ #: ../src/xz/xz.1:2452 ../src/xz/xz.1:2455 ../src/xz/xz.1:2476
+ #, no-wrap
+ msgid "2 MiB"
+ msgstr "2 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:763 ../src/xz/xz.1:2452 ../src/xz/xz.1:2477
+ #: ../src/xz/xz.1:2842
+ #, no-wrap
+ msgid "-2"
+ msgstr "-2"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:763 ../src/xz/xz.1:1760 ../src/xz/xz.1:2842
+ #, no-wrap
+ msgid "2"
  msgstr "2"
  
  #. type: tbl table
@@ -1133,7 +1455,26 @@ index 3e901181..7d4331b0 100644
  #, no-wrap
  msgid "17 MiB"
  msgstr "17 MiB"
-@@ -1326,8 +869,8 @@ msgid "3"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:764 ../src/xz/xz.1:2453 ../src/xz/xz.1:2478
+ #: ../src/xz/xz.1:2843
+ #, no-wrap
+ msgid "-3"
+ msgstr "-3"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:764 ../src/xz/xz.1:765 ../src/xz/xz.1:842 ../src/xz/xz.1:845
+ #: ../src/xz/xz.1:846 ../src/xz/xz.1:2453 ../src/xz/xz.1:2454
+ #: ../src/xz/xz.1:2456
+ #, no-wrap
+ msgid "4 MiB"
+ msgstr "4 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:764 ../src/xz/xz.1:2843
+ #, no-wrap
+ msgid "3"
  msgstr "3"
  
  #. type: tbl table
@@ -1144,7 +1485,25 @@ index 3e901181..7d4331b0 100644
  #, no-wrap
  msgid "32 MiB"
  msgstr "32 MiB"
-@@ -1353,7 +896,8 @@ msgid "4"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:764 ../src/xz/xz.1:765 ../src/xz/xz.1:845 ../src/xz/xz.1:846
+ #, no-wrap
+ msgid "5 MiB"
+ msgstr "5 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:765 ../src/xz/xz.1:2454 ../src/xz/xz.1:2479
+ #: ../src/xz/xz.1:2844
+ #, no-wrap
+ msgid "-4"
+ msgstr "-4"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:765 ../src/xz/xz.1:1759 ../src/xz/xz.1:1761
+ #: ../src/xz/xz.1:1762 ../src/xz/xz.1:1764 ../src/xz/xz.1:2844
+ #, no-wrap
+ msgid "4"
  msgstr "4"
  
  #. type: tbl table
@@ -1154,7 +1513,113 @@ index 3e901181..7d4331b0 100644
  #, no-wrap
  msgid "48 MiB"
  msgstr "48 MiB"
-@@ -1467,57 +1011,23 @@ msgstr "컬럼 설명:"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:766 ../src/xz/xz.1:2455 ../src/xz/xz.1:2480
+ #: ../src/xz/xz.1:2845
+ #, no-wrap
+ msgid "-5"
+ msgstr "-5"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:766 ../src/xz/xz.1:767 ../src/xz/xz.1:847 ../src/xz/xz.1:848
+ #: ../src/xz/xz.1:2455 ../src/xz/xz.1:2456 ../src/xz/xz.1:2457
+ #, no-wrap
+ msgid "8 MiB"
+ msgstr "8 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:766 ../src/xz/xz.1:2845
+ #, no-wrap
+ msgid "5"
+ msgstr "5"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:766 ../src/xz/xz.1:767 ../src/xz/xz.1:847 ../src/xz/xz.1:848
+ #: ../src/xz/xz.1:2480 ../src/xz/xz.1:2481
+ #, no-wrap
+ msgid "94 MiB"
+ msgstr "94 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:767 ../src/xz/xz.1:2456 ../src/xz/xz.1:2481
+ #: ../src/xz/xz.1:2846
+ #, no-wrap
+ msgid "-6"
+ msgstr "-6"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:767 ../src/xz/xz.1:768 ../src/xz/xz.1:769 ../src/xz/xz.1:770
+ #: ../src/xz/xz.1:2846
+ #, no-wrap
+ msgid "6"
+ msgstr "6"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:768 ../src/xz/xz.1:2457 ../src/xz/xz.1:2482
+ #, no-wrap
+ msgid "-7"
+ msgstr "-7"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:768 ../src/xz/xz.1:849 ../src/xz/xz.1:2457
+ #: ../src/xz/xz.1:2458 ../src/xz/xz.1:2479
+ #, no-wrap
+ msgid "16 MiB"
+ msgstr "16 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:768 ../src/xz/xz.1:849 ../src/xz/xz.1:2482
+ #, no-wrap
+ msgid "186 MiB"
+ msgstr "186 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:769 ../src/xz/xz.1:2458 ../src/xz/xz.1:2483
+ #, no-wrap
+ msgid "-8"
+ msgstr "-8"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:769 ../src/xz/xz.1:850 ../src/xz/xz.1:2483
+ #, no-wrap
+ msgid "370 MiB"
+ msgstr "370 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:769 ../src/xz/xz.1:850
+ #, no-wrap
+ msgid "33 MiB"
+ msgstr "33 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:770 ../src/xz/xz.1:2459 ../src/xz/xz.1:2484
+ #, no-wrap
+ msgid "-9"
+ msgstr "-9"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:770 ../src/xz/xz.1:851 ../src/xz/xz.1:2459
+ #, no-wrap
+ msgid "64 MiB"
+ msgstr "64 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:770 ../src/xz/xz.1:851 ../src/xz/xz.1:2484
+ #, no-wrap
+ msgid "674 MiB"
+ msgstr "674 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:770 ../src/xz/xz.1:851
+ #, no-wrap
+ msgid "65 MiB"
+ msgstr "65 MiB"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:776
+ msgid "Column descriptions:"
+ msgstr "컬럼 설명:"
  
  #. type: Plain text
  #: ../src/xz/xz.1:788
@@ -1220,7 +1685,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:813
-@@ -1527,29 +1037,13 @@ msgstr "B<-e>, B<--extreme>"
+ #, no-wrap
+ msgid "B<-e>, B<--extreme>"
+ msgstr "B<-e>, B<--extreme>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:822
@@ -1254,7 +1721,89 @@ index 3e901181..7d4331b0 100644
  
  #. type: tbl table
  #: ../src/xz/xz.1:842
-@@ -1639,13 +1133,8 @@ msgstr "-9e"
+ #, no-wrap
+ msgid "-0e"
+ msgstr "-0e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:842 ../src/xz/xz.1:843 ../src/xz/xz.1:844 ../src/xz/xz.1:846
+ #: ../src/xz/xz.1:848 ../src/xz/xz.1:849 ../src/xz/xz.1:850 ../src/xz/xz.1:851
+ #: ../src/xz/xz.1:2848
+ #, no-wrap
+ msgid "8"
+ msgstr "8"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:843
+ #, no-wrap
+ msgid "-1e"
+ msgstr "-1e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:843
+ #, no-wrap
+ msgid "13 MiB"
+ msgstr "13 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:844
+ #, no-wrap
+ msgid "-2e"
+ msgstr "-2e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:844
+ #, no-wrap
+ msgid "25 MiB"
+ msgstr "25 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:845
+ #, no-wrap
+ msgid "-3e"
+ msgstr "-3e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:845 ../src/xz/xz.1:847 ../src/xz/xz.1:2847
+ #, no-wrap
+ msgid "7"
+ msgstr "7"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:846
+ #, no-wrap
+ msgid "-4e"
+ msgstr "-4e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:847 ../src/xz/xz.1:2847
+ #, no-wrap
+ msgid "-5e"
+ msgstr "-5e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:848 ../src/xz/xz.1:2848
+ #, no-wrap
+ msgid "-6e"
+ msgstr "-6e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:849
+ #, no-wrap
+ msgid "-7e"
+ msgstr "-7e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:850
+ #, no-wrap
+ msgid "-8e"
+ msgstr "-8e"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:851
+ #, no-wrap
+ msgid "-9e"
+ msgstr "-9e"
  
  #. type: Plain text
  #: ../src/xz/xz.1:863
@@ -1270,7 +1819,15 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:863
-@@ -1661,13 +1150,8 @@ msgstr "B<--best>"
+ #, no-wrap
+ msgid "B<--fast>"
+ msgstr "B<--fast>"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:866
+ #, no-wrap
+ msgid "B<--best>"
+ msgstr "B<--best>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:877
@@ -1286,7 +1843,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:877
-@@ -1677,56 +1161,18 @@ msgstr "B<--block-size=>I<E<lt>크기E<gt>>"
+ #, no-wrap
+ msgid "B<--block-size=>I<size>"
+ msgstr "B<--block-size=>I<E<lt>크기E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:890
@@ -1349,7 +1908,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:917
-@@ -1736,65 +1182,28 @@ msgstr "B<--block-list=>I<E<lt>크기E<gt>>"
+ #, no-wrap
+ msgid "B<--block-list=>I<sizes>"
+ msgstr "B<--block-list=>I<E<lt>크기E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:923
@@ -1425,7 +1986,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:960
-@@ -1804,32 +1213,13 @@ msgstr "B<--flush-timeout=>I<E<lt>제한시간E<gt>>"
+ #, no-wrap
+ msgid "B<--flush-timeout=>I<timeout>"
+ msgstr "B<--flush-timeout=>I<E<lt>제한시간E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:977
@@ -1462,7 +2025,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:987
-@@ -1839,12 +1229,8 @@ msgstr "이 기능은 POSIX 시스템이 아닌 곳에서는 사용할 수 없
+ msgid "This feature is not available on non-POSIX systems."
+ msgstr "이 기능은 POSIX 시스템이 아닌 곳에서는 사용할 수 없습니다."
+ 
  #.  FIXME
  #. type: Plain text
  #: ../src/xz/xz.1:995
@@ -1477,7 +2042,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:995
-@@ -1854,47 +1240,23 @@ msgstr "B<--memlimit-compress=>I<E<lt>제한용량E<gt>>"
+ #, no-wrap
+ msgid "B<--memlimit-compress=>I<limit>"
+ msgstr "B<--memlimit-compress=>I<E<lt>제한용량E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1000
@@ -1533,7 +2100,8 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:1032
-@@ -1903,54 +1265,23 @@ msgstr "I<E<lt>제한용량E<gt>> 값은 여러 방식으로 지정할 수 있
+ msgid "The I<limit> can be specified in multiple ways:"
+ msgstr "I<E<lt>제한용량E<gt>> 값은 여러 방식으로 지정할 수 있습니다:"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1042
@@ -1596,7 +2164,14 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:1091
-@@ -1965,17 +1296,8 @@ msgstr "B<--memlimit-decompress=>I<E<lt>제한용량E<gt>>"
+ msgid "See also the section B<Memory usage>."
+ msgstr "B<메모리 활용> 섹션도 참고하십시오."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1091
+ #, no-wrap
+ msgid "B<--memlimit-decompress=>I<limit>"
+ msgstr "B<--memlimit-decompress=>I<E<lt>제한용량E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1105
@@ -1616,7 +2191,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1105
-@@ -1985,66 +1307,23 @@ msgstr "B<--memlimit-mt-decompress=>I<E<lt>제한용량E<gt>>"
+ #, no-wrap
+ msgid "B<--memlimit-mt-decompress=>I<limit>"
+ msgstr "B<--memlimit-mt-decompress=>I<E<lt>제한용량E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1127
@@ -1691,7 +2268,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1163
-@@ -2054,13 +1333,8 @@ msgstr "B<-M> I<E<lt>제한용량E<gt>>, B<--memlimit=>I<E<lt>제한용량E<gt>>
+ #, no-wrap
+ msgid "B<-M> I<limit>, B<--memlimit=>I<limit>, B<--memory=>I<limit>"
+ msgstr "B<-M> I<E<lt>제한용량E<gt>>, B<--memlimit=>I<E<lt>제한용량E<gt>>, B<--memory=>I<E<lt>제한용량E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1169
@@ -1707,7 +2286,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1169
-@@ -2070,25 +1344,12 @@ msgstr "B<--no-adjust>"
+ #, no-wrap
+ msgid "B<--no-adjust>"
+ msgstr "B<--no-adjust>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1179
@@ -1736,7 +2317,10 @@ index 3e901181..7d4331b0 100644
  msgstr "원시 스트림(B<--format=raw>)을 만들 떄 자동 조정은 항상 꺼집니다."
  
  #. type: TP
-@@ -2099,94 +1360,33 @@ msgstr "B<-T> I<E<lt>스레드수E<gt>>, B<--threads=>I<E<lt>스레드수E<gt>>"
+ #: ../src/xz/xz.1:1182
+ #, no-wrap
+ msgid "B<-T> I<threads>, B<--threads=>I<threads>"
+ msgstr "B<-T> I<E<lt>스레드수E<gt>>, B<--threads=>I<E<lt>스레드수E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1197
@@ -1843,7 +2427,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:1266 ../src/xz/xz.1:2819
-@@ -2196,84 +1396,33 @@ msgstr "개별 압축 필터 체인 설정"
+ #, no-wrap
+ msgid "Custom compressor filter chains"
+ msgstr "개별 압축 필터 체인 설정"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1282
@@ -1940,7 +2526,15 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1323
-@@ -2289,26 +1438,13 @@ msgstr "B<--lzma2>[B<=>I<E<lt>옵션E<gt>>]"
+ #, no-wrap
+ msgid "B<--lzma1>[B<=>I<options>]"
+ msgstr "B<--lzma1>[B<=>I<E<lt>옵션E<gt>>]"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1326
+ #, no-wrap
+ msgid "B<--lzma2>[B<=>I<options>]"
+ msgstr "B<--lzma2>[B<=>I<E<lt>옵션E<gt>>]"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1331
@@ -1971,7 +2565,14 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:1346
-@@ -2323,21 +1459,8 @@ msgstr "B<preset=>I<E<lt>사전설정E<gt>>"
+ msgid "LZMA1 and LZMA2 share the same set of I<options>:"
+ msgstr "LZMA1과 LZMA2는 동일한 I<E<lt>옵션E<gt>> 집합을 공유합니다:"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1347
+ #, no-wrap
+ msgid "B<preset=>I<preset>"
+ msgstr "B<preset=>I<E<lt>사전설정E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1374
@@ -1995,7 +2596,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1374
-@@ -2347,54 +1470,18 @@ msgstr "B<dict=>I<E<lt>크기E<gt>>"
+ #, no-wrap
+ msgid "B<dict=>I<size>"
+ msgstr "B<dict=>I<E<lt>크기E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1389
@@ -2056,7 +2659,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1425
-@@ -2404,52 +1491,23 @@ msgstr "B<lc=>I<lc>"
+ #, no-wrap
+ msgid "B<lc=>I<lc>"
+ msgstr "B<lc=>I<lc>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1434
@@ -2117,7 +2722,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1462
-@@ -2459,22 +1517,13 @@ msgstr "B<lp=>I<lp>"
+ #, no-wrap
+ msgid "B<lp=>I<lp>"
+ msgstr "B<lp=>I<lp>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1466
@@ -2144,7 +2751,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1473
-@@ -2484,51 +1533,23 @@ msgstr "B<pb=>I<pb>"
+ #, no-wrap
+ msgid "B<pb=>I<pb>"
+ msgstr "B<pb=>I<pb>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1477
@@ -2204,7 +2813,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1506
-@@ -2538,26 +1559,13 @@ msgstr "B<mf=>I<mf>"
+ #, no-wrap
+ msgid "B<mf=>I<mf>"
+ msgstr "B<mf=>I<mf>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1521
@@ -2235,7 +2846,130 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1528
-@@ -2688,24 +1696,13 @@ msgstr "B<mode=>I<E<lt>모드E<gt>>"
+ #, no-wrap
+ msgid "B<hc3>"
+ msgstr "B<hc3>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1531
+ msgid "Hash Chain with 2- and 3-byte hashing"
+ msgstr "2바이트, 3바이트 해싱 체인"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1535 ../src/xz/xz.1:1584
+ msgid "Minimum value for I<nice>: 3"
+ msgstr "I<nice> 최소값: 3"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1537 ../src/xz/xz.1:1556 ../src/xz/xz.1:1586
+ #: ../src/xz/xz.1:1605
+ msgid "Memory usage:"
+ msgstr "메모리 사용:"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1542
+ msgid "I<dict> * 7.5 (if I<dict> E<lt>= 16 MiB);"
+ msgstr "I<dict> * 7.5 (조건: I<dict> E<lt>= 16 MiB);"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1547
+ msgid "I<dict> * 5.5 + 64 MiB (if I<dict> E<gt> 16 MiB)"
+ msgstr "I<dict> * 5.5 + 64 MiB (조건: I<dict> E<gt> 16 MiB)"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1547
+ #, no-wrap
+ msgid "B<hc4>"
+ msgstr "B<hc4>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1550
+ msgid "Hash Chain with 2-, 3-, and 4-byte hashing"
+ msgstr "2바이트, 3바이트, 4바이트 해싱 체인"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1554 ../src/xz/xz.1:1603
+ msgid "Minimum value for I<nice>: 4"
+ msgstr "I<nice> 최소값: 4"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1561
+ msgid "I<dict> * 7.5 (if I<dict> E<lt>= 32 MiB);"
+ msgstr "I<dict> * 7.5 (조건: I<dict> E<lt>= 32 MiB);"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1566
+ msgid "I<dict> * 6.5 (if I<dict> E<gt> 32 MiB)"
+ msgstr "I<dict> * 6.5 (조건: I<dict> E<gt> 32 MiB)"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1566
+ #, no-wrap
+ msgid "B<bt2>"
+ msgstr "B<bt2>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1569
+ msgid "Binary Tree with 2-byte hashing"
+ msgstr "2바이트 해싱 이진 트리"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1573
+ msgid "Minimum value for I<nice>: 2"
+ msgstr "I<nice> 최소값: 2"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1577
+ msgid "Memory usage: I<dict> * 9.5"
+ msgstr "메모리 사용: I<dict> * 9.5"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1577
+ #, no-wrap
+ msgid "B<bt3>"
+ msgstr "B<bt3>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1580
+ msgid "Binary Tree with 2- and 3-byte hashing"
+ msgstr "2바이트, 3바이트 해싱 이진트리"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1591
+ msgid "I<dict> * 11.5 (if I<dict> E<lt>= 16 MiB);"
+ msgstr "I<dict> * 11.5 (조건: I<dict> E<lt>= 16 MiB);"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1596
+ msgid "I<dict> * 9.5 + 64 MiB (if I<dict> E<gt> 16 MiB)"
+ msgstr "I<dict> * 9.5 + 64 MiB (조건: I<dict> E<gt> 16 MiB)"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1596
+ #, no-wrap
+ msgid "B<bt4>"
+ msgstr "B<bt4>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1599
+ msgid "Binary Tree with 2-, 3-, and 4-byte hashing"
+ msgstr "2바이트, 3바이트, 4바이트 해싱 이진 트리"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1610
+ msgid "I<dict> * 11.5 (if I<dict> E<lt>= 32 MiB);"
+ msgstr "I<dict> * 11.5 (조건: I<dict> E<lt>= 32 MiB);"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1615
+ msgid "I<dict> * 10.5 (if I<dict> E<gt> 32 MiB)"
+ msgstr "I<dict> * 10.5 (조건: I<dict> E<gt> 32 MiB)"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1616
+ #, no-wrap
+ msgid "B<mode=>I<mode>"
+ msgstr "B<mode=>I<E<lt>모드E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1637
@@ -2264,7 +2998,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1646
-@@ -2715,24 +1712,13 @@ msgstr "B<nice=>I<nice>"
+ #, no-wrap
+ msgid "B<nice=>I<nice>"
+ msgstr "B<nice=>I<nice>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1653
@@ -2293,7 +3029,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1660
-@@ -2742,37 +1728,18 @@ msgstr "B<depth=>I<E<lt>깊이E<gt>>"
+ #, no-wrap
+ msgid "B<depth=>I<depth>"
+ msgstr "B<depth=>I<E<lt>깊이E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1670
@@ -2337,7 +3075,45 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1692
-@@ -2818,30 +1785,13 @@ msgstr "B<--sparc>[B<=>I<E<lt>옵션E<gt>>]"
+ #, no-wrap
+ msgid "B<--x86>[B<=>I<options>]"
+ msgstr "B<--x86>[B<=>I<E<lt>옵션E<gt>>]"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1695
+ #, no-wrap
+ msgid "B<--arm>[B<=>I<options>]"
+ msgstr "B<--arm>[B<=>I<E<lt>옵션E<gt>>]"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1697
+ #, no-wrap
+ msgid "B<--armthumb>[B<=>I<options>]"
+ msgstr "B<--armthumb>[B<=>I<E<lt>옵션E<gt>>]"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1699
+ #, no-wrap
+ msgid "B<--arm64>[B<=>I<options>]"
+ msgstr "B<--arm64>[B<=>I<E<lt>옵션E<gt>>]"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1701
+ #, no-wrap
+ msgid "B<--powerpc>[B<=>I<options>]"
+ msgstr "B<--powerpc>[B<=>I<E<lt>옵션E<gt>>]"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1703
+ #, no-wrap
+ msgid "B<--ia64>[B<=>I<options>]"
+ msgstr "B<--ia64>[B<=>I<E<lt>옵션E<gt>>]"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1705
+ #, no-wrap
+ msgid "B<--sparc>[B<=>I<options>]"
+ msgstr "B<--sparc>[B<=>I<E<lt>옵션E<gt>>]"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1711
@@ -2372,7 +3148,8 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:1728
-@@ -2850,42 +1800,18 @@ msgstr "이 BCJ 필터에는 압축율 관련 몇가지 문제가 있습니다:"
+ msgid "These BCJ filters have known problems related to the compression ratio:"
+ msgstr "이 BCJ 필터에는 압축율 관련 몇가지 문제가 있습니다:"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1735
@@ -2421,7 +3198,93 @@ index 3e901181..7d4331b0 100644
  
  #. type: tbl table
  #: ../src/xz/xz.1:1757
-@@ -2979,19 +1905,8 @@ msgstr "SPARC"
+ #, no-wrap
+ msgid "Filter"
+ msgstr "필터"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1757
+ #, no-wrap
+ msgid "Alignment"
+ msgstr "정렬"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1757
+ #, no-wrap
+ msgid "Notes"
+ msgstr "참고"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1758
+ #, no-wrap
+ msgid "x86"
+ msgstr "x86"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1758
+ #, no-wrap
+ msgid "32-bit or 64-bit x86"
+ msgstr "32-bit 또는 64-bit x86"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1759
+ #, no-wrap
+ msgid "ARM"
+ msgstr "ARM"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1760
+ #, no-wrap
+ msgid "ARM-Thumb"
+ msgstr "ARM-Thumb"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1761
+ #, no-wrap
+ msgid "ARM64"
+ msgstr "ARM64"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1761
+ #, no-wrap
+ msgid "4096-byte alignment is best"
+ msgstr "4096 바이트 정렬이 가장 좋습니다"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1762
+ #, no-wrap
+ msgid "PowerPC"
+ msgstr "PowerPC"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1762
+ #, no-wrap
+ msgid "Big endian only"
+ msgstr "빅엔디안 전용"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1763
+ #, no-wrap
+ msgid "IA-64"
+ msgstr "IA-64"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1763
+ #, no-wrap
+ msgid "16"
+ msgstr "16"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1763
+ #, no-wrap
+ msgid "Itanium"
+ msgstr "Itanium"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:1764
+ #, no-wrap
+ msgid "SPARC"
+ msgstr "SPARC"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1781
@@ -2443,7 +3306,14 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:1784
-@@ -3006,16 +1921,8 @@ msgstr "B<start=>I<E<lt>오프셋E<gt>>"
+ msgid "All BCJ filters support the same I<options>:"
+ msgstr "모든 BCJ 필터는 동일한 I<옵션>을 지원합니다:"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1785
+ #, no-wrap
+ msgid "B<start=>I<offset>"
+ msgstr "B<start=>I<E<lt>오프셋E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1799
@@ -2462,7 +3332,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1800
-@@ -3025,27 +1932,13 @@ msgstr "B<--delta>[B<=>I<E<lt>옵션E<gt>>]"
+ #, no-wrap
+ msgid "B<--delta>[B<=>I<options>]"
+ msgstr "B<--delta>[B<=>I<E<lt>옵션E<gt>>]"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1805
@@ -2494,7 +3366,14 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:1817
-@@ -3060,21 +1953,13 @@ msgstr "B<dist=>I<E<lt>차이E<gt>>"
+ msgid "Supported I<options>:"
+ msgstr "지원 I<옵션>:"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1818
+ #, no-wrap
+ msgid "B<dist=>I<distance>"
+ msgstr "B<dist=>I<E<lt>차이E<gt>>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1826
@@ -2521,7 +3400,15 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:1833
-@@ -3090,14 +1975,8 @@ msgstr "B<-q>, B<--quiet>"
+ #, no-wrap
+ msgid "Other options"
+ msgstr "기타 옵션"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1834 ../src/xzdec/xzdec.1:83
+ #, no-wrap
+ msgid "B<-q>, B<--quiet>"
+ msgstr "B<-q>, B<--quiet>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1841
@@ -2538,7 +3425,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1841
-@@ -3107,13 +1986,8 @@ msgstr "B<-v>, B<--verbose>"
+ #, no-wrap
+ msgid "B<-v>, B<--verbose>"
+ msgstr "B<-v>, B<--verbose>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1850
@@ -2554,7 +3443,8 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:1852
-@@ -3122,46 +1996,28 @@ msgstr "진행 표시에서는 다음 정보를 나타냅니다:"
+ msgid "The progress indicator shows the following information:"
+ msgstr "진행 표시에서는 다음 정보를 나타냅니다:"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1857
@@ -2609,7 +3499,8 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:1876
-@@ -3170,33 +2026,13 @@ msgstr "경과 시간 형식은 M:SS 또는 H:MM:SS 입니다."
+ msgid "Elapsed time in the format M:SS or H:MM:SS."
+ msgstr "경과 시간 형식은 M:SS 또는 H:MM:SS 입니다."
  
  #. type: Plain text
  #: ../src/xz/xz.1:1884
@@ -2647,7 +3538,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1899 ../src/xzdec/xzdec.1:89
-@@ -3206,15 +2042,8 @@ msgstr "B<-Q>, B<--no-warn>"
+ #, no-wrap
+ msgid "B<-Q>, B<--no-warn>"
+ msgstr "B<-Q>, B<--no-warn>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1909
@@ -2665,7 +3558,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1909
-@@ -3224,17 +2053,8 @@ msgstr "B<--robot>"
+ #, no-wrap
+ msgid "B<--robot>"
+ msgstr "B<--robot>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1921
@@ -2685,7 +3580,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1921
-@@ -3244,14 +2064,8 @@ msgstr "B<--info-memory>"
+ #, no-wrap
+ msgid "B<--info-memory>"
+ msgstr "B<--info-memory>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1928
@@ -2702,7 +3599,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1928 ../src/xzdec/xzdec.1:96
-@@ -3261,11 +2075,8 @@ msgstr "B<-h>, B<--help>"
+ #, no-wrap
+ msgid "B<-h>, B<--help>"
+ msgstr "B<-h>, B<--help>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1932
@@ -2716,7 +3615,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1932
-@@ -3275,11 +2086,8 @@ msgstr "B<-H>, B<--long-help>"
+ #, no-wrap
+ msgid "B<-H>, B<--long-help>"
+ msgstr "B<-H>, B<--long-help>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1937
@@ -2730,7 +3631,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:1937 ../src/xzdec/xzdec.1:99
-@@ -3289,12 +2097,8 @@ msgstr "B<-V>, B<--version>"
+ #, no-wrap
+ msgid "B<-V>, B<--version>"
+ msgstr "B<-V>, B<--version>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1946
@@ -2745,7 +3648,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SH
  #: ../src/xz/xz.1:1947
-@@ -3304,16 +2108,8 @@ msgstr "로봇 모드"
+ #, no-wrap
+ msgid "ROBOT MODE"
+ msgstr "로봇 모드"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1963
@@ -2764,7 +3669,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:1964
-@@ -3323,12 +2119,8 @@ msgstr "버전"
+ #, no-wrap
+ msgid "Version"
+ msgstr "버전"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1969
@@ -2779,7 +3686,30 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:1971
-@@ -3359,9 +2151,7 @@ msgstr "I<YYY>"
+ msgid "B<XZ_VERSION=>I<XYYYZZZS>"
+ msgstr "B<XZ_VERSION=>I<XYYYZZZS>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1973
+ msgid "B<LIBLZMA_VERSION=>I<XYYYZZZS>"
+ msgstr "B<LIBLZMA_VERSION=>I<XYYYZZZS>"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1973
+ #, no-wrap
+ msgid "I<X>"
+ msgstr "I<X>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:1976
+ msgid "Major version."
+ msgstr "주 버전."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:1976
+ #, no-wrap
+ msgid "I<YYY>"
+ msgstr "I<YYY>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1981
@@ -2790,7 +3720,10 @@ index 3e901181..7d4331b0 100644
  msgstr "부 버전.  짝수가 안정 버전입니다.  홀수는 알파 또는 베타 버전입니다."
  
  #. type: TP
-@@ -3372,8 +2162,7 @@ msgstr "I<ZZZ>"
+ #: ../src/xz/xz.1:1981
+ #, no-wrap
+ msgid "I<ZZZ>"
+ msgstr "I<ZZZ>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1985
@@ -2800,7 +3733,10 @@ index 3e901181..7d4331b0 100644
  msgstr "안정 릴리스의 패치 수준 또는 개발 릴리스의 횟수입니다."
  
  #. type: TP
-@@ -3384,21 +2173,13 @@ msgstr "I<S>"
+ #: ../src/xz/xz.1:1985
+ #, no-wrap
+ msgid "I<S>"
+ msgstr "I<S>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:1993
@@ -2826,7 +3762,14 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2004
-@@ -3413,12 +2194,8 @@ msgstr "메모리 제한 정보"
+ msgid "Examples: 4.999.9beta is B<49990091> and 5.0.0 is B<50000002>."
+ msgstr "예제: 4.999.9beta는 B<49990091>이며, 5.0.0은 B<50000002>입니다."
+ 
+ #. type: SS
+ #: ../src/xz/xz.1:2005
+ #, no-wrap
+ msgid "Memory limit information"
+ msgstr "메모리 제한 정보"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2008
@@ -2841,7 +3784,21 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2008
-@@ -3440,13 +2217,8 @@ msgstr "2."
+ #, no-wrap
+ msgid "1."
+ msgstr "1."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2010
+ msgid "Total amount of physical memory (RAM) in bytes."
+ msgstr "물리 메모리(RAM)의 바이트 단위 총량."
+ 
+ #. type: IP
+ #: ../src/xz/xz.1:2010 ../src/xz/xz.1:2125 ../src/xz/xz.1:2162
+ #: ../src/xz/xz.1:2188 ../src/xz/xz.1:2258 ../src/xz/xz.1:2285
+ #, no-wrap
+ msgid "2."
+ msgstr "2."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2017
@@ -2857,7 +3814,10 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2017 ../src/xz/xz.1:2127 ../src/xz/xz.1:2164
-@@ -3457,13 +2229,8 @@ msgstr "3."
+ #: ../src/xz/xz.1:2190 ../src/xz/xz.1:2263 ../src/xz/xz.1:2287
+ #, no-wrap
+ msgid "3."
+ msgstr "3."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2024
@@ -2873,7 +3833,10 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2024 ../src/xz/xz.1:2129 ../src/xz/xz.1:2166
-@@ -3474,19 +2241,8 @@ msgstr "4."
+ #: ../src/xz/xz.1:2193 ../src/xz/xz.1:2273 ../src/xz/xz.1:2289
+ #, no-wrap
+ msgid "4."
+ msgstr "4."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2036
@@ -2895,7 +3858,10 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2036 ../src/xz/xz.1:2131 ../src/xz/xz.1:2168
-@@ -3497,18 +2253,8 @@ msgstr "5."
+ #: ../src/xz/xz.1:2195 ../src/xz/xz.1:2291
+ #, no-wrap
+ msgid "5."
+ msgstr "5."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2048
@@ -2916,7 +3882,15 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2048 ../src/xz/xz.1:2133 ../src/xz/xz.1:2170
-@@ -3524,12 +2270,8 @@ msgstr "B<xz> 5.3.4alpha 이후: Number of available processor threads."
+ #: ../src/xz/xz.1:2197 ../src/xz/xz.1:2293
+ #, no-wrap
+ msgid "6."
+ msgstr "6."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2053
+ msgid "Since B<xz> 5.3.4alpha: Number of available processor threads."
+ msgstr "B<xz> 5.3.4alpha 이후: Number of available processor threads."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2057
@@ -2931,7 +3905,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:2058
-@@ -3539,13 +2281,8 @@ msgstr "목록 모드"
+ #, no-wrap
+ msgid "List mode"
+ msgstr "목록 모드"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2063
@@ -2947,7 +3923,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:2063
-@@ -3555,12 +2292,8 @@ msgstr "B<이름>"
+ #, no-wrap
+ msgid "B<name>"
+ msgstr "B<이름>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2067
@@ -2962,7 +3940,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:2067
-@@ -3570,12 +2303,8 @@ msgstr "B<파일>"
+ #, no-wrap
+ msgid "B<file>"
+ msgstr "B<파일>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2075
@@ -2977,7 +3957,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:2075
-@@ -3585,12 +2314,8 @@ msgstr "B<스트림>"
+ #, no-wrap
+ msgid "B<stream>"
+ msgstr "B<스트림>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2085
@@ -2992,7 +3974,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:2085
-@@ -3600,15 +2325,8 @@ msgstr "B<블록>"
+ #, no-wrap
+ msgid "B<block>"
+ msgstr "B<블록>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2100
@@ -3010,7 +3994,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:2100
-@@ -3618,14 +2336,8 @@ msgstr "B<요약>"
+ #, no-wrap
+ msgid "B<summary>"
+ msgstr "B<요약>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2115
@@ -3027,7 +4013,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:2115
-@@ -3635,12 +2347,8 @@ msgstr "B<총계>"
+ #, no-wrap
+ msgid "B<totals>"
+ msgstr "B<총계>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2119
@@ -3042,7 +4030,28 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2123
-@@ -3669,12 +2377,8 @@ msgstr "파일 압축 해제 크기"
+ msgid "The columns of the B<file> lines:"
+ msgstr "B<파일> 행 컬럼:"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2127
+ msgid "Number of streams in the file"
+ msgstr "파일 스트림 갯수"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2129
+ msgid "Total number of blocks in the stream(s)"
+ msgstr "스트림의 블록 총 갯수"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2131
+ msgid "Compressed size of the file"
+ msgstr "파일 압축 크기"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2133
+ msgid "Uncompressed size of the file"
+ msgstr "파일 압축 해제 크기"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2139
@@ -3057,7 +4066,10 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2139 ../src/xz/xz.1:2172 ../src/xz/xz.1:2199
-@@ -3685,16 +2389,8 @@ msgstr "7."
+ #: ../src/xz/xz.1:2295
+ #, no-wrap
+ msgid "7."
+ msgstr "7."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2152
@@ -3076,7 +4088,87 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2152 ../src/xz/xz.1:2174 ../src/xz/xz.1:2201
-@@ -3782,8 +2478,7 @@ msgstr "이 블록이 들어간 스트림 갯수"
+ #: ../src/xz/xz.1:2298
+ #, no-wrap
+ msgid "8."
+ msgstr "8."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2154
+ msgid "Total size of stream padding in the file"
+ msgstr "파일의 스트림 패딩 총 길이"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2160
+ msgid "The columns of the B<stream> lines:"
+ msgstr "B<스트림> 행 컬럼:"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2164
+ msgid "Stream number (the first stream is 1)"
+ msgstr "스트림 번호 (첫 스트림은 1번)"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2166
+ msgid "Number of blocks in the stream"
+ msgstr "스트림의 블록 총 갯수"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2168
+ msgid "Compressed start offset"
+ msgstr "압축 시작 오프셋"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2170
+ msgid "Uncompressed start offset"
+ msgstr "비압축 시작 오프셋"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2172
+ msgid "Compressed size (does not include stream padding)"
+ msgstr "압축 크기 (스트림 패딩 미포함)"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2174 ../src/xz/xz.1:2203 ../src/xz/xz.1:2293
+ msgid "Uncompressed size"
+ msgstr "압축 해제 용량"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2176 ../src/xz/xz.1:2205
+ msgid "Compression ratio"
+ msgstr "압축율"
+ 
+ #. type: IP
+ #: ../src/xz/xz.1:2176 ../src/xz/xz.1:2203 ../src/xz/xz.1:2300
+ #, no-wrap
+ msgid "9."
+ msgstr "9."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2178 ../src/xz/xz.1:2207
+ msgid "Name of the integrity check"
+ msgstr "무결성 검사 이름"
+ 
+ #. type: IP
+ #: ../src/xz/xz.1:2178 ../src/xz/xz.1:2205 ../src/xz/xz.1:2316
+ #, no-wrap
+ msgid "10."
+ msgstr "10."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2180
+ msgid "Size of stream padding"
+ msgstr "스트림 패딩 길이"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2186
+ msgid "The columns of the B<block> lines:"
+ msgstr "B<블록> 행 컬럼:"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2190
+ msgid "Number of the stream containing this block"
+ msgstr "이 블록이 들어간 스트림 갯수"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2193
@@ -3086,7 +4178,24 @@ index 3e901181..7d4331b0 100644
  msgstr "스트림 시작 부분의 블록 번호 (첫번째 블록은 1번)"
  
  #. type: Plain text
-@@ -3808,14 +2503,8 @@ msgstr "총 블록 압축 크기 (헤더 포함)"
+ #: ../src/xz/xz.1:2195
+ msgid "Block number relative to the beginning of the file"
+ msgstr "파일 시작 부분의 블록 번호"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2197
+ msgid "Compressed start offset relative to the beginning of the file"
+ msgstr "파일 시작 부분의 압축 시작 오프셋"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2199
+ msgid "Uncompressed start offset relative to the beginning of the file"
+ msgstr "파일 시작 부분의 비압축 시작 오프셋"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2201
+ msgid "Total compressed size of the block (includes headers)"
+ msgstr "총 블록 압축 크기 (헤더 포함)"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2219
@@ -3103,7 +4212,31 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2221 ../src/xz/xz.1:2321
-@@ -3847,16 +2536,8 @@ msgstr "13."
+ #, no-wrap
+ msgid "11."
+ msgstr "11."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2223
+ msgid "Value of the integrity check in hexadecimal"
+ msgstr "16진수 무결성 검사값"
+ 
+ #. type: IP
+ #: ../src/xz/xz.1:2223 ../src/xz/xz.1:2331
+ #, no-wrap
+ msgid "12."
+ msgstr "12."
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2225
+ msgid "Block header size"
+ msgstr "블록 헤더 크기"
+ 
+ #. type: IP
+ #: ../src/xz/xz.1:2225
+ #, no-wrap
+ msgid "13."
+ msgstr "13."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2235
@@ -3122,7 +4255,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2235
-@@ -3866,12 +2547,8 @@ msgstr "14."
+ #, no-wrap
+ msgid "14."
+ msgstr "14."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2238
@@ -3137,7 +4272,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2238
-@@ -3881,11 +2558,8 @@ msgstr "15."
+ #, no-wrap
+ msgid "15."
+ msgstr "15."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2243
@@ -3151,7 +4288,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: IP
  #: ../src/xz/xz.1:2243
-@@ -3895,13 +2569,8 @@ msgstr "16."
+ #, no-wrap
+ msgid "16."
+ msgstr "16."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2250
@@ -3167,7 +4306,8 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2256
-@@ -3910,20 +2579,13 @@ msgstr "B<요약> 행 컬럼:"
+ msgid "The columns of the B<summary> lines:"
+ msgstr "B<요약> 행 컬럼:"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2263
@@ -3192,7 +4332,38 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2273 ../src/xz/xz.1:2331
-@@ -3962,8 +2624,7 @@ msgstr "평균 압축율"
+ msgid "I<Since> B<xz> I<5.1.2alpha:>"
+ msgstr "B<xz> I<5.1.2alpha> I<부터>:"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2277 ../src/xz/xz.1:2335
+ msgid "Minimum B<xz> version required to decompress the file"
+ msgstr "파일 압축 해제시 필요한 최소 B<xz> 버전"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2283
+ msgid "The columns of the B<totals> line:"
+ msgstr "B<총계> 행 컬럼:"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2287
+ msgid "Number of streams"
+ msgstr "스트림 갯수"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2289
+ msgid "Number of blocks"
+ msgstr "블록 갯수"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2291
+ msgid "Compressed size"
+ msgstr "압축 크기"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2295
+ msgid "Average compression ratio"
+ msgstr "평균 압축율"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2298
@@ -3202,7 +4373,9 @@ index 3e901181..7d4331b0 100644
  msgstr "파일에 들어 있어 쉼표로 구분한 무결성 검사 이름 목록"
  
  #. type: Plain text
-@@ -3973,36 +2634,23 @@ msgstr "스트림 패딩 길이"
+ #: ../src/xz/xz.1:2300
+ msgid "Stream padding size"
+ msgstr "스트림 패딩 길이"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2306
@@ -3246,7 +4419,43 @@ index 3e901181..7d4331b0 100644
  
  #. type: SH
  #: ../src/xz/xz.1:2342 ../src/xzdec/xzdec.1:104 ../src/lzmainfo/lzmainfo.1:44
-@@ -4046,12 +2694,8 @@ msgstr "눈여겨볼 경고가 나타났지만, 실제 오류는 일어나지 
+ #: ../src/scripts/xzgrep.1:81
+ #, no-wrap
+ msgid "EXIT STATUS"
+ msgstr "종료 상태"
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:2343 ../src/xzdec/xzdec.1:105 ../src/lzmainfo/lzmainfo.1:45
+ #, no-wrap
+ msgid "B<0>"
+ msgstr "B<0>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2346 ../src/lzmainfo/lzmainfo.1:48
+ msgid "All is good."
+ msgstr "모든 상태 양호."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:2346 ../src/xzdec/xzdec.1:108 ../src/lzmainfo/lzmainfo.1:48
+ #, no-wrap
+ msgid "B<1>"
+ msgstr "B<1>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2349 ../src/xzdec/xzdec.1:111 ../src/lzmainfo/lzmainfo.1:51
+ msgid "An error occurred."
+ msgstr "오류 발생."
+ 
+ #. type: TP
+ #: ../src/xz/xz.1:2349
+ #, no-wrap
+ msgid "B<2>"
+ msgstr "B<2>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:2353
+ msgid "Something worth a warning occurred, but no actual errors occurred."
+ msgstr "눈여겨볼 경고가 나타났지만, 실제 오류는 일어나지 않음."
  
  #. type: Plain text
  #: ../src/xz/xz.1:2356
@@ -3261,7 +4470,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SH
  #: ../src/xz/xz.1:2357 ../src/scripts/xzgrep.1:94 ../src/scripts/xzless.1:52
-@@ -4061,17 +2705,8 @@ msgstr "환경"
+ #, no-wrap
+ msgid "ENVIRONMENT"
+ msgstr "환경"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2370
@@ -3281,7 +4492,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:2370
-@@ -4081,16 +2716,8 @@ msgstr "B<XZ_DEFAULTS>"
+ #, no-wrap
+ msgid "B<XZ_DEFAULTS>"
+ msgstr "B<XZ_DEFAULTS>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2379
@@ -3300,7 +4513,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/xz/xz.1:2379
-@@ -4100,14 +2727,8 @@ msgstr "B<XZ_OPT>"
+ #, no-wrap
+ msgid "B<XZ_OPT>"
+ msgstr "B<XZ_OPT>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2390
@@ -3317,7 +4532,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2396
-@@ -4117,16 +2738,8 @@ msgstr "CW<XZ_OPT=-2v tar caf foo.tar.xz foo>\n"
+ #, no-wrap
+ msgid "CW<XZ_OPT=-2v tar caf foo.tar.xz foo>\n"
+ msgstr "CW<XZ_OPT=-2v tar caf foo.tar.xz foo>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2410
@@ -3336,7 +4553,19 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2417
-@@ -4146,17 +2759,8 @@ msgstr "LZMA 유틸리티 호환성"
+ #, no-wrap
+ msgid ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
+ "export XZ_OPT>\n"
+ msgstr ""
+ "CW<XZ_OPT=${XZ_OPT-\"-7e\"}\n"
+ "export XZ_OPT>\n"
+ 
+ #. type: SH
+ #: ../src/xz/xz.1:2422
+ #, no-wrap
+ msgid "LZMA UTILS COMPATIBILITY"
+ msgstr "LZMA 유틸리티 호환성"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2435
@@ -3356,7 +4585,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:2436
-@@ -4166,16 +2770,8 @@ msgstr "압축 사전 설정 단계"
+ #, no-wrap
+ msgid "Compression preset levels"
+ msgstr "압축 사전 설정 단계"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2443
@@ -3375,7 +4606,39 @@ index 3e901181..7d4331b0 100644
  
  #. type: tbl table
  #: ../src/xz/xz.1:2449 ../src/xz/xz.1:2474
-@@ -4215,13 +2811,8 @@ msgstr "512 KiB"
+ #, no-wrap
+ msgid "Level"
+ msgstr "단계"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2449 ../src/xz/xz.1:2474
+ #, no-wrap
+ msgid "xz"
+ msgstr "xz"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2449
+ #, no-wrap
+ msgid "LZMA Utils"
+ msgstr "LZMA 유틸리티"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2450 ../src/xz/xz.1:2475
+ #, no-wrap
+ msgid "N/A"
+ msgstr "없음"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2451
+ #, no-wrap
+ msgid "64 KiB"
+ msgstr "64 KiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2453
+ #, no-wrap
+ msgid "512 KiB"
+ msgstr "512 KiB"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2468
@@ -3391,7 +4654,45 @@ index 3e901181..7d4331b0 100644
  
  #. type: tbl table
  #: ../src/xz/xz.1:2474
-@@ -4267,13 +2858,8 @@ msgstr "311 MiB"
+ #, no-wrap
+ msgid "LZMA Utils 4.32.x"
+ msgstr "LZMA 유틸리티 4.32.x"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2477 ../src/xz/xz.1:2478
+ #, no-wrap
+ msgid "12 MiB"
+ msgstr "12 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2480
+ #, no-wrap
+ msgid "26 MiB"
+ msgstr "26 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2481
+ #, no-wrap
+ msgid "45 MiB"
+ msgstr "45 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2482
+ #, no-wrap
+ msgid "83 MiB"
+ msgstr "83 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2483
+ #, no-wrap
+ msgid "159 MiB"
+ msgstr "159 MiB"
+ 
+ #. type: tbl table
+ #: ../src/xz/xz.1:2484
+ #, no-wrap
+ msgid "311 MiB"
+ msgstr "311 MiB"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2493
@@ -3407,7 +4708,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:2494
-@@ -4283,38 +2869,13 @@ msgstr "스트림 vs 비스트림 .lzma 파일"
+ #, no-wrap
+ msgid "Streamed vs. non-streamed .lzma files"
+ msgstr "스트림 vs 비스트림 .lzma 파일"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2504
@@ -3450,7 +4753,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:2526
-@@ -4324,51 +2885,23 @@ msgstr "지원하지 않는 .lzma 파일"
+ #, no-wrap
+ msgid "Unsupported .lzma files"
+ msgstr "지원하지 않는 .lzma 파일"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2549
@@ -3510,7 +4815,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:2581
-@@ -4378,26 +2911,13 @@ msgstr "뒤따라오는 쓰레기 값"
+ #, no-wrap
+ msgid "Trailing garbage"
+ msgstr "뒤따라오는 쓰레기 값"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2591
@@ -3541,7 +4848,15 @@ index 3e901181..7d4331b0 100644
  
  #. type: SH
  #: ../src/xz/xz.1:2602 ../src/xzdec/xzdec.1:117
-@@ -4413,34 +2933,13 @@ msgstr "출력 결과물이 달라짐"
+ #, no-wrap
+ msgid "NOTES"
+ msgstr "참고"
+ 
+ #. type: SS
+ #: ../src/xz/xz.1:2604
+ #, no-wrap
+ msgid "Compressed output may vary"
+ msgstr "출력 결과물이 달라짐"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2615
@@ -3580,7 +4895,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:2626
-@@ -4450,34 +2949,18 @@ msgstr "내장 .xz 압축 해제 프로그램"
+ #, no-wrap
+ msgid "Embedded .xz decompressors"
+ msgstr "내장 .xz 압축 해제 프로그램"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2643
@@ -3621,7 +4938,15 @@ index 3e901181..7d4331b0 100644
  
  #. type: SH
  #: ../src/xz/xz.1:2657
-@@ -4493,12 +2976,8 @@ msgstr "기본"
+ #, no-wrap
+ msgid "EXAMPLES"
+ msgstr "예제"
+ 
+ #. type: SS
+ #: ../src/xz/xz.1:2659
+ #, no-wrap
+ msgid "Basics"
+ msgstr "기본"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2669
@@ -3636,7 +4961,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2674
-@@ -4508,12 +2987,8 @@ msgstr "CW<xz foo>\n"
+ #, no-wrap
+ msgid "CW<xz foo>\n"
+ msgstr "CW<xz foo>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2685
@@ -3651,7 +4978,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2690
-@@ -4523,14 +2998,8 @@ msgstr "CW<xz -dk bar.xz>\n"
+ #, no-wrap
+ msgid "CW<xz -dk bar.xz>\n"
+ msgstr "CW<xz -dk bar.xz>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2703
@@ -3668,7 +4997,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2708
-@@ -4540,11 +3009,8 @@ msgstr "CW<tar cf - baz | xz -4e E<gt> baz.tar.xz>\n"
+ #, no-wrap
+ msgid "CW<tar cf - baz | xz -4e E<gt> baz.tar.xz>\n"
+ msgstr "CW<tar cf - baz | xz -4e E<gt> baz.tar.xz>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2714
@@ -3682,7 +5013,15 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2719
-@@ -4560,12 +3026,8 @@ msgstr "다중 파일 병렬 압축"
+ #, no-wrap
+ msgid "CW<xz -dcf a.txt b.txt.xz c.txt d.txt.lzma E<gt> abcd.txt>\n"
+ msgstr "CW<xz -dcf a.txt b.txt.xz c.txt d.txt.lzma E<gt> abcd.txt>\n"
+ 
+ #. type: SS
+ #: ../src/xz/xz.1:2723
+ #, no-wrap
+ msgid "Parallel compression of many files"
+ msgstr "다중 파일 병렬 압축"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2729
@@ -3697,7 +5036,13 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2735
-@@ -4579,28 +3041,13 @@ msgstr ""
+ #, no-wrap
+ msgid ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
+ msgstr ""
+ "CW<find . -type f \\e! -name '*.xz' -print0 \\e\n"
+ "    | xargs -0r -P4 -n16 xz -T1>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2757
@@ -3730,7 +5075,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SS
  #: ../src/xz/xz.1:2766
-@@ -4610,9 +3057,7 @@ msgstr "로봇 모드"
+ #, no-wrap
+ msgid "Robot mode"
+ msgstr "로봇 모드"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2769
@@ -3741,7 +5088,10 @@ index 3e901181..7d4331b0 100644
  msgstr "여러 파일을 압축한 후 저장할 바이트 용량을 계산합니다:"
  
  #. type: Plain text
-@@ -4623,16 +3068,8 @@ msgstr "CW<xz --robot --list *.xz | awk '/^totals/{print $5-$4}'>\n"
+ #: ../src/xz/xz.1:2774
+ #, no-wrap
+ msgid "CW<xz --robot --list *.xz | awk '/^totals/{print $5-$4}'>\n"
+ msgstr "CW<xz --robot --list *.xz | awk '/^totals/{print $5-$4}'>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2789
@@ -3760,7 +5110,19 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2798
-@@ -4652,12 +3089,8 @@ msgstr ""
+ #, no-wrap
+ msgid ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
+ msgstr ""
+ "CW<if ! eval \"$(xz --robot --version 2E<gt> /dev/null)\" ||\n"
+ "        [ \"$XZ_VERSION\" -lt 50000002 ]; then\n"
+ "    echo \"Your xz is too old.\"\n"
+ "fi\n"
+ "unset XZ_VERSION LIBLZMA_VERSION>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2805
@@ -3775,7 +5137,21 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2815
-@@ -4679,38 +3112,18 @@ msgstr ""
+ #, no-wrap
+ msgid ""
+ "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
+ "fi>\n"
+ msgstr ""
+ "CW<NEWLIM=$((123 E<lt>E<lt> 20))\\ \\ # 123 MiB\n"
+ "OLDLIM=$(xz --robot --info-memory | cut -f3)\n"
+ "if [ $OLDLIM -eq 0 -o $OLDLIM -gt $NEWLIM ]; then\n"
+ "    XZ_OPT=\"$XZ_OPT --memlimit-decompress=$NEWLIM\"\n"
+ "    export XZ_OPT\n"
+ "fi>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2825
@@ -3820,7 +5196,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2863
-@@ -4720,34 +3133,13 @@ msgstr "CW<xz --lzma2=preset=1,dict=32MiB foo.tar>\n"
+ #, no-wrap
+ msgid "CW<xz --lzma2=preset=1,dict=32MiB foo.tar>\n"
+ msgstr "CW<xz --lzma2=preset=1,dict=32MiB foo.tar>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2879
@@ -3859,7 +5237,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2891
-@@ -4757,33 +3149,13 @@ msgstr "CW<xz -vv --lzma2=dict=192MiB big_foo.tar>\n"
+ #, no-wrap
+ msgid "CW<xz -vv --lzma2=dict=192MiB big_foo.tar>\n"
+ msgstr "CW<xz -vv --lzma2=dict=192MiB big_foo.tar>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2904
@@ -3897,7 +5277,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2921
-@@ -4793,22 +3165,8 @@ msgstr "CW<xz --check=crc32 --lzma2=preset=6e,dict=64KiB foo>\n"
+ #, no-wrap
+ msgid "CW<xz --check=crc32 --lzma2=preset=6e,dict=64KiB foo>\n"
+ msgstr "CW<xz --check=crc32 --lzma2=preset=6e,dict=64KiB foo>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2944
@@ -3922,7 +5304,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2949
-@@ -4818,14 +3176,8 @@ msgstr "CW<xz --lzma2=preset=6e,pb=0,lc=4 source_code.tar>\n"
+ #, no-wrap
+ msgid "CW<xz --lzma2=preset=6e,pb=0,lc=4 source_code.tar>\n"
+ msgstr "CW<xz --lzma2=preset=6e,pb=0,lc=4 source_code.tar>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2957
@@ -3939,7 +5323,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2962
-@@ -4835,41 +3187,18 @@ msgstr "CW<xz --x86 --lzma2 libfoo.so>\n"
+ #, no-wrap
+ msgid "CW<xz --x86 --lzma2 libfoo.so>\n"
+ msgstr "CW<xz --x86 --lzma2 libfoo.so>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:2976
@@ -3987,7 +5373,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:2997
-@@ -4879,13 +3208,8 @@ msgstr "CW<xz --delta=dist=3 --lzma2=pb=0 foo.tiff>\n"
+ #, no-wrap
+ msgid "CW<xz --delta=dist=3 --lzma2=pb=0 foo.tiff>\n"
+ msgstr "CW<xz --delta=dist=3 --lzma2=pb=0 foo.tiff>\n"
  
  #. type: Plain text
  #: ../src/xz/xz.1:3005
@@ -4003,7 +5391,11 @@ index 3e901181..7d4331b0 100644
  
  #. type: SH
  #: ../src/xz/xz.1:3006 ../src/xzdec/xzdec.1:143 ../src/lzmainfo/lzmainfo.1:59
-@@ -4897,12 +3221,8 @@ msgstr "추가 참조"
+ #: ../src/scripts/xzdiff.1:65 ../src/scripts/xzgrep.1:106
+ #: ../src/scripts/xzless.1:65 ../src/scripts/xzmore.1:51
+ #, no-wrap
+ msgid "SEE ALSO"
+ msgstr "추가 참조"
  
  #. type: Plain text
  #: ../src/xz/xz.1:3015
@@ -4018,7 +5410,13 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xz/xz.1:3017
-@@ -4916,8 +3236,8 @@ msgstr "XZ 임베디드: E<lt>https://tukaani.org/xz/embedded.htmlE<gt>"
+ msgid "XZ Utils: E<lt>https://tukaani.org/xz/E<gt>"
+ msgstr "XZ 유틸리티: E<lt>https://tukaani.org/xz/E<gt>"
+ 
+ #. type: Plain text
+ #: ../src/xz/xz.1:3019 ../src/xzdec/xzdec.1:146
+ msgid "XZ Embedded: E<lt>https://tukaani.org/xz/embedded.htmlE<gt>"
+ msgstr "XZ 임베디드: E<lt>https://tukaani.org/xz/embedded.htmlE<gt>"
  
  #. type: Plain text
  #: ../src/xz/xz.1:3020
@@ -4029,7 +5427,30 @@ index 3e901181..7d4331b0 100644
  
  #. type: TH
  #: ../src/xzdec/xzdec.1:7
-@@ -4948,80 +3268,38 @@ msgstr "B<lzmadec> [I<<옵션>...>] [I<E<lt>파일E<gt>...>]"
+ #, no-wrap
+ msgid "XZDEC"
+ msgstr "XZDEC"
+ 
+ #. type: TH
+ #: ../src/xzdec/xzdec.1:7
+ #, no-wrap
+ msgid "2017-04-19"
+ msgstr "2017-04-19"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:10
+ msgid "xzdec, lzmadec - Small .xz and .lzma decompressors"
+ msgstr "xzdec, lzmadec - .xz와 .lzma용 작은 압축 해제 프로그램"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:14
+ msgid "B<xzdec> [I<option...>] [I<file...>]"
+ msgstr "B<xzdec> [I<<옵션>...>] [I<E<lt>파일E<gt>...>]"
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:18
+ msgid "B<lzmadec> [I<option...>] [I<file...>]"
+ msgstr "B<lzmadec> [I<<옵션>...>] [I<E<lt>파일E<gt>...>]"
  
  #. type: Plain text
  #: ../src/xzdec/xzdec.1:44
@@ -4124,7 +5545,18 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xzdec/xzdec.1:99
-@@ -5040,37 +3318,18 @@ msgstr "모든 상태 양호."
+ msgid "Display a help message and exit successfully."
+ msgstr "도움말 메시지를 나타내고 무사히 나갑니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:104
+ msgid "Display the version number of B<xzdec> and liblzma."
+ msgstr "B<xzdec>과 liblzma의 버전 번호를 나타냅니다."
+ 
+ #. type: Plain text
+ #: ../src/xzdec/xzdec.1:108
+ msgid "All was good."
+ msgstr "모든 상태 양호."
  
  #. type: Plain text
  #: ../src/xzdec/xzdec.1:117
@@ -4168,7 +5600,30 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/xzdec/xzdec.1:145 ../src/lzmainfo/lzmainfo.1:60
-@@ -5101,37 +3360,18 @@ msgstr "B<lzmainfo> [B<--help>] [B<--version>] [I<E<lt>파일E<gt>...>]"
+ msgid "B<xz>(1)"
+ msgstr "B<xz>(1)"
+ 
+ #. type: TH
+ #: ../src/lzmainfo/lzmainfo.1:7
+ #, no-wrap
+ msgid "LZMAINFO"
+ msgstr "LZMAINFO"
+ 
+ #. type: TH
+ #: ../src/lzmainfo/lzmainfo.1:7 ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "2013-06-30"
+ msgstr "2013-06-30"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:10
+ msgid "lzmainfo - show information stored in the .lzma file header"
+ msgstr "lzmainfo - .lzma 파일 헤더에 들어있는 정보를 보여줍니다"
+ 
+ #. type: Plain text
+ #: ../src/lzmainfo/lzmainfo.1:15
+ msgid "B<lzmainfo> [B<--help>] [B<--version>] [I<file...>]"
+ msgstr "B<lzmainfo> [B<--help>] [B<--version>] [I<E<lt>파일E<gt>...>]"
  
  #. type: Plain text
  #: ../src/lzmainfo/lzmainfo.1:31
@@ -4212,7 +5667,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: SH
  #: ../src/lzmainfo/lzmainfo.1:51 ../src/scripts/xzdiff.1:74
-@@ -5141,12 +3381,8 @@ msgstr "버그"
+ #, no-wrap
+ msgid "BUGS"
+ msgstr "버그"
  
  #. type: Plain text
  #: ../src/lzmainfo/lzmainfo.1:59
@@ -4227,7 +5684,21 @@ index 3e901181..7d4331b0 100644
  
  #. type: TH
  #: ../src/scripts/xzdiff.1:9
-@@ -5168,8 +3404,7 @@ msgstr "xzcmp, xzdiff, lzcmp, lzdiff - 압축 파일을 비교합니다"
+ #, no-wrap
+ msgid "XZDIFF"
+ msgstr "XZDIFF"
+ 
+ #. type: TH
+ #: ../src/scripts/xzdiff.1:9
+ #, no-wrap
+ msgid "2021-06-04"
+ msgstr "2021-06-04"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzdiff.1:12
+ msgid "xzcmp, xzdiff, lzcmp, lzdiff - compare compressed files"
+ msgstr "xzcmp, xzdiff, lzcmp, lzdiff - 압축 파일을 비교합니다"
+ 
  #. type: Plain text
  #: ../src/scripts/xzdiff.1:15
  msgid "B<xzcmp> [I<cmp_options>] I<file1> [I<file2>]"
@@ -4237,7 +5708,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/scripts/xzdiff.1:18
-@@ -5179,63 +3414,32 @@ msgstr "B<xzdiff> [I<차이_옵션>] I<E<lt>파일1E<gt>> [I<E<lt>파일2E<gt>>]
+ msgid "B<xzdiff> [I<diff_options>] I<file1> [I<file2>]"
+ msgstr "B<xzdiff> [I<차이_옵션>] I<E<lt>파일1E<gt>> [I<E<lt>파일2E<gt>>]"
+ 
  #. type: Plain text
  #: ../src/scripts/xzdiff.1:21
  msgid "B<lzcmp> [I<cmp_options>] I<file1> [I<file2>]"
@@ -4311,7 +5784,21 @@ index 3e901181..7d4331b0 100644
  
  #. type: TH
  #: ../src/scripts/xzgrep.1:9
-@@ -5257,8 +3461,7 @@ msgstr "xzgrep - 정규 표현식을 활용하여 압축 파일을 검색합니
+ #, no-wrap
+ msgid "XZGREP"
+ msgstr "XZGREP"
+ 
+ #. type: TH
+ #: ../src/scripts/xzgrep.1:9
+ #, no-wrap
+ msgid "2022-07-19"
+ msgstr "2022-07-19"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:12
+ msgid "xzgrep - search compressed files for a regular expression"
+ msgstr "xzgrep - 정규 표현식을 활용하여 압축 파일을 검색합니다"
+ 
  #. type: Plain text
  #: ../src/scripts/xzgrep.1:18
  msgid "B<xzgrep> [I<grep_options>] [B<-e>] I<pattern> [I<file...>]"
@@ -4321,7 +5808,28 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/scripts/xzgrep.1:21
-@@ -5287,47 +3490,23 @@ msgstr "B<lzfgrep> \\&..."
+ msgid "B<xzegrep> \\&..."
+ msgstr "B<xzegrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:24
+ msgid "B<xzfgrep> \\&..."
+ msgstr "B<xzfgrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:27
+ msgid "B<lzgrep> \\&..."
+ msgstr "B<lzgrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:30
+ msgid "B<lzegrep> \\&..."
+ msgstr "B<lzegrep> \\&..."
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzgrep.1:33
+ msgid "B<lzfgrep> \\&..."
+ msgstr "B<lzfgrep> \\&..."
  
  #. type: Plain text
  #: ../src/scripts/xzgrep.1:49
@@ -4377,7 +5885,15 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/scripts/xzgrep.1:90
-@@ -5343,9 +3522,7 @@ msgstr "E<gt>1"
+ msgid "No matches were found from any of the input files.  No errors occurred."
+ msgstr "어떤 입력 파일에서든 일치하는 내용이 없습니다.  오류가 없습니다."
+ 
+ #. type: TP
+ #: ../src/scripts/xzgrep.1:90
+ #, no-wrap
+ msgid "E<gt>1"
+ msgstr "E<gt>1"
+ 
  #. type: Plain text
  #: ../src/scripts/xzgrep.1:94
  msgid "One or more errors occurred.  It is unknown if matches were found."
@@ -4388,7 +5904,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/scripts/xzgrep.1:95
-@@ -5355,21 +3532,13 @@ msgstr "B<GREP>"
+ #, no-wrap
+ msgid "B<GREP>"
+ msgstr "B<GREP>"
  
  #. type: Plain text
  #: ../src/scripts/xzgrep.1:106
@@ -4414,7 +5932,30 @@ index 3e901181..7d4331b0 100644
  
  #. type: TH
  #: ../src/scripts/xzless.1:10
-@@ -5400,34 +3569,17 @@ msgstr "B<lzless> [I<E<lt>파일E<gt>>...]"
+ #, no-wrap
+ msgid "XZLESS"
+ msgstr "XZLESS"
+ 
+ #. type: TH
+ #: ../src/scripts/xzless.1:10
+ #, no-wrap
+ msgid "2010-09-27"
+ msgstr "2010-09-27"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:13
+ msgid "xzless, lzless - view xz or lzma compressed (text) files"
+ msgstr "xzless, lzless - xz 또는 lzma 압축 (텍스트) 파일을 봅니다"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:16
+ msgid "B<xzless> [I<file>...]"
+ msgstr "B<xzless> [I<E<lt>파일E<gt>>...]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzless.1:19
+ msgid "B<lzless> [I<file>...]"
+ msgstr "B<lzless> [I<E<lt>파일E<gt>>...]"
  
  #. type: Plain text
  #: ../src/scripts/xzless.1:31
@@ -4454,7 +5995,10 @@ index 3e901181..7d4331b0 100644
  msgstr "B<lzless> 명령은 LZMA 유틸리티 하위 호환용으로 제공합니다."
  
  #. type: TP
-@@ -5438,12 +3590,8 @@ msgstr "B<LESSMETACHARS>"
+ #: ../src/scripts/xzless.1:53
+ #, no-wrap
+ msgid "B<LESSMETACHARS>"
+ msgstr "B<LESSMETACHARS>"
  
  #. type: Plain text
  #: ../src/scripts/xzless.1:59
@@ -4469,7 +6013,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/scripts/xzless.1:59
-@@ -5453,12 +3601,8 @@ msgstr "B<LESSOPEN>"
+ #, no-wrap
+ msgid "B<LESSOPEN>"
+ msgstr "B<LESSOPEN>"
  
  #. type: Plain text
  #: ../src/scripts/xzless.1:65
@@ -4484,7 +6030,15 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/scripts/xzless.1:69
-@@ -5474,8 +3618,7 @@ msgstr "XZMORE"
+ msgid "B<less>(1), B<xz>(1), B<xzmore>(1), B<zless>(1)"
+ msgstr "B<less>(1), B<xz>(1), B<xzmore>(1), B<zless>(1)"
+ 
+ #. type: TH
+ #: ../src/scripts/xzmore.1:7
+ #, no-wrap
+ msgid "XZMORE"
+ msgstr "XZMORE"
+ 
  #. type: Plain text
  #: ../src/scripts/xzmore.1:10
  msgid "xzmore, lzmore - view xz or lzma compressed (text) files"
@@ -4494,7 +6048,13 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/scripts/xzmore.1:13
-@@ -5489,23 +3632,13 @@ msgstr "B<lzmore> [I<E<lt>파일E<gt>...>]"
+ msgid "B<xzmore> [I<file...>]"
+ msgstr "B<xzmore> [I<E<lt>파일E<gt>...>]"
+ 
+ #. type: Plain text
+ #: ../src/scripts/xzmore.1:16
+ msgid "B<lzmore> [I<file...>]"
+ msgstr "B<lzmore> [I<E<lt>파일E<gt>...>]"
  
  #. type: Plain text
  #: ../src/scripts/xzmore.1:24
@@ -4522,7 +6082,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/scripts/xzmore.1:33
-@@ -5515,12 +3648,8 @@ msgstr "B<e> 또는 B<q>"
+ #, no-wrap
+ msgid "B<e> or B<q>"
+ msgstr "B<e> 또는 B<q>"
  
  #. type: Plain text
  #: ../src/scripts/xzmore.1:40
@@ -4537,7 +6099,9 @@ index 3e901181..7d4331b0 100644
  
  #. type: TP
  #: ../src/scripts/xzmore.1:40
-@@ -5530,21 +3659,13 @@ msgstr "B<s>"
+ #, no-wrap
+ msgid "B<s>"
+ msgstr "B<s>"
  
  #. type: Plain text
  #: ../src/scripts/xzmore.1:47
@@ -4563,3 +6127,5 @@ index 3e901181..7d4331b0 100644
  
  #. type: Plain text
  #: ../src/scripts/xzmore.1:55
+ msgid "B<more>(1), B<xz>(1), B<xzless>(1), B<zmore>(1)"
+ msgstr "B<more>(1), B<xz>(1), B<xzless>(1), B<zmore>(1)"

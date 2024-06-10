@@ -8,7 +8,7 @@ diff --git a/lib/getopt_int.h b/lib/getopt_int.h
 index 401579fd..4d9e24be 100644
 --- a/lib/getopt_int.h
 +++ b/lib/getopt_int.h
-@@ -1,34 +1,62 @@
+@@ -1,131 +1,118 @@
  /* Internal declarations for getopt.
 -   Copyright (C) 1989-1994,1996-1999,2001,2003,2004
 -   Free Software Foundation, Inc.
@@ -85,7 +85,24 @@ index 401579fd..4d9e24be 100644
  /* Data type for reentrant functions.  */
  struct _getopt_data
  {
-@@ -53,58 +81,17 @@ struct _getopt_data
+   /* These have exactly the same meaning as the corresponding global
+      variables, except that they are used for the reentrant
+      versions of getopt.  */
+   int optind;
+   int opterr;
+   int optopt;
+   char *optarg;
+ 
+   /* Internal members.  */
+ 
+   /* True if the internal members have been initialized.  */
+   int __initialized;
+ 
+   /* The next char to be scanned in the option-element
+      in which the last option character we returned was found.
+      This allows us to pick up the scan where we left off.
+ 
+      If this is zero, or a null string, it means resume the scan
       by advancing to the next ARGV-element.  */
    char *__nextchar;
  
@@ -148,7 +165,9 @@ index 401579fd..4d9e24be 100644
  };
  
  /* The initializer is necessary to set OPTIND and OPTERR to their
-@@ -114,8 +101,8 @@ struct _getopt_data
+    default values and to clear the initialization flag.  */
+ #define _GETOPT_DATA_INITIALIZER	{ 1, 1 }
+ 
  extern int _getopt_internal_r (int ___argc, char **___argv,
  			       const char *__shortopts,
  			       const struct option *__longopts, int *__longind,
@@ -159,3 +178,13 @@ index 401579fd..4d9e24be 100644
  
  extern int _getopt_long_r (int ___argc, char **___argv,
  			   const char *__shortopts,
+ 			   const struct option *__longopts, int *__longind,
+ 			   struct _getopt_data *__data);
+ 
+ extern int _getopt_long_only_r (int ___argc, char **___argv,
+ 				const char *__shortopts,
+ 				const struct option *__longopts,
+ 				int *__longind,
+ 				struct _getopt_data *__data);
+ 
+ #endif /* getopt_int.h */

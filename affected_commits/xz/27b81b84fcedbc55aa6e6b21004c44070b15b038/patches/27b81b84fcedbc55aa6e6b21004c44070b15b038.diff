@@ -8,7 +8,7 @@ diff --git a/po/pl.po b/po/pl.po
 index 9b5af62b..092505b1 100644
 --- a/po/pl.po
 +++ b/po/pl.po
-@@ -1,13 +1,13 @@
+@@ -1,1028 +1,1022 @@
  # Polish translation for xz.
  # This file is put in the public domain.
 -# Jakub Bogusz <qboosh@pld-linux.org>, 2011-2022.
@@ -27,7 +27,9 @@ index 9b5af62b..092505b1 100644
  "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
  "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
  "Language: pl\n"
-@@ -17,51 +17,55 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
  "X-Bugs: Report translation errors to the Language-Team address.\n"
  "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
  
@@ -93,7 +95,71 @@ index 9b5af62b..092505b1 100644
  #: src/xz/coder.c:115
  msgid "Maximum number of filters is four"
  msgstr "Maksymalna liczba filtrów to cztery"
-@@ -133,11 +137,11 @@ msgstr "Skorygowano rozmiar słownika LZMA%c z %s MiB do %s MiB aby nie przekroc
+ 
+ #: src/xz/coder.c:134
+ msgid "Memory usage limit is too low for the given filter setup."
+ msgstr "Limit użycia pamięci jest zbyt mały dla podanej konfiguracji filtra."
+ 
+ #: src/xz/coder.c:169
+ msgid "Using a preset in raw mode is discouraged."
+ msgstr "Użycie ustawień predefiniowanych w trybie surowym jest odradzane."
+ 
+ #: src/xz/coder.c:171
+ msgid "The exact options of the presets may vary between software versions."
+ msgstr "Dokładne opcje ustawień predefiniowanych mogą różnić się między wersjami oprogramowania."
+ 
+ #: src/xz/coder.c:194
+ msgid "The .lzma format supports only the LZMA1 filter"
+ msgstr "Format .lzma obsługuje tylko filtr LZMA1"
+ 
+ #: src/xz/coder.c:202
+ msgid "LZMA1 cannot be used with the .xz format"
+ msgstr "LZMA1 nie może być używany z formatem .xz"
+ 
+ #: src/xz/coder.c:219
+ msgid "The filter chain is incompatible with --flush-timeout"
+ msgstr "Łańcuch filtrów jest niezgodny z --flush-timeout"
+ 
+ #: src/xz/coder.c:225
+ msgid "Switching to single-threaded mode due to --flush-timeout"
+ msgstr "Przełączanie w tryb jednowątkowy z powodu --flush-timeout"
+ 
+ #: src/xz/coder.c:249
+ #, c-format
+ msgid "Using up to %<PRIu32> threads."
+ msgstr "Maksymalna liczba używanych wątków: %<PRIu32>."
+ 
+ #: src/xz/coder.c:265
+ msgid "Unsupported filter chain or filter options"
+ msgstr "Nieobsługiwany łańcuch filtrów lub opcje filtra"
+ 
+ #: src/xz/coder.c:277
+ #, c-format
+ msgid "Decompression will need %s MiB of memory."
+ msgstr "Dekompresja będzie wymagała %s MiB pamięci."
+ 
+ #: src/xz/coder.c:309
+ #, c-format
+ msgid "Reduced the number of threads from %s to %s to not exceed the memory usage limit of %s MiB"
+ msgstr "Zmniejszono liczbę wątków z %s do %s, aby nie przekroczyć limitu użycia pamięci %s MiB"
+ 
+ #: src/xz/coder.c:329
+ #, c-format
+ msgid "Reduced the number of threads from %s to one. The automatic memory usage limit of %s MiB is still being exceeded. %s MiB of memory is required. Continuing anyway."
+ msgstr "Zmniejszono liczbę wątków z %s do jednego. Automatyczny limit użycia pamięci %s MiB jest nadal przekroczony - wymagane jest %s MiB. Kontynuacja mimo to."
+ 
+ #: src/xz/coder.c:356
+ #, c-format
+ msgid "Switching to single-threaded mode to not exceed the memory usage limit of %s MiB"
+ msgstr "Przełączenie w tryb jednowątkowy, aby nie przekroczyć limitu użycia pamięci %s MiB"
+ 
+ #: src/xz/coder.c:411
+ #, c-format
+ msgid "Adjusted LZMA%c dictionary size from %s MiB to %s MiB to not exceed the memory usage limit of %s MiB"
+ msgstr "Skorygowano rozmiar słownika LZMA%c z %s MiB do %s MiB aby nie przekroczyć limitu użycia pamięci %s MiB"
+ 
+ #: src/xz/file_io.c:110 src/xz/file_io.c:118
+ #, c-format
  msgid "Error creating a pipe: %s"
  msgstr "Błąd tworzenia potoku: %s"
  
@@ -107,7 +173,14 @@ index 9b5af62b..092505b1 100644
  #, c-format
  msgid "%s: poll() failed: %s"
  msgstr "%s: poll() nie powiodło się: %s"
-@@ -152,252 +156,252 @@ msgstr "%s: poll() nie powiodło się: %s"
+ 
+ #. TRANSLATORS: When compression or decompression finishes,
+ #. and xz is going to remove the source file, xz first checks
+ #. if the source file still exists, and if it does, does its
+ #. device and inode numbers match what xz saw when it opened
+ #. the source file. If these checks fail, this message is
+ #. shown, %s being the filename, and the file is not deleted.
+ #. The check for device and inode numbers is there, because
  #. it is possible that the user has put a new file in place
  #. of the original file, and in that case it obviously
  #. shouldn't be removed.
@@ -417,7 +490,7 @@ index 9b5af62b..092505b1 100644
  msgid "Filters"
  msgstr "Filtry"
  
-@@ -405,7 +409,7 @@ msgstr "Filtry"
+ #. TRANSLATORS: Indicates that there is no integrity check.
  #. This string is used in tables. In older xz version this
  #. string was limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -426,7 +499,7 @@ index 9b5af62b..092505b1 100644
  msgid "None"
  msgstr "Brak"
  
-@@ -413,60 +417,60 @@ msgstr "Brak"
+ #. TRANSLATORS: Indicates that integrity check name is not known,
  #. but the Check ID is known (here 2). In older xz version these
  #. strings were limited to ten columns in a fixed-width font, but
  #. nowadays there is no strict length restriction anymore.
@@ -501,7 +574,8 @@ index 9b5af62b..092505b1 100644
  #, c-format
  msgid "%s: Too small to be a valid .xz file"
  msgstr "%s: Za mały na poprawny plik .xz"
-@@ -475,26 +479,26 @@ msgstr "%s: Za mały na poprawny plik .xz"
+ 
+ #. TRANSLATORS: These are column headings. From Strms (Streams)
  #. to Ratio, the columns are right aligned. Check and Filename
  #. are left aligned. If you need longer words, it's OK to
  #. use two lines here. Test with "xz -l foo.xz".
@@ -533,7 +607,7 @@ index 9b5af62b..092505b1 100644
  #, c-format
  msgid "%s file\n"
  msgid_plural "%s files\n"
-@@ -502,15 +506,15 @@ msgstr[0] "%s plik\n"
+ msgstr[0] "%s plik\n"
  msgstr[1] "%s pliki\n"
  msgstr[2] "%s plików\n"
  
@@ -552,7 +626,35 @@ index 9b5af62b..092505b1 100644
  msgid "--list does not support reading from standard input"
  msgstr "--list nie obsługuje odczytu ze standardowego wejścia"
  
-@@ -546,63 +550,63 @@ msgstr "Nie można odczytać danych ze standardowego wejścia przy czytaniu nazw
+ #: src/xz/main.c:89
+ #, c-format
+ msgid "%s: Error reading filenames: %s"
+ msgstr "%s: Błąd odczytu nazw plików: %s"
+ 
+ #: src/xz/main.c:96
+ #, c-format
+ msgid "%s: Unexpected end of input when reading filenames"
+ msgstr "%s: Nieoczekiwany koniec wejścia podczas odczytu nazw plików"
+ 
+ #: src/xz/main.c:120
+ #, c-format
+ msgid "%s: Null character found when reading filenames; maybe you meant to use `--files0' instead of `--files'?"
+ msgstr "%s: Napotkano znak NUL podczas odczytu nazw plików; może miało być `--files0' zamiast `--files'?"
+ 
+ #: src/xz/main.c:188
+ msgid "Compression and decompression with --robot are not supported yet."
+ msgstr "Kompresja i dekompresja z opcją --robot nie jest jeszcze obsługiwana."
+ 
+ #: src/xz/main.c:266
+ msgid "Cannot read data from standard input when reading filenames from standard input"
+ msgstr "Nie można odczytać danych ze standardowego wejścia przy czytaniu nazw plików ze standardowego wejścia"
+ 
+ #. TRANSLATORS: This is the program name in the beginning
+ #. of the line in messages. Usually it becomes "xz: ".
+ #. This is a translatable string because French needs
+ #. a space before a colon.
+ #: src/xz/message.c:725
+ #, c-format
  msgid "%s: "
  msgstr "%s: "
  
@@ -630,7 +732,10 @@ index 9b5af62b..092505b1 100644
  #, c-format
  msgid ""
  "Usage: %s [OPTION]... [FILE]...\n"
-@@ -613,17 +617,17 @@ msgstr ""
+ "Compress or decompress FILEs in the .xz format.\n"
+ "\n"
+ msgstr ""
+ "Składnia: %s [OPCJA]... [PLIK]...\n"
  "Kompresja lub dekompresja PLIKÓW w formacie .xz.\n"
  "\n"
  
@@ -651,7 +756,11 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "  -z, --compress      force compression\n"
  "  -d, --decompress    force decompression\n"
-@@ -635,7 +639,7 @@ msgstr ""
+ "  -t, --test          test compressed file integrity\n"
+ "  -l, --list          list information about .xz files"
+ msgstr ""
+ "  -z, --compress      wymuszenie kompresji\n"
+ "  -d, --decompress    wymuszenie dekompresji\n"
  "  -t, --test          sprawdzenie spójności plików skompresowanych\n"
  "  -l, --list          wypisanie informacji o plikach .xz"
  
@@ -660,7 +769,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "\n"
  " Operation modifiers:\n"
-@@ -643,7 +647,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Modyfikatory operacji:\n"
  
@@ -669,7 +778,9 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "  -k, --keep          keep (don't delete) input files\n"
  "  -f, --force         force overwrite of output file and (de)compress links\n"
-@@ -653,7 +657,7 @@ msgstr ""
+ "  -c, --stdout        write to standard output and don't delete input files"
+ msgstr ""
+ "  -k, --keep          zachowanie (nieusuwanie) plików wejściowych\n"
  "  -f, --force         nadpisywanie plików wyjściowych i (de)kompresja dowiązań\n"
  "  -c, --stdout        zapis na standardowe wyjście, nieusuwanie plików wej."
  
@@ -678,7 +789,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "      --single-stream decompress only the first stream, and silently\n"
  "                      ignore possible remaining input data"
-@@ -661,7 +665,7 @@ msgstr ""
+ msgstr ""
  "      --single-stream dekompresja tylko pierwszego strumienia, ciche\n"
  "                      zignorowanie pozostałych danych wejściowych"
  
@@ -687,7 +798,15 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "      --no-sparse     do not create sparse files when decompressing\n"
  "  -S, --suffix=.SUF   use the suffix `.SUF' on compressed files\n"
-@@ -677,7 +681,7 @@ msgstr ""
+ "      --files[=FILE]  read filenames to process from FILE; if FILE is\n"
+ "                      omitted, filenames are read from the standard input;\n"
+ "                      filenames must be terminated with the newline character\n"
+ "      --files0[=FILE] like --files but use the null character as terminator"
+ msgstr ""
+ "      --no-sparse     nietworzenie plików rzadkich podczas dekompresji\n"
+ "  -S, --suffix=.ROZ   użycie rozszerzenia `.ROZ' dla plików skompresowanych\n"
+ "      --files[=PLIK]  odczyt nazw plików do przetworzenia z PLIKU; jeśli PLIK\n"
+ "                      nie został podany, nazwy są czytane ze standardowego\n"
  "                      wejścia; muszą być zakończone znakiem nowej linii\n"
  "      --files0[=PLIK] podobnie do --files, ale znakiem kończącym musi być NUL"
  
@@ -696,7 +815,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "\n"
  " Basic file format and compression options:\n"
-@@ -685,7 +689,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Podstawowe opcje formatu pliku i kompresji:\n"
  
@@ -705,7 +824,11 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "  -F, --format=FMT    file format to encode or decode; possible values are\n"
  "                      `auto' (default), `xz', `lzma', `lzip', and `raw'\n"
-@@ -697,11 +701,11 @@ msgstr ""
+ "  -C, --check=CHECK   integrity check type: `none' (use with caution),\n"
+ "                      `crc32', `crc64' (default), or `sha256'"
+ msgstr ""
+ "  -F, --format=FORM   format pliki do kodowania lub dekodowania; możliwe to\n"
+ "                      `auto' (domyślny), `xz', 'lzma', `lzip' i `raw'\n"
  "  -C, --check=TEST    typ kontroli spójności: `none' (ostrożnie!),\n"
  "                      `crc32', `crc64' (domyślny) lub `sha256'"
  
@@ -719,7 +842,8 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "  -0 ... -9           compression preset; default is 6; take compressor *and*\n"
  "                      decompressor memory usage into account before using 7-9!"
-@@ -710,7 +714,7 @@ msgstr ""
+ msgstr ""
+ "  -0 ... -9           predefiniowane opcje kompresji; domyślna to 6; przed\n"
  "                      użyciem wartości 7-9 należy wziąć pod uwagę wykorzystanie\n"
  "                      pamięci przy kompresji *oraz* dekompresji!"
  
@@ -728,7 +852,8 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "  -e, --extreme       try to improve compression ratio by using more CPU time;\n"
  "                      does not affect decompressor memory requirements"
-@@ -719,7 +723,7 @@ msgstr ""
+ msgstr ""
+ "  -e, --extreme       próba poprawy współczynnika kompresji z użyciem większej\n"
  "                      ilości czasu procesora; nie wpływa na wymagania\n"
  "                      pamięciowe dekompresora"
  
@@ -737,7 +862,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "  -T, --threads=NUM   use at most NUM threads; the default is 1; set to 0\n"
  "                      to use as many threads as there are processor cores"
-@@ -727,7 +731,7 @@ msgstr ""
+ msgstr ""
  "  -T, --threads=ILE   użycie maksymalnie ILU wątków; domyślnie 1; 0 oznacza\n"
  "                      tyle, ile jest rdzeni procesorów"
  
@@ -746,7 +871,10 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "      --block-size=SIZE\n"
  "                      start a new .xz block after every SIZE bytes of input;\n"
-@@ -738,7 +742,7 @@ msgstr ""
+ "                      use this to set the block size for threaded compression"
+ msgstr ""
+ "      --block-size=ROZMIAR\n"
+ "                      rozpoczęcie nowego bloku .xz co ROZMIAR bajtów wejścia;\n"
  "                      opcja służy do ustawienia rozmiaru bloku dla kompresji\n"
  "                      wielowątkowej"
  
@@ -755,7 +883,9 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "      --block-list=SIZES\n"
  "                      start a new .xz block after the given comma-separated\n"
-@@ -748,7 +752,7 @@ msgstr ""
+ "                      intervals of uncompressed data"
+ msgstr ""
+ "      --block-list=ROZMIARY\n"
  "                      rozpoczęcie nowego bloku .xz po rozdzielonych przecinkiem\n"
  "                      przedziałach danych nieskompresowanych"
  
@@ -764,7 +894,11 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "      --flush-timeout=TIMEOUT\n"
  "                      when compressing, if more than TIMEOUT milliseconds has\n"
-@@ -760,7 +764,7 @@ msgstr ""
+ "                      passed since the previous flush and reading more input\n"
+ "                      would block, all pending data is flushed out"
+ msgstr ""
+ "      --flush-timeout=CZAS\n"
+ "                      przy kompresji, jeśli minęło więcej niż CZAS milisekund\n"
  "                      ostatniegu zapisu bloku, a odczyt kolejnych danych byłby\n"
  "                      blokujący, wszystkie gotowe dane są zapisywane"
  
@@ -773,7 +907,18 @@ index 9b5af62b..092505b1 100644
  #, no-c-format
  msgid ""
  "      --memlimit-compress=LIMIT\n"
-@@ -779,7 +783,7 @@ msgstr ""
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      set memory usage limit for compression, decompression,\n"
+ "                      threaded decompression, or all of these; LIMIT is in\n"
+ "                      bytes, % of RAM, or 0 for defaults"
+ msgstr ""
+ "      --memlimit-compress=LIMIT\n"
+ "      --memlimit-decompress=LIMIT\n"
+ "      --memlimit-mt-decompress=LIMIT\n"
+ "  -M, --memlimit=LIMIT\n"
+ "                      ustawienie limitu użycia pamięci dla kompresji,\n"
  "                      dekompresji, dekompresji wielowątkowej lub wszystkich;\n"
  "                      LIMIT jest w bajtach, % RAM lub 0 dla limitów domyślnych"
  
@@ -782,7 +927,8 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "      --no-adjust     if compression settings exceed the memory usage limit,\n"
  "                      give an error instead of adjusting the settings downwards"
-@@ -788,7 +792,7 @@ msgstr ""
+ msgstr ""
+ "      --no-adjust     jeśli ustawienia kompresji przekraczają limit użycia\n"
  "                      pamięci, zostanie zgłoszony błąd zamiast zmniejszania\n"
  "                      ustawień"
  
@@ -791,7 +937,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "\n"
  " Custom filter chain for compression (alternative for using presets):"
-@@ -796,7 +800,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Łańcuch własnych filtrów do kompresji (alternatywa do używania -0 .. -9):"
  
@@ -800,7 +946,28 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "\n"
  "  --lzma1[=OPTS]      LZMA1 or LZMA2; OPTS is a comma-separated list of zero or\n"
-@@ -825,7 +829,7 @@ msgstr ""
+ "  --lzma2[=OPTS]      more of the following options (valid values; default):\n"
+ "                        preset=PRE reset options to a preset (0-9[e])\n"
+ "                        dict=NUM   dictionary size (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=NUM     number of literal context bits (0-4; 3)\n"
+ "                        lp=NUM     number of literal position bits (0-4; 0)\n"
+ "                        pb=NUM     number of position bits (0-4; 2)\n"
+ "                        mode=MODE  compression mode (fast, normal; normal)\n"
+ "                        nice=NUM   nice length of a match (2-273; 64)\n"
+ "                        mf=NAME    match finder (hc3, hc4, bt2, bt3, bt4; bt4)\n"
+ "                        depth=NUM  maximum search depth; 0=automatic (default)"
+ msgstr ""
+ "\n"
+ "  --lzma1[=OPCJE]     LZMA1 lub LZMA2; OPCJE to oddzielona przecinkami lista\n"
+ "  --lzma2[=OPCJE]     zera lub więcej następujących opcji (w nawiasach wartości\n"
+ "                      poprawne; domyślne):\n"
+ "                        preset=PRE ustawienie opcji na predefiniowane (0-9[e])\n"
+ "                        dict=ILE   rozmiar słownika (4KiB - 1536MiB; 8MiB)\n"
+ "                        lc=ILE     liczba bitów kontekstu literału (0-4; 3)\n"
+ "                        lp=ILE     liczba bitów pozycji literału (0-4; 0)\n"
+ "                        pp=ILE     liczba bitów pozycji (0-4; 2)\n"
+ "                        mode=TRYB  tryb kompresji (fast, normal; normal)\n"
+ "                        nice=ILE   długość dopasowania (2-273; 64)\n"
  "                        mf=NAZWA   dopasowywacz (hc3, hc4, bt2, bt3, bt4; bt4)\n"
  "                        depth=ILE  maks. głębokość szukania; 0=auto (domyślne)"
  
@@ -809,7 +976,23 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "\n"
  "  --x86[=OPTS]        x86 BCJ filter (32-bit and 64-bit)\n"
-@@ -849,7 +853,7 @@ msgstr ""
+ "  --arm[=OPTS]        ARM BCJ filter\n"
+ "  --armthumb[=OPTS]   ARM-Thumb BCJ filter\n"
+ "  --arm64[=OPTS]      ARM64 BCJ filter\n"
+ "  --powerpc[=OPTS]    PowerPC BCJ filter (big endian only)\n"
+ "  --ia64[=OPTS]       IA-64 (Itanium) BCJ filter\n"
+ "  --sparc[=OPTS]      SPARC BCJ filter\n"
+ "                      Valid OPTS for all BCJ filters:\n"
+ "                        start=NUM  start offset for conversions (default=0)"
+ msgstr ""
+ "\n"
+ "  --x86[=OPCJE]       Filtr BCJ x86 (32-bitowy lub 64-bitowy)\n"
+ "  --arm[=OPCJE]       Filtr BCJ ARM\n"
+ "  --armthumb[=OPCJE]  Filtr BCJ ARM-Thumb\n"
+ "  --arm64[=OPCJE]     Filtr BCJ ARM64\n"
+ "  --powerpc[=OPCJE]   Filtr BCJ PowerPC (tylko big-endian)\n"
+ "  --ia64[=OPCJE]      Filtr BCJ IA-64 (Itanium)\n"
+ "  --sparc[=OPCJE]     Filtr BCJ SPARC\n"
  "                      Poprawne OPCJE dla wszystkich filtrów BCJ:\n"
  "                        start=ILE  offset początku konwersji (domyślnie=0)"
  
@@ -818,7 +1001,11 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "\n"
  "  --delta[=OPTS]      Delta filter; valid OPTS (valid values; default):\n"
-@@ -861,7 +865,7 @@ msgstr ""
+ "                        dist=NUM   distance between bytes being subtracted\n"
+ "                                   from each other (1-256; 1)"
+ msgstr ""
+ "\n"
+ "  --delta[=OPCJE]     Filtr delta; poprawne OPCJE (poprawne wart.; domyślne):\n"
  "                        dist=ILE   odległość między bajtami odejmowanymi od\n"
  "                                   siebie (1-256; 1)"
  
@@ -827,7 +1014,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "\n"
  " Other options:\n"
-@@ -869,7 +873,7 @@ msgstr ""
+ msgstr ""
  "\n"
  " Inne opcje:\n"
  
@@ -836,7 +1023,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "  -q, --quiet         suppress warnings; specify twice to suppress errors too\n"
  "  -v, --verbose       be verbose; specify twice for even more verbose"
-@@ -877,15 +881,15 @@ msgstr ""
+ msgstr ""
  "  -q, --quiet         pominięcie ostrzeżeń; dwukrotne podanie pomija też błędy\n"
  "  -v, --verbose       więcej informacji; dwukrotne podanie to jeszcze więcej"
  
@@ -855,7 +1042,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "      --info-memory   display the total amount of RAM and the currently active\n"
  "                      memory usage limits, and exit"
-@@ -893,7 +897,7 @@ msgstr ""
+ msgstr ""
  "      --info-memory   wyświetlenie całkowitej ilości pamięci RAM oraz aktualnie\n"
  "                      aktywnych limitów pamięci i zakończenie pracy"
  
@@ -864,7 +1051,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "  -h, --help          display the short help (lists only the basic options)\n"
  "  -H, --long-help     display this long help and exit"
-@@ -901,7 +905,7 @@ msgstr ""
+ msgstr ""
  "  -h, --help          wyświetlenie krótkiego opisu (tylko podstawowe opcje)\n"
  "  -H, --long-help     wyświetlenie tego długiego opisu i zakończenie"
  
@@ -873,7 +1060,7 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "  -h, --help          display this short help and exit\n"
  "  -H, --long-help     display the long help (lists also the advanced options)"
-@@ -909,11 +913,11 @@ msgstr ""
+ msgstr ""
  "  -h, --help          wyświetlenie tego krótkiego opisu i zakończenie\n"
  "  -H, --long-help     wyświetlenie długiego opisu (także opcje zaawansowane)"
  
@@ -887,7 +1074,11 @@ index 9b5af62b..092505b1 100644
  msgid ""
  "\n"
  "With no FILE, or when FILE is -, read standard input.\n"
-@@ -925,7 +929,7 @@ msgstr ""
+ msgstr ""
+ "\n"
+ "Jeśli nie podano PLIKU lub PLIK to -, czytane jest standardowe wejście.\n"
+ 
+ #. TRANSLATORS: This message indicates the bug reporting address
  #. for this package. Please add _another line_ saying
  #. "Report translation bugs to <...>\n" with the email or WWW
  #. address for translation bugs. Thanks.
@@ -896,7 +1087,8 @@ index 9b5af62b..092505b1 100644
  #, c-format
  msgid "Report bugs to <%s> (in English or Finnish).\n"
  msgstr ""
-@@ -934,12 +938,12 @@ msgstr ""
+ "Błędy prosimy zgłaszać na adres <%s>\n"
+ "(w języku angielskim lub fińskim).\n"
  "Błędy w tłumaczeniu prosimy zgłaszać na adres\n"
  "<translation-team-pl@lists.sourceforge.net>.\n"
  
@@ -911,7 +1103,18 @@ index 9b5af62b..092505b1 100644
  msgid "THIS IS A DEVELOPMENT VERSION NOT INTENDED FOR PRODUCTION USE."
  msgstr "TA WERSJA JEST ROZWOJOWA, NIE PRZEZNACZONA DO UŻYTKU PRODUKCYJNEGO."
  
-@@ -958,36 +962,26 @@ msgstr "%s: Błędna nazwa opcji"
+ #: src/xz/options.c:86
+ #, c-format
+ msgid "%s: Options must be `name=value' pairs separated with commas"
+ msgstr "%s: Opcje muszą być parami `nazwa=wartość' rozdzielonymi przecinkami"
+ 
+ #: src/xz/options.c:93
+ #, c-format
+ msgid "%s: Invalid option name"
+ msgstr "%s: Błędna nazwa opcji"
+ 
+ #: src/xz/options.c:113
+ #, c-format
  msgid "%s: Invalid option value"
  msgstr "%s: Błędna wartość opcji"
  
@@ -953,7 +1156,37 @@ index 9b5af62b..092505b1 100644
  #, c-format
  msgid "%s: Invalid filename suffix"
  msgstr "%s: Błędne rozszerzenie nazwy pliku"
-@@ -1025,4 +1019,4 @@ msgstr "Zapis na standardowe wyjście nie powiódł się"
+ 
+ #: src/xz/util.c:71
+ #, c-format
+ msgid "%s: Value is not a non-negative decimal integer"
+ msgstr "%s: Wartość nie jest nieujemną liczbą całkowitą"
+ 
+ #: src/xz/util.c:113
+ #, c-format
+ msgid "%s: Invalid multiplier suffix"
+ msgstr "%s: Błędny przyrostek mnożnika"
+ 
+ #: src/xz/util.c:115
+ msgid "Valid suffixes are `KiB' (2^10), `MiB' (2^20), and `GiB' (2^30)."
+ msgstr "Poprawne przyrostki to `KiB' (2^10), `MiB' (2^20) i `GiB' (2^30)."
+ 
+ #: src/xz/util.c:132
+ #, c-format
+ msgid "Value of the option `%s' must be in the range [%<PRIu64>, %<PRIu64>]"
+ msgstr "Wartość opcji `%s' musi być w przedziale [%<PRIu64>, %<PRIu64>]"
+ 
+ #: src/xz/util.c:269
+ msgid "Compressed data cannot be read from a terminal"
+ msgstr "Dane skompresowane nie mogą być czytane z terminala"
+ 
+ #: src/xz/util.c:282
+ msgid "Compressed data cannot be written to a terminal"
+ msgstr "Dane skompresowane nie mogą być zapisywane na terminal"
+ 
+ #: src/common/tuklib_exit.c:40
+ msgid "Writing to standard output failed"
+ msgstr "Zapis na standardowe wyjście nie powiódł się"
  
  #: src/common/tuklib_exit.c:43
  msgid "Unknown error"

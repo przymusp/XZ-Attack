@@ -8,8 +8,6 @@ import collections.abc
 
 
 import click
-import yaml
-from joblib import Parallel, delayed
 from unidiff import PatchSet, LINE_TYPE_ADDED, LINE_TYPE_REMOVED
 import tqdm
 
@@ -61,8 +59,6 @@ def fill_gaps_with_previous_value(d):
 
     return filled_dict
 
-
-
 def deep_update(d, u):
     for k, v in u.items():
         if isinstance(v, collections.abc.Mapping):
@@ -70,7 +66,6 @@ def deep_update(d, u):
         else:
             d[k].extend(v)
     return d
-
 
 class AnnotateHunk(object):
 
@@ -384,7 +379,7 @@ class Bugs(object):
 
 
 def process_bug():
-    filenames = glob.glob("*.diff", root_dir=os.path.join(path, cve_id, "patches"))
+    glob.glob("*.diff", root_dir=os.path.join(path, cve_id, "patches"))
 
 
 @click.command()

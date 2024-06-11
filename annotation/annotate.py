@@ -2,6 +2,7 @@ import codecs
 import glob
 import json
 import os
+import re
 from collections import defaultdict
 
 import collections.abc
@@ -67,7 +68,18 @@ def deep_update(d, u):
             d[k].extend(v)
     return d
 
+TRANSLATION_TABLE = str.maketrans("","","*/\\\t\n")
+
+def clean_text(text):
+    ret = text.translate(TRANSLATION_TABLE)
+    ret =  re.sub(r'\s+', ' ', ret)
+    return ret
+
+
 class AnnotateHunk(object):
+    refactored_hunks = 0
+    refactored_complex_hunks = 0
+    all_hunks = 0
 
     def __init__(self, patch_file, hunk):
         self.patch_file = patch_file
@@ -99,7 +111,7 @@ class AnnotateHunk(object):
 
                 if purpose == "documentation":
                     line_annotation = purpose
-                    self.add_annotation(i, ftarget, fsource, changes_types[i], line_annotation, purpose)
+                    self.add_annotation(i, ftarget, fsource, changes_types[i], line_annotation, purpose, [(0,0,l.value),])
 
         if purpose == "documentation":
             return self.patch
@@ -111,15 +123,51 @@ class AnnotateHunk(object):
 
         lines = fill_gaps_with_previous_value(map_code_to_tokens(source, tokens_list))
 
+        max_correct_i = 0
         for i, line in changes_lines.items():
-            line_annotation = 'documentation' if is_comment(lines[i]) else 'code'
-            self.add_annotation(i, ftarget, fsource, changes_types[i], line_annotation, purpose)
+            if i in lines:
+                line_annotation = 'documentation' if is_comment(lines[i]) else 'code'
+                self.add_annotation(i, ftarget, fsource, changes_types[i], line_annotation, purpose, lines[i])
+                max_correct_i = i
+            else: # TODO: bug
+                line_annotation = 'documentation' if is_comment(lines[0]) else 'code'
+                self.add_annotation(i, ftarget, fsource, changes_types[i], line_annotation, purpose, lines[max_correct_i])
+
+        code_change = defaultdict(list)
+
+        for ct in ["+", "-"]:
+            for hunk in self.patch[ftarget][ct]:
+                for token in hunk["tokens"]:
+                    code_change[ct].append(clean_text(token[2]))
+
+        prefactoring = 0
+        intersection = set(code_change["+"]).intersection(set(code_change["-"]))
+        union = set(code_change["+"]).union(set(code_change["-"]))
+
+        if len(intersection) == len(union):
+            prefactoring += 1
+
+            print(f"Found {prefactoring} refactoring(s) possible refactoring Hunks ref(%)={AnnotateHunk.refactored_hunks / AnnotateHunk.all_hunks}, ref={AnnotateHunk.refactored_hunks}, ref complex={AnnotateHunk.refactored_complex_hunks} all={AnnotateHunk.all_hunks}")
+            AnnotateHunk.refactored_hunks += 1
+
+            is_complex_change = False
+            for t in intersection:
+                if t not in ['', ' ']:
+                    is_complex_change = True
+            if is_complex_change:
+                AnnotateHunk.refactored_complex_hunks += 1
+
+
+        AnnotateHunk.all_hunks += 1
+
         return self.patch
 
-    def add_annotation(self, line_no, ftarget, fsource, change_type, line_annotation, purpose):
+    def add_annotation(self, line_no, ftarget, fsource, change_type, line_annotation, purpose, tokens):
         ret = {'id' : line_no, 
                'type': line_annotation, 
-               'purpose': purpose}
+               'purpose': purpose,
+               'tokens': tokens}
+
 
         if change_type == LINE_TYPE_ADDED:
             self.patch[ftarget]["+"].append(ret)
@@ -314,6 +362,7 @@ class Bug(object):
 
         with codecs.open(fname, "r", encoding="utf-8") as diff:
             try:
+            # if True:
                 patch_set = PatchSet(diff)
                 for file in patch_set:
                     patch_file = PatchFile(file)

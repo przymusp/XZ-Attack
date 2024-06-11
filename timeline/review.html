@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.23">
+<meta name="author" content="Lasse Collin">
+<link rel="icon" type="image/png" href="../images/tukaani_32x32.png">
+<title>XZ Utils review notes</title>
+<link rel="stylesheet" href="./../style.css">
+</head>
+<body class="article toc2 toc-left">
+<div class="navigation">
+<p><a href="../">tukaani.org</a> &#187; <a href="./">XZ Utils backdoor</a> &#187; XZ Utils review notes</p>
+<hr>
+</div>
+<main>
+<div id="header">
+<h1>XZ Utils review notes</h1>
+<div class="details">
+<span id="author" class="author">Lasse Collin</span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">2024-05-29</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_general">General</a>
+<ul class="sectlevel2">
+<li><a href="#_v5_2_v5_4_and_v5_6">v5.2, v5.4, and v5.6</a></li>
+<li><a href="#_timezones">Timezones</a></li>
+</ul>
+</li>
+<li><a href="#_commits">Commits</a>
+<ul class="sectlevel2">
+<li><a href="#_2022_12">2022-12</a></li>
+<li><a href="#_2023_01">2023-01</a></li>
+<li><a href="#_2023_02">2023-02</a></li>
+<li><a href="#_2023_03">2023-03</a></li>
+<li><a href="#_2023_04">2023-04</a></li>
+<li><a href="#_2023_05">2023-05</a></li>
+<li><a href="#_2023_06">2023-06</a></li>
+<li><a href="#_2023_07">2023-07</a></li>
+<li><a href="#_2023_08">2023-08</a></li>
+<li><a href="#_2023_09">2023-09</a></li>
+<li><a href="#_2023_10">2023-10</a></li>
+<li><a href="#_2023_11">2023-11</a></li>
+<li><a href="#_2023_12">2023-12</a></li>
+<li><a href="#_2024_01">2024-01</a></li>
+<li><a href="#_2024_02">2024-02</a></li>
+<li><a href="#_2024_03">2024-03</a></li>
+</ul>
+</li>
+<li><a href="#_translations">Translations</a>
+<ul class="sectlevel2">
+<li><a href="#_translations_in_xz_git">Translations in xz.git</a></li>
+<li><a href="#_translations_in_tarballs">Translations in tarballs</a></li>
+</ul>
+</li>
+<li><a href="#_release_tarballs">Release tarballs</a>
+<ul class="sectlevel2">
+<li><a href="#_xz_5_4_4_tar_zst_reupload">xz-5.4.4.tar.zst reupload</a></li>
+<li><a href="#_5_4_4_changelog">5.4.4 ChangeLog</a></li>
+<li><a href="#_5_4_5_tar_metadata">5.4.5 tar metadata</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_general"><a class="anchor" href="#_general"></a>General</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Changes to translations were checked separately, not per commit basis.</p>
+</div>
+<div class="paragraph">
+<p>While the commits weren&#8217;t signed,
+I didn&#8217;t spot any signs of committer fraud.</p>
+</div>
+<div class="sect2">
+<h3 id="_v5_2_v5_4_and_v5_6"><a class="anchor" href="#_v5_2_v5_4_and_v5_6"></a>v5.2, v5.4, and v5.6</h3>
+<div class="paragraph">
+<p>Cherry-picks to <code>v5.2</code>, <code>v5.4</code>, and <code>v5.6</code> are OK.
+This means that (apart from translations)
+it&#8217;s enough to review the <code>master</code> branch.
+If <code>master</code> is fine then the stable branches are too.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_timezones"><a class="anchor" href="#_timezones"></a>Timezones</h3>
+<div class="paragraph">
+<p>There has been discussion about commit timezones and
+if those could be giving clues about something.
+There are mundane explanations for these though:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Putting a commit in other person&#8217;s name with permission.</p>
+</li>
+<li>
+<p>Use of <code>git rebase --reset-author-date</code>.</p>
+</li>
+<li>
+<p>Possibly use of <code>git rebase --committer-date-is-author-date</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Of these I never did the last one but I don&#8217;t know if Jia did.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_commits"><a class="anchor" href="#_commits"></a>Commits</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Trivial commits like updates to THANKS or typo fixes in comments
+aren&#8217;t mentioned here.</p>
+</div>
+<div class="paragraph">
+<p>I never reviewed anything under the <code>.github</code> directory and
+those files are skipped here as well.</p>
+</div>
+<div class="paragraph">
+<p>The months refer to commit date, not author date.</p>
+</div>
+<div class="sect2">
+<h3 id="_2022_12"><a class="anchor" href="#_2022_12"></a>2022-12</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/8ace358d65059152d9a1f43f4770170d29d35754">CMake: Update .gitignore for CMake artifacts from in source build.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/5f7ce42a16b1e86ca8408b5c670c25e2a12acc4e">liblzma: Fix lzma_microlzma_encoder() return value.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/799ead162de63b8400733603d3abcd2e1977bdca">Doxygen: Update .gitignore for generating docs for in source build.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/7c9ff5f1667a16733163b75dfd4b509662c387f4">Tests: Adds lzip decoder tests</a></p>
+</div>
+<div class="paragraph">
+<p><code>test_lzip_decoder.c</code> has got a several minor tweaks later but
+overall this was a fine start.</p>
+</div>
+<div class="paragraph">
+<p><code>.gitignore</code> has a typo which was fixed in
+<a href="https://github.com/tukaani-project/xz/commit/5e57e3301319f20c35f8111dea73fa58403b96b1">Tests: Update .gitignore.</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/1275ebfba74230dbd028049141423c79c8b83b8f">liblzma: Update documentation for lzma_filter_encoder.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/74dae7d30091e906d6a92a57952dea4354473f9b">Build: No longer require HAVE_DECL_CLOCK_MONOTONIC to always be set.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/bb740e3b117f1a3c65152d01e5755523a908ecb1">Build: Only define HAVE_PROGRAM_INVOCATION_NAME if it is set to 1.</a></p>
+</div>
+<div class="paragraph">
+<p>The default behavior of <code>AC_CHECK_DECLS</code> can feel a bit awkward
+so these changes are nice.</p>
+</div>
+<div class="paragraph">
+<p>The comments got a quick fix by me (<a href="https://github.com/tukaani-project/xz/commit/73c9e6d6b970ccc3d5ad61dcaa21cba050e5df0a">Build: Fix config.h comments.</a>).</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f82294c8318a7a0990583d51ac5c7de682ad36ef">liblzma: Includes sys/time.h conditionally in mythread</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/78e0561dfebaa9d5e34558de537efcda890e0629">Style: Change #if !defined() to #ifndef in mythread.h.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/2fcba17fc4d7eda8fc60567169cf2a0e6fcfb2f8">xz: Includes &lt;time.h&gt; and &lt;sys/time.h&gt; conditionally in mytime.c.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_01"><a class="anchor" href="#_2023_01"></a>2023-01</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/52380678f42364daa4510f92f6d3b18ec98c3638">Tests: Replace non portable shell parameter expansion</a></p>
+</div>
+<div class="paragraph">
+<p>OK with my style fixes (<a href="https://github.com/tukaani-project/xz/commit/aafd67fba045ab99683971263a5a26fb2a6e8ce2">Tests: Adjust style in test_compress.sh.</a>).</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/e834e1e934ed0af673598d8c0c34afb2af56bee0">Build: Add missing stream_decoder_mt.c to .vcxproj files.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+Also, the VS project files aren&#8217;t present anymore.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/203b008eb220208981902e0db541c02d1c1c9f5e">liblzma: Replaced hardcoded 0x0 index indicator byte with macro</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f16e12d5e755d371247202fcccbcccd1ec16b2cf">liblzma: Add NULL check to lzma_index_hash_append.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/3959162baec074511d83ba0fec1284c3ed724799">Tests: Creates test_index_hash.c</a></p>
+</div>
+<div class="paragraph">
+<p>I made a bunch of cleanups to this a few days later,
+including fixing a memory leak
+(<a href="https://github.com/tukaani-project/xz/commit/d550304f5343b3a082da265107cd820e0d81dc71">Tests: test_index_hash: Fix a memory leak.</a>).
+It&#8217;s OK enough now.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/064cd385a716abc78d93a3612411a82d69ceb221">Adds test_index_hash to .gitignore.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/84f9687cbae972c2c342e10bf69f8ec8f70ae111">liblzma: Remove common.h include from common/index.h.</a></p>
+</div>
+<div class="paragraph">
+<p>He wanted to use liblzma&#8217;s internal headers in some tests
+and eventually I gave in.
+This required making those particular internal headers standalone
+in sense that they don&#8217;t include other internal headers.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/5c9fdd3bf53a9655f5eb2807d662b3af0d5e1865">Tests: Refactors existing filter flags tests.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/0c210ca7f489e971e94e1ddc72b0b0806e3c7935">Tests: test_filter_flags: Clean up minor issues.</a></p>
+</div>
+<div class="paragraph">
+<p>OK enough.</p>
+</div>
+<div class="paragraph">
+<p>The second commit was combined from my edits squashed into a single commit.
+The commit message was clearly edited by him,
+collecting the messages from my separate commits.
+For example,
+the way the bullet points are formatted doesn&#8217;t match
+the way I would have done them.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/7c23c05befdcc73231c0d6632a7d943dbeaea1aa">Tests: Fix unused function warning in test_index_hash.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/765354b50c2886fc0d294d6be3b207f7ae2ada70">Tests: Fix unused function warning in test_block_header.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/25035813d1d596fde692addc33e7f715f1fe55eb">Tests: Fix type-limits warning in test_filter_flags.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/8c0f115cc489331c48df77beca92fe378039d919">Tests: Fix test_filter_flags copy/paste error.</a>.</p>
+</div>
+<div class="paragraph">
+<p>These are OK together.</p>
+</div>
+<div class="paragraph">
+<p>When all filters are disabled, the array initialization becomes <code>{ }</code>
+which isn&#8217;t valid C99.
+This was fixed in <a href="https://github.com/tukaani-project/xz/commit/b101e1d1dbc81577c0c9aa0cb89cf2e46a15eb82">Tests: Fix C99/C11 compatibility when features are disabled</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/d1561c47ec8cd3844a785d3741dc932f9b9c5790">xz: Fix warning -Wformat-nonliteral on clang in message.c.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/123255b6ed15f4428b2aa92e4962015a5362f6bf">xz: Do not set compression settings with raw format in list mode.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/d3e11477053764c003eec2daa5198c747d70ff69">xz: Add missing comment for coder_set_compression_settings()</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/82e3c968bfa10e3ff13333bd9cbbadb5988d6766">tuklib_common: Define __has_warning if it is not defined.</a></p>
+</div>
+<div class="paragraph">
+<p>I didn&#8217;t like this and reverted it a few days later.
+See <a href="https://github.com/tukaani-project/xz/commit/2f78ecc5939b3d97ddfc2a6bd31b50108a28d0a2">Revert "tuklib_common: Define __has_warning if it is not defined."</a> for the reasons.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/b43ff180fb2e372adce876bfa155fc9bcf0c3db4">tuklib_physmem: Silence warning from -Wcast-function-type on MinGW-w64.</a></p>
+</div>
+<div class="paragraph">
+<p>I cleaned this up a few days later in
+<a href="https://github.com/tukaani-project/xz/commit/8366cf8738e8b7bb74c967d07bf0fd2a1878e575">tuklib_physmem: Clean up the way -Wcast-function-type is silenced on Windows.</a> and
+<a href="https://github.com/tukaani-project/xz/commit/af5a4bd5afc089d9697756dded38feafaa987ae4">tuklib_physmem: Check for __has_warning before GCC version.</a>.
+Months later, it was simplified in <a href="https://github.com/tukaani-project/xz/commit/e582f8e0fee46e7cd967f42f465d6bb608b73bc1">tuklib_physmem: Comment out support for Windows versions older than 2000.</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/6fcf4671b6047113c583a0919fc850987a4ec5f4">liblzma: Highlight liblzma API headers should not be included directly.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/bbf71b69ebf9d0d62a0af150a5c37d193b8159ad">Doxygen: Make Doxygen only produce liblzma API documentation by default.</a></p>
+</div>
+<div class="paragraph">
+<p>It has quoting typos in the messages in <code>configure.ac</code>.
+These were fixed in <a href="https://github.com/tukaani-project/xz/commit/a15a7552f9f67c4e402f5d2967324e0ccfd6fccc">Build: Avoid different quoting style in --enable-doxygen doc.</a>.
+That code isn&#8217;t present anymore anyway.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/6327a045f34d48fc5afc58ba0d32a82c94403049">Doxygen: Update Doxyfile.in from 1.4.7 to 1.8.17.</a></p>
+</div>
+<div class="paragraph">
+<p>Likely OK.
+The Doxyfile was updated later again anyway.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/9663141274e01592a281a7f2df5d7a31a1dac8bf">liblzma: Set documentation on all reserved fields to private.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/cc5aa9ab138beeecaee5a1e81197591893ee9ca0">xz: Refactor duplicated check for custom suffix when using --format=raw</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/683a3c7e2fcd922200c31078e5c9dd1348e90941">xz: Flip the return value of suffix_is_set to match the documentation.</a></p>
+</div>
+<div class="paragraph">
+<p>The intent is good, fixing a very minor issue in a rarely-seen corner case.
+It had waited some time on a branch until I gave the permission to merge it.
+This introduced a regression that was fixed in <a href="#_2023_11">2023-11</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f35d98e20609e0be6a04ae2604bfb7cb9d5bd5e4">liblzma: Fix documentation in filter.h for lzma_str_to_filters()</a></p>
+</div>
+<div class="paragraph">
+<p>The fix is good but commit message goes beyond overthinking.
+The doc simply was incorrect and that&#8217;s it.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_02"><a class="anchor" href="#_2023_02"></a>2023-02</h3>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/c563a4bc554a96bd0b6aab3c139715b7ec8f6ca3">liblzma: Clarify a comment about LZMA_STR_NO_VALIDATION.</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/8dfc029e7a4ce45809c30313dc0e502f0d22be26">liblzma: Fix typos in comments in string_conversion.c.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+These are the first commits that update the API docs.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/e01f01b9af1c074463b92694a16ecc16a31907c0">Tests: Create test_filter_str.c.</a></p>
+</div>
+<div class="paragraph">
+<p>Reviewing the test revealed a bug that was fixed in
+<a href="https://github.com/tukaani-project/xz/commit/70d12dd069bb9bb0d6bb1c8fafc4e6f77780263d">liblzma: lzma_str_to_filters: Set *error_pos on all errors</a> and in
+<a href="https://github.com/tukaani-project/xz/commit/b0366df1d7ed26268101f9303a001c91c0806dfc">Tests: test_filter_str: Test *error_pos more thoroughly</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/2c78a83c6faec70154d9eb78022a618ed62cdcb3">liblzma: Fix bug in lzma_str_from_filters() not checking filters[] length.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/912af91b10a18fb9bb3167247ecaaefca8248ee9">liblzma: Improve documentation for version.h.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/7673ef5aa80c1af7fb693360dd82f527b46c2c56">Build: Adjust CMake version search regex.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/b8bce89be7fb5bffe5fef4a2782ca9b2b107eaac">xz: Add a comment clarifying the use of start_time in mytime.c.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/1dbe12b90cff79bb51923733ac0840747b4b4131">xz: Improve the comment about start_time in mytime.c.</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/87c53553fa7d50f777b4edfa99f2083628f590fe">liblzma: Improve documentation for stream_flags.h</a></p>
+</div>
+<div class="paragraph">
+<p>OK (documentation updates).</p>
+</div>
+<div class="paragraph">
+<p>Some cleanups were made in
+<a href="https://github.com/tukaani-project/xz/commit/d831072cceca458d94d2d5da201862f6d43a417b">liblzma: Very minor API doc tweaks.</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/efa498c13b883810497e0ea8a169efd6f48f5026">liblzma: Rename field =&gt; member in documentation.</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/f029daea39c215fd7d5cb6b6798818b055cf5b22">liblzma: Adjust spacing in doc headers in bcj.h.</a></p>
+</div>
+<div class="paragraph">
+<p>OK (more documentation updates).</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/c9c8bfae3502842dcead85eeb2b951b437c2cd88">CMake: Add LZIP decoder test to list of tests.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/14cd30806d69e55906073745bcce3ee50e0ec942">liblzma: Improve documentation for container.h</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/fa9065fac54194fe0407fc7f0cc9633fdce13c21">liblzma: Adjust container.h for consistency with filter.h.</a></p>
+</div>
+<div class="paragraph">
+<p>OK (even more documentation updates).</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/01441df92c0fd6a6c02fe5ac27982a54ce887cc0">liblzma: Improve documentation in filter.h.</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/3cf72c4bcba5370f07477c9b9b62ae33069ef9a9">liblzma: Replace '
+' -&gt; newline in filter.h documentation.</a></p>
+</div>
+<div class="paragraph">
+<p>OK (documentation updates continue still).</p>
+</div>
+<div class="paragraph">
+<p>The return value updates were good to do:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>lzma_properties_encode</code> should only return <code>LZMA_OK</code>
+or <code>LZMA_PROG_ERROR</code>.
+<code>LZMA_OPTIONS_ERROR</code> shouldn&#8217;t be possible
+although it was listed before as a possible value too.</p>
+</li>
+<li>
+<p><code>lzma_filter_flags_decode</code> can return also <code>LZMA_DATA_ERROR</code>.</p>
+</li>
+</ul>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/9aa7fdeb04c486d2700967090956af88fdccab7e">Tests: Small tweak to test-vli.c.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_03"><a class="anchor" href="#_2023_03"></a>2023-03</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f1ab1f6b339d16a53ac53efeb97779ecd2bae70f">liblzma: Clarify lzma_lzma_preset() documentation in lzma12.h.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/f070722b57ba975a0dff36492d766f03026b1d21">xz: Reorder cap_enter() to beginning of capsicum sandbox code.</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/717aa3651ce582807f379d8654c2516e1594df77">xz: Simplify the error-label in Capsicum sandbox code.</a></p>
+</div>
+<div class="paragraph">
+<p>This series has intermediate steps that I didn&#8217;t like.
+The end result is good though (the last two commits are by me).</p>
+</div>
+<div class="paragraph">
+<p>This series is identical to the two following commits in <code>v5.4</code>:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/d1bdaaebc68cae7f0ba457fa990b520df2186fd1">xz: Don't fail if Capsicum is enabled but kernel doesn't support it.</a><br>
+and
+<a href="https://github.com/tukaani-project/xz/commit/fd56d5353360279c10e8e5e05f5bc6ea03f64584">xz: Make Capsicum sandbox more strict with stdin and stdout.</a></p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/8f38cdd9ab71e2a9d5a9787550222b7578243b73">Tests: Refactors existing lzma_index tests.</a></p>
+</div>
+<div class="paragraph">
+<p>With the tweaks that were made later, this is OK enough.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/af55191102f01e76de658c881299f0909ca0feda">liblzma: Defines masks for return values from lzma_index_checks().</a></p>
+</div>
+<div class="paragraph">
+<p>I found and still find these useless additions to the API.
+He kept insisting on them so eventually I gave in.
+There&#8217;s nothing technically wrong,
+I just think they don&#8217;t improve readability.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/1b7661faa4bbf4a54c6b75900b5059835c382a0f">Tests: Remove unused macros and functions.</a></p>
+</div>
+<div class="paragraph">
+<p><code>tuktest.h</code> had made these obsolete.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/c97d12f300b2a94c9f54a44c8931c8bc08cf0a73">Doxygen: Refactor Doxyfile.in to doxygen/Doxyfile.</a></p>
+</div>
+<div class="paragraph">
+<p>This is one of the supposedly suspicous commits due to the timezone.
+In reality Jia put it in my name by common agreement
+because I had done a significant portion of it.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/b1216a7772952d2fe7fe9c6acfcbd98d30abbc7b">Build: Install Doxygen docs and include in distribution if generated.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/1321852a3be7196bd7fcfd146221a5669e46407c">Build: Create doxygen/update-doxygen script.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/16f21255597f6a57e5692780f962cdc090f62b8c">Build: Generate doxygen documentation in autogen.sh.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+These will look different after the 5.6.1 release
+because pre-generated Doxygen output won&#8217;t be included
+in distribution tarballs anymore (not only to reduce
+the number of generated files but also
+to simplify the license questions of the source tarball).</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/55ba6e93004842ae0a0792214a23504267ad8f43">liblzma: Add set lzma.h as the main page for Doxygen documentation.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/8979308528c1f45cb9ee52d511f05232b4ad90a1">Doc: Update PACKAGERS with details about liblzma API docs install.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/f68f4b27f62f53fdac570885a1f4f23367ce6599">COPYING: Add a note about the included Doxygen-generated HTML.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/fd90e2f4c29180b44e33c7ef726f94e4eae54ed3">liblzma: Remove note from lzma_options_bcj about the ARM64 exception.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/509157c80c500426ec853bd992d684ebafc8500c">Doc: Rename Doxygen HTML doc directory name liblzma =&gt; api.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/2c1a830efb61d9d65906a09c9ee3ce27c2c49227">CMake: Allow configuring features as cache variables.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/b0891684b4436aed31510fddcbb218d513bd5489">CMake: Conditionally build xz list.* files if decoders are enabled.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/0ba234f692772595329d225462d391fe2c199d0a">CMake: Bump maximum policy version to 3.26.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/116e81f002c503d3c3cd12726db8f9116e58ef25">Build: Removes redundant check for LZMA1 filter support.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/ddfe164368e779c40d061aa4ccc376129e92f8e1">CMake: Only build xzdec if decoders are enabled.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/4d7fac0b07cc722825ba8d7838c558827e635611">CMake: Allows setting thread method.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/2cb6028fc31de082b7f927632363bb1426b61aaa">CMake: Update liblzma-config.cmake generation.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_04"><a class="anchor" href="#_2023_04"></a>2023-04</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/2a89670ab295e377f8b44f5bda6d198deb8ea285">liblzma: Cleans up old commented out code.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/7062348bf35c1e4cbfee00ad9fffb4a21aa6eff7">tuklib_integer: Use __builtin_clz() with Clang.</a></p>
+</div>
+<div class="paragraph">
+<p>This is broken.
+It was fixed in <a href="https://github.com/tukaani-project/xz/commit/44c0c5eae990a22ef04e9b88c1a15838a0d00878">tuklib_integer.h: Fix a recent copypaste error in Clang detection.</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f41df2ac2fed347d3f107f3533e76e000d29c6cb">Windows: Include &lt;intrin.h&gt; when needed.</a></p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s OK.
+The change to <code>memcmplen.h</code> was cleaned up in
+<a href="https://github.com/tukaani-project/xz/commit/40392c19f71985852d75997f109dea97177d6f3f">liblzma: Omit unnecessary parenthesis in a preprocessor directive.</a>.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_05"><a class="anchor" href="#_2023_05"></a>2023-05</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/6be460dde07113fe3f08f814b61ddc3264125a96">tuklib_integer.h: Changes two other UINT_MAX == UINT32_MAX to &gt;=.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/9ad64bdf309844b6ca6c3e8a4dfb6dbaedda0ca9">tuklib_integer.h: Reverts previous commit.</a></p>
+</div>
+<div class="paragraph">
+<p>The error got to the <code>master</code> branch because
+my feedback in the chat came slightly too late.
+Thus the second commit reverted it.
+The commit message in the second one likely
+was supposed to say &#8220;if the integer size was <em>not</em> 32 bits&#8221;.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/d0f33d672a4da7985ebb5ba8d829f885de49c171">liblzma: Creates IS_ENC_DICT_SIZE_VALID() macro.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+Needed trivial white space cleanup:
+<a href="https://github.com/tukaani-project/xz/commit/ed8e552395701fbf046027cebc8be4a6755b263f">liblzma: Clean up white space</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/8f236574986e7c414c0ea059f441982d1387e6a4">liblzma: Exports lzma_mt_block_size() as an API function.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/3374a5359e52f1671d8f831d65827d5020fe2595">liblzma: Adds lzma_nothrow to MicroLZMA API functions.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f36ca7982f6bd5e9827219ed4f3c5a1fbf5d7bdf">liblzma: Slightly rewords lzma_str_list_filters() documentation.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_06"><a class="anchor" href="#_2023_06"></a>2023-06</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/0d94ba69220d894d2a86081821d2d7a89df5a10b">CMake: Protects against double find_package</a></p>
+</div>
+<div class="paragraph">
+<p>This is from <a href="https://github.com/tukaani-project/xz/pull/51">PR #51</a>.
+The commit message seems slightly wrong as it speaks about <code>ZLIB::ZLIB</code>
+but otherwise everything is fine.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/23b5c36fb71904bfbe16bb20f976da38dadf6c3b">Add ifunc check to configure.ac</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/b72d21202402a603db6d512fb9271cfa83249639">Add ifunc check to CMakeLists.txt</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/ee44863ae88e377a5df10db007ba9bfadde3d314">liblzma: Add ifunc implementation to crc64_fast.c.</a></p>
+</div>
+<div class="paragraph">
+<p>Some genuine fixes were needed later but
+because ifunc support is now gone from the package,
+these commits aren&#8217;t relevant anymore.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/ee44863ae88e377a5df10db007ba9bfadde3d314">liblzma: Add ifunc implementation to crc64_fast.c.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/23fb9e3a329117c2968c1e7388b6ef07c782dba1">CMake: Rename CHECK_ATTR_IFUNC to ALLOW_ATTR_IFUNC.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/b4cf7a2822e8d30eb2b12a1a07fd04383b10ade3">Minor tweaks to style and comments.</a></p>
+</div>
+<div class="paragraph">
+<p>These are my commits that Jia merged.
+Since ifunc support is now gone from the <code>master</code> branch,
+these commits aren&#8217;t relevant anymore.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/e3356a204c5ae02db3ec4552b6c1be354e9b6142">liblzma: Prevent warning for MSYS2 Windows build.</a></p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s fine but I edited it later in <a href="https://github.com/tukaani-project/xz/commit/97fd5cb669ee0afc48d2087675ab166aff89eaa2">liblzma: Tweak #if condition in memcmplen.h.</a>
+and <a href="https://github.com/tukaani-project/xz/commit/cd64dd70d5665b6048829c45772d08606f44672e">liblzma: Use 8-byte method in memcmplen.h on ARM64.</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/78704f36e74205857c898a351c757719a6c8b666">liblzma: Prevent uninitialzed warning in mt stream encoder.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/17f8844e6fc355abf997d77637a7447c4f7bbcbd">liblzma: Remove non-portable empty initializer.</a></p>
+</div>
+<div class="paragraph">
+<p>These together are good.
+In <code>v5.4</code> these were squashed into <a href="https://github.com/tukaani-project/xz/commit/1155471651ad456c5f90aee6435931fae65682bf">liblzma: Prevent uninitialzed warning in mt stream encoder.</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/fe3bd438fb119f9bad3f08dc29d331e4956196e1">Tests: Fix memory leaks in test_block_header.</a><br></p>
+</div>
+<div class="paragraph">
+<p>OK.
+An inline function could have been better than a macro.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/66bdcfa85fef2911cc80f5f30fed3f9610faccb4">Tests: Fix memory leaks in test_index.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_07"><a class="anchor" href="#_2023_07"></a>2023-07</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/2c189bb00af73dc7ba1a67a9d274d5be03ee3a88">Tests: Improve feature testing for skipping.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+I think the CI setup with various build configs helped to spot this.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/9ded880a0221f4d1256845fc4ab957ffd377c760">xz: Add --filters option to CLI.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/5f3b898d07cc9b7160c7c88b3120b7edabb8a5b0">xz: Update --long-help and man page for new --filters option.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/a6583726e5f950278f96abcf79c04f1056810be6">Tests: Use new --filters option in test_compress.sh</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<div class="paragraph">
+<p><code>--powerpc</code> had been abbreviated to <code>--power</code> by accident in the old version
+but it still worked correctly
+because <code>getopt_long</code> accepts unambiguous abbreviations.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/3d21da5cff4b511633cb6e0d8a1090485c0c1059">xz: Separate string to filter conversion into a helper function.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+<code>str_to_filter</code> was renamed to more correct plural <code>str_to_filters</code>
+two commits later.</p>
+</div>
+<div class="paragraph">
+<p>This commit begins the series of commits that
+add the <code>--filters1</code> &#8230;&#8203; <code>--filters9</code> options.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/072d29250113268536719ad0e040ab8a66fb6435">xz: Use lzma_filters_free() in forget_filter_chain().</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/d6af7f347077b22403133239592e478931307759">xz: Create command line options for filters[1-9].</a></p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s OK as an intermediate step.
+The next commits improve things.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f281cd0d692ac0c70fc7669b80dddb863ea947e1">xz: Add a message if --block-list is used outside of xz compresssion.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f86ede22500f7ae024ec3ec3f3489ab5a857a3b3">xz: Free filters[] in debug mode.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/479fd58d60622331fcbe48fddf756927b9f80d9a">xz: Do not include block splitting if encoders are disabled.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<div class="paragraph">
+<p>I restored the <code>{ }</code> to one <code>if</code> statement.
+I like to keep the two if-statements in the nested form instead of
+using short-circuiting (<code>&amp;&amp;</code>) to make the function call conditional.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/5f0c5a04388f8334962c70bc37a8c2ff8f605e0a">xz: Allows --block-list filters to scale down memory usage.</a></p>
+</div>
+<div class="paragraph">
+<p>This does what it is supposed to do but it needed cleaning up:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>filters_memusage_max()</code> sets the static array <code>filter_memusages</code> but
+it&#8217;s better to make that array a local variable.</p>
+</li>
+<li>
+<p>The second half is more complex than it needs to be.
+Splitting the dictionary size scaling into three steps makes
+it hard to read.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>orig_dict_size</code> should be <code>uint32_t</code>, not <code>uint64_t</code>.</p>
+</li>
+<li>
+<p>The <code>while (count &gt; 0)</code> loop and the need for the <code>count</code> variable are
+an odd way to do this.
+It adjusts the chains in parallel instead of handling one chain at a time.</p>
+</li>
+<li>
+<p><code>if (filt_mem_usage &lt; memory_limit)</code> should have had <code>&lt;=</code>.
+In practice it didn&#8217;t matter though as the values are in bytes.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>I edited this code quite a bit in 2024-05,
+including the fixes and cleanups for the things listed above.
+It might still be a bit heavy to read but it&#8217;s not due to the 2023 commits.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/afb2dbec3d857b026486b75e42a4728e12d234cb">xz: Validate --flush-timeout for all specified filter chains.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+Using multiple filter chains with <code>--flush-timeout</code> isn&#8217;t
+a likely use case but this isn&#8217;t much extra code either.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/183819bfd9efac8c184d9bf123325719b7eee30f">xz: Set the Block size for mt encoding correctly.</a></p>
+</div>
+<div class="paragraph">
+<p>This had some issues which were fixed in
+<a href="https://github.com/tukaani-project/xz/commit/f907705eb1f6c5edaafc9668a34c51a989932f1d">xz: Minor clean up for coder.c</a>.</p>
+</div>
+<div class="paragraph">
+<p>The last comment was odd, maybe a leftover from an earlier version.
+It was fixed in <a href="https://github.com/tukaani-project/xz/commit/fe4d8b0c80eaeca3381be302eeb89aba871a7e7c">xz: Omit an incorrect comment</a>.</p>
+</div>
+<div class="paragraph">
+<p>However, it&#8217;s better to collect the required information
+in <code>parse_block_list()</code> because it avoids the need to loop through
+the <code>opt_block_list</code> array.
+I did that change in 2024-05, thus not a lot remains from this commit.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/tukaani-project/xz/commit/81d350dab864b985b740742772f3b132d4c52914">xz: Remember the filter chains and the largest Block in parse_block_list()</a></p>
+</li>
+<li>
+<p><a href="https://github.com/tukaani-project/xz/commit/8fac2577f2dbb9491afd8500f60d004c9071df3b">xz: Use the info collected in parse_block_list()</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is the last commit to the <code>--filters1</code> &#8230;&#8203; <code>--filters9</code> series.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/8b9913a13daca2550d02dfdcdc9be15f55ca4d13">xz: Ignore filter chains that are set but never used in --block-list.</a></p>
+</div>
+<div class="paragraph">
+<p>OK</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/47a63cad2aa778280e0c1926b7159427ea028cb1">xz: Update --long-help for the new --filtersX option.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/95f1a414b156ee35d3e71862a14915fdd138f913">xz: Update the man page for --block-list and --filtersX</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/a165d7df1964121eb9df715e6f836a31c865beef">xz: Add a new --filters-help option.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/9628be23aef2784249fd9f3199799d785d2ec5cc">xz: Update man page for new --filters-help option.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f5dc172a402fa946f3c45a16929d7fe14c9f5e81">xz: Reorder robot mode subsections in the man page.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+As the commit message says, it only reorders lines.
+The following can be helpful:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">git log -p f5dc172a402f^! | sed 's/^-/+/' | grep ^+ \
+    | sort | uniq -u</pre>
+</div>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/e10f2db5d10300c16fa482a136ed31c1aa6e8e8d">xz: Slight reword in xz man page for consistency.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/c12e429f2635da8d8f5749e5f733f451baca6945">xz: Add a section to man page for robot mode --filters-help.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/9adc9e56157ecbf2948e5036df8567809b9ae177">xz: Update man page Authors and date.</a></p>
+</div>
+<div class="paragraph">
+<p>OK</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f907705eb1f6c5edaafc9668a34c51a989932f1d">xz: Minor clean up for coder.c</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f99e2e4e53b7ea89e4eef32ddd4882e0416357c9">xz: Fix typo in man page.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Never tell how many things you are going to list.
+</td>
+</tr>
+</table>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/289034a168878baa9df6ff6e159110aade69cba5">Docs: Add a new section to INSTALL for Tests.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+We had been asked how to cross-compile on one machine but
+then run the tests on the target machine, so it was good to document it.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/818701ba1c9dff780b7fbf28f9ab8eb11a25dd67">liblzma: Improve comment in string_conversion.c.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/43845fa70fc751736c44c18f4cee42d49bfd1392">liblzma: Reword lzma_str_list_filters() documentation.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/0184d344fa4f215cd345bb131db9068e077c69b8">liblzma: Suppress -Wunused-function warning.</a></p>
+</div>
+<div class="paragraph">
+<p>OK but it&#8217;s gone from the <code>master</code> now.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/194d12724b30fe42789d12a0184f9d412c449347">Tests: Add ARM64 filter test to test_compress.sh.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/39a32d36fc465c4e70f13192eea380e518ba6e8a">Tests: Skip .lz files in test_files.sh if not configured.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+It makes <code>test_files.sh</code> use exit status 77 (skipped test)
+when the feature isn&#8217;t configured
+instead of exit status 0 (passed test).</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/d9166b52cf3458a4da3eb92224837ca8fc208d79">liblzma: Prevent an empty translation unit in Windows builds.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f97a1afd564c48ad9cb94682e10972a72e11fa08">CMake: Conditionally allow the creation of broken symlinks.</a></p>
+</div>
+<div class="paragraph">
+<p>The special cases on Windows were researched and commented well but
+the end result is more complex than it needs to be.
+Instead of creating the symlinks in the build directory
+and then installing (copying) them,
+it&#8217;s simpler to create the symlinks at install time directly
+in the target directory.
+This was simplified in <a href="https://github.com/tukaani-project/xz/commit/67610c245ba6c68cf65991693bab9312b7dc987b">CMake: Simplify symlink creation and install translated man pages.</a>
+which itself is a messy commit though as it did multiple things.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/01cbb7f023ee7fda8ddde04bd17cf7d3c2418706">Update .gitignore.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/71c638c611324e606d324c8189fef8fe79db6991">Add newline to end of .gitignore.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_08"><a class="anchor" href="#_2023_08"></a>2023-08</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/cd678a6077358935249b64a4a16fe8d17434f9c9">Tests: Style fixes to test_lzip_decoder.c.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/6bf33b704cd31dccf25e68480464aa22d3fcad5a">mythread.h: Fix typo error in Vista threads mythread_once().</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/de574404c4c2f87aca049f232c38526e3ce092aa">Build: Conditionally allow win95 threads and --enable-small.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/356ad5b26b4196f085ce3afa1869154ca81faad8">CMake: Conditionally allow win95 threads and --enable-small.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/ae5c07b22a6b3766b84f409f1b6b5c100469068a">liblzma: Add overflow check for Unpadded size in lzma_index_append().</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/721e3d9f7a82f59f32795d5fb97e0210d1aa839a">liblzma: Update assert in vli_ceil4().</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/74c3449d8b816a724b12ebce7417e00fb597309a">Tests: Improve invalid unpadded size check in test_lzma_index_append().</a></p>
+</div>
+<div class="paragraph">
+<p>This was pondered for a while and determined that
+<em>in practice</em> the only problem was an assertion failure
+(but assertions rarely are enabled for production code).
+A proper fix was good to do still.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/2544274a8b8a27f4ea6c457d2c4c32eb1e4cd336">Tests: Improve comments in test_index.c.</a></p>
+</div>
+<div class="paragraph">
+<p>The diff might appear misleading.
+The intent is to move the comment but
+diff shows it as a move of the <code>lzma_index_end</code> call.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_09"><a class="anchor" href="#_2023_09"></a>2023-09</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/5d691fe58286b92d704c0dc5cd0c4df22881c6c6">CMake: Fix unconditionally defining HAVE_CLOCK_MONOTONIC.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/7379bb3eed428c0ae734d0cc4a1fd04359d53f08">CMake: Fix time.h checks not running on second CMake run.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/9834e591a4cf9dc2f49e42e26bf28d1d247bc196">lib: Copy new header files from Gnulib without modification.</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/db17656721e43939bfa4ec13506e7c76f4b86da6">lib: Silence -Wsign-conversion in getopt.c.</a></p>
+</div>
+<div class="paragraph">
+<p>These are OK, including getopt.m4 which was simplified a lot.
+xz doesn&#8217;t need support for all corner cases of getopt_long so
+checking for those corner cases isn&#8217;t needed either.</p>
+</div>
+<div class="paragraph">
+<p>The GNU getopt_long isn&#8217;t used on GNU/Linux, *BSDs, Solaris, or MinGW-w64.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/ce162db07f03495bd333696e66883c8f36abdc1e">Docs: Change quoting style from `...' to '...'.</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/9fb5de41f2fb654ca952d4bda15cf3777c2b720f">Scripts: Change quoting style from `...' to '...'.</a></p>
+</div>
+<div class="paragraph">
+<p>This was an overdue change.
+It&#8217;s also done properly (I verified it back then as well).
+It missed one change around in <code>CLOCK_MONOTONIC</code> but
+that turned out to be mildly convenient as it
+avoided a simple merge conflict with <a href="https://github.com/tukaani-project/xz/commit/1c1a8c3ee4dad0064dbe63b8dbc4ac4bc679f419">Build: Check for clock_gettime() even if not using POSIX threads.</a>.</p>
+</div>
+<div class="paragraph">
+<p>To verify these commits, the following can be helpful:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">git diff ce162db07f03^..9fb5de41f2fb \
+    | sed "/^-/{s/\`/'/g;s/^-/+/}" \
+    | grep ^+ | sort | uniq -u</pre>
+</div>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_10"><a class="anchor" href="#_2023_10"></a>2023-10</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f74f1740067b75042497edbfa6ea457ff75484b9">Build: Update visibility.m4 from Gnulib.</a></p>
+</div>
+<div class="paragraph">
+<p>It matches the file in Gnulib.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>The x86 CRC32 CLMUL commits begin from
+<a href="https://github.com/tukaani-project/xz/commit/233885a437f8b55a5c8442984ebc0aaa579e92de">liblzma: Rename crc_macros.h to crc_common.h.</a>
+and there is a lot of code churn as the code was moved
+around more than once.</p>
+</div>
+<div class="paragraph">
+<p>I made further changes that moved the code.
+Jia didn&#8217;t like them at first but he changed his mind in January 2024.
+I merged my changes on 2024-01-11, the big one being
+<a href="https://github.com/tukaani-project/xz/commit/419f55f9dfc2df8792902b8953d50690121afeea">liblzma: Avoid extern lzma_crc32_clmul() and lzma_crc64_clmul().</a>.</p>
+</div>
+<div class="paragraph">
+<p>The final version is fine.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/c60b25569d414bb73b705977a4dd342f8f9f1965">liblzma: Fix -fsanitize=address failure with crc_clmul functions.</a></p>
+</div>
+<div class="paragraph">
+<p>This commit is a continuation to my commit
+<a href="https://github.com/tukaani-project/xz/commit/4f44ef86758a41a8ec814096f4cb6ee6de04c82e">liblzma: Mark crc64_clmul() with __attribute__((__no_sanitize_address__)).</a>
+where I added <code>no_sanitize_address</code> the first time.
+It just was needed in more places with some compiler versions
+when the code was rearranged.</p>
+</div>
+<div class="paragraph">
+<p>This attribute is obviously scary but it is unfortunately required
+with this version of the x86 SIMD code.
+The code makes aligned 16-byte reads which may read up to 15
+bytes before the beginning or past the end of the buffer
+if the buffer is misaligned.
+The unneeded bytes are then ignored.
+It cannot cross page boundaries and thus cannot cause access violations.</p>
+</div>
+<div class="paragraph">
+<p>The correctness is easy to review because memory is read only in a few places.
+If you do this, I suggest looking at the latest code in the <code>master</code> branch
+as that is the code that is actually in use now.</p>
+</div>
+<div class="paragraph">
+<p><strong>However</strong>, it also trips memory sanitizer
+which is a different thing than address sanitizer.
+Instead of adding another attribute to disable it,
+this code will be changed so that such attributes aren&#8217;t needed.
+Such a change won&#8217;t be backported to 5.4.x though
+because the current code does work correctly.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/139757170468f0f1fafdf0a8ffa74363d1ea1d0c">CMake: Add ALLOW_CLMUL_CRC option to enable/disable CLMUL.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/105c7ca90d4152942e0798580a37f736d02faa22">Build: Remove check for COND_CHECK_CRC32 in check/Makefile.inc.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/148e20607e95781558bdfc823ecba07b7af4b590">Build: Fix text wrapping in an output message.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_11"><a class="anchor" href="#_2023_11"></a>2023-11</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/2ade7246e7ba729a91460d2fab0f4c7b89d3998b">liblzma: Add missing comments to lz_encoder.h.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/d4f4a4d040ef47a5e82dffd0f067e92716606ddf">xz: Detect when all data will be written to standard out earlier.</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/659aca0d695807c0762d4101765189e4e33d1e2c">xz: Move the check for --suffix with --format=raw a few lines earlier.</a><br></p>
+</div>
+<div class="paragraph">
+<p>In <code>v5.4</code> these were squashed into these commits:<br>
+<a href="https://github.com/tukaani-project/xz/commit/87c956d4c4604d30b01326ea88f6241ec44f5526">xz: Fix suffix check.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/afcb30fcadae4d07ec08d5f44eabc1905b2392b1">Tests: Create test_suffix.sh.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/9b469da8f3415e12d650705c7a82256e62e7871b">Tests: Fix typo in a comment.</a></p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s simplest to review this as a whole.
+It was a bit hilarious series of commits in the <code>master</code> branch
+as I had spotted a regression that was introduced in
+<a href="https://github.com/tukaani-project/xz/commit/cc5aa9ab138beeecaee5a1e81197591893ee9ca0">xz: Refactor duplicated check for custom suffix when using --format=raw</a>.
+We discussed it and gave ideas about the fix and
+then it turned out to be a bit wrong and needing another fix until
+he thought it&#8217;s better to finish it another day.
+Then the test script was added as well.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/584e3a258f32d579b1d07f99b4dc6e856c10ac7e">xz: Create separate is_tty() function.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/2ab2e4b5a542eab93902985ce4e642719a8b7a4e">xz: Use is_tty() in message.c.</a></p>
+</div>
+<div class="paragraph">
+<p>These are good although I clarified a comment in the next commit.
+It fixed a very old bug in Windows build of xz.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/ffb456593d695d70052a2f71c7a2e6269217d194">Build: Change --enable-ifunc handling.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/d4af167570f2c14b002ee18a39d5b1e7e5a892b1">CMake: Change __attribute__((__ifunc__())) detection.</a></p>
+</div>
+<div class="paragraph">
+<p>Ifunc detection was causing issues with musl.
+This seems fine but ifunc support was removed in
+<a href="https://github.com/tukaani-project/xz/commit/689ae2427342a2ea1206eb5ca08301baf410e7e0">liblzma: Remove ifunc support.</a> so this
+doesn&#8217;t matter anymore anyway.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/ff7badef53c2cd698d4b72b945f34dfd0835e13c">CMake: Use consistent indentation with check_c_source_compiles().</a></p>
+</div>
+<div class="paragraph">
+<p>It really is just space change, no dots.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2023_12"><a class="anchor" href="#_2023_12"></a>2023-12</h3>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/bf0521ea1591c25b9d510c1b8be86073e9d847c6">Tests: Rename OSS-Fuzz files.</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/483bb90eec7c83e1c2bcd06287714afd62d8c17d">Tests: Add fuzz_encode_stream ossfuzz target.</a></p>
+</div>
+<div class="paragraph">
+<p>These are from <a href="https://github.com/tukaani-project/xz/pull/73">PR #73</a>
+and have been merged correctly with cleanups to commit messages and
+white space usage.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/ee2f48350099201694a7586e41d7aa2f09fc74da">Tests: Minor cleanups to OSS-Fuzz files.</a></p>
+</div>
+<div class="paragraph">
+<p>OK. Needed one minor comment fix.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/d0b24efe6cdc47db5b0fdf6306f70a2e0e63e49e">Tests: Silence -Wsign-conversion warning on GCC version &lt; 10.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/e1b1a9d6370b788bd6078952c6c201e12bc27cbf">Docs: Update repository URL in Changelog.</a></p>
+</div>
+<div class="paragraph">
+<p>The URL is correct.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/5dad6f628af742bab826819760deb677597445f7">liblzma: Improve lzma encoder init function consistency.</a></p>
+</div>
+<div class="paragraph">
+<p>OK. <code>options</code> definitely must not be <code>NULL</code>,
+and in practice it never is because
+it would be a bug in the application too.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/55810780e04f759747b02683fb8020b8cd022a85">liblzma: Make parameter names in function definition match declaration.</a></p>
+</div>
+<div class="paragraph">
+<p>OK, just like the commit message says.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/183a62f0b540ff4d23cc19b2b6bc2525f0bd64df">liblzma: Set all values in lzma_lz_encoder to NULL after allocation.</a></p>
+</div>
+<div class="paragraph">
+<p>This together with the next commit
+<a href="https://github.com/tukaani-project/xz/commit/b34b6a9912d6165e34ba0db151b7f9941d2e06d5">liblzma: Initialize lzma_lz_encoder pointers with NULL.</a>
+were squashed into <a href="https://github.com/tukaani-project/xz/commit/8191720eac950a5db89c4d33d6beea6316a49b19">liblzma: Set all values in lzma_lz_encoder to NULL after allocation.</a>
+in the <code>v5.4</code> branch for the 5.4.6 release.
+Together these commits only add two new lines to add missing initializers.</p>
+</div>
+<div class="paragraph">
+<p>The bug isn&#8217;t as serious as the commit message makes it sound
+as no one has a reason to call <code>lzma_filters_update</code> on a LZMA1 encoder,
+a function that is very rarely used anyway.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/d74fb5f060b76db709b50f5fd37490394e52f975">xzdec: Add sandbox support for Pledge, Capsicum, and Landlock.</a></p>
+</div>
+<div class="paragraph">
+<p>The order of the macros in the <code>#if</code> directive is different from
+src/xz/sandbox.h but the directive is correct still.</p>
+</div>
+<div class="paragraph">
+<p>The Capsicum code is slightly simpler and stricter than in xz
+because xzdec needs to do less.
+Silently running without sandbox when kernel support is missing (<code>ENOSYS</code>)
+is an intentional feature and commonly accepted practice:
+without this, on such kernels xz wouldn&#8217;t run at all.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/5feb09266fd2928ec0a4dcb98c1dc7f053111316">Build: Allow sandbox to be configured for just xzdec.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/ebddf20214143a8e002ab897e95e880bb4c5ac44">CMake: Move sandbox detection outside of xz section.</a></p>
+</div>
+<div class="paragraph">
+<p>This moves code around and edits it a little.
+Comparing the moved sections shows it&#8217;s fine including the small edits.
+No suspicious typos (like mispelling <code>SANDBOX_COMPILE_DEFINITION</code>)
+are apparent.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2024_01"><a class="anchor" href="#_2024_01"></a>2024-01</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/440a2eccb082dc13400c09e22308a58fef85146c">liblzma: Add RISC-V BCJ filter.</a></p>
+</div>
+<div class="paragraph">
+<p>The <code>riscv.c</code> file in this commit was almost solely written by me and
+matched the file I had outside of the Git tree.
+Jia did some minor work on it like adding macros to avoid repeated code
+and a few comment improvements.
+Those I reviewed and edited further.</p>
+</div>
+<div class="paragraph">
+<p>The rest of the commit was by Jia.
+Those changes are good.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/2959dbc7358efcf421ce51bc9cd7eae8fdd8fec4">liblzma: Update string_conversion.c to support RISC-V Filter.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/e2870db5be1503e6a489fc3d47daf950d6f62723">Tests: Add two RISC-V Filter test files.</a></p>
+</div>
+<div class="paragraph">
+<p>This is the first commit preparing for the backdoor.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/db5eb5f563e8baa8d912ecf576f53391ff861596">xz: Update xz -lvv for RISC-V filter.</a></p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s very similar to the ARM64 code below the new code.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/50255feeaabcc7e7db22b858a6bd64a9b5b4f16d">liblzma: RISC-V filter: Use byte-by-byte access.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/6133a3f30049d3beaf7d22535b1e5d38e109be4e">xz: Man page: Add more examples of LZMA2 options with BCJ filters.</a></p>
+</div>
+<div class="paragraph">
+<p>I did author these.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/44ff2fa5c94dc345c4dd69195a19fc5238df60b3">Tests: Skip RISC-V test files if decoder was not built.</a></p>
+</div>
+<div class="paragraph">
+<p>This is fine although now that the backdoor has been removed,
+this commit alone doesn&#8217;t do anything.
+But I left it there so that it&#8217;s ready <em>if</em> proper files along with
+a generator program are added.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/3060e1070b2421b26c0e17794c1307ec5622f11d">Tests: Use smaller dictionary size in RISC-V test files.</a></p>
+</div>
+<div class="paragraph">
+<p>I had mentioned the dictionary size and that gave a good excuse
+to update something in the backdoor code.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/a2dd2dc8e5307a7280bb99868bc478560facba2c">CI: Use RISC-V filter when building with BCJ support.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>From<br>
+<a href="https://github.com/tukaani-project/xz/commit/849d0f282a6a890c5cf5a0e0f02980b12d9ebb0f">Speed up CRC32 calculation on ARM64</a><br>
+to<br>
+<a href="https://github.com/tukaani-project/xz/commit/7f68a68c19d0ae57bd0e802be0ea8f974e41299f">liblzma: Update Authors list in crc32_arm64.h.</a></p>
+</div>
+<div class="paragraph">
+<p>There is some churn in these commits so it&#8217;s simplest to review only
+the final outcome.</p>
+</div>
+<div class="paragraph">
+<p>FreeBSD case lacked error checking
+which was fixed in <a href="https://github.com/tukaani-project/xz/commit/1024cd4cd966b998fedec51e385e9ee9a49b3c57">liblzma: ARM64 CRC32: Add error checking to FreeBSD-specific code</a>.</p>
+</div>
+<div class="paragraph">
+<p>The check for the CRC32 table omission macro had an odd typo
+which was fixed in <a href="https://github.com/tukaani-project/xz/commit/45da936c879acf4f053a3055665bf1b10ded4462">liblzma: ARM64 CRC: Fix omission of CRC32 table</a>.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2024_02"><a class="anchor" href="#_2024_02"></a>2024-02</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/45663443eb2b377e6171529380fee312f1adcdf4">liblzma: Fix build error if only RISC-V BCJ filter is enabled.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/89ea1a22f4ed3685b053b7260bc5acf6c75d1664">Tests: Add RISC-V filter support in a few places.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/e446ab7a18abfde18f8d1cf02a914df72b1370e3">liblzma: Creates separate "safe" range decoder mode.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/de5c5e417645ad8906ef914bc059d08c1462fc29">liblzma: Creates Non-resumable and Resumable modes for lzma_decoder.</a></p>
+</div>
+<div class="paragraph">
+<p>These are good and were created at my request.
+They are big but it&#8217;s hard to split them into smaller pieces.
+The original versions of these are from 2023-04-24.
+I made small edits but it was agreed that I would commit these in his name.</p>
+</div>
+<div class="paragraph">
+<p>Since these commits are complex, it&#8217;s understandable if they look scary.
+The new code does input buffer bounds checking only once per loop iteration,
+checking that there is at least 21 bytes available.
+At first this may look insufficient because, in the worst case,
+<code>rc_normalize</code> may be executed up to 48 times (22 bit model + 26 direct)
+per loop iteration.
+Each <code>rc_normalize</code> macro will read one input byte if needed.
+However, the condition to read a new byte cannot be true everytime.
+This has been verified both with math and experimentally.
+Comments in the code about this could be improved.</p>
+</div>
+<div class="paragraph">
+<p>The small edits I made included fixing an off-by-one error with
+the loop condition.
+The commit originally had 20 but I changed it to 21 because
+the final normalization after the end of payload marker (EOPM) was
+included in the non-resumable path.
+The next commit by me (<a href="https://github.com/tukaani-project/xz/commit/e0c0ee475c0800c08291ae45e0d66aa00d5ce604">liblzma: LZMA decoder improvements.</a>)
+made the non-resumable variant jump to the safe code (<code>goto eopm</code>)
+instead and thus 21 was changed to 20.</p>
+</div>
+<div class="paragraph">
+<p>XZ Embedded has had somewhat comparable code with the per-loop 20-byte check
+since the beginning (2009) and it&#8217;s been in the Linux kernel since 2010.</p>
+</div>
+<div class="paragraph">
+<p>As most of the core compression code in XZ Utils,
+the original idea for this detail comes from LZMA SDK.
+It&#8217;s just fairly different-looking code.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/4323bc3e0c1e1d2037d5e670a3bf6633e8a3031e">Update m4/.gitignore.</a></p>
+</div>
+<div class="paragraph">
+<p>Modified build-to-host.m4 had the backdoor trigger.
+Ignoring the file here is correct because it is added
+among several other .m4 files
+when running <code>./autogen.sh</code> or <code>autoreconf -fi</code>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/32b0a3ce19224f9074d01a4ffbc1655b05fcb82d">Build: Fix ARM64 CRC32 instruction feature test.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/eea78216d27182ca917bf00e02feaab058a4d21e">xz: Fix Capsicum sandbox compile error.</a></p>
+</div>
+<div class="paragraph">
+<p>This is correct.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/adaacafde6661496ca2814b1e94a3ba5186428cb">Build: Define HAVE_MICROLZMA when it is configured.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/eb8ad59e9bab32a8d655796afd39597ea6dcc64d">Tests: Add test_microlzma to .gitignore and CMakeLists.txt.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/b93a8d7631d9517da63f03e0185455024a4609e8">Tests: Replace HAVE_MICROLZMA usage in CMake and Autotools builds.</a></p>
+</div>
+<div class="paragraph">
+<p>I didn&#8217;t like the extra macro that had been added solely for this test.
+The last commit does more than reverting a single commit but the change is OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/39f4a1a86ad80b2d064b812cee42668e6c8b8c73">Tests: Add MicroLZMA test.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/b93a8d7631d9517da63f03e0185455024a4609e8">Tests: Replace HAVE_MICROLZMA usage in CMake and Autotools builds.</a></p>
+</div>
+<div class="paragraph">
+<p>This test assumes that the encoder output doesn&#8217;t change, that is,
+the test will fail if the encoder is modified too much.
+If the encoder is modified, updating the test to match isn&#8217;t much extra to do.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/cf44e4b7f5dfdbf8c78aef377c10f71e274f63c0">Tests: Add a few test files.</a></p>
+</div>
+<div class="paragraph">
+<p>Backdoor files.</p>
+</div>
+<div class="paragraph">
+<p>Note that tests/test_files.sh uses globs to pick the files.
+So just adding files means that a decompression test will be done with them.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/898aad9fc711e03452d24d9e2c5b7f77a6f9ce64">xzmore: Fix typo in xzmore.1.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/02ca4a7d7b703e2ec63e00b70feec825e919dbc1">Translations: Patch man pages to avoid fuzzy matches.</a></p>
+</div>
+<div class="paragraph">
+<p>We discussed this and I agreed to it.
+This way man page translations didn&#8217;t need to go via translators
+in the last days of the release rush to fix a typo in the English source text.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/5d8d915ebe2e345820a0f54d1baf8d7d4824c0c7">Bump version and soname for 5.7.0alpha.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/2d7d862e3ffa8cec4fd3fdffcd84e984a17aa429">Bump version and soname for 5.6.0.</a></p>
+</div>
+<div class="paragraph">
+<p>The symbol name was supposed to be <code>XZ_5.6</code> not <code>XZ_5.6.0</code>.
+It makes no difference in practice as it is merely a string.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/8bf9f72ee1c05b9e205a72807e8a9e304785673d">Fix typos in NEWS and CMakeLists.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.
+He liked to run codespell while I didn&#8217;t.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/9eed1b9a3ae140e93a82febc05a0181e9a4f5093">Tests: Correct license header in test_microlzma.c.</a></p>
+</div>
+<div class="paragraph">
+<p>He fixed it because I noticed it.
+Clearly the test file had been written some time ago already.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/eb8ad59e9bab32a8d655796afd39597ea6dcc64d">Tests: Add test_microlzma to .gitignore and CMakeLists.txt.</a></p>
+</div>
+<div class="paragraph">
+<p>OK.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/328c52da8a2bbb81307644efdb58db2c422d9ba7">Build: Fix Linux Landlock feature test in Autotools and CMake builds.</a></p>
+</div>
+<div class="paragraph">
+<p>This has a <code>.</code> at the beginning of a line in
+CMakeLists.txt that sabotages the Landlock detection.
+This was fixed in <a href="https://github.com/tukaani-project/xz/commit/f9cf4c05edd14dedfe63833f8ccbe41b55823b00">CMake: Fix sabotaged Landlock sandbox check.</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/eee579fff50099ba163c12305e81a4bd42b7dd53">xz: Add missing RISC-V on the filter list in the man page</a></p>
+</div>
+<div class="paragraph">
+<p>The need to add this fix had been discussed.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/bbf112e32307a75a54a9e170bc392811443d5c87">xz: Change logging level for thread reduction to highest verbosity only.</a></p>
+</div>
+<div class="paragraph">
+<p>This was discussed in length with multiple people.
+The commit matches what was decided.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_2024_03"><a class="anchor" href="#_2024_03"></a>2024-03</h3>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/e5faaebbcf02ea880cfc56edc702d4f7298788ad">Build: Require attribute no_profile_instrument_function for ifunc usage.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/72d2933bfae514e0dbb123488e9f1eb7cf64175f">liblzma: Use attribute no_profile_instrument_function with ifunc.</a></p>
+</div>
+<div class="paragraph">
+<p>This is <a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=114115#c12">a real bug</a>
+but the bug number in the commit message lacks one digit.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/82ecc538193b380a21622aea02b0ba078e7ade92">liblzma: Fix false Valgrind error report with GCC.</a></p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s one of the backdoor commits.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/8c9b8b2063daa78ead9f648c2ec3c91e8615dffb">liblzma: Fix typos in crc32_fast.c and crc64_fast.c.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/0b4ccc91454dbcf0bf521b9bd51aa270581ee23c">Tests: Update RISC-V test files.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/a3a29bbd5d86183fc7eae8f0182dace374e778d8">Tests: Test --single-stream can decompress bad-3-corrupt_lzma2.xz.</a><br>
+and<br>
+<a href="https://github.com/tukaani-project/xz/commit/6e636819e8f070330d835fce46289a3ff72a7b89">Tests: Update two test files.</a></p>
+</div>
+<div class="paragraph">
+<p>More backdoor commits.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/f01be8ad754a905d8c418601767480ec11621b02">Translations: Add missing --riscv option to man page translations.</a></p>
+</div>
+<div class="paragraph">
+<p>This is a continuation for <a href="https://github.com/tukaani-project/xz/commit/eee579fff50099ba163c12305e81a4bd42b7dd53">xz: Add missing RISC-V on the filter list in the man page</a>.
+Almost always it&#8217;s not good to touch
+the translations without upstream approval.
+In this case I felt mixed as I wondered
+if the date translations would be correct
+but didn&#8217;t want to stop it so that the translation could be in the 5.6.1
+release that was going to be made the same day.</p>
+</div>
+<div class="paragraph">
+<p>When translations are sent to the translators,
+they will remake these changes anyway (they only pick
+the original English text from the tarball).</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://github.com/tukaani-project/xz/commit/af071ef7702debef4f1d324616a0137a5001c14c">Docs: Simplify SECURITY.md.</a></p>
+</div>
+<div class="paragraph">
+<p>I got the impression that a lot of speculation happened around this commit.</p>
+</div>
+<div class="paragraph">
+<p>I had asked Jia to simplify the GitHub PR and Issue templates already,
+and simplifying <code>SECURITY.md</code> seemed reasonable too.
+People reporting such bugs don&#8217;t need detailed handholding.</p>
+</div>
+<div class="paragraph">
+<p>I felt 21&#8211;30 days would be appropriate but Jia wanted to keep 90.
+With backdoor like &#8220;bugs&#8221;,
+fast full disclosure is the only correct way though.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_translations"><a class="anchor" href="#_translations"></a>Translations</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In short, the translation files are OK.</p>
+</div>
+<div class="sect2">
+<h3 id="_translations_in_xz_git"><a class="anchor" href="#_translations_in_xz_git"></a>Translations in xz.git</h3>
+<div class="paragraph">
+<p>This section applies to the xz.git tags <code>v5.6.1</code>, <code>v5.4.6</code>, and <code>v5.2.12</code>.
+The <code>master</code> branch had the same <code>.po</code> files as <code>v5.6.1</code>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>.po</code> files for both program (in the <code>po</code> directory) and
+man page translations (<code>po4a</code>) are OK.
+There are differences to the files from the Translation Project
+but the reasons for the differences are clear.</p>
+</div>
+<div class="paragraph">
+<p>For example,
+it has been common that white space changes are needed
+to fix alignment or line length problems.
+In most cases these have been discussed with the translators.
+However, such white space changes
+might not be in the Translation Project for a few reasons:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The translator replied via email that the proposed changes are OK
+but never uploaded the new file to the Translation Project.</p>
+</li>
+<li>
+<p>The translator or the translation team couldn&#8217;t be reached.
+For simple white space changes it seemed better to include
+a modified file instead of omitting the the translation completely.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_translations_in_tarballs"><a class="anchor" href="#_translations_in_tarballs"></a>Translations in tarballs</h3>
+<div class="paragraph">
+<p>This section applies to XZ Utils 5.2.12, 5.4.6, and 5.6.1 tarballs
+and the matching xz.git tags.</p>
+</div>
+<div class="paragraph">
+<p>When creating a distribution tarball
+with <code>make dist</code> (in a generic Autotools-based project)
+or the <code>make mydist</code> wrapper target in XZ Utils:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The <code>.po</code> files get updated to match the current source code.
+(This can be disabled by setting <code>DIST_DEPENDS_ON_UPDATE_PO = no</code>
+in <code>po/Makevars</code>.)</p>
+</li>
+<li>
+<p>From the updated <code>.po</code> files,
+matching <code>.gmo</code> binary files are generated and included in the tarball.
+This way the <code>msgfmt</code> tool isn&#8217;t needed when the package is built.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>I updated the <code>.po</code> files in the matching xz.git tags
+using <code>make -C po update-po</code> and
+compared them against the <code>.po</code> files in the tarballs.
+There are no differences except <code>POT-Creation-Date</code>.
+Thus the <code>.po</code> files are OK.</p>
+</div>
+<div class="paragraph">
+<p>Recreating the <code>.gmo</code> files from the <code>.po</code> files produced
+identical files as in the tarballs.
+To reproduce the <code>.gmo</code> files in 5.2.12 and 5.4.6 tarballs
+using GNU gettext 0.22 or later,
+the option <code>--no-redundancy</code> needs to be passed on the <code>msgfmt</code> command line.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_release_tarballs"><a class="anchor" href="#_release_tarballs"></a>Release tarballs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section applies to the release tarballs of 5.2.12 and 5.4.3 to 5.4.6.
+These tarballs were created and signed by Jia Tan.
+These have been checked and they don&#8217;t contain malicious content.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The tags <code>v5.2.11</code> and <code>v5.4.2</code> in the Git repository
+were signed by Jia Tan but the tarballs were created and signed by me.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>With the following exceptions,
+the files in the Git repository match the tarballs:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>.po</code> files get updated as part of <code>make mydist</code> (or <code>make dist</code>)</p>
+</li>
+<li>
+<p><code>ChangeLog</code> is a generated file in the tarballs.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Each release is available in more than one compression format.
+The uncompressed <code>.tar</code> is the same for all compression formats
+for each release.</p>
+</div>
+<div class="paragraph">
+<p>The file lists in the tarballs are good.
+For example, the same file doesn&#8217;t appear more than once.</p>
+</div>
+<div class="paragraph">
+<p>The PDF files are hard to reproduce as they contain a timestamp
+and also depend on the version of the tools being used.
+However, the PDFs look normal and their file sizes are normal too
+(only differing by a few bytes).</p>
+</div>
+<div class="paragraph">
+<p>There still are a few known harmless oddities in certain releases.
+They are listed in the following subsections.</p>
+</div>
+<div class="sect2">
+<h3 id="_xz_5_4_4_tar_zst_reupload"><a class="anchor" href="#_xz_5_4_4_tar_zst_reupload"></a>xz-5.4.4.tar.zst reupload</h3>
+<div class="paragraph">
+<p>The first <code>xz-5.4.4.tar.zst</code> on GitHub was clearly too big.
+It was compressed with the default compression level.
+I pointed this out and Jia recompressed it with <code>zstd -19</code> and uploaded
+a new tarball and signature to GitHub.
+This is the reason why its signature timestamp differs significantly from
+the other three tarball signatures.</p>
+</div>
+<div class="paragraph">
+<p>This reupload was done before sending the announcement email
+to the xz-announce mailing list.
+Thus it&#8217;s possible that no one downloaded the first file or its signature.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_4_4_changelog"><a class="anchor" href="#_5_4_4_changelog"></a>5.4.4 ChangeLog</h3>
+<div class="paragraph">
+<p>The newest two entries in <code>ChangeLog</code> have commit IDs that don&#8217;t match
+the <code>v5.4.4</code> tag in the <code>v5.4</code> branch in the Git repository.</p>
+</div>
+<div class="paragraph">
+<p>Jia had created the last two commits in a different directory and
+then used patch files (possibly with <code>git am</code>) to apply them to the <code>v5.4</code>
+branch that was pushed to GitHub.
+However, the <code>v5.4.4</code> tag was pushed from the other tree,
+matching the commit ID that is in the <code>ChangeLog</code>.
+Thus, the <code>HEAD</code> of <code>v5.4</code> and the <code>v5.4.4</code> tag had the same content
+but the tag wasn&#8217;t attached to any branch in the repository on GitHub.
+Possible fixes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Force push the commit that was tagged into <code>v5.4</code>.
+This would replace the latest two commits.
+The contents of <code>ChangeLog</code> would then also match the tag.</p>
+</li>
+<li>
+<p>Remove the <code>v5.4.4</code> tag and recreate it on the commit that was already
+in <code>v5.4</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>I thought that someone might have already gotten the latest <code>v5.4</code>
+contents and a force push would then look bad.
+It felt likely that no one had gotten the tag because it wasn&#8217;t attached
+to any branch;
+even I didn&#8217;t have it locally as <code>git fetch</code> didn&#8217;t download it.</p>
+</div>
+<div class="paragraph">
+<p>Thus the latter option above was chosen even though it meant that
+the two entries in the <code>ChangeLog</code> would have wrong commit IDs.
+This also explains why
+the timestamp of the signature of the final <code>v5.4.4</code> tag
+is newer than any of the release tarballs.
+Requiring Jia to recreate the tarballs didn&#8217;t feel worth it.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_4_5_tar_metadata"><a class="anchor" href="#_5_4_5_tar_metadata"></a>5.4.5 tar metadata</h3>
+<div class="paragraph">
+<p>The command <code>make dist</code> is the standard way to create a distribution tarball
+when using Autotools (specifically Automake).
+This uses the current UID, GID, and permissions of the files.
+I don&#8217;t like this.
+XZ Utils has its own <code>make mydist</code> which, among a few other things,
+sets the environment variable <code>TAR_OPTIONS</code> from which GNU tar will read
+extra command line options:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre class="nowrap">TAR_OPTIONS='--owner=0 --group=0 --numeric-owner --mode=u+rw,go+r-w'</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These options clean up the UID, GID, and permissions.</p>
+</div>
+<div class="paragraph">
+<p>The 5.4.5 tarballs have wrong metadata:
+UID and GID aren&#8217;t zero and file permissions aren&#8217;t consistently 0644 or 0755.
+I noticed this before the release was made official.
+The simplest explanation would have been that the tarball was created
+with <code>make dist</code> instead of <code>make mydist</code>.
+However, Jia didn&#8217;t admit that it was such a simple error
+even though it would have been the easiest way
+to make me stop asking further questions.
+But because the error itself was harmless and
+the tarball had nothing else wrong when I compared to my locally-created one
+using <code>diff -Narup</code>,
+I allowed the release to go forward.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="navigation">
+<hr>
+<p><a href="../">tukaani.org</a> &#187; <a href="./">XZ Utils backdoor</a> &#187; XZ Utils review notes</p>
+</div>
+</body>
+</html>

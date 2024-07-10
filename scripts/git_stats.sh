@@ -1,9 +1,7 @@
-# shift 
-
-CMD=`git log --date=format:'%Y-%m' --pretty=format:'%ad' --numstat "$@"`
+CMDR="git log ""$@"" --date=format:"'"%Y-%m"'" --pretty=format:"'"%ad"'" --numstat"
 
 echo "Date;  Commits;  Added lines; Removed lines; Total changes;"
-echo "$CMD" | awk '
+eval "$CMDR" | awk '
 {
     if ($1 ~ /^[0-9]{4}-[0-9]{2}$/) {
         date = $1

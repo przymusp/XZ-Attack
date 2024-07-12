@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>[xz-devel] Adding fuzz testing support to liblzma</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00309" id="c">
+<link rel="index" href="maillist.html#00309" id="i">
+<link rel="prev" href="msg00308.html" id="p">
+<link rel="next" href="msg00311.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00309.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+Adding+fuzz+testing+support+to+liblzma%22&amp;o=newest" rel="nofollow"><span itemprop="name">[xz-devel] Adding fuzz testing support to liblzma</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Bhargava+Shastry%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Bhargava Shastry</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20181026" rel="nofollow">Fri, 26 Oct 2018 05:04:02 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Dear Lasse,
+
+Firstly, thank you so much for your valuable feedback. I am new to the
+xz code base and your insights are really useful :-)</pre><pre>
+
+Secondly, I would like to agree with you that the original fuzzer
+harness was not only simple but pretty much generates the same test
+coverage as the version in this thread. So, it makes sense to revert to
+the original patch.
+
+I will do this and send an updated patch on this mailing list
+incorporating the following feedback:
+
+
+On 10/25/18 11:34 PM, Lasse Collin wrote:
+&gt;&gt; +    // Decode BUFSIZ==8192 bytes of inbuf at a time
+&gt; 
+&gt; The value of BUFSIZ depends on libc and isn't always 8192.
+
+Agreed. What would you like it to be? Afaiu, we are doing not only
+header decoding but also contents of the compressed block itself, right?
+
+As a reference, fuzzers usually generate between 1 byte and a few
+hundred KB of compressed data.
+
+Test harnesses for other compression libs such as lzo [1] use an output
+buffer size equal to default block size (= 256 KB).
+
+[1]:
+<a  rel="nofollow" href="https://github.com/bshastry/oss-fuzz/blob/000d9c3e1f1018431028471c250f52003b82697c/projects/lzo/lzo_decompress_target.c#L52">https://github.com/bshastry/oss-fuzz/blob/000d9c3e1f1018431028471c250f52003b82697c/projects/lzo/lzo_decompress_target.c#L52</a>
+
+&gt; 
+&gt;&gt; +        // TODO: We invoke lzma_code twice when remainlen == 0.
+&gt;&gt; +        // Is this okay?
+&gt;&gt; +
+&gt;&gt; +        if (strm-&gt;avail_in == 0 &amp;&amp; remainlen != 0) {
+&gt;&gt; +            strm-&gt;next_in = inbuf;
+&gt;&gt; +            strm-&gt;avail_in = (remainlen &gt; BUFSIZ) ? BUFSIZ :
+&gt;&gt; remainlen;
+&gt;&gt; +            remainlen -= strm-&gt;avail_in;
+&gt;&gt; +
+&gt;&gt; +            if (remainlen == 0)
+&gt;&gt; +                action = LZMA_FINISH;
+&gt;&gt; +        }
+&gt; 
+&gt; The initial value of remainlen cannot be 0 because the parent function
+&gt; handles zero-length input specially and doesn't call this function at
+&gt; all. If initial remainlen == 0 were possible, the above code would be
+&gt; broken because it would never set action to LZMA_FINISH. Removing the
+&gt; check for 0 from the parent function and handling it here would be good.
+
+I feel this comment won't be relevant when I revert to the original
+version of the harness, so skipping discussion (at least for now)
+
+&gt; I guess the reason to split the input into BUFSIZ chunks is there to
+&gt; emulate reading from a file, but to me that doesn't seem very useful
+&gt; from point of view of fuzzing. Splitting the input into smaller chunks
+&gt; is good in sense that it tests that liblzma behaves correctly when
+&gt; liblzma doesn't get the whole file at once. However, the BUFSIZ is far
+&gt; too big to do this for header decoding.
+
+It is my understanding that the harness is doing more than just header
+decoding, right? I notice (in the generated html coverage report) that
+calls to &quot;block_decode&quot; are also executed while fuzzing.
+
+Sig
+
+ For that, it could be good to
+&gt; even feed one byte at a time to get better testing coverage. The same
+&gt; can apply to output buffering. One-byte buffers might slow down fuzzing
+&gt; though.
+&gt; 
+&gt;&gt; +        lzma_ret ret = lzma_code(strm, action);
+&gt;&gt; +        /* LZMA_PROG_ERROR should be rarely, if ever, happen
+&gt;&gt; +         * The assertion codifies this expectation.
+&gt;&gt; +         */
+&gt;&gt; +        assert(ret != LZMA_PROG_ERROR);
+&gt; 
+&gt; It should *never* happen if the code calling the liblzma functions is
+&gt; correct. It is better to use if() instead of assert() here to catch
+&gt; LZMA_PROG_ERROR. It's not good to rely on that assertion checks haven't
+&gt; been disabled with #define NDEBUG.
+
+The reason I chose assert() was because fuzzers pick up on signals such
+as SIGABRT, SIGSEGV etc. Also, libFuzzer interface reserves non-zero
+return codes, the LLVMFuzzerTestOneInput() API is required to always
+return 0.
+
+Would replacing &quot;assert&quot; with an &quot;abort&quot; make sense? This way, we don't
+need to use a debug build (which may slow down fuzzing).
+
+&gt;&gt; +        // TODO: Is this code trying to overwrite outbuf when outlen
+&gt;&gt; +        // is exhausted? If so, is that okay?
+&gt;&gt; +        if (strm-&gt;avail_out == 0 || ret == LZMA_STREAM_END) {
+&gt;&gt; +            strm-&gt;next_out = outbuf;
+&gt;&gt; +            strm-&gt;avail_out = outlen;
+&gt;&gt; +        }
+&gt; 
+&gt; Since the contents of outbuf aren't needed for anything, it's fine to
+&gt; reuse it this way.
+
+ack.
+
+&gt;&gt; +    // Init decoder.
+&gt;&gt; +    if (!init_decoder(&amp;strm)) {
+&gt;&gt; +        // Decoder initialization failed. There's no point
+&gt;&gt; +        // retrying, so bail out.
+&gt;&gt; +        return 0;
+&gt;&gt; +    }
+&gt; 
+&gt; Returning 0 indicates success, I guess. If initialization fails, the
+&gt; actual fuzzing is never done. While it's unlikely that the
+&gt; initialization fails, it's still essential to report the error to the
+&gt; caller instead of silently skipping the whole fuzzing step.
+
+Would a call to &quot;abort&quot; make sense here?
+
+&gt;&gt; +    uint8_t outbuf[BUFSIZ];
+&gt;&gt; +
+&gt;&gt; +    if (!decompress(&amp;strm, data, size, outbuf, BUFSIZ)) {
+&gt;&gt; +#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+&gt;&gt; +        fprintf(stderr, &quot;Decode failure\n&quot;);
+&gt;&gt; +#endif
+&gt;&gt; +    }
+&gt; 
+&gt; The value of BUFSIZ depends on the libc and is meant to be a decent
+&gt; buffer size for file operations, but the fuzzer doesn't work on files.
+&gt; I suggest using a fixed value that doesn't depend on libc.
+&gt; 
+&gt; Overall I'm still unsure if this version is better than the 37-line
+&gt; fuzz.c in [1]. Some issues affect both versions, but overall [1] is
+&gt; more straightforward code (but it also tries to do less). I think we
+&gt; need to know what features are wanted and then see what kind of code
+&gt; does exactly that. Specifically:
+&gt; 
+&gt;   - Is it enough to pass the whole input to liblzma at once? If not,
+&gt;     how small chunks to use? One byte could give most thorough fuzzing
+&gt;     but is slower too.
+
+One suggestion is to keep the current output buffer size I guess.
+
+&gt;   - Use a big (a few kilobytes) output buffer or a tiny one, like only
+&gt;     one byte? It's the same argument as for the input buffer.
+&gt; 
+&gt;   - Reusing the same lzma_stream structure between calls would test the
+&gt;     re-initialization code, but I understand it's problematic because
+&gt;     then results of a round of fuzzing round may depend on what
+&gt;     happened on previous rounds, so I suppose this is not an option.
+&gt;     (Reusing would be done by making strm static and omitting the
+&gt;     lzma_end() call.)
+&gt; 
+&gt; A final small note: In build.sh in [1], it's worth considering to
+&gt; use --enable-debug instead of --disable-debug. --enable-debug enables
+&gt; assert() checks which might help in finding bugs.
+
+ack.
+
+Thank you,
+Bhargava
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00308.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00309">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00309">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00311.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00307.html">[xz-devel] [PATCH] ossfuzz: Incorporate feedback from Las...</a></span> <span class="sender italic">bshastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00308.html">[xz-devel] Adding fuzz testing support to liblzma</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">[xz-devel] Adding fuzz testing support to liblzm...</span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00311.html">Re: [xz-devel] Adding fuzz testing support t...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00312.html">Re: [xz-devel] Adding fuzz testing suppo...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00313.html">Re: [xz-devel] Adding fuzz testing ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00314.html">Re: [xz-devel] Adding fuzz test...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00315.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00316.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00317.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00318.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="[xz-devel] Adding fuzz testing support to liblzma">
+<input type="hidden" name="msgid" value="e013f8d7-4170-7259-e593-7f8cca58928f@sect.tu-berlin.de">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00309.html">
+<input type="submit" value=" Bhargava Shastry ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+Adding+fuzz+testing+support+to+liblzma%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00308.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00311.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">e013f8d7-4170-7259-e593-7f8cca58928f@sect.tu-berlin.de</li>
+</ul>
+</div>
+</body>
+</html>

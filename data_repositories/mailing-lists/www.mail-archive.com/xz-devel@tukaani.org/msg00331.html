@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] Internationalization of man pages</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00331" id="c">
+<link rel="index" href="maillist.html#00331" id="i">
+<link rel="prev" href="msg00330.html" id="p">
+<link rel="next" href="msg00332.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00331.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Internationalization+of+man+pages%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] Internationalization of man pages</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Mario+Bl%C3%A4ttermann%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Mario Blättermann</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20190623" rel="nofollow">Sun, 23 Jun 2019 03:04:58 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Hello Lasse,
+
+Am Sa., 22. Juni 2019 um 23:53 Uhr schrieb Lasse Collin
+&lt;lasse.col...@tukaani.org&gt;:
+&gt;
+&gt; Hello!
+&gt;
+&gt; Sorry for the delay. I was away from my computer for many days.
+&gt;
+&gt; On 2019-06-12 Mario Blättermann wrote:
+&gt; &gt; I've created a framework for the internationalization of man pages.
+&gt; &gt; It works as follows:
+&gt;
+&gt; Overall looks good. :-)
+&gt;
+&gt; Minor things:
+&gt;
+&gt;   - #!/bin/sh is portable for simple scripts, no need to use env.
+&gt;
+&gt;   - create-translated-manpages.sh has a typo, po4.conf should be
+&gt;     po4a.conf.
+&gt;
+OK.</pre><pre>
+
+&gt;   - Is xzdec-man.pot intentionally there or should it be part of
+&gt;     xz-man.pot?
+&gt;
+It's an artifact from a separate creation of a pot file for xzdec.1.
+Can be safely removed,
+its content is already in xz-man.pot.
+
+
+&gt; &gt; As a prerequisite, the po4a tools are needed, see [1].
+&gt;
+&gt; This should be fine. It could be nice to set things up so that it's not
+&gt; a hard dependency when using code from the git repository. It can
+&gt; matter if one doesn't have po4a trivially available via a package
+&gt; manager but one still has GNU Autotools. I can take care of this.
+&gt;
+For my understanding, a packager should either ship the package with
+complete translations (both UI and man pages) or no translations at all
+(using &quot;configure --disable-nls&quot;). Po4a is a collection of Perl scripts without
+any exotic dependencies, and it doesn't eat up lots of disk space. As far as
+I can see, sufficiently current packages are available for all mainstream
+distributions [2].
+
+&gt; &gt; A German translation (de.po) is already included.
+&gt;
+&gt; Wow, even xz.1 is there, translating it is a lot of work.
+&gt;
+I've translated the man pages over the last years, step by step, and xz.1
+was the last and biggest step. Currently the translated man pages are shipped
+with the manpages-de package [1], with the inevitable delay between upstream
+release of the original man pages, translations, release of manpages-de
+and packaging it downstream. Would be much better to maintain the translations
+directly in xz, and hopefully get more languages soon, once the TP domain
+has been created. But I know about about translators such as Jakub
+Bogusz (Polish)
+and Yuri Chornoivan (Ukrainian) which are known to me as very interested in
+docs translations in general and man page translations in particular.
+
+&gt; There are two warnings:
+&gt;
+&gt;     warning: file './xz.1', around line 449:
+&gt;       table wider than line width
+&gt;     warning: file './xz.1', around line 512:
+&gt;       table wider than line width
+&gt;
+&gt; The translated column names are so long that the table doesn't fit into
+&gt; 80 columns.
+&gt;
+This should be fixed before the GNU TP robot sends the new template
+to the translation teams. And moreover, there are still six gettext messages
+in the German po files marked with a FIXME comment, which also should be
+fixed in the source files.
+
+&gt; The use of … instead of ... might be typographically better, but I
+&gt; wonder if it can interfere with further processing of the files. In
+&gt; 2013
+&gt;
+&gt;     xz [option]... [file]...
+&gt;
+&gt; was changed to
+&gt;
+&gt;     xz [option...] [file...]
+&gt;
+&gt; as requested by Eric S. Raymond to make the man page friendlier to
+&gt; doclifter[1]. I don't know if … vs. ... can affect it or not; I didn't
+&gt; try to find out now.
+&gt;
+&gt; [1] <a  rel="nofollow" href="http://www.catb.org/~esr/doclifter/">http://www.catb.org/~esr/doclifter/</a>
+&gt;
+Yes, I know about this tool, I'm maintaining its Archlinux package. Normally,
+the Unicode ellipsis shouldn't break the workflow in Groff or Po4a. But indeed,
+it should be tested. And moreover, the ellipsis is better readable in monospace
+fonts if we prepend a whitespace character. I usually do this in all
+other UI and
+man page translations.
+
+&gt; &gt; Unfortunately, I have no experience with GNU Autotools, I'm just a
+&gt; &gt; translator, and no more than that. I don't know how to integrate the
+&gt; &gt; contents of my scripts with &quot;configure&quot; and the existing m4 macros.
+&gt;
+&gt; No worries, I can look into those details. The installation of the man
+&gt; page files might be a bit messy part.
+
+Have a look at [3]. This is an attempt to get the man pages of the Psmisc
+tools translatable. For better understanding, I'm not the author of those
+patches, they come from a friend of mine, and although I understand
+their effects,
+I'm unable to adapt their workflow to Xz. The m4 file seems to be some
+crucial, it
+makes sure that no translated man pages get generated if &quot;configure
+--disable-nls&quot;
+is called.
+
+&gt; For example, I wonder if for
+&gt; each translated xz.1 there needs to be a unxz.1 and xzcat.1 (as
+&gt; symlinks) too like there are for English versions.
+&gt;
+The symlinks are also needed for all languages, otherwise calling
+&quot;man unxz.1&quot; would lead to the English version of xz.1.
+
+&gt; &gt; Once it works, xz needs a second translation domain at GNU TP.
+&gt;
+&gt; OK. The translations of the command line tools are temporarily stuck due
+&gt; to me at the moment. :-(
+&gt;
+Do you need some help with proofreading and testing the translations from TP?
+
+[1] <a  rel="nofollow" href="https://salsa.debian.org/manpages-de-team/manpages-de">https://salsa.debian.org/manpages-de-team/manpages-de</a>
+[2] <a  rel="nofollow" href="https://pkgs.org/download/po4a">https://pkgs.org/download/po4a</a>
+[3] <a  rel="nofollow" href="https://gitlab.com/psmisc/psmisc/issues/22">https://gitlab.com/psmisc/psmisc/issues/22</a>
+
+
+Best Regads,
+Mario
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00330.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00331">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00331">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00332.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00329.html">[xz-devel] Internationalization of man pages</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00330.html">Re: [xz-devel] Internationalization of man pages</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] Internationalization of man pag...</span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00332.html">Re: [xz-devel] Internationalization of man...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00333.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00334.html">Re: [xz-devel] Internationalizati...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00335.html">Re: [xz-devel] Internationali...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg00336.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg00337.html">Re: [xz-devel] Internationalization of man pages</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00338.html">Re: [xz-devel] Internationalization of man pag...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00339.html">Re: [xz-devel] Internationalization of man...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00340.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00341.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] Internationalization of man pages">
+<input type="hidden" name="msgid" value="CAHi0vA_hpQ_QCyxaK-wb1X+eQnCH4-+PFnB9q21mwM2qh=QOhg@mail.gmail.com">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00331.html">
+<input type="submit" value=" Mario Blättermann ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Internationalization+of+man+pages%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00330.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00332.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">CAHi0vA_hpQ_QCyxaK-wb1X+eQnCH4-+PFnB9q21mwM2qh=QOhg@mail.gmail.com</li>
+</ul>
+</div>
+</body>
+</html>

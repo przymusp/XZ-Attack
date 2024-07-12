@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] Internationalization of man pages</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00339" id="c">
+<link rel="index" href="maillist.html#00339" id="i">
+<link rel="prev" href="msg00338.html" id="p">
+<link rel="next" href="msg00340.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00339.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Internationalization+of+man+pages%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] Internationalization of man pages</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Mario+Bl%C3%A4ttermann%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Mario Blättermann</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20200214" rel="nofollow">Fri, 14 Feb 2020 09:56:48 -0800</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Hello Lasse.
+
+Am Mi., 12. Feb. 2020 um 19:05 Uhr schrieb Lasse Collin
+&lt;lasse.col...@tukaani.org&gt;:
+&gt;
+&gt; On 2020-02-12 Mario Blättermann wrote:
+&gt; &gt; Lasse Collin &lt;lasse.col...@tukaani.org&gt; schrieb am Fr., 7. Feb. 2020,
+&gt; &gt; 15:32:
+&gt; &gt; &gt;   - po4a is never needed when building from a release tarball.
+&gt; &gt;
+&gt; &gt; This means, distribution packagers don't have to bother with po4a,
+&gt; &gt; and the translated man pages will be installed automatically (unless
+&gt; &gt; DISABLE_NLS) is set...?
+&gt;
+&gt; Exactly.
+&gt;
+&gt; &gt; &gt;     The extra po4a options like unknown_macros=untranslated aren't
+&gt; &gt; &gt;     needed in XZ Utils.
+&gt; &gt;
+&gt; &gt; Not for now, but with this options it is better because po4a changes
+&gt; &gt; its behavior from time to time. Keeping the options would be safer.
+&gt;
+&gt; Hmmm, I don't know what kind of behavior changes po4a may have (or has
+&gt; had),</pre><pre>
+
+In fact, it's the standard set of options which we use in
+manpages-l10n to cover all imaginable problems and peculiarities in
+Groff and Mdoc code. If you are sure you don't need these options,
+just omit them.
+
+&gt; so I may be missing something important. My thinking was:
+&gt;
+&gt;   - groff_code=verbatim affects .de, .ie, and .if. These must be
+&gt;     avoided anyway so getting an error from these is a good thing.
+&gt;
+&gt;   - unknown_macros=untranslated: I hope that once po4a understands a
+&gt;     macro, future versions will understand it too. Since there are no
+&gt;     macros unknown to po4a now, I would like to get an error if I added
+&gt;     such a macro.
+&gt;
+&gt;   - untranslated=&quot;a.RE,\|&quot;: I don't understand this. It sounds like
+&gt;     that certain macros shouldn't be translated but it made no
+&gt;     difference with xz man pages. So perhaps it was useful where this
+&gt;     line was copied.
+&gt;
+&gt; I can understand if unknown_macros=untranslated is needed for
+&gt; compatibility with old po4a versions, so it can be added if needed,
+&gt; although I would prefer the default pedantic behavior myself.
+&gt;
+&gt; &gt; &gt;   - README wasn't updated yet to mention that man pages can be
+&gt; &gt; &gt;     translated.
+&gt; &gt;
+&gt; &gt; After the new TP domain has been created (see below), you should add
+&gt; &gt; a hint there.
+&gt;
+&gt; I will.
+&gt;
+&gt; &gt; The German translation wasn't committed yet as po.de says this:
+&gt; &gt; &gt;
+&gt; &gt; &gt;     This file is distributed under the same license as the
+&gt; &gt; &gt;     manpages-de package.
+&gt; &gt; &gt;
+&gt; &gt; &gt; Which hopefully is trivial to change. :-)
+&gt; &gt;
+&gt; &gt; No problem, as the one and only author of the translation, I can
+&gt; &gt; change the license to whatever you want.
+&gt;
+&gt; The original is public domain so that is somewhat preferred. If you
+&gt; prefer a permissive license it's OK to me, it just needs to be
+&gt; mentioned in the file COPYING too. Man page translation is a large
+&gt; amount of work after all.
+&gt;
+I've created a new pot file and merged with the existing translation.
+The result is attached.
+
+&gt; &gt; &gt; If you wish the German man page translation to be part of 5.2.5, it
+&gt; &gt; &gt; could be good to test that &quot;make DESTDIR=something install&quot; also
+&gt; &gt; &gt; works on something else than GNU/Linux (the scripting for those
+&gt; &gt; &gt; details is ugly). The test should be done so that there are
+&gt; &gt; &gt; translated man pages available in the po4a/man directory, e.g. by
+&gt; &gt; &gt; using de.po from the first post of this thread.
+&gt; &gt;
+&gt; &gt; I will test it next weekend, but I only use GNU/Linux, I don't have MS
+&gt; &gt; Windows, BSD, macOS or anything else.
+&gt;
+&gt; Thanks. While testing on GNU/Linux is useful still, trying on some *BSD
+&gt; or other POSIX system would be needed in case the makefile or shell
+&gt; scripting has portability issues. Perhaps someone else can try it.
+&gt;
+&gt; It should work fine even when --program-prefix=foo- or such configure
+&gt; options are used to get foo-xz, foo-unxz and so on. &quot;make
+&gt; DESTDIR=something uninstall&quot; should work too, although I guess the
+&gt; uninstall part is practically never needed.
+&gt;
+&gt; The uninstall code can remove more files than the install part
+&gt; installs: if the package included German xz.1 but not German xzdec.1,
+&gt; the uninstall target will still remove both if they exist. It's a minor
+&gt; bug that I think is OK to leave unfixed.
+&gt;
+This is only relevant in some odd cases when somebody installs into
+/usr/ which is only for the files from distribution packages. Then it
+could happen that a file vanishes, which actually belongs to the
+manpages-de package. Well, it's some kind of undesired behaviour, but
+users should normally know that they must not install anything in
+/usr/ manually.
+
+
+Best Regards,
+Mario
+
+&gt; &gt; BTW, what about to create a pre-release tarball which contains an
+&gt; &gt; up-to-date *.pot file for the man pages and send it to the TP
+&gt; &gt; coordinator?
+&gt;
+&gt; For 5.2.5, the non-GNU/Linux testing should be done first. Anything
+&gt; else than German probably won't happen quickly enough to hit 5.2.5, and
+&gt; I suppose you can run ./po4a/update-po from xz.git to get xz-man.pot.
+&gt;
+&gt; For the development branch, maybe once 5.2.5 is done. I will do it at
+&gt; least when there is new code for --help. With good luck that doesn't
+&gt; take too long to happen.
+&gt;
+&gt; &gt; And moreover, maybe there are some changes since I've worked on the
+&gt; &gt; German translation? Not in the content itself, but sometimes newer
+&gt; &gt; versions of po4a introduce some other formatting.
+&gt;
+&gt; There is a tiny amount of content changed/added.
+&gt;
+&gt; &gt; But regarding new translations: don't expect too much.
+&gt;
+&gt; I don't expect anything. The German translation was a big surprise
+&gt; already.
+&gt;
+&gt; &gt; You don't have to wait a long time for new translations; as a rule of
+&gt; &gt; thumb, you can sync the po files from TP with your Git two weeks
+&gt; &gt; after publishing the pre-release tarball. And if new po files come in
+&gt; &gt; somewhat later, they are a good basis for the next release of xz.
+&gt;
+&gt; OK. :-)
+&gt;
+&gt; --
+&gt; Lasse Collin  |  IRC: Larhzu @ IRCnet &amp; Freenode
+&gt;
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00338.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00339">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00339">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00340.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00329.html">[xz-devel] Internationalization of man pages</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00330.html">Re: [xz-devel] Internationalization of man pages</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00331.html">Re: [xz-devel] Internationalization of man pag...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00332.html">Re: [xz-devel] Internationalization of man...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00333.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00334.html">Re: [xz-devel] Internationalizati...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00335.html">Re: [xz-devel] Internationali...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg00336.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg00337.html">Re: [xz-devel] Internationalization of man pages</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00338.html">Re: [xz-devel] Internationalization of man pag...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] Internationalization of man...</span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00340.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00341.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] Internationalization of man pages">
+<input type="hidden" name="msgid" value="CAHi0vA_kHSZ8YzLwG2QmnkhU8sr4D6oxdYcCm5Ju9JKJK1s9SA@mail.gmail.com">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00339.html">
+<input type="submit" value=" Mario Blättermann ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Internationalization+of+man+pages%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00338.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00340.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">CAHi0vA_kHSZ8YzLwG2QmnkhU8sr4D6oxdYcCm5Ju9JKJK1s9SA@mail.gmail.com</li>
+</ul>
+</div>
+</body>
+</html>

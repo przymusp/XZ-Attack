@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>[xz-devel] [PATCH] ossfuzz: Incorporate feedback from Lasse Collin.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00307" id="c">
+<link rel="index" href="maillist.html#00307" id="i">
+<link rel="prev" href="msg00306.html" id="p">
+<link rel="next" href="msg00308.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00307.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+%5C%5BPATCH%5C%5D+ossfuzz%5C%3A+Incorporate+feedback+from+Lasse+Collin.%22&amp;o=newest" rel="nofollow"><span itemprop="name">[xz-devel] [PATCH] ossfuzz: Incorporate feedback from Lasse Collin.</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22bshastry%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">bshastry</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20181025" rel="nofollow">Thu, 25 Oct 2018 02:54:43 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>From: Bhargava Shastry &lt;bshas...@sect.tu-berlin.de&gt;
+
+This patch addresses the following comments by Lasse Collin:
+  - Disable CRC check and add memory limit during decoder initialization
+  - Check for LZMA_PROG_ERROR
+  - Remove superflous comments
+  - Use the flag &quot;FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION&quot; provided by
+    oss-fuzz infra to disable debug prints but retain them for offline
+(non-fuzzing debug) use.</pre><pre>
+
+---
+ tests/ossfuzz/Makefile         |   4 +
+ tests/ossfuzz/config/fuzz.dict |   2 +
+ tests/ossfuzz/fuzz.c           | 162 +++++++++++++++++++++++++++++++++
+ 3 files changed, 168 insertions(+)
+ create mode 100644 tests/ossfuzz/Makefile
+ create mode 100644 tests/ossfuzz/config/fuzz.dict
+ create mode 100644 tests/ossfuzz/fuzz.c
+
+diff --git a/tests/ossfuzz/Makefile b/tests/ossfuzz/Makefile
+new file mode 100644
+index 0000000..242625b
+--- /dev/null
++++ b/tests/ossfuzz/Makefile
+@@ -0,0 +1,4 @@
++fuzz: fuzz.c
++       $(CC) $(CFLAGS) -c fuzz.c -I ../../src/liblzma/api/
++       $(CXX) $(CXXFLAGS) -lFuzzingEngine fuzz.o -o $(OUT)/fuzz \
++             ../../src/liblzma/.libs/liblzma.a 
+diff --git a/tests/ossfuzz/config/fuzz.dict b/tests/ossfuzz/config/fuzz.dict
+new file mode 100644
+index 0000000..932d67c
+--- /dev/null
++++ b/tests/ossfuzz/config/fuzz.dict
+@@ -0,0 +1,2 @@
++&quot;\xFD7zXZ\x00&quot;
++&quot;YZ&quot;
+diff --git a/tests/ossfuzz/fuzz.c b/tests/ossfuzz/fuzz.c
+new file mode 100644
+index 0000000..3479095
+--- /dev/null
++++ b/tests/ossfuzz/fuzz.c
+@@ -0,0 +1,162 @@
++#include &lt;stdio.h&gt;
++#include &lt;stdbool.h&gt;
++#include &lt;stdlib.h&gt;
++#include &lt;string.h&gt;
++#include &lt;errno.h&gt;
++#include &lt;assert.h&gt;
++#include &lt;lzma.h&gt;
++
++static bool
++init_decoder(lzma_stream *strm)
++{
++    /* Initialize lzma stream decoder, setting a memory limit of 500 MB,
++     *  and setting the LZMA_IGNORE_CHECK flag which instructs the
++     *  decoder to disable CRC checks on compressed data.
++     */
++    lzma_ret ret = lzma_stream_decoder(
++            strm, /* memory limit */ 500 &lt;&lt; 20,
++            LZMA_CONCATENATED | LZMA_IGNORE_CHECK);
++
++    if (ret == LZMA_OK)
++        return true;
++
++    /* The flag &quot;FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION&quot; is defined
++     * by the fuzzer build script. We use it here to disable debug
++     * messages. Disabling debug messages in fuzzer test harnesses seems
++     *  to be the norm for oss-fuzz targets.
++     */
++#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
++    // Something went wrong, print an informative debug message
++    const char *msg;
++    switch (ret) {
++    case LZMA_MEM_ERROR:
++        msg = &quot;Memory allocation failed&quot;;
++        break;
++
++    case LZMA_OPTIONS_ERROR:
++        msg = &quot;Unsupported decompressor flags&quot;;
++        break;
++
++    default:
++        msg = &quot;Unknown error, possibly a bug&quot;;
++        break;
++    }
++
++    fprintf(stderr, &quot;Error initializing the decoder: %s (error code %u)\n&quot;,
++            msg, ret);
++#endif
++    return false;
++}
++
++static bool
++decompress(lzma_stream *strm, const uint8_t *inbuf, size_t inlen,
++           uint8_t *outbuf, size_t outlen)
++{
++    size_t remainlen = inlen;
++
++    lzma_action action = LZMA_RUN;
++
++    strm-&gt;next_in = NULL;
++    strm-&gt;avail_in = 0;
++    strm-&gt;next_out = outbuf;
++    strm-&gt;avail_out = outlen;
++
++    // Decode BUFSIZ==8192 bytes of inbuf at a time
++    while (true) {
++
++        // TODO: We invoke lzma_code twice when remainlen == 0.
++        // Is this okay?
++
++        if (strm-&gt;avail_in == 0 &amp;&amp; remainlen != 0) {
++            strm-&gt;next_in = inbuf;
++            strm-&gt;avail_in = (remainlen &gt; BUFSIZ) ? BUFSIZ : remainlen;
++            remainlen -= strm-&gt;avail_in;
++
++            if (remainlen == 0)
++                action = LZMA_FINISH;
++        }
++
++        lzma_ret ret = lzma_code(strm, action);
++        /* LZMA_PROG_ERROR should be rarely, if ever, happen
++         * The assertion codifies this expectation.
++         */
++        assert(ret != LZMA_PROG_ERROR);
++
++        // TODO: Is this code trying to overwrite outbuf when outlen
++        // is exhausted? If so, is that okay?
++        if (strm-&gt;avail_out == 0 || ret == LZMA_STREAM_END) {
++            strm-&gt;next_out = outbuf;
++            strm-&gt;avail_out = outlen;
++        }
++
++        if (ret != LZMA_OK) {
++            if (ret == LZMA_STREAM_END)
++                return true;
++
++#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
++            const char *msg;
++            switch (ret) {
++            case LZMA_MEM_ERROR:
++                msg = &quot;Memory allocation failed&quot;;
++                break;
++
++            case LZMA_FORMAT_ERROR:
++                // .xz magic bytes weren't found.
++                msg = &quot;The input is not in the .xz format&quot;;
++                break;
++
++            case LZMA_OPTIONS_ERROR:
++                msg = &quot;Unsupported compression options&quot;;
++                break;
++
++            case LZMA_DATA_ERROR:
++                msg = &quot;Compressed file is corrupt&quot;;
++                break;
++
++            case LZMA_BUF_ERROR:
++                msg = &quot;Compressed file is truncated or &quot;
++                        &quot;otherwise corrupt&quot;;
++                break;
++
++            default:
++                msg = &quot;Unknown error, possibly a bug&quot;;
++                break;
++            }
++
++            fprintf(stderr, &quot;%s: Decoder error: &quot;
++                    &quot;%s (error code %u)\n&quot;,
++                    inname, msg, ret);
++#endif
++            return false;
++        }
++    }
++}
++
++int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
++
++    lzma_stream strm = LZMA_STREAM_INIT;
++
++    // Null data is uninteresting
++    if (size == 0) {
++        return 0;
++    }
++
++    // Init decoder.
++    if (!init_decoder(&amp;strm)) {
++        // Decoder initialization failed. There's no point
++        // retrying, so bail out.
++        return 0;
++    }
++
++    uint8_t outbuf[BUFSIZ];
++
++    if (!decompress(&amp;strm, data, size, outbuf, BUFSIZ)) {
++#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
++        fprintf(stderr, &quot;Decode failure\n&quot;);
++#endif
++    }
++
++    // Free the memory allocated for the decoder.
++    lzma_end(&amp;strm);
++    return 0;
++}
+-- 
+2.17.1
+
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00306.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00307">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00307">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00308.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email tSliceCur"><span class="subject">[xz-devel] [PATCH] ossfuzz: Incorporate feedback from Las...</span> <span class="sender italic">bshastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00308.html">[xz-devel] Adding fuzz testing support to liblzma</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00309.html">[xz-devel] Adding fuzz testing support to liblzm...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00311.html">Re: [xz-devel] Adding fuzz testing support t...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00312.html">Re: [xz-devel] Adding fuzz testing suppo...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00313.html">Re: [xz-devel] Adding fuzz testing ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00314.html">Re: [xz-devel] Adding fuzz test...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00315.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00316.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00317.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00318.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="[xz-devel] [PATCH] ossfuzz: Incorporate feedback from Lasse Collin.">
+<input type="hidden" name="msgid" value="20181025095347.3548-1-bshastry@sect.tu-berlin.de">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00307.html">
+<input type="submit" value=" bshastry ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+%5C%5BPATCH%5C%5D+ossfuzz%5C%3A+Incorporate+feedback+from+Lasse+Collin.%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00306.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00308.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20181025095347.3548-1-bshastry@sect.tu-berlin.de</li>
+</ul>
+</div>
+</body>
+</html>

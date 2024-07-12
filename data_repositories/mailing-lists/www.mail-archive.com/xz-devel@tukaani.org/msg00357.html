@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] cmake support?</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00357" id="c">
+<link rel="index" href="maillist.html#00357" id="i">
+<link rel="prev" href="msg00356.html" id="p">
+<link rel="next" href="msg00358.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00357.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+cmake+support%5C%3F%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] cmake support?</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Mario+Emmenlauer%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Mario Emmenlauer</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20200228" rel="nofollow">Fri, 28 Feb 2020 07:10:41 -0800</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">
+On 27.02.20 20:52, Lasse Collin wrote:
+</pre><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">
+On 2020-02-27 Mario Emmenlauer wrote:
+</pre><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">
+Awesome! I've just tested the CMakeLists with the latest official
+release xz-5.2.4 and it works flawless so far.
+</pre></blockquote><pre style="margin: 0em;"></pre><pre>
+
+Anyway, more feedback from CMake users is welcome. The liblzma part
+should work on multiple operating systems; it's not Windows-only
+anymore. See the comment in the beginning of CMakeLists.txt in xz.git.
+</pre></blockquote><pre style="margin: 0em;">
+
+It seems I did find an impediment, after all. I've back-ported the
+CMakeLists.txt to xz-5.2.4 as described before. The only change required
+was to remove two source files, src/liblzma/common/file_info.c and
+src/liblzma/common/index_decoder.h.
+
+The build works for me on CentOS 7, Ubuntu 18.04, and macOS 10.14 with
+XCode 11.3. But on Windows with VS2017 latest and VS2019 latest, I have
+problems with the processing of liblzma_w32res.rc. Below is the error
+message from nmake, but it fails in a similar (not identical) way with
+ninja build system.
+
+I tried debugging this, but there was nothing obvious that I could see.
+Since there are no major changes between xz-5.2.4 and current HEAD with
+respect to liblzma_w32res.rc and common.rc, I'm slightly confused what
+may go wrong. Does this ring a bell with anyone?
+
+[...]
+ [ 98%] Building RC object 
+CMakeFiles/liblzma.dir/src/liblzma/liblzma_w32res.rc.res
+</pre><tt> 	C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x64\rc.exe -DDLL_EXPORT -DHAVE_CHECK_CRC32 -DHAVE_CHECK_CRC64 -DHAVE_CHECK_SHA256 -DHAVE_DECODERS -DHAVE_DECODER_ARM 
+</tt><tt>-DHAVE_DECODER_ARMTHUMB -DHAVE_DECODER_DELTA -DHAVE_DECODER_IA64 -DHAVE_DECODER_LZMA1 -DHAVE_DECODER_LZMA2 -DHAVE_DECODER_POWERPC -DHAVE_DECODER_SPARC 
+</tt><tt>-DHAVE_DECODER_X86 -DHAVE_ENCODERS -DHAVE_ENCODER_ARM -DHAVE_ENCODER_ARMTHUMB -DHAVE_ENCODER_DELTA -DHAVE_ENCODER_IA64 -DHAVE_ENCODER_LZMA1 -DHAVE_ENCODER_LZMA2 
+</tt><tt>-DHAVE_ENCODER_POWERPC -DHAVE_ENCODER_SPARC -DHAVE_ENCODER_X86 -DHAVE_IMMINTRIN_H -DHAVE_INTTYPES_H -DHAVE_MF_BT2 -DHAVE_MF_BT3 -DHAVE_MF_BT4 -DHAVE_MF_HC3 
+</tt><tt>-DHAVE_MF_HC4 -DHAVE_STDBOOL_H -DHAVE_STDINT_H -DHAVE_VISIBILITY=1 -DHAVE__BOOL -DHAVE__MM_MOVEMASK_EPI8 -DHAVE___BUILTIN_ASSUME_ALIGNED -DMYTHREAD_VISTA 
+</tt><tt>-DPACKAGE_BUGREPORT=\&quot;lasse.col...@tukaani.org\&quot; -DPACKAGE_NAME=&quot;\&quot;XZ Utils\&quot;&quot; -DPACKAGE_URL=\&quot;<a  rel="nofollow" href="https://tukaani.org/xz/\&quot">https://tukaani.org/xz/\&quot</a>; -DTUKLIB_FAST_UNALIGNED_ACCESS 
+</tt><tt>-DTUKLIB_SYMBOL_PREFIX=lzma_ -Dliblzma_EXPORTS -IC:\data\Debug\xz-5.2.4\src\liblzma\api -IC:\data\Debug\xz-5.2.4\src\liblzma\common 
+</tt><tt>-IC:\data\Debug\xz-5.2.4\src\liblzma\check -IC:\data\Debug\xz-5.2.4\src\liblzma\lz -IC:\data\Debug\xz-5.2.4\src\liblzma\rangecoder 
+</tt><tt>-IC:\data\Debug\xz-5.2.4\src\liblzma\lzma -IC:\data\Debug\xz-5.2.4\src\liblzma\delta -IC:\data\Debug\xz-5.2.4\src\liblzma\simple 
+</tt><tt>-IC:\data\Debug\xz-5.2.4\src\common -DWIN32 -D_DEBUG /fo CMakeFiles\liblzma.dir\src\liblzma\liblzma_w32res.rc.res 
+</tt><tt>C:\data\Debug\xz-5.2.4\src\liblzma\liblzma_w32res.rc
+</tt><pre style="margin: 0em;">
+ NMAKE : fatal error U1077: 'C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x64\rc.exe' 
+: return code '0x1'
+ Stop.
+</pre><tt> NMAKE : fatal error U1077: '&quot;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314\bin\HostX64\x64\nmake.exe&quot;' : return code 
+</tt><tt>'0x2'
+</tt><pre style="margin: 0em;">
+ Stop.
+</pre><tt> NMAKE : fatal error U1077: '&quot;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314\bin\HostX64\x64\nmake.exe&quot;' : return code 
+</tt><tt>'0x2'
+</tt><pre style="margin: 0em;">
+ Stop.
+
+
+All the best,
+
+    Mario Emmenlauer
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00356.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00357">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00357">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00358.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00347.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00348.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00349.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Christopher Degawa</span></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg00350.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Christopher Degawa</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00351.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00352.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Mario Emmenlauer</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00353.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00354.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00355.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Mario Emmenlauer</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00356.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] cmake support?</span> <span class="sender italic">Mario Emmenlauer</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00358.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] cmake support?">
+<input type="hidden" name="msgid" value="fc8661e8-edb5-770e-0e99-60cc699b839a@emmenlauer.de">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00357.html">
+<input type="submit" value=" Mario Emmenlauer ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+cmake+support%5C%3F%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00356.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00358.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">fc8661e8-edb5-770e-0e99-60cc699b839a@emmenlauer.de</li>
+</ul>
+</div>
+</body>
+</html>

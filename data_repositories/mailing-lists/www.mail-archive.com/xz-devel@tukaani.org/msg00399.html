@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] [PATCH] xz: Fix setting memory limit on 32-bit systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00399" id="c">
+<link rel="index" href="maillist.html#00399" id="i">
+<link rel="prev" href="msg00391.html" id="p">
+<link rel="next" href="msg00390.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00399.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+%5C%5BPATCH%5C%5D+xz%5C%3A+Fix+setting+memory+limit+on+32%5C-bit+systems%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] [PATCH] xz: Fix setting memory limit on 32-bit systems</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse+Collin%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Lasse Collin</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20210108" rel="nofollow">Fri, 08 Jan 2021 10:08:30 -0800</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>On 2020-12-27 Vitaly Chikunov wrote:
+&gt; On Sat, Dec 26, 2020 at 05:04:02PM +0200, Lasse Collin wrote:
+&gt; &gt; I cannot make everyone happy.  
+&gt; 
+&gt; Wow, that's philosophical! I think, we should solve this fundamental
+&gt; problem first. -- Even if we cannot satisfy everybody, better than
+&gt; satisfying just one party and make other unhappy, we can give users
+&gt; choice. If that's approach is accepted we can rework patch to make it
+&gt; better.</pre><pre>
+
+The ability to use &quot;xz -T0 -M100%&quot; (-M is short but sets the limit for
+both compression and decompression) gives choice in the fairly common
+special case where 32-bit programs have 4 GiB of address space. The
+hack is mentioned on the man page but it's not explained well enough so
+the documentation should be improved. Perhaps it should be referred in
+the -T option since that may be the most likely place where users might
+look:
+
+    If you use -T0, it may lead to memory allocation failures with
+    32-bit xz if the system has many cores. Combining -T0 with, for
+    example, --memlimit-compress=90% may help if running a 64-bit
+    kernel: even if the system has a lot of RAM, 32-bit xz will set
+    the compression limit to at most 4020 MiB which may make -T0 work
+    under a 64-bit kernel. See --memlimit-compress for details.
+
+&gt; For example, percentage memory limit on 32-bit systems is calculated
+&gt; against whole memory and not against 'physical' 4MiB limit -- user
+&gt; should somehow find this, probably by trial and error, wasting her
+&gt; time.
+
+This is a fair point, although using &quot;xz -vv&quot; or even the more obscure
+&quot;xz --info-memory&quot; do reveal the effective limits.
+
+&gt; By this, I think its always better that program works by default.
+
+I mostly agree with all that you wrote. However, you missed the crucial
+detail that not all 32-bit xz binaries have access to 4 GiB of address
+space. With Linux it's true only when running a 64-bit kernel. That is
+a common special case but it's still a special case. Making that
+special case work is still improvement but one has to keep in mind that
+it's just a special case. Making 32-bit xz actually robust would
+require much more than just limiting memory usage to 4020 MiB.
+
+Having a limit affects single-threaded situation too. A command like &quot;xz
+--lzma2=dict=512MiB&quot; has no chance to work on any 32-bit system. If
+there's no limit, it will result in allocation failure. If there is a
+memory usage limit, xz will scale the dictionary size down so that the
+limit isn't exceeded. For some this is good default behavior (things
+keep working), for others it's not (the output file isn't what the user
+expected it to be, yet there were no errors!). The defaults cannot make
+both users happy so one of the users has to set some options to change
+the defaults. If I ask which user that should be, for once everyone will
+agree that it should be &quot;the other user, not me&quot;.
+
+Obviously one could have a limit that only affects the thread count. It
+wuold make things even more complicated though and is very probably not
+worth it.
+
+&gt; I reason like this: Setting [non-zero value to]
+&gt; `--memlimit-compress=` _increases_ use cases by avoiding memory
+&gt; errors, in comparison to not setting it [or setting it to 0]. So it
+&gt; should be enabled by default.
+
+True. Someone else might say:
+
+    Setting a limit increases the chance of getting output files that
+    aren't compressed with the exact settings that the user specified,
+    thus it should be disabled by default.
+
+Which would also be true. However, long ago the default limit was based
+on percentage of total RAM. With smaller RAM sizes back then, it would
+more easily result in settings being adjusted. Trying to just keep
+things working for 32-bit executables is a mild adjustment/limit in
+comparison.
+
+While I mostly agree with you, I feel my opinion is also quite
+irrelevant. With anything related to memory usage limiting I feel I need
+to be really careful to not make things worse.
+
+An alternative idea could be to make -T0 imply --memlimit-compress=100%
+*if* no limit is otherwise specified. This would help on such 64-bit
+platforms too which have tons of cores but not tons of RAM. However,
+this would cause breakage on systems where xz doesn't know how to
+detect the amount of RAM.
+
+-- 
+Lasse Collin  |  IRC: Larhzu @ IRCnet &amp; Freenode
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00391.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00399">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00399">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00390.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00387.html">[xz-devel] [PATCH] xz: Fix setting memory limit ...</a></span> <span class="sender italic">Vitaly Chikunov</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00389.html">Re: [xz-devel] [PATCH] xz: Fix setting memo...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00391.html">Re: [xz-devel] [PATCH] xz: Fix setting ...</a></span> <span class="sender italic">Vitaly Chikunov</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] [PATCH] xz: Fix sett...</span> <span class="sender italic">Lasse Collin</span></li>
+</ul></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg00390.html">Re: [xz-devel] [PATCH] xz: Fix setting memo...</a></span> <span class="sender italic">Sebastian Andrzej Siewior</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00398.html">Re: [xz-devel] [PATCH] xz: Fix setting ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00404.html">Re: [xz-devel] [PATCH] xz: Fix sett...</a></span> <span class="sender italic">Vitaly Chikunov</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00410.html">Re: [xz-devel] [PATCH] xz: Fix ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg00411.html">Re: [xz-devel] [PATCH] xz: Fix sett...</a></span> <span class="sender italic">Sebastian Andrzej Siewior</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00425.html">Re: [xz-devel] [PATCH] xz: Fix ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00428.html">Re: [xz-devel] [PATCH] xz:...</a></span> <span class="sender italic">Sebastian Andrzej Siewior</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00552.html">Re: [xz-devel] [PATCH]...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] [PATCH] xz: Fix setting memory limit on 32-bit systems">
+<input type="hidden" name="msgid" value="20210108200809.25689935@tukaani.org">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00399.html">
+<input type="submit" value=" Lasse Collin ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+%5C%5BPATCH%5C%5D+xz%5C%3A+Fix+setting+memory+limit+on+32%5C-bit+systems%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00391.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00390.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20210108200809.25689935@tukaani.org</li>
+</ul>
+</div>
+</body>
+</html>

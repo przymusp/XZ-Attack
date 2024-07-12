@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] BUG: liblzma: LZMA+BCJ raw decode: output truncated last word</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00371" id="c">
+<link rel="index" href="maillist.html#00371" id="i">
+<link rel="prev" href="msg00370.html" id="p">
+<link rel="next" href="msg00373.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00371.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+BUG%5C%3A+liblzma%5C%3A+LZMA%5C%2BBCJ+raw+decode%5C%3A+output+truncated+last+word%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] BUG: liblzma: LZMA+BCJ raw decode: output truncated last word</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22%EF%BD%8D%EF%BD%89%EF%BD%95%EF%BD%92%EF%BD%81%EF%BC%A0%EF%BD%8C%EF%BD%89%EF%BD%8E%EF%BD%95%EF%BD%98%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">ｍｉｕｒａ＠ｌｉｎｕｘ</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20200708" rel="nofollow">Wed, 08 Jul 2020 01:53:50 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Hi,
+
+Here is my additional observation.</pre><pre>
+
+ &gt; 
+ &gt; Reproduce the problem on liblzma
+ &gt; ----------------------------------------
+ 
+when setting filter as only LZMA1, it returns expected SIZE of output. 
+
+Because BCJ should not change size, BCJ may have a bug, or LZMA1 - BCJ pipeline 
+may be a problem.
+
+test_lzma_bcj_exact_size.c
+
+```
+/* please placed in xz/tests/ */
+
+#include &quot;tests.h&quot;
+
+static uint8_t buf[12800];
+static uint8_t obuf[12800];
+
+static void
+decompress(size_t in_size)
+{
+    lzma_ret lzret;
+
+    const size_t out_size = 12800;
+    lzma_stream strm = LZMA_STREAM_INIT;
+    strm.next_in = buf;
+    strm.avail_in = in_size;
+    strm.next_out = obuf;
+    strm.avail_out = out_size;
+
+        lzma_options_lzma opt_lzma;
+        succeed(lzma_lzma_preset(&amp;opt_lzma, 0));
+
+        lzma_filter filters[3] = {
+    //  { .id = LZMA_FILTER_X86, .options = NULL },
+                { .id = LZMA_FILTER_LZMA1, .options = &amp;opt_lzma },
+                { .id = LZMA_VLI_UNKNOWN, .options = NULL },
+        };
+    succeed(lzma_raw_decoder(&amp;strm, filters));
+    lzret = lzma_code(&amp;strm, LZMA_RUN);
+    expect(lzret == LZMA_OK);
+    expect(strm.total_in == in_size);
+    expect(strm.total_out == out_size); // LZMA1+BCJ returns 12796 bytes, LZMA1 
+returns 12800 bytes
+}
+
+
+extern int
+main(void)
+{
+    FILE * filp = fopen(&quot;lzmabcj.bin&quot;, &quot;rb&quot;);
+    int in_size = fread(buf, sizeof(uint8_t), 11327, filp);  // payload == 
+11327 bytes
+    decompress(in_size);
+    return 0;
+}
+```
+
+&gt; Download links
+ &gt; ------------------
+ &gt; 
+ &gt; you can download a test data from 
+ &gt; <a  rel="nofollow" href="https://github.com/miurahr/py7zr/files/4872155/lzmabcj.bin.gz">https://github.com/miurahr/py7zr/files/4872155/lzmabcj.bin.gz</a>
+
+
+Hiroshi
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00370.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00371">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00371">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00373.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00370.html">[xz-devel] BUG: liblzma: LZMA+BCJ raw de...</a></span> <span class="sender italic">ｍｉｕｒａ＠ｌｉｎｕｘ</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] BUG: liblzma: LZMA+B...</span> <span class="sender italic">ｍｉｕｒａ＠ｌｉｎｕｘ</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00373.html">Re: [xz-devel] BUG: liblzma: LZ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00374.html">Re: [xz-devel] BUG: liblzma...</a></span> <span class="sender italic">ｍｉｕｒａ＠ｌｉｎｕｘ</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] BUG: liblzma: LZMA+BCJ raw decode: output truncated last word">
+<input type="hidden" name="msgid" value="1732da10808.d023c438832389.5582681344484295592@linux.com">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00371.html">
+<input type="submit" value=" ｍｉｕｒａ＠ｌｉｎｕｘ ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+BUG%5C%3A+liblzma%5C%3A+LZMA%5C%2BBCJ+raw+decode%5C%3A+output+truncated+last+word%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00370.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00373.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">1732da10808.d023c438832389.5582681344484295592@linux.com</li>
+</ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] parallelism-dependent output</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00376" id="c">
+<link rel="index" href="maillist.html#00376" id="i">
+<link rel="prev" href="msg00375.html" id="p">
+<link rel="next" href="msg00377.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00376.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+parallelism%5C-dependent+output%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] parallelism-dependent output</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse+Collin%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Lasse Collin</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20201103" rel="nofollow">Tue, 03 Nov 2020 08:31:41 -0800</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Hello!
+
+I apologize for replying so late. I kept my computer off a few months
+and so I was away from email too.</pre><pre>
+
+On 2020-08-01 Bernhard M. Wiedemann wrote:
+&gt; While working on reproducible builds for openSUSE, I found that
+&gt; xz --threads=0 produces different output on 1-core-VMs as seen with:
+&gt; for n in 2 3 ; do echo | taskset $n xz --threads=0 -c - | md5sum ;
+&gt; done
+&gt; 
+&gt; Is there a simpler way to get reproducible output
+&gt; while still taking advantage of parallel processing than
+&gt; <a  rel="nofollow" href="https://github.com/openSUSE/obs-service-recompress/pull/17">https://github.com/openSUSE/obs-service-recompress/pull/17</a> ?
+
+There's no easy and clean way, and obviously that should be fixed.
+
+With the current versions you need a workaround. For example, to always
+use at least two threads:
+
+    T=$(expr $(nproc --ignore=1) + 1)
+    xz --threads=&quot;$T&quot; ...
+
+If it is essential to use only one thread, there is an ugly way which
+abuses the way xz' memory limiting feature scales down the number of
+threads:
+
+    M=$(expr $(nproc) \* 200)M
+    xz -6 -T0 --memlimit=&quot;$M&quot; ...
+
+Or:
+
+    M=$(expr $(nproc) \* 1300)M
+    xz -9 -T0 --memlimit=&quot;$M&quot; ...
+
+200-300 works for xz -6. 1300-2400 works for xz -9. In theory these
+values could change in a future version.
+
+&gt; Arch Linux devs also noticed this:
+&gt; <a  rel="nofollow" href="https://lists.archlinux.org/pipermail/arch-dev-public/2019-March/029520.html">https://lists.archlinux.org/pipermail/arch-dev-public/2019-March/029520.html</a>
+
+Arch switched to zstd so I guess it doesn't matter there so much
+anymore.
+
+As long as users' Internet connections are fast enough (10-20 Mbit/s)
+and package managers first download the packages and then decompress
+them (instead of doing both in parallel), zstd results in as fast or
+faster download + install time. So unless users' don't have at least 10
+Mbit/s connections or the monetary cost per megabyte is significant,
+zstd is better than xz in package manager use.
+
+Note that Arch used the default &quot;xz -6&quot; which uses a 8 MiB dictionary
+while the zstd-compressed packages currently in Arch use a 32 MiB
+dictionary. With some packages a bigger dictionary results in big
+improvement with both compressors. However, this doesn't change the big
+picture much and the above paragraph is still true. Implementing
+threaded decompression would help xz but only with big packages.
+
+-- 
+Lasse Collin  |  IRC: Larhzu @ IRCnet &amp; Freenode
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00375.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00376">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00376">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00377.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00375.html">[xz-devel] parallelism-dependent output</a></span> <span class="sender italic">Bernhard M. Wiedemann</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] parallelism-dependent output</span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] parallelism-dependent output">
+<input type="hidden" name="msgid" value="20201103183039.578dbeac@tukaani.org">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00376.html">
+<input type="submit" value=" Lasse Collin ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+parallelism%5C-dependent+output%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00375.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00377.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20201103183039.578dbeac@tukaani.org</li>
+</ul>
+</div>
+</body>
+</html>

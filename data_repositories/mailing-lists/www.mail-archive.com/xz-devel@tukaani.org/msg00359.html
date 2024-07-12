@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>[xz-devel] XZ Utils 5.2.5</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00359" id="c">
+<link rel="index" href="maillist.html#00359" id="i">
+<link rel="prev" href="msg00342.html" id="p">
+<link rel="next" href="msg00360.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00359.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+XZ+Utils+5.2.5%22&amp;o=newest" rel="nofollow"><span itemprop="name">[xz-devel] XZ Utils 5.2.5</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse+Collin%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Lasse Collin</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20200317" rel="nofollow">Tue, 17 Mar 2020 12:55:50 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>XZ Utils 5.2.5 is available at &lt;<a  rel="nofollow" href="https://tukaani.org/xz/">https://tukaani.org/xz/</a>&gt;. Here is an
+extract from the NEWS file:</pre><pre>
+
+    * liblzma:
+
+        - Fixed several C99/C11 conformance bugs. Now the code is clean
+          under gcc/clang -fsanitize=undefined. Some of these changes
+          might have a negative effect on performance with old GCC
+          versions or compilers other than GCC and Clang. The configure
+          option --enable-unsafe-type-punning can be used to (mostly)
+          restore the old behavior but it shouldn't normally be used.
+
+        - Improved API documentation of lzma_properties_decode().
+
+        - Added a very minor encoder speed optimization.
+
+    * xz:
+
+        - Fixed a crash in &quot;xz -dcfv not_an_xz_file&quot;. All four options
+          were required to trigger it. The crash occurred in the
+          progress indicator code when xz was in passthru mode where
+          xz works like &quot;cat&quot;.
+
+        - Fixed an integer overflow with 32-bit off_t. It could happen
+          when decompressing a file that has a long run of zero bytes
+          which xz would try to write as a sparse file. Since the build
+          system enables large file support by default, off_t is
+          normally 64-bit even on 32-bit systems.
+
+        - Fixes for --flush-timeout:
+            * Fix semi-busy-waiting.
+            * Avoid unneeded flushes when no new input has arrived
+              since the previous flush was completed.
+
+        - Added a special case for 32-bit xz: If --memlimit-compress is
+          used to specify a limit that exceeds 4020 MiB, the limit will
+          be set to 4020 MiB. The values &quot;0&quot; and &quot;max&quot; aren't affected
+          by this and neither is decompression. This hack can be
+          helpful when a 32-bit xz has access to 4 GiB address space
+          but the specified memlimit exceeds 4 GiB. This can happen
+          e.g. with some scripts.
+
+        - Capsicum sandbox is now enabled by default where available
+          (FreeBSD &gt;= 10). The sandbox debug messages (xz -vv) were
+          removed since they seemed to be more annoying than useful.
+
+        - DOS build now requires DJGPP 2.05 instead of 2.04beta.
+          A workaround for a locale problem with DJGPP 2.05 was added.
+
+    * xzgrep and other scripts:
+
+        - Added a configure option --enable-path-for-scripts=PREFIX.
+          It is disabled by default except on Solaris where the default
+          is /usr/xpg4/bin. See INSTALL for details.
+
+        - Added a workaround for a POSIX shell detection problem on
+          Solaris.
+
+    * Build systems:
+
+        - Added preliminary build instructions for z/OS. See INSTALL
+          section 1.2.9.
+
+        - Experimental CMake support was added. It should work to build
+          static liblzma on a few operating systems. It may or may not
+          work to build shared liblzma. On some platforms it can build
+          xz and xzdec too but those are only for testing. See the
+          comment in the beginning of CMakeLists.txt for details.
+
+        - Visual Studio project files were updated.
+          WindowsTargetPlatformVersion was removed from VS2017 files
+          and set to &quot;10.0&quot; in the added VS2019 files. In the future
+          the VS project files will be removed when CMake support is
+          good enough.
+
+        - New #defines in config.h: HAVE___BUILTIN_ASSUME_ALIGNED,
+          HAVE___BUILTIN_BSWAPXX, and TUKLIB_USE_UNSAFE_TYPE_PUNNING.
+
+        - autogen.sh has a new optional dependency on po4a and a new
+          option --no-po4a to skip that step. This matters only if one
+          wants to remake the build files. po4a is used to update the
+          translated man pages but as long as the man pages haven't
+          been modified, there's nothing to update and one can use
+          --no-po4a to avoid the dependency on po4a.
+
+    * Translations:
+
+        - XZ Utils translations are now handled by the Translation
+          Project: <a  rel="nofollow" href="https://translationproject.org/domain/xz.html">https://translationproject.org/domain/xz.html</a>
+
+        - All man pages are now included in German too.
+
+        - New xz translations: Brazilian Portuguese, Finnish,
+          Hungarian, Chinese (simplified), Chinese (traditional),
+          and Danish (partial translation)
+
+        - Updated xz translations: French, German, Italian, and Polish
+
+        - Unfortunately a few new xz translations weren't included due
+          to technical problems like too long lines in --help output or
+          misaligned column headings in tables. In the future, many of
+          these strings will be split and e.g. the table column
+          alignment will be handled in software. This should make the
+          strings easier to translate.
+
+-- 
+Lasse Collin  |  IRC: Larhzu @ IRCnet &amp; Freenode
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00342.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00359">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00359">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00360.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="[xz-devel] XZ Utils 5.2.5">
+<input type="hidden" name="msgid" value="20200317215536.172cbb88@tukaani.org">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00359.html">
+<input type="submit" value=" Lasse Collin ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+XZ+Utils+5.2.5%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00342.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00360.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20200317215536.172cbb88@tukaani.org</li>
+</ul>
+</div>
+</body>
+</html>

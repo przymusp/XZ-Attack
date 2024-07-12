@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>[xz-devel] patch for Intel compiler - use of Intel compiler intrinsics e.g. bit-scan-reverse</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00292" id="c">
+<link rel="index" href="maillist.html#00292" id="i">
+<link rel="prev" href="msg00291.html" id="p">
+<link rel="next" href="msg00293.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00292.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+patch+for+Intel+compiler+%5C-+use+of+Intel+compiler+intrinsics+e.g.+bit%5C-scan%5C-reverse%22&amp;o=newest" rel="nofollow"><span itemprop="name">[xz-devel] patch for Intel compiler - use of Intel compiler intrinsics e.g. bit-scan-reverse</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Blower%2C+Melanie%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Blower, Melanie</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20180108" rel="nofollow">Mon, 08 Jan 2018 10:26:09 -0800</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>I would like to submit this patch to xz to support the Intel compiler (see 
+below)</pre><pre>
+
+Rationale:
+A new version of the Intel compiler (not yet released) requires that 
+_bit_scan_reverse be used via #include &lt;immintrin.h&gt; ; this is because it will 
+be implemented via an inline assembler call. If you use the intrinsic without 
+the #include then at link time there is an undefined symbol [c code], or if in 
+c++ code, there is a compilation error due to undefined name. (In a new version 
+of the Intel compiler, the &quot;intrinsic&quot; name will no longer be known by the 
+compiler.)  This problem is seen, for example, in our experimental builds of 
+&quot;cmake&quot; and also &quot;kokkos&quot;
+
+BTW I see there is something in &quot;configure&quot; to automatically include 
+immintrin.h and it's referred to in the file ./src/liblzma/common/memcmplen.h; 
+I'm not sure if that's working correctly. I don't know how to configure the 
+&quot;git clone&quot; from configure.ac--I couldn't build. So I downloaded the tar.bz 
+file for xz.5.2.3, configure and build on Linux with CC=icc; in a separate 
+build/ directory. I didn't see evidence that the automatic include was 
+occurring, so I'm doubtful about those lines in the file memcmplen.h which are 
+#include immintrin.h conditionally.  I'd be glad to follow up on this if you 
+send me a recipe.  As well it is possible to get a free developer license for 
+the Intel c++ compiler for certain open source usages.  In any source file that 
+refers to Intel intrinsics, there should be a #include of &lt;immintrin.h&gt; to 
+future-proof the usage.
+
+I work for Intel on the Intel C++ compiler team. --Melanie Blower
+
+diff --git a/src/common/tuklib_integer.h b/src/common/tuklib_integer.h
+index a7fda67..830e49e 100644
+--- a/src/common/tuklib_integer.h
++++ b/src/common/tuklib_integer.h
+@@ -98,6 +98,15 @@
+ #endif
+
+
++////////////////////////////////////////
++// Compiler specific features //
++////////////////////////////////////////
++
++#if defined(__INTEL_COMPILER) &amp;&amp; (__INTEL_COMPILER &gt;= 1500)
++#include &lt;immintrin.h&gt;
++#endif
++
++
+ ///////////////////
+ // Byte swapping //
+ ///////////////////
+@@ -168,7 +177,6 @@
+ #      endif
+ #endif
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00291.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00292">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00292">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00293.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email tSliceCur"><span class="subject">[xz-devel] patch for Intel compiler - use of Intel compile...</span> <span class="sender italic">Blower, Melanie</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00293.html">Re: [xz-devel] patch for Intel compiler - use of Inte...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00294.html">RE: [xz-devel] patch for Intel compiler - use of ...</a></span> <span class="sender italic">Blower, Melanie</span></li>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="[xz-devel] patch for Intel compiler - use of Intel compiler intrinsics e.g. bit-scan-reverse">
+<input type="hidden" name="msgid" value="B3584E72CFEBED439A3ECA9BCE67A4EF75502D28@fmsmsx111.amr.corp.intel.com">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00292.html">
+<input type="submit" value=" Blower, Melanie ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+patch+for+Intel+compiler+%5C-+use+of+Intel+compiler+intrinsics+e.g.+bit%5C-scan%5C-reverse%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00291.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00293.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">B3584E72CFEBED439A3ECA9BCE67A4EF75502D28@fmsmsx111.amr.corp.intel.com</li>
+</ul>
+</div>
+</body>
+</html>

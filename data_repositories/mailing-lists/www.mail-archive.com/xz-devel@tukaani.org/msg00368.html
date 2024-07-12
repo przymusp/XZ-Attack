@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] [PATCH] CMake: Add missing include directory when building the shared library</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00368" id="c">
+<link rel="index" href="maillist.html#00368" id="i">
+<link rel="prev" href="msg00366.html" id="p">
+<link rel="next" href="msg00369.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00368.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+%5C%5BPATCH%5C%5D+CMake%5C%3A+Add+missing+include+directory+when+building+the+shared+library%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] [PATCH] CMake: Add missing include directory when building the shared library</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse+Collin%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Lasse Collin</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20200604" rel="nofollow">Thu, 04 Jun 2020 11:01:55 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>On 2020-06-02 Markus Rickert wrote:
+&gt; When using CMake to build a shared library with Visual Studio 2019, I
+&gt; get an error that the file config.h could not be found:
+&gt; 
+&gt; cmake -G &quot;Visual Studio 16 2019&quot; -A x64 -DBUILD_SHARED_LIBS=ON ..\xz
+&gt; cmake --build . --config Release
+&gt; 
+&gt; xz\src\common\common_w32res.rc(9): fatal error RC1015: cannot open
+&gt; include file 'config.h'. [xz-build\liblzma.vcxproj]</pre><pre>
+
+Great to see this being tested. Thanks!
+
+&gt; The file common_w32res.rc has an include for config.h in line 9, but
+&gt; the corresponding include directory is missing in the build files.
+&gt; The patch fixes this by adding the windows/2019 directory to the list
+&gt; of include directories.
+
+The CMakeLists.txt doesn't create config.h. All #defines are set as
+compiler options. The config.h files under windows/vs* aren't meant to
+be used with CMake. Instead, common_w32res.rc shouldn't read config.h
+when it isn't present.
+
+The following patch works with the GNU Autotools based build. Does it
+work with CMake + VS2019? It requires that the #defines used for
+building C files are passed to the resource compiler too. (If they
+aren't, it should give an error.) After a successful build you can
+right-click liblzma.dll -&gt; Properties -&gt; Details to see if the info
+from the resource file is present.
+
+diff --git a/src/common/common_w32res.rc b/src/common/common_w32res.rc
+index a70de34..d05d22e 100644
+--- a/src/common/common_w32res.rc
++++ b/src/common/common_w32res.rc
+@@ -6,7 +6,9 @@
+  */
+ 
+ #include &lt;winresrc.h&gt;
+-#include &quot;config.h&quot;
++#ifdef HAVE_CONFIG_H
++# include &quot;config.h&quot;
++#endif
+ #define LZMA_H_INTERNAL
+ #define LZMA_H_INTERNAL_RC
+ #include &quot;lzma/version.h&quot;
+
+-- 
+Lasse Collin  |  IRC: Larhzu @ IRCnet &amp; Freenode
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00366.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00368">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00368">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00369.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00366.html">[xz-devel] [PATCH] CMake: Add missing include directory whe...</a></span> <span class="sender italic">Markus Rickert</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] [PATCH] CMake: Add missing include dire...</span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00369.html">Re: [xz-devel] [PATCH] CMake: Add missing include ...</a></span> <span class="sender italic">Markus Rickert</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00372.html">Re: [xz-devel] [PATCH] CMake: Add missing incl...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] [PATCH] CMake: Add missing include directory when building the shared library">
+<input type="hidden" name="msgid" value="20200604210136.63d7749b@tukaani.org">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00368.html">
+<input type="submit" value=" Lasse Collin ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+%5C%5BPATCH%5C%5D+CMake%5C%3A+Add+missing+include+directory+when+building+the+shared+library%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00366.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00369.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20200604210136.63d7749b@tukaani.org</li>
+</ul>
+</div>
+</body>
+</html>

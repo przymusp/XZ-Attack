@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>[xz-devel] [PATCH] ossfuzz: Add decompress fuzzer target</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00306" id="c">
+<link rel="index" href="maillist.html#00306" id="i">
+<link rel="prev" href="msg00302.html" id="p">
+<link rel="next" href="msg00307.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00306.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+%5C%5BPATCH%5C%5D+ossfuzz%5C%3A+Add+decompress+fuzzer+target%22&amp;o=newest" rel="nofollow"><span itemprop="name">[xz-devel] [PATCH] ossfuzz: Add decompress fuzzer target</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22bshastry%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">bshastry</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20181022" rel="nofollow">Mon, 22 Oct 2018 06:57:01 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>From: Bhargava Shastry &lt;bshas...@sect.tu-berlin.de&gt;
+
+This patch adds a libFuzzer style fuzzer test harness to xz. The test
+harness is accompanied by a Makefile that should be used from upstream
+oss-fuzz, and a dictionary file.</pre><pre>
+
+Shout out to @pdknsk over at GitHub for initiating this work.
+
+---
+ tests/ossfuzz/Makefile         |   4 +
+ tests/ossfuzz/config/fuzz.dict |   2 +
+ tests/ossfuzz/fuzz.c           | 248 +++++++++++++++++++++++++++++++++
+ 3 files changed, 254 insertions(+)
+ create mode 100644 tests/ossfuzz/Makefile
+ create mode 100644 tests/ossfuzz/config/fuzz.dict
+ create mode 100644 tests/ossfuzz/fuzz.c
+
+diff --git a/tests/ossfuzz/Makefile b/tests/ossfuzz/Makefile
+new file mode 100644
+index 0000000..242625b
+--- /dev/null
++++ b/tests/ossfuzz/Makefile
+@@ -0,0 +1,4 @@
++fuzz: fuzz.c
++       $(CC) $(CFLAGS) -c fuzz.c -I ../../src/liblzma/api/
++       $(CXX) $(CXXFLAGS) -lFuzzingEngine fuzz.o -o $(OUT)/fuzz \
++             ../../src/liblzma/.libs/liblzma.a 
+diff --git a/tests/ossfuzz/config/fuzz.dict b/tests/ossfuzz/config/fuzz.dict
+new file mode 100644
+index 0000000..932d67c
+--- /dev/null
++++ b/tests/ossfuzz/config/fuzz.dict
+@@ -0,0 +1,2 @@
++&quot;\xFD7zXZ\x00&quot;
++&quot;YZ&quot;
+diff --git a/tests/ossfuzz/fuzz.c b/tests/ossfuzz/fuzz.c
+new file mode 100644
+index 0000000..1697523
+--- /dev/null
++++ b/tests/ossfuzz/fuzz.c
+@@ -0,0 +1,248 @@
++#include &lt;stdio.h&gt;
++#include &lt;stdbool.h&gt;
++#include &lt;stdlib.h&gt;
++#include &lt;string.h&gt;
++#include &lt;errno.h&gt;
++#include &lt;assert.h&gt;
++#include &lt;lzma.h&gt;
++
++static bool
++init_decoder(lzma_stream *strm)
++{
++    // Initialize a .xz decoder. The decoder supports a memory usage limit
++    // and a set of flags.
++    //
++    // The memory usage of the decompressor depends on the settings used
++    // to compress a .xz file. It can vary from less than a megabyte to
++    // a few gigabytes, but in practice (at least for now) it rarely
++    // exceeds 65 MiB because that's how much memory is required to
++    // decompress files created with &quot;xz -9&quot;. Settings requiring more
++    // memory take extra effort to use and don't (at least for now)
++    // provide significantly better compression in most cases.
++    //
++    // Memory usage limit is useful if it is important that the
++    // decompressor won't consume gigabytes of memory. The need
++    // for limiting depends on the application. In this example,
++    // no memory usage limiting is used. This is done by setting
++    // the limit to UINT64_MAX.
++    //
++    // The .xz format allows concatenating compressed files as is:
++    //
++    //     echo foo | xz &gt; foobar.xz
++    //     echo bar | xz &gt;&gt; foobar.xz
++    //
++    // When decompressing normal standalone .xz files, LZMA_CONCATENATED
++    // should always be used to support decompression of concatenated
++    // .xz files. If LZMA_CONCATENATED isn't used, the decoder will stop
++    // after the first .xz stream. This can be useful when .xz data has
++    // been embedded inside another file format.
++    //
++    // Flags other than LZMA_CONCATENATED are supported too, and can
++    // be combined with bitwise-or. See lzma/container.h
++    // (src/liblzma/api/lzma/container.h in the source package or e.g.
++    // /usr/include/lzma/container.h depending on the install prefix)
++    // for details.
++    lzma_ret ret = lzma_stream_decoder(
++            strm, UINT64_MAX, LZMA_CONCATENATED);
++
++    // Return successfully if the initialization went fine.
++    if (ret == LZMA_OK)
++        return true;
++
++#ifdef __DEBUG__
++    // Something went wrong. The possible errors are documented in
++    // lzma/container.h (src/liblzma/api/lzma/container.h in the source
++    // package or e.g. /usr/include/lzma/container.h depending on the
++    // install prefix).
++    //
++    // Note that LZMA_MEMLIMIT_ERROR is never possible here. If you
++    // specify a very tiny limit, the error will be delayed until
++    // the first headers have been parsed by a call to lzma_code().
++    const char *msg;
++    switch (ret) {
++    case LZMA_MEM_ERROR:
++        msg = &quot;Memory allocation failed&quot;;
++        break;
++
++    case LZMA_OPTIONS_ERROR:
++        msg = &quot;Unsupported decompressor flags&quot;;
++        break;
++
++    default:
++        // This is most likely LZMA_PROG_ERROR indicating a bug in
++        // this program or in liblzma. It is inconvenient to have a
++        // separate error message for errors that should be impossible
++        // to occur, but knowing the error code is important for
++        // debugging. That's why it is good to print the error code
++        // at least when there is no good error message to show.
++        msg = &quot;Unknown error, possibly a bug&quot;;
++        break;
++    }
++
++    fprintf(stderr, &quot;Error initializing the decoder: %s (error code %u)\n&quot;,
++            msg, ret);
++#endif
++    return false;
++}
++
++static bool
++decompress(lzma_stream *strm, const uint8_t *inbuf, size_t inlen,
++           uint8_t *outbuf, size_t outlen)
++{
++    size_t remainlen = inlen;
++
++    // When LZMA_CONCATENATED flag was used when initializing the decoder,
++    // we need to tell lzma_code() when there will be no more input.
++    // This is done by setting action to LZMA_FINISH instead of LZMA_RUN
++    // in the same way as it is done when encoding.
++    //
++    // When LZMA_CONCATENATED isn't used, there is no need to use
++    // LZMA_FINISH to tell when all the input has been read, but it
++    // is still OK to use it if you want. When LZMA_CONCATENATED isn't
++    // used, the decoder will stop after the first .xz stream. In that
++    // case some unused data may be left in strm-&gt;next_in.
++    lzma_action action = LZMA_RUN;
++
++    strm-&gt;next_in = NULL;
++    strm-&gt;avail_in = 0;
++    strm-&gt;next_out = outbuf;
++    strm-&gt;avail_out = outlen;
++
++    // Decode BUFSIZ==8192 bytes of inbuf at a time
++    while (true) {
++
++        // TODO: We invoke lzma_code twice when remainlen == 0.
++        // Is this okay?
++
++        if (strm-&gt;avail_in == 0 &amp;&amp; remainlen != 0) {
++            strm-&gt;next_in = inbuf;
++            strm-&gt;avail_in = (remainlen &gt; BUFSIZ) ? BUFSIZ : remainlen;
++            remainlen -= strm-&gt;avail_in;
++
++            // Once the end of the input file has been reached,
++            // we need to tell lzma_code() that no more input
++            // will be coming. As said before, this isn't required
++            // if the LZMA_CONCATENATED flag isn't used when
++            // initializing the decoder.
++            if (remainlen == 0)
++                action = LZMA_FINISH;
++        }
++
++        lzma_ret ret = lzma_code(strm, action);
++
++        // TODO: Is this code trying to overwrite outbuf when outlen
++        // is exhausted? If so, is that okay?
++        if (strm-&gt;avail_out == 0 || ret == LZMA_STREAM_END) {
++            strm-&gt;next_out = outbuf;
++            strm-&gt;avail_out = outlen;
++        }
++
++        if (ret != LZMA_OK) {
++            // Once everything has been decoded successfully, the
++            // return value of lzma_code() will be LZMA_STREAM_END.
++            //
++            // It is important to check for LZMA_STREAM_END. Do not
++            // assume that getting ret != LZMA_OK would mean that
++            // everything has gone well or that when you aren't
++            // getting more output it must have successfully
++            // decoded everything.
++            if (ret == LZMA_STREAM_END)
++                return true;
++
++#ifdef __DEBUG__
++            // It's not LZMA_OK nor LZMA_STREAM_END,
++            // so it must be an error code. See lzma/base.h
++            // (src/liblzma/api/lzma/base.h in the source package
++            // or e.g. /usr/include/lzma/base.h depending on the
++            // install prefix) for the list and documentation of
++            // possible values. Many values listen in lzma_ret
++            // enumeration aren't possible in this example, but
++            // can be made possible by enabling memory usage limit
++            // or adding flags to the decoder initialization.
++            const char *msg;
++            switch (ret) {
++            case LZMA_MEM_ERROR:
++                msg = &quot;Memory allocation failed&quot;;
++                break;
++
++            case LZMA_FORMAT_ERROR:
++                // .xz magic bytes weren't found.
++                msg = &quot;The input is not in the .xz format&quot;;
++                break;
++
++            case LZMA_OPTIONS_ERROR:
++                // For example, the headers specify a filter
++                // that isn't supported by this liblzma
++                // version (or it hasn't been enabled when
++                // building liblzma, but no-one sane does
++                // that unless building liblzma for an
++                // embedded system). Upgrading to a newer
++                // liblzma might help.
++                //
++                // Note that it is unlikely that the file has
++                // accidentally became corrupt if you get this
++                // error. The integrity of the .xz headers is
++                // always verified with a CRC32, so
++                // unintentionally corrupt files can be
++                // distinguished from unsupported files.
++                msg = &quot;Unsupported compression options&quot;;
++                break;
++
++            case LZMA_DATA_ERROR:
++                msg = &quot;Compressed file is corrupt&quot;;
++                break;
++
++            case LZMA_BUF_ERROR:
++                // Typically this error means that a valid
++                // file has got truncated, but it might also
++                // be a damaged part in the file that makes
++                // the decoder think the file is truncated.
++                // If you prefer, you can use the same error
++                // message for this as for LZMA_DATA_ERROR.
++                msg = &quot;Compressed file is truncated or &quot;
++                        &quot;otherwise corrupt&quot;;
++                break;
++
++            default:
++                // This is most likely LZMA_PROG_ERROR.
++                msg = &quot;Unknown error, possibly a bug&quot;;
++                break;
++            }
++
++            fprintf(stderr, &quot;%s: Decoder error: &quot;
++                    &quot;%s (error code %u)\n&quot;,
++                    inname, msg, ret);
++#endif
++            return false;
++        }
++    }
++}
++
++int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
++
++    lzma_stream strm = LZMA_STREAM_INIT;
++
++    // Null data is uninteresting
++    if (size == 0) {
++        return 0;
++    }
++
++    // Init decoder.
++    if (!init_decoder(&amp;strm)) {
++        // Decoder initialization failed. There's no point
++        // to retry it so we need to exit.
++        return 0;
++    }
++
++    uint8_t outbuf[BUFSIZ];
++
++    if (!decompress(&amp;strm, data, size, outbuf, BUFSIZ)) {
++#ifdef __DEBUG__
++        fprintf(stderr, &quot;Decode failure\n&quot;);
++#endif
++    }
++
++    // Free the memory allocated for the decoder.
++    lzma_end(&amp;strm);
++    return 0;
++}
+-- 
+2.17.1
+
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00302.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00306">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00306">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00307.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="[xz-devel] [PATCH] ossfuzz: Add decompress fuzzer target">
+<input type="hidden" name="msgid" value="20181022135630.24156-1-bshastry@sect.tu-berlin.de">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00306.html">
+<input type="submit" value=" bshastry ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+%5C%5BPATCH%5C%5D+ossfuzz%5C%3A+Add+decompress+fuzzer+target%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00302.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00307.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20181022135630.24156-1-bshastry@sect.tu-berlin.de</li>
+</ul>
+</div>
+</body>
+</html>

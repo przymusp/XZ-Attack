@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] Adding fuzz testing support to liblzma</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00311" id="c">
+<link rel="index" href="maillist.html#00311" id="i">
+<link rel="prev" href="msg00309.html" id="p">
+<link rel="next" href="msg00312.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00311.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Adding+fuzz+testing+support+to+liblzma%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] Adding fuzz testing support to liblzma</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse+Collin%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Lasse Collin</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20181028" rel="nofollow">Sun, 28 Oct 2018 12:52:10 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>On 2018-10-26 Bhargava Shastry wrote:
+&gt; On 10/25/18 11:34 PM, Lasse Collin wrote:
+&gt; &gt;&gt; +    // Decode BUFSIZ==8192 bytes of inbuf at a time  
+&gt; &gt; 
+&gt; &gt; The value of BUFSIZ depends on libc and isn't always 8192.  
+&gt; 
+&gt; Agreed. What would you like it to be? Afaiu, we are doing not only
+&gt; header decoding but also contents of the compressed block itself,
+&gt; right?</pre><pre>
+
+Yes, not only headers but the whole file.
+
+The buffer size doesn't matter too much. For mem-to-mem operations, 4096
+bytes is plenty (there's no syscall overhead for disk I/O). If it is
+important to clear output buffer with memset(), 1024 bytes could be
+enough to reduce the overhead from the memset() calls. Going much below
+512 starts to slow things down due to the increased number of calls to
+lzma_code().
+
+&gt; As a reference, fuzzers usually generate between 1 byte and a few
+&gt; hundred KB of compressed data.
+
+OK, this is good to know.
+
+&gt; Test harnesses for other compression libs such as lzo [1] use an
+&gt; output buffer size equal to default block size (= 256 KB).
+
+This is not comparable. With that LZO API you need to decompress the
+whole block with a single call and thus the caller needs to know the
+block size.
+
+By the way, a few hopefully helpful comments about the linked [1]:
+
+  - If lzo_init() fails, 0 is returned and thus the error is silently
+    ignored. There is a printf if __DEBUG__ is defined but that's it.
+    I'm not familiar with the fuzzing framework so I don't know if it
+    matters, but without such knowledge, silently ignoring errors looks
+    very suspicious to me.
+
+  - out[bufSize] is a 256 KiB buffer that is allocated on stack. On
+    Linux/glibc the default stack size is 8 MiB, so maybe it's OK in
+    this particular situation, but in general 256 KiB buffer is a bit
+    big to be allocated on stack (it could be made static since it
+    doesn't need to be thread safe).
+
+&gt; &gt; I guess the reason to split the input into BUFSIZ chunks is there to
+&gt; &gt; emulate reading from a file, but to me that doesn't seem very useful
+&gt; &gt; from point of view of fuzzing. Splitting the input into smaller
+&gt; &gt; chunks is good in sense that it tests that liblzma behaves
+&gt; &gt; correctly when liblzma doesn't get the whole file at once. However,
+&gt; &gt; the BUFSIZ is far too big to do this for header decoding.  
+&gt; 
+&gt; It is my understanding that the harness is doing more than just header
+&gt; decoding, right? I notice (in the generated html coverage report) that
+&gt; calls to &quot;block_decode&quot; are also executed while fuzzing.
+
+Yes. Testing with small buffer sizes might help in finding corner cases
+outside header decoding too (the decoder must be able to stop and
+continue processing input at any point in the file). Doing it one byte
+at a time hurts fuzzing performance though. Depending on the input, it's
+like 3-20 times slower than with normal buffer sizes (1 KiB or more).
+Perhaps a compromise (a few bytes at a time) should be considered too.
+
+&gt; &gt; It should *never* happen if the code calling the liblzma functions
+&gt; &gt; is correct. It is better to use if() instead of assert() here to
+&gt; &gt; catch LZMA_PROG_ERROR. It's not good to rely on that assertion
+&gt; &gt; checks haven't been disabled with #define NDEBUG.  
+&gt; 
+&gt; The reason I chose assert() was because fuzzers pick up on signals
+&gt; such as SIGABRT, SIGSEGV etc. Also, libFuzzer interface reserves
+&gt; non-zero return codes, the LLVMFuzzerTestOneInput() API is required
+&gt; to always return 0.
+
+OK.
+
+&gt; Would replacing &quot;assert&quot; with an &quot;abort&quot; make sense? This way, we
+&gt; don't need to use a debug build (which may slow down fuzzing).
+
+Yes, abort() combined with a fprintf(stderr, ...) should be fine.
+
+&gt; &gt;&gt; +    // Init decoder.
+&gt; &gt;&gt; +    if (!init_decoder(&amp;strm)) {
+&gt; &gt;&gt; +        // Decoder initialization failed. There's no point
+&gt; &gt;&gt; +        // retrying, so bail out.
+&gt; &gt;&gt; +        return 0;
+&gt; &gt;&gt; +    }  
+&gt; &gt; 
+&gt; &gt; Returning 0 indicates success, I guess. If initialization fails, the
+&gt; &gt; actual fuzzing is never done. While it's unlikely that the
+&gt; &gt; initialization fails, it's still essential to report the error to
+&gt; &gt; the caller instead of silently skipping the whole fuzzing step.  
+&gt; 
+&gt; Would a call to &quot;abort&quot; make sense here?
+
+Yes, here too.
+
+&gt; &gt;   - Is it enough to pass the whole input to liblzma at once? If not,
+&gt; &gt;     how small chunks to use? One byte could give most thorough
+&gt; &gt; fuzzing but is slower too.  
+&gt; 
+&gt; One suggestion is to keep the current output buffer size I guess.
+
+Yes, it is one suggestion. It's just that I'm thinking that small
+buffers could improve the fuzzing coverage (more places where the
+decoder has to be able to stop &amp; continue the processing of input data).
+
+I apologize that instead of trying to explain in detail what I think
+could be tried, I thought it needed less energy from me to write some
+code myself.
+
+The first version is effectively very similar to the version you most
+recently sent to the list, but I wrote it from scratch because I didn't
+know the license of the version you sent and the code is very short
+anyway.
+
+The second version passes input/output to/from liblzma in tiny chunks.
+Instead of one-byte chunks, I chose 13 and 29 bytes for input and
+output, respectively. This gives much better speed than one-byte
+chunks. They are odd (well, also primes) because some things are
+aligned to 2^n bytes and this way different states get tested better, I
+*hope*.
+
+These version have a proper error check for the initialization
+function call, and both that and the LZMA_PROG_ERROR situation also
+print an error message before calling abort().
+
+These versions don't clear the output buffer because I think it's not
+necessary. liblzma shouldn't ever read anything from the output buffer.
+
+Do you see any difference in test coverage between these versions? Is
+the speed of the second version good enough? Note that I have now pushed
+support for FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION to xz.git.
+
+---------
+
+///////////////////////////////////////////////////////////////////////////////
+//
+/// \file       fuzz.c
+/// \brief      Fuzz test program for liblzma
+//
+//  Author:     Lasse Collin
+//
+//  This file has been put into the public domain.
+//  You can do whatever you want with this file.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#include &lt;inttypes.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &quot;lzma.h&quot;
+
+
+// Output buffer for decompressed data. This is write only; nothing cares
+// about the actual data written here.
+static uint8_t outbuf[4096];
+
+
+extern int
+LLVMFuzzerTestOneInput(const uint8_t *inbuf, size_t inbuf_size)
+{
+        // Some header values can make liblzma allocate a lot of RAM
+        // (up to about 4 GiB with liblzma 5.2.x). We set a limit here to
+        // prevent extreme allocations when fuzzing.
+        const uint64_t memlimit = 300 &lt;&lt; 20; // 300 MiB
+
+        // Making strm static here and omitting the lzma_end() call at
+        // the end of this function would cause subsequent calls to this
+        // function to reuse the existing decoder state (lzma_stream_decoder()
+        // would re-initialize it). It could be good to fuzz that that code
+        // path too, but on the other hand it makes the current fuzzing round
+        // depend on the previous rounds which isn't a good thing.
+        /*static*/ lzma_stream strm = LZMA_STREAM_INIT;
+
+        // Initialize a .xz decoder using the above memory usage limit.
+        // Enable support for concatenated .xz files which is used when
+        // decompressing regular .xz files (instead of data embedded inside
+        // some other file format). Integrity checks on the uncompressed
+        // data are ignored to make fuzzing more effective (incorrect check
+        // values won't prevent the decoder from processing more input).
+        //
+        // The flag LZMA_IGNORE_CHECK doesn't disable verification of header
+        // CRC32 values. Those checks are disabled when liblzma is built
+        // with the #define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION.
+        lzma_ret ret = lzma_stream_decoder(&amp;strm, memlimit,
+                        LZMA_CONCATENATED | LZMA_IGNORE_CHECK);
+        if (ret != LZMA_OK) {
+                // This should never happen unless the system has
+                // no free memory or address space to allow the small
+                // allocations that the initialization requires.
+                fprintf(stderr, &quot;lzma_stream_decoder() failed (%d)\n&quot;, ret);
+                abort();
+        }
+
+        // Give the whole input buffer at once to liblzma.
+        strm.next_in = inbuf;
+        strm.avail_in = inbuf_size;
+        strm.next_out = outbuf;
+        strm.avail_out = sizeof(outbuf);
+
+        while ((ret = lzma_code(&amp;strm, LZMA_FINISH)) == LZMA_OK) {
+                if (strm.avail_out == 0) {
+                        // outbuf became full. We don't care about the
+                        // uncompressed data there, so we simply reuse
+                        // the outbuf and overwrite the old data.
+                        strm.next_out = outbuf;
+                        strm.avail_out = sizeof(outbuf);
+                }
+        }
+
+        // LZMA_PROG_ERROR should never happen as long as the code calling
+        // the liblzma functions is correct. Thus LZMA_PROG_ERROR is a sign
+        // of a bug in either this function or in liblzma.
+        if (ret == LZMA_PROG_ERROR) {
+                fprintf(stderr, &quot;lzma_code() returned LZMA_PROG_ERROR\n&quot;);
+                abort();
+        }
+
+        // Free the allocated memory.
+        //
+        // NOTE: If strm were static, this should be commented out to allow
+        // reusing the decoder memory on the next fuzzing round.
+        lzma_end(&amp;strm);
+
+        return 0;
+}
+
+---------
+
+///////////////////////////////////////////////////////////////////////////////
+//
+/// \file       fuzz.c
+/// \brief      Fuzz test program for liblzma
+//
+//  Author:     Lasse Collin
+//
+//  This file has been put into the public domain.
+//  You can do whatever you want with this file.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#include &lt;inttypes.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &quot;lzma.h&quot;
+
+
+// Chunk sizes (in bytes) to be used for passing input and output data.
+//
+// Passing the whole input file to liblzma at once and using an output
+// buffer of 1-4 KiB would be the fastest, but using tiny odd-sized
+// buffers exercises the corner cases where liblzma has to be able to
+// stop and continue the decoding when running out of input data or
+// the output buffer becomes full.
+//
+// One-byte chunks would be quite slow. As a compromise, bigger values are
+// used to get better speed (only 50-150 % slower than the fast version).
+#define IN_CHUNK_SIZE 13
+#define OUT_CHUNK_SIZE 29
+
+
+// Output buffer for decompressed data. This is write only; nothing
+// cares about the actual data written here.
+static uint8_t outbuf[OUT_CHUNK_SIZE];
+
+
+extern int
+LLVMFuzzerTestOneInput(const uint8_t *inbuf, size_t inbuf_size)
+{
+        // Some header values can make liblzma allocate a lot of RAM
+        // (up to about 4 GiB with liblzma 5.2.x). We set a limit here to
+        // prevent extreme allocations when fuzzing.
+        const uint64_t memlimit = 300 &lt;&lt; 20; // 300 MiB
+
+        // Making strm static here and omitting the lzma_end() call at
+        // the end of this function would cause subsequent calls to this
+        // function to reuse the existing decoder state (lzma_stream_decoder()
+        // would re-initialize it). It could be good to fuzz that that code
+        // path too, but on the other hand it makes the current fuzzing round
+        // depend on the previous rounds which isn't a good thing.
+        /*static*/ lzma_stream strm = LZMA_STREAM_INIT;
+
+        // Initialize a .xz decoder using the above memory usage limit.
+        // Enable support for concatenated .xz files which is used when
+        // decompressing regular .xz files (instead of data embedded inside
+        // some other file format). Integrity checks on the uncompressed
+        // data are ignored to make fuzzing more effective (incorrect check
+        // values won't prevent the decoder from processing more input).
+        //
+        // The flag LZMA_IGNORE_CHECK doesn't disable verification of header
+        // CRC32 values. Those checks are disabled when liblzma is built
+        // with the #define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION.
+        lzma_ret ret = lzma_stream_decoder(&amp;strm, memlimit,
+                        LZMA_CONCATENATED | LZMA_IGNORE_CHECK);
+        if (ret != LZMA_OK) {
+                // This should never happen unless the system has
+                // no free memory or address space to allow the small
+                // allocations that the initialization requires.
+                fprintf(stderr, &quot;lzma_stream_decoder() failed (%d)\n&quot;, ret);
+                abort();
+        }
+
+        strm.next_in = inbuf;
+        strm.avail_in = 0;
+        strm.next_out = outbuf;
+        strm.avail_out = sizeof(outbuf);
+
+        // Use LZMA_RUN until the last input byte is available to lzma_code().
+        lzma_action action = LZMA_RUN;
+
+        do {
+                if (strm.avail_in == 0) {
+                        // Add at most CHUNK_SIZE bytes of more input.
+                        // We don't need to set strm.next_in as that
+                        // already points to the correct byte.
+                        if (inbuf_size &gt; 0) {
+                                strm.avail_in = inbuf_size &lt; IN_CHUNK_SIZE
+                                                ? inbuf_size
+                                                : IN_CHUNK_SIZE;
+                                inbuf_size -= strm.avail_in;
+                        }
+
+                        // Use LZMA_FINISH when the last input byte is
+                        // available to lzma_code().
+                        if (inbuf_size == 0)
+                                action = LZMA_FINISH;
+                }
+
+                if (strm.avail_out == 0) {
+                        // outbuf became full. We don't care about the
+                        // uncompressed data there, so we simply reuse
+                        // the outbuf and overwrite the old data.
+                        strm.next_out = outbuf;
+                        strm.avail_out = sizeof(outbuf);
+                }
+
+                ret = lzma_code(&amp;strm, action);
+        } while (ret == LZMA_OK);
+
+        // LZMA_PROG_ERROR should never happen as long as the code calling
+        // the liblzma functions is correct. Thus LZMA_PROG_ERROR is a sign
+        // of a bug in either this function or in liblzma.
+        if (ret == LZMA_PROG_ERROR) {
+                fprintf(stderr, &quot;lzma_code() returned LZMA_PROG_ERROR\n&quot;);
+                abort();
+        }
+
+        // Free the allocated memory.
+        //
+        // NOTE: If strm were static, this should be commented out to allow
+        // reusing the decoder memory on the next fuzzing round.
+        lzma_end(&amp;strm);
+
+        return 0;
+}
+
+---------
+
+Comments are welcome. Thanks!
+
+-- 
+Lasse Collin  |  IRC: Larhzu @ IRCnet &amp; Freenode
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00309.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00311">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00311">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00312.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00307.html">[xz-devel] [PATCH] ossfuzz: Incorporate feedback from Las...</a></span> <span class="sender italic">bshastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00308.html">[xz-devel] Adding fuzz testing support to liblzma</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00309.html">[xz-devel] Adding fuzz testing support to liblzm...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] Adding fuzz testing support t...</span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00312.html">Re: [xz-devel] Adding fuzz testing suppo...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00313.html">Re: [xz-devel] Adding fuzz testing ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00314.html">Re: [xz-devel] Adding fuzz test...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00315.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00316.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00317.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00318.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] Adding fuzz testing support to liblzma">
+<input type="hidden" name="msgid" value="20181028215115.1f985331@tukaani.org">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00311.html">
+<input type="submit" value=" Lasse Collin ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Adding+fuzz+testing+support+to+liblzma%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00309.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00312.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20181028215115.1f985331@tukaani.org</li>
+</ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] Adding fuzz testing support to liblzma</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00314" id="c">
+<link rel="index" href="maillist.html#00314" id="i">
+<link rel="prev" href="msg00313.html" id="p">
+<link rel="next" href="msg00315.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00314.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Adding+fuzz+testing+support+to+liblzma%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] Adding fuzz testing support to liblzma</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Bhargava+Shastry%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Bhargava Shastry</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20181030" rel="nofollow">Tue, 30 Oct 2018 02:24:35 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Dear Lasse,
+
+Thanks for your feedback. My reply is inline. However, it is a good time
+to discuss oss-fuzz integration as we apply final touches on the test
+harness :)</pre><pre>
+
+I have a few questions for you:
+
+- oss-fuzz requires a Google linked email address of the maintainer.
+Could you please provide me one?
+
+- It is better that the test harness and related config (dictionary,
+other fuzzer options) reside in the xz source repo. Are you okay
+maintaining these in the long run?
+
+Thank you :)
+
+On 10/29/18 9:27 PM, Lasse Collin wrote:
+&gt; On 2018-10-29 Bhargava Shastry wrote:
+&gt;&gt; Thanks for providing two versions for me to test. Here are the
+&gt;&gt; results:
+&gt;&gt;
+&gt;&gt; - version 1 decompresses the whole of fuzzed (compressed) data
+&gt;&gt; - version 2 decompresses in chunks of size (input=13 bytes)
+&gt;&gt;
+&gt;&gt; ### Executions per second
+&gt;&gt;
+&gt;&gt; I ran both versions a total of 96 times (I have 16 cores :-))
+&gt;&gt;
+&gt;&gt; - version 1 averaged 1757.20 executions per second
+&gt;&gt; - version 2 averaged 429.10 executions per second
+&gt;&gt;
+&gt;&gt; So, clearly version 1 is faster
+&gt; 
+&gt; Yes, and the difference is bigger than I hoped.
+&gt; 
+&gt;&gt; Regarding coverage
+&gt;&gt;
+&gt;&gt; - version 1 covered 950.26 CFG edges on average
+&gt;&gt; - version 2 covered 941.11 CFG edges on average
+&gt; 
+&gt; I assume you had the latest xz.git that supports
+&gt; FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION.
+
+That's correct.
+
+&gt; Did you run the same number of fuzzing rounds on both (so the second
+&gt; version took over four times longer) or did you run them for the same
+&gt; time (so the second version ran only 1/4 of rounds)?
+
+It's the latter, I ran for a fixed time duration of 2 minutes. In this time,
+
+- version 1 was fuzzed 212677 times on average i.e., the test was fuzzed
+with that many distinct inputs
+- version 2 was fuzzed 51986 times on average
+
+So, like you say, roughly v2 ran for 1/4 of rounds as v1.
+
+&gt; If both version saw the same number of rounds, I would expect the
+&gt; second version to have the same or better coverage. But if the
+&gt; comparison was based on time, then it's no surprise if the first
+&gt; version has better apparent coverage even if it is impossible for it to
+&gt; hit certain code paths that are possible with the second version. It
+&gt; might also depend on which input file is used as a starting point for
+&gt; the fuzzer.
+
+As starting point, I used all files with the &quot;xz&quot; extension that I could
+find in the source repo (total of 63 files).
+
+I also did the following experiment
+
+- I ran version 1 overnight (over 16 hours in total)
+- The coverage saturated at about 996 CFG edges
+
+Then, I took the corpus that was generated for v1 fuzzing and fed it to
+v2. My hope is that this will quickly tell me how much better (coverage
+wise) v2 is were it to be run for as long as v1
+
+- I found v2 covers 1004 CFG edges i.e., only 8 CFG edges more than v1
+
+However, to be sure I need to keep v2 running for as long as v1, but my
+guess is that this saturation will prevail.
+
+&gt;&gt; Overall, version 1 is superior imho.
+&gt; 
+&gt; I don't know yet. Increasing the input and output chunk sizes is
+&gt; probably needed to make the second version faster. You could try
+&gt; some odd values between 100 and 250, or maybe even up to 500.
+
+Okay, I can try this out once current experiment completes.
+
+Regards,
+Bhargava
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00313.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00314">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00314">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00315.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00307.html">[xz-devel] [PATCH] ossfuzz: Incorporate feedback from Las...</a></span> <span class="sender italic">bshastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00308.html">[xz-devel] Adding fuzz testing support to liblzma</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00309.html">[xz-devel] Adding fuzz testing support to liblzm...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00311.html">Re: [xz-devel] Adding fuzz testing support t...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00312.html">Re: [xz-devel] Adding fuzz testing suppo...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00313.html">Re: [xz-devel] Adding fuzz testing ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] Adding fuzz test...</span> <span class="sender italic">Bhargava Shastry</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00315.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00316.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00317.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00318.html">Re: [xz-devel] Adding fuzz ...</a></span> <span class="sender italic">Bhargava Shastry</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] Adding fuzz testing support to liblzma">
+<input type="hidden" name="msgid" value="e8b447be-5d7d-9d28-51e6-e6b1adb1236e@sect.tu-berlin.de">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00314.html">
+<input type="submit" value=" Bhargava Shastry ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Adding+fuzz+testing+support+to+liblzma%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00313.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00315.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">e8b447be-5d7d-9d28-51e6-e6b1adb1236e@sect.tu-berlin.de</li>
+</ul>
+</div>
+</body>
+</html>

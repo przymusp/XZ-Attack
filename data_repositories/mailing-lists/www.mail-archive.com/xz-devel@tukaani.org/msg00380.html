@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] [RFC WIP] liblzma: Add multi-threaded decoder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00380" id="c">
+<link rel="index" href="maillist.html#00380" id="i">
+<link rel="prev" href="msg00379.html" id="p">
+<link rel="next" href="msg00383.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00380.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+%5C%5BRFC+WIP%5C%5D+liblzma%5C%3A+Add+multi%5C-threaded+decoder%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] [RFC WIP] liblzma: Add multi-threaded decoder</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse+Collin%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Lasse Collin</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20201216" rel="nofollow">Wed, 16 Dec 2020 14:12:18 -0800</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>On 2020-12-14 Sebastian Andrzej Siewior wrote:
+&gt; On 2020-12-13 23:19:25 [+0200], Lasse Collin wrote:
+&gt; &gt; Yes, reusing buffers and encoder/decoder states can be useful (fewer
+&gt; &gt; page faults). Perhaps even the input buffer could be reused if it
+&gt; &gt; is OK to waste some memory and it makes a difference in speed.  
+&gt; 
+&gt; I tried two archives with 16 &amp; 3 CPUs and the time remained the same.
+&gt; I tried to only increase the in-buffer and to allocate the block-size
+&gt; also for the in-buffer. No change.</pre><pre>
+
+OK, better keep the code simple then.
+
+&gt; I tried to decouple the thread and the out-buffer but after several
+&gt; failures I tried to keep it simple for the start.
+&gt; I do have idle threads after a while with 16 CPUs. The alternative is
+&gt; to keep them busy with more memory.  With 4 CPUs I get to
+&gt; |  100 %         10,2 GiB / 40,0 GiB = 0,255   396 MiB/s       1:43
+&gt;           
+&gt; and this is ofcourse a CPU bound due to the `sha1' part as consumer.
+
+Don't take me wrong, the performance is already very good. :-)
+
+&gt; I don't know how reasonable this performace is if it means that you
+&gt; have to write 400MiB/s to disk. Of course, should it become an issue
+&gt; then it can still be decoupled.
+
+There are SSDs that are much faster and in some use cases the data
+isn't written to a disk at all. That said, I don't know how much it
+matters in practice. Better threading implementation can be (perhaps
+significantly) faster but it's still diminishing returns.
+
+I looked a bit at making lzma_outq usable for both encoding and
+decoding. Basically it would be changing the fixed buffer allocation to
+dynamic and caching most recently seen buffers of identical size. It
+doesn't seem hard although there are a few details that may complicate
+it.
+
+One thing is passing data from the workers to the main thread.
+lzma_outq relies on coder-&gt;mutex to protect lzma_outbuf.finished. This
+is fine in the encoder where the whole block must be finished before
+any of it can be copied out.
+
+When decoding one can get smoother output by copying decompressed data
+out in smaller chunks. Your code does this but it's still a single
+mutex for all threads. With many threads that is easily thousands or
+even tens of thousands of locks/unlocks per second from all threads
+combined. I don't know how much it matters and if it is worth it to
+make it more complex. For example, one could have a thread-specific flag
+indicating if the main thread is interested in the data from that
+thread. Then only that thread would lock/signal/unlock the main mutex
+when a chunk of data is ready.
+
+If the output buffering is decoupled using lzma_outq, the main thread
+won't directly know in which thread it should set the flag. Instead,
+lzma_outbuf needs a pointer to the associated worker (or NULL if
+buffer is finished).
+
+I already got started with this lzma_outq modification but I'm not sure
+yet if or when I get it finished.
+
+-- 
+Lasse Collin  |  IRC: Larhzu @ IRCnet &amp; Freenode
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00379.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00380">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00380">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00383.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00377.html">[xz-devel] [RFC WIP] liblzma: Add multi-threaded...</a></span> <span class="sender italic">Sebastian Andrzej Siewior</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00378.html">Re: [xz-devel] [RFC WIP] liblzma: Add multi...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00379.html">Re: [xz-devel] [RFC WIP] liblzma: Add m...</a></span> <span class="sender italic">Sebastian Andrzej Siewior</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] [RFC WIP] liblzma: A...</span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00383.html">Re: [xz-devel] [RFC WIP] liblzm...</a></span> <span class="sender italic">Sebastian Andrzej Siewior</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] [RFC WIP] liblzma: Add multi-threaded decoder">
+<input type="hidden" name="msgid" value="20201217001206.79bae587@tukaani.org">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00380.html">
+<input type="submit" value=" Lasse Collin ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+%5C%5BRFC+WIP%5C%5D+liblzma%5C%3A+Add+multi%5C-threaded+decoder%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00379.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00383.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20201217001206.79bae587@tukaani.org</li>
+</ul>
+</div>
+</body>
+</html>

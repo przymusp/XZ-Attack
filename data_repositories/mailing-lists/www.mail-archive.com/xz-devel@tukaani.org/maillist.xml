@@ -1,0 +1,722 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+<!-- MHonArc v2.6.19+ -->
+  <channel>
+    <title>xz-devel</title>
+    <link>http://www.mail-archive.com/xz-devel@tukaani.org</link>
+    <description>xz-devel @ tukaani</description>
+    <pubDate>Sun, 07 Jul 2024 21:24:51 GMT</pubDate>
+    <lastBuildDate>Sun, 07 Jul 2024 21:24:51 GMT</lastBuildDate>
+    <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+    <generator>MHonArc RSS 2.0 RCFile</generator>
+    <webMaster>themailarchive@gmail.com (The Mail Archive)</webMaster>
+    <image>
+       <title>The Mail Archive</title>
+       <url>http://www.mail-archive.com/nanologo.png</url>
+       <link>http://www.mail-archive.com/xz-devel@tukaani.org</link>
+    </image>
+ 
+    <item>
+      <title>Re: [xz-devel] Require CMake 3.20?</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00684.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/07/07&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Sun, 07 Jul 2024 21:24:50 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00684.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] Require CMake 3.20?</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00683.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/07/06&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Sat, 06 Jul 2024 12:42:51 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00683.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] Build system fix for XZ Utils 5.2.13, 5.4.7, and 5.6.2</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00682.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/06/19&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 19 Jun 2024 14:19:33 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00682.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.2.13, 5.4.7, and 5.6.2</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00681.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/05/29&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 29 May 2024 18:45:19 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00681.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00680.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/26&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 26 Mar 2024 17:57:31 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00680.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00679.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/20&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Brett Okken%22&quot;&gt;Brett Okken&lt;/a&gt;</description>
+      <pubDate>Wed, 20 Mar 2024 13:20:33 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00679.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00678.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/12&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 12 Mar 2024 17:55:52 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00678.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00677.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/12&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Brett Okken%22&quot;&gt;Brett Okken&lt;/a&gt;</description>
+      <pubDate>Tue, 12 Mar 2024 14:57:46 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00677.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00676.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/10&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Sun, 10 Mar 2024 19:49:20 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00676.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00675.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/10&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Brett Okken%22&quot;&gt;Brett Okken&lt;/a&gt;</description>
+      <pubDate>Sun, 10 Mar 2024 00:27:17 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00675.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00674.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/09&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Sat, 09 Mar 2024 21:51:12 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00674.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.6.1</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00673.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/09&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Sat, 09 Mar 2024 10:49:20 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00673.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [BUG] Issue with xz-java: Unknown Filter ID</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00672.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/07&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 07 Mar 2024 21:38:47 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00672.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00671.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/07&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 07 Mar 2024 21:37:21 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00671.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00670.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/05&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Brett Okken%22&quot;&gt;Brett Okken&lt;/a&gt;</description>
+      <pubDate>Tue, 05 Mar 2024 18:15:51 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00670.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [BUG] Issue with xz-java: Unknown Filter ID</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00669.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/05&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Dennis Ens%22&quot;&gt;Dennis Ens&lt;/a&gt;</description>
+      <pubDate>Tue, 05 Mar 2024 14:04:43 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00669.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [BUG] Issue with xz-java: Unknown Filter ID</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00668.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/05&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 05 Mar 2024 13:10:15 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00668.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [BUG] Issue with xz-java: Unknown Filter ID</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00667.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/05&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Dennis Ens%22&quot;&gt;Dennis Ens&lt;/a&gt;</description>
+      <pubDate>Tue, 05 Mar 2024 12:07:58 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00667.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [BUG] Issue with xz-java: Unknown Filter ID</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00666.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/05&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 05 Mar 2024 09:08:25 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00666.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] [BUG] Issue with xz-java: Unknown Filter ID</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00665.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/05&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Dennis Ens%22&quot;&gt;Dennis Ens&lt;/a&gt;</description>
+      <pubDate>Tue, 05 Mar 2024 02:53:54 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00665.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00664.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/01&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Brett Okken%22&quot;&gt;Brett Okken&lt;/a&gt;</description>
+      <pubDate>Fri, 01 Mar 2024 12:24:38 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00664.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00663.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/03/01&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Brett Okken%22&quot;&gt;Brett Okken&lt;/a&gt;</description>
+      <pubDate>Fri, 01 Mar 2024 02:48:26 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00663.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00662.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/29&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 29 Feb 2024 17:35:23 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00662.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH] xz: Avoid warnings due to memlimit if threads are in auto mode.</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00661.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/29&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 29 Feb 2024 15:25:10 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00661.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH] xz: Avoid warnings due to memlimit if threads are in auto mode.</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00660.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/28&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 28 Feb 2024 16:45:09 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00660.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH] xz: Avoid warnings due to memlimit if threads are in auto mode.</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00659.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/28&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Wed, 28 Feb 2024 16:36:55 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00659.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH] xz: Avoid warnings due to memlimit if threads are in auto mode.</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00658.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/28&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 28 Feb 2024 11:00:18 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00658.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH] xz: Avoid warnings due to memlimit if threads are in auto mode.</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00657.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/27&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Tue, 27 Feb 2024 21:08:16 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00657.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH] xz: Avoid warnings due to memlimit if threads are in auto mode.</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00656.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/27&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 27 Feb 2024 17:17:59 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00656.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] [PATCH] xz: Avoid warnings due to memlimit if threads are in auto mode.</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00655.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/26&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Mon, 26 Feb 2024 20:33:11 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00655.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00654.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/25&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Brett Okken%22&quot;&gt;Brett Okken&lt;/a&gt;</description>
+      <pubDate>Sun, 25 Feb 2024 21:18:35 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00654.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.6.0</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00653.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/24&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Sat, 24 Feb 2024 10:07:58 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00653.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] Testing LZMA_RANGE_DECODER_CONFIG</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00652.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/20&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 20 Feb 2024 22:42:21 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00652.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] Testing LZMA_RANGE_DECODER_CONFIG</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00651.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/20&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Tue, 20 Feb 2024 20:17:32 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00651.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00650.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/19&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Mon, 19 Feb 2024 19:32:40 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00650.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] Re: improve java delta performance</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00649.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/19&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Brett Okken%22&quot;&gt;Brett Okken&lt;/a&gt;</description>
+      <pubDate>Mon, 19 Feb 2024 18:55:51 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00649.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] xz-java and newer java</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00648.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/19&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Brett Okken%22&quot;&gt;Brett Okken&lt;/a&gt;</description>
+      <pubDate>Mon, 19 Feb 2024 18:52:43 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00648.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] Testing LZMA_RANGE_DECODER_CONFIG</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00647.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/18&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Sun, 18 Feb 2024 20:35:14 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00647.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] Testing LZMA_RANGE_DECODER_CONFIG</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00646.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/18&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Sun, 18 Feb 2024 12:11:37 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00646.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] Testing LZMA_RANGE_DECODER_CONFIG</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00645.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/17&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Sat, 17 Feb 2024 20:57:58 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00645.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.5.2beta</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00644.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/14&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Wed, 14 Feb 2024 18:23:41 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00644.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ projects license change proposal</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00643.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/02/08&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 08 Feb 2024 16:16:44 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00643.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.4.6, 5.5.1alpha, and website changes</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00642.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2024/01/26&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Fri, 26 Jan 2024 12:33:48 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00642.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.4.5</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00641.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2023/11/01&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Wed, 01 Nov 2023 13:39:40 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00641.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] Re: [xz-devel] [PATCH] [xz-embedded] Fix condition that automatically define XZ_DEC_BCJ</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00640.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2023/09/08&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jules Maselbas%22&quot;&gt;Jules Maselbas&lt;/a&gt;</description>
+      <pubDate>Fri, 08 Sep 2023 17:56:54 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00640.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH] [xz-embedded] Fix condition that automatically define XZ_DEC_BCJ</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00639.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2023/09/08&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Fri, 08 Sep 2023 13:06:11 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00639.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] [PATCH] [xz-embedded] Fix condition that automatically define XZ_DEC_BCJ</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00638.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2023/09/07&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jules Maselbas%22&quot;&gt;Jules Maselbas&lt;/a&gt;</description>
+      <pubDate>Thu, 07 Sep 2023 15:14:16 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00638.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.4.4</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00637.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2023/08/02&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Wed, 02 Aug 2023 13:51:45 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00637.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.2.12 and 5.4.3</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00636.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2023/05/04&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Thu, 04 May 2023 16:34:53 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00636.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.2.11 and 5.4.2</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00635.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2023/03/18&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Sat, 18 Mar 2023 17:01:38 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00635.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.4.1, xz.git on GitHub</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00634.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2023/01/11&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Wed, 11 Jan 2023 18:26:15 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00634.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.2.10 and 5.4.0</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00633.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/12/13&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 13 Dec 2022 20:12:24 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00633.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.3.5beta</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00632.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/12/01&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 01 Dec 2022 19:33:33 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00632.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.2.9</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00631.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/30&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 30 Nov 2022 18:16:07 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00631.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH 1/2] Add support openssl's SHA256 implementation</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00630.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/30&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 30 Nov 2022 14:30:10 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00630.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH 1/2] Add support openssl's SHA256 implementation</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00629.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/30&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 30 Nov 2022 13:59:09 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00629.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00628.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/24&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 24 Nov 2022 13:13:14 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00628.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00627.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22John Paul Adrian Glaubitz%22&quot;&gt;John Paul Adrian Glaubitz&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 21:17:09 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00627.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00626.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 20:58:23 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00626.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00625.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 20:55:21 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00625.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00624.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22John Paul Adrian Glaubitz%22&quot;&gt;John Paul Adrian Glaubitz&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 20:40:13 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00624.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00623.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 20:26:49 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00623.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00622.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22John Paul Adrian Glaubitz%22&quot;&gt;John Paul Adrian Glaubitz&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 20:00:51 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00622.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00621.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 19:52:29 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00621.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00620.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22John Paul Adrian Glaubitz%22&quot;&gt;John Paul Adrian Glaubitz&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 19:39:14 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00620.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00619.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 19:29:50 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00619.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00618.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 14:09:10 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00618.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00617.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22John Paul Adrian Glaubitz%22&quot;&gt;John Paul Adrian Glaubitz&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 13:33:51 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00617.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00616.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 11:31:56 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00616.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00615.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22John Paul Adrian Glaubitz%22&quot;&gt;John Paul Adrian Glaubitz&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 08:42:42 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00615.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00614.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22John Paul Adrian Glaubitz%22&quot;&gt;John Paul Adrian Glaubitz&lt;/a&gt;</description>
+      <pubDate>Wed, 23 Nov 2022 08:22:59 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00614.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00613.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/22&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 22 Nov 2022 23:11:34 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00613.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00612.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/22&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 22 Nov 2022 20:25:00 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00612.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00611.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/22&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Tue, 22 Nov 2022 20:17:05 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00611.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] RHEL7 ABI patch (913ddc5) breaks linking on ia64</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00610.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/22&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22John Paul Adrian Glaubitz%22&quot;&gt;John Paul Adrian Glaubitz&lt;/a&gt;</description>
+      <pubDate>Tue, 22 Nov 2022 17:52:04 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00610.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH] add xz arm64 bcj filter support</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00609.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/17&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 17 Nov 2022 15:24:02 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00609.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.3.4alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00608.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/15&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Tue, 15 Nov 2022 09:42:41 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00608.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.2.8</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00607.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/11/13&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Sun, 13 Nov 2022 19:01:27 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00607.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH 0/2] tests: Disable bits that require the [encoder|threads]</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00606.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/10/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Sun, 23 Oct 2022 13:57:35 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00606.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH 0/2] tests: Disable bits that require the [encoder|threads]</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00605.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/10/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sam James%22&quot;&gt;Sam James&lt;/a&gt;</description>
+      <pubDate>Sun, 23 Oct 2022 13:38:51 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00605.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH 0/2] tests: Disable bits that require the [encoder|threads]</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00604.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/10/23&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Sun, 23 Oct 2022 13:35:22 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00604.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH 0/2] tests: Disable bits that require the [encoder|threads]</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00603.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/10/20&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sam James%22&quot;&gt;Sam James&lt;/a&gt;</description>
+      <pubDate>Thu, 20 Oct 2022 21:25:54 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00603.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] [PATCH 0/2] tests: Disable bits that require the [encoder|threads]</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00602.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/10/20&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Thu, 20 Oct 2022 13:26:57 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00602.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00601.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/10/03&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Mon, 03 Oct 2022 09:17:02 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00601.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00600.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/09/30&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Fri, 30 Sep 2022 17:23:17 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00600.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00599.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/09/30&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Fri, 30 Sep 2022 17:23:12 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00599.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.2.7</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00598.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/09/30&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Fri, 30 Sep 2022 15:56:09 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00598.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00597.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/09/29&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Guillem Jover%22&quot;&gt;Guillem Jover&lt;/a&gt;</description>
+      <pubDate>Thu, 29 Sep 2022 08:26:59 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00597.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00596.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/09/28&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Wed, 28 Sep 2022 13:42:38 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00596.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00595.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/09/27&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Tue, 27 Sep 2022 19:39:01 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00595.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00594.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/09/27&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sam James%22&quot;&gt;Sam James&lt;/a&gt;</description>
+      <pubDate>Tue, 27 Sep 2022 15:45:09 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00594.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00593.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/09/27&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Jia Tan%22&quot;&gt;Jia Tan&lt;/a&gt;</description>
+      <pubDate>Tue, 27 Sep 2022 13:29:31 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00593.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00592.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/09/26&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian Andrzej Siewior%22&quot;&gt;Sebastian Andrzej Siewior&lt;/a&gt;</description>
+      <pubDate>Mon, 26 Sep 2022 19:45:05 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00592.html</guid>
+   </item>
+    <item>
+      <title>[xz-devel] XZ Utils 5.3.3alpha</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00591.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/08/22&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Mon, 22 Aug 2022 16:52:17 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00591.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] VS projects fail to build the resource file</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00590.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/08/18&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 18 Aug 2022 17:08:17 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00590.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] VS projects fail to build the resource file</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00589.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/08/18&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 18 Aug 2022 14:52:47 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00589.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] VS projects fail to build the resource file</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00588.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/08/18&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Olivier B.%22&quot;&gt;Olivier B.&lt;/a&gt;</description>
+      <pubDate>Thu, 18 Aug 2022 14:48:10 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00588.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] VS projects fail to build the resource file</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00587.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/08/18&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Olivier B.%22&quot;&gt;Olivier B.&lt;/a&gt;</description>
+      <pubDate>Thu, 18 Aug 2022 14:02:51 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00587.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] VS projects fail to build the resource file</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00586.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/08/18&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Olivier B.%22&quot;&gt;Olivier B.&lt;/a&gt;</description>
+      <pubDate>Thu, 18 Aug 2022 13:13:08 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00586.html</guid>
+   </item>
+    <item>
+      <title>Re: [xz-devel] VS projects fail to build the resource file</title>
+      <link>http://www.mail-archive.com/xz-devel@tukaani.org/msg00585.html</link>
+      <description>&lt;font color=#6f6f6f&gt; 2022/08/18&lt;/font&gt; -- &lt;a href=&quot;http://www.mail-archive.com/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse Collin%22&quot;&gt;Lasse Collin&lt;/a&gt;</description>
+      <pubDate>Thu, 18 Aug 2022 13:09:55 GMT</pubDate>
+      <guid isPermaLink="true">http://www.mail-archive.com/xz-devel@tukaani.org/msg00585.html</guid>
+   </item>
+ 
+  </channel>
+  </rss>
+<!-- MHonArc v2.6.19+ -->

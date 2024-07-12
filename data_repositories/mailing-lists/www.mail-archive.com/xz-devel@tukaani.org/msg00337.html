@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] Internationalization of man pages</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00337" id="c">
+<link rel="index" href="maillist.html#00337" id="i">
+<link rel="prev" href="msg00336.html" id="p">
+<link rel="next" href="msg00338.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00337.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Internationalization+of+man+pages%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] Internationalization of man pages</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Mario+Bl%C3%A4ttermann%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Mario Blättermann</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20200212" rel="nofollow">Wed, 12 Feb 2020 07:54:24 -0800</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Hello Lasse,
+
+Lasse Collin &lt;lasse.col...@tukaani.org&gt; schrieb am Fr., 7. Feb. 2020, 15:32:</pre><pre>
+
+Hello!
+
+It's been a few months of silence but in the past two weeks have finally
+been able get something done in XZ Utils.
+
+I have committed support for translated man pages. Notes:
+
+  - po4a is never needed when building from a release tarball.
+
+
+This means, distribution packagers don't have to bother with po4a, and the
+translated man pages will be installed automatically (unless DISABLE_NLS)
+is set...?
+
+
+  - po4a is needed to build xz.git if one wants translated man
+    pages. If po4a is missing, building will still work normally
+    without translated man pages.
+
+  - po4a/xz-man.pot, po4a/*.po, and the translated output in
+    po4a/man/$lang are updated by running po4a/update-po. It is
+    only run automatically by autogen.sh and &quot;make mydist&quot; (which
+    I use to create the release tarballs). Running &quot;make&quot; never
+    runs po4a/update-po.
+
+  - To add a new translation, see the comment in po4a/po4a.conf.
+    The extra po4a options like unknown_macros=untranslated aren't
+    needed in XZ Utils.
+
+
+Not for now, but with this options it is better because po4a changes its
+behavior from time to time. Keeping the options would be safer.
+
+
+  - It is OK if only some man pages are available for a language.
+    Symlinks like unxz.1 -&gt; xz.1 are created if and only if the
+    target man page exists for the language.
+
+
+Yes, depending on the translation teams it can happen that a previously
+translated man page doesn't get built anymore because the translation
+doesn't reach the 80% threshold for po4a (after the original text has
+changed and nobody has completed the translation again).
+
+
+  - The translated man pages aren't installed if --disable-nls is used.
+
+  - README wasn't updated yet to mention that man pages can be
+    translated.
+
+
+After the new TP domain has been created (see below), you should add a hint
+there.
+
+The German translation wasn't committed yet as po.de says this:
+
+    This file is distributed under the same license as the
+    manpages-de package.
+
+Which hopefully is trivial to change. :-)
+
+
+No problem, as the one and only author of the translation, I can change the
+license to whatever you want.
+
+
+The v5.2 branch should be very close to what XZ Utils 5.2.5 release
+will look like. The mess with new/updated translations needs to be
+sorted out to some extent, and then I can write NEWS and release a new
+version.
+
+If you wish the German man page translation to be part of 5.2.5, it
+could be good to test that &quot;make DESTDIR=something install&quot; also works
+on something else than GNU/Linux (the scripting for those details is
+ugly). The test should be done so that there are translated man pages
+available in the po4a/man directory, e.g. by using de.po from the first
+post of this thread.
+
+
+I will test it next weekend, but I only use GNU/Linux, I don't have MS
+Windows, BSD, macOS or anything else.
+
+BTW, what about to create a pre-release tarball which contains an
+up-to-date *.pot file for the man pages and send it to the TP coordinator?
+Maybe some other translators are interested in to provide localized man
+pages for xz... And moreover, maybe there are some changes since I've
+worked on the German translation? Not in the content itself, but sometimes
+newer versions of po4a introduce some other formatting.
+
+But regarding new translations: don't expect too much. It's a big chunk,
+and usually there are only a few people who are willing to translate man
+pages. I think Yuri Chornoivan (Ukrainian) and Rafael Fontenelle (Brazilian
+Portuguese) will soon start with, but for other languages, who knows... You
+don't have to wait a long time for new translations; as a rule of thumb,
+you can sync the po files from TP with your Git two weeks after publishing
+the pre-release tarball. And if new po files come in somewhat later, they
+are a good basis for the next release of xz.
+
+Best Regards,
+Mario
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00336.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00337">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00337">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00338.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00329.html">[xz-devel] Internationalization of man pages</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00330.html">Re: [xz-devel] Internationalization of man pages</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00331.html">Re: [xz-devel] Internationalization of man pag...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00332.html">Re: [xz-devel] Internationalization of man...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00333.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00334.html">Re: [xz-devel] Internationalizati...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00335.html">Re: [xz-devel] Internationali...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg00336.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] Internationalization of man pages</span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00338.html">Re: [xz-devel] Internationalization of man pag...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00339.html">Re: [xz-devel] Internationalization of man...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00340.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00341.html">Re: [xz-devel] Internationalization of...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] Internationalization of man pages">
+<input type="hidden" name="msgid" value="CAHi0vA8kWaEn=_6v6ch8_3W2cRV320mZ2fOHN=UPJU+ToVq8gw@mail.gmail.com">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00337.html">
+<input type="submit" value=" Mario Blättermann ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Internationalization+of+man+pages%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00336.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00338.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">CAHi0vA8kWaEn=_6v6ch8_3W2cRV320mZ2fOHN=UPJU+ToVq8gw@mail.gmail.com</li>
+</ul>
+</div>
+</body>
+</html>

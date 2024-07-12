@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] Translation platform for XZ ?</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00328" id="c">
+<link rel="index" href="maillist.html#00328" id="i">
+<link rel="prev" href="msg00323.html" id="p">
+<link rel="next" href="msg00324.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00328.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Translation+platform+for+XZ+%5C%3F%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] Translation platform for XZ ?</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse+Collin%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Lasse Collin</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20190303" rel="nofollow">Sun, 03 Mar 2019 11:47:21 -0800</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Hello! I'm sorry for the delay.
+
+On 2019-02-22 Mario Blättermann wrote:
+&gt; Am Donnerstag, 21. Februar 2019, 18:38:06 CET schrieb Lasse Collin:
+&gt; &gt; On 2019-02-17 Mario Blättermann wrote:  
+&gt; &gt; &gt; It would be nice if xz would be integrated into a global
+&gt; &gt; &gt; translation platform.  
+&gt; &gt; 
+&gt; &gt; Benno Schulenberg asked me about this in 2016. I didn't want to
+&gt; &gt; think about it at that moment and then it was forgotten. :-/ Let's
+&gt; &gt; try again now.
+&gt; &gt;   
+&gt; He's CCed from now on.</pre><pre>
+
+:-) The xz-devel list only allows subscribers to post, which you
+probably already noticed. This a bit inconvenient but it keeps spam
+away. I get the rejected messages in my inbox still.
+
+&gt; &gt; I worry that it's not that simple. My experience is that I need to
+&gt; &gt; look through the translations because most have had some errors in
+&gt; &gt; aligning columns in --help and --list outputs. In some cases it has
+&gt; &gt; taken several tries until a translator has gotten it correctly
+&gt; &gt; done. 
+&gt; &gt; 
+&gt; &gt; There is debug/translation.bash to see the translations in action,
+&gt; &gt; and there are instructions in README section 4. Multiple
+&gt; &gt; translators having similar problems suggests that there's a problem
+&gt; &gt; in my code or instructions, but I don't know how to improve.
+&gt; &gt;  
+&gt; In some translations, the --help output is split into two gettext
+&gt; messages: the option itself and the corresponding description. This
+&gt; way, translators don't have to bother with indentations, tab widths
+&gt; and so on. But this behavior I haven't found very often.
+&gt; Unfortunately, I don't have any coding skills, that's why I won't be
+&gt; able to help you.
+
+I think some GNU packages use &quot;argp&quot; for the --help output where the
+messages are split as you described. argp can be convenient and I
+understand why translators may like it too. On the other hand, raw
+strings give translators more control how --help is shown (e.g. they
+can change the column where the description starts for all messages)
+which might be useful in some (rare) cases.
+
+argp is not in POSIX. argp is availabe in gnulib so it isn't too hard
+to add it into a package. The gnulib implementation is under LGPLv3+.
+xz is public domain because LZMA SDK is; I didn't want to use a more
+restrictive license than the original compression code does. Thus I
+don't want to use argp in xz. (There is GNU getopt_long in xz but it's
+not a big problem because a compatible enough version is available on
+many OSes, including all BSDs.)
+
+Obviously argp isn't the only way to split the --help messages. I
+haven't searched for other ready-made solutions though because so far I
+haven't had much interest in this.
+
+A bit more off-topic but I post it here anyway in case someone finds it
+interesting or even has knowledge and energy to improve the relevant
+argp code:
+
+Splitting the strings in --help works perfectly only if the library is
+sophisticated enough. Things are simple in US-ASCII, ISO-8859-*, and
+such character sets, but nowadays UTF-8 is the most common. In UTF-8 a
+single Unicode code point can use 1-4 bytes and each code point may use
+0, 1, or 2 columns in a terminal. If these things aren't handled
+properly, the --help output won't look perfect.
+
+I tested GNU tar --help under de_DE (ISO-8859-1) and de_DE.UTF-8. It
+think argp uses bytes to calculate string lengths and thus gets it
+wrong under UTF-8 locale:
+
+      --group-map=DATEI      DATEI benutzen, um GIDs und Namen der Besitzer
+                             abzubilden
+      --mode=ÄNDERUNGEN     den (symbolischen) Modus ÄNDERUNGEN für
+                             hinzugefügte Dateien erzwingen
+
+&quot;den (symbolischen)&quot; is misaligned because the Ä in ÄNDERUNGEN is two
+bytes and argp thinks it takes two columns of space, while in reality
+those two bytes use only one column. With ISO-8859-1 locale the
+alignment is correct.
+
+The same problem causes line-wrapping to happen too early. ISO-8859-1
+version first (converted to UTF-8 for email), then UTF-8:
+
+      --xattrs-include=MASKE das Einschluss-Muster für xattr-Schlüssel angeben
+      --xattrs-include=MASKE das Einschluss-Muster für xattr-Schlüssel
+                             angeben
+
+  -P, --absolute-names       führende »/«-Zeichen in den Dateinamen erhalten
+  -P, --absolute-names       führende „/“-Zeichen in den Dateinamen
+                             erhalten
+
+These aren't translator's fault, but still make the translated program
+look slightly sloppy.
+
+&gt; &gt; I wonder should a few experienced translators look at this first so
+&gt; &gt; that possible problems at my side can be fixed. It doesn't sound
+&gt; &gt; great if I get 30 new translations and 25 need similar fixes and I
+&gt; &gt; need to explain them to each translator separately.
+&gt; &gt;   
+&gt; Once a new translation arrives (assuming the TP robot sends it to
+&gt; this list) I will have a look at it.
+
+I'm not sure if I understood correctly. If you meant that the TP would
+send the ready-made translations to xz-devel, I guess it's a problem
+due to only subscribers being able to post to xz-devel. I had thought
+the translations could be sent directly to me but now I'm unsure if
+that is flexible enough.
+
+Benno Schulenberg wrote:
+&gt; For the --help output, I wouldn't worry much about the alignment; it's
+&gt; much more important that the translation is clear and grammatically
+&gt; correct.
+
+I agree that correct language is much more important than the
+alignment. However, I think it's way easier to get the alignment right
+than make a good translation, so if the hard part is done, it would be
+nice if the easy part gets done too. :-)
+
+&gt; For the --list output... I've looked at the Dutch output
+&gt; of xz-5.2.2 (that's installed on my machine) and it is... quite
+&gt; misaligned.  Not looking good.
+
+Oh. :-( If so, it's my fault too as I thought I had checked them before
+committing.
+
+&gt; Maybe have a look at df in coreutils.  It used to have problems with
+&gt; alignment of the column headers too, but they changed things so that
+&gt; each column header is translated separately and they are aligned
+&gt; automatically.  Or maybe have a look at util-linux -- I think it has
+&gt; a mechanism/library to create properly aligned tables.
+
+Thanks! I quickly looked at df and I see it has code that handles the
+various issues in getting the alignment right. :-) I think I cannot use
+that code in xz for license reasons, but on the other hand I don't need
+that fancy features in xz either, I think. There already is some
+multibyte-aware code in xz because some languages use fancy characters
+for thousand separators, and those need to be handled correctly to get
+the alignment right.
+
+Splitting the strings for --list is much easier than for --help (without
+an external library) as --list doesn't need word wrapping. Perhaps I
+should look if it is easy enough to change --list to separate strings,
+or at least part of it. I suppose splitting even a few strings should
+make translations easier and less error prone.
+
+&gt; If that is too much work, then adding a translator instruction (hint)
+&gt; as a comment before the relevant string might help a bit.  Normally
+&gt; one then adds --add-comments=TRANSLATORS to the invocation of
+&gt; xgettext.
+
+There already are TRANSLATORS-comments and they show up in xz.pot too.
+
+&gt; Op 01-03-19 om 21:18 schreef Mario Blättermann:
+&gt; &gt; XZ now could be added now to the TP.  
+&gt; 
+&gt; Okay for me.  But I need a direct request from Lasse,
+
+From other emails I understood that the situation of the existing
+translations and translators is clear now, thus I can now ask that XZ
+Utils becomes part of the TP. I think version 5.2.4 is a decent
+starting point:
+
+    <a  rel="nofollow" href="https://tukaani.org/xz/xz-5.2.4.tar.xz">https://tukaani.org/xz/xz-5.2.4.tar.xz</a>
+
+5.2.5 will probably have no changes in translatable strings, unless I
+suddenly split the strings in --list, but probably I don't want to
+rush that into a bug fix release because I fear regressions.
+
+I plan to add this to README, I hope it's good enough:
+
+    The translations are handled via the Translation Project. If you
+    wish to help translating xz, please join the Translation Project:
+
+        <a  rel="nofollow" href="http://translationproject.org/html/translators.html">http://translationproject.org/html/translators.html</a>
+
+&gt; plus whether he wants to receive a notification when a translator
+&gt; uploads an update, and if yes on which email address.
+
+I would like an email to my personal address (not xz-devel) with an URL
+to the translation.
+
+&gt; And whether he wants the translators to have signed a disclaimer
+&gt; (normally only required for GNU software,
+&gt; <a  rel="nofollow" href="https://translationproject.org/html/whydisclaim.html">https://translationproject.org/html/whydisclaim.html</a>).
+
+The original strings are in the public domain and the translations
+should be too (strictly speaking: as far as PD is legally possible). I
+think it's enough if this is written in the .po files like it is in the
+existing .po files. That is, I don't request any physical papers or
+such things.
+
+Thanks to everyone involved for helping with this!
+
+-- 
+Lasse Collin  |  IRC: Larhzu @ IRCnet &amp; Freenode
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00323.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00328">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00328">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00324.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00321.html">[xz-devel] Translation platform for XZ ?</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00322.html">Re: [xz-devel] Translation platform for XZ ?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00323.html">Re: [xz-devel] Translation platform for XZ ?</a></span> <span class="sender italic">Mario Blättermann</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] Translation platform for XZ...</span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] Translation platform for XZ ?">
+<input type="hidden" name="msgid" value="20190303214508.49939121@tukaani.org">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00328.html">
+<input type="submit" value=" Lasse Collin ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+Translation+platform+for+XZ+%5C%3F%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00323.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00324.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20190303214508.49939121@tukaani.org</li>
+</ul>
+</div>
+</body>
+</html>

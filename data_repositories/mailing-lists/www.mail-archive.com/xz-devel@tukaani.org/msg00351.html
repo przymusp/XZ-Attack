@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: [xz-devel] cmake support?</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00351" id="c">
+<link rel="index" href="maillist.html#00351" id="i">
+<link rel="prev" href="msg00350.html" id="p">
+<link rel="next" href="msg00352.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00351.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+cmake+support%5C%3F%22&amp;o=newest" rel="nofollow"><span itemprop="name">Re: [xz-devel] cmake support?</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Lasse+Collin%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Lasse Collin</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20200216" rel="nofollow">Sun, 16 Feb 2020 16:55:08 -0800</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>On 2020-02-16 Christopher Degawa wrote:
+&gt; &gt; but I don't have much clue how old CMake should be supported.
+&gt; &gt;  
+&gt; If you don't care about centos 7 using 2.8.12, 3.5 is a good lower
+&gt; end to start with since that's what ubuntu 16.04 has in their default
+&gt; repository. Any higher and you might find llvm-dev's discussion of
+&gt; updating the cmake requirements to 3.15 of interest
+&gt; <a  rel="nofollow" href="http://lists.llvm.org/pipermail/llvm-dev/2019-October/136295.html">http://lists.llvm.org/pipermail/llvm-dev/2019-October/136295.html</a>
+&gt; 
+&gt; (Centos 8 has 3.11 it seems, nice)</pre><pre>
+
+Thanks! I will keep those version numbers in mind. I guess the
+importance of supporting old versions largely depends on if the CMake
+support will become usable for more than building liblzma on Windows.
+
+&gt; On Sun, Feb 16, 2020 at 4:48 PM Lasse Collin
+&gt; &lt;lasse.col...@tukaani.org&gt; wrote:
+&gt; &gt; If I use add_library(lzma ...) and PREFIX &quot;lib&quot;, isn't the end
+&gt; &gt; result practically identical to the current method? Or is it more
+&gt; &gt; about coding style and &quot;liblzma&quot; looks weird?
+&gt; &gt;  
+&gt; This was just more of a coding style since not many people usually
+&gt; care to force a lib prefix on msvc built dlls.
+&gt; In my opinion, I would say that forcing lib prefix is a bit weird,
+
+OK. I know it's a bit weird but I also think the alternative is worse.
+
+&gt; but it might be fine in lzma's case since even CMake uses libLZMA
+&gt; <a  rel="nofollow" href="https://cmake.org/cmake/help/latest/module/FindLibLZMA.html">https://cmake.org/cmake/help/latest/module/FindLibLZMA.html</a>
+
+Hmm... its source code is baffling. Sounds like they used LZMA SDK and
+decided to move to liblzma without changing the CMake module name,
+which is weird because for some tasks LZMA SDK is the best or even the
+only choice. This also makes me wonder if I should use xz::liblzma to
+avoid a case-insensitive namespace conflict with FindLibLZMA.
+
+liblzma has always installed a pkg-config file and CMake can use them
+too. It's unfortunate that it wasn't enough. Perhaps it's due to
+Windows again where liblzma.pc is missing. On the other hand, there's
+no #definition of LZMA_API_STATIC for static linking in FindLibLZMA so
+Windows support doesn't fully explain it either.
+
+&gt; &gt; Is there a need for liblzma-only CMake support outside Windows?
+&gt;
+&gt; I guess one main usage would be in the cases where another project
+&gt; uses CMake and pulls liblzma as a dependency and builds it in
+&gt; situations where a system provided liblzma is not available. It would
+&gt; be easier for those people to just use external_project without a lot
+&gt; of configuration with native CMake support instead of worrying about
+&gt; if bash or sh is available for configure
+
+Makes sense. Even if Windows might be the only CMake-supported OS that
+lacks the capability to easily run configure, it's much simpler to stay
+within the same build system type. Perhaps this can be considered
+later.
+
+-- 
+Lasse Collin  |  IRC: Larhzu @ IRCnet &amp; Freenode
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00350.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00351">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00351">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00352.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00342.html">[xz-devel] cmake support?</a></span> <span class="sender italic">Mario Emmenlauer</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00343.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00344.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Mario Emmenlauer</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00345.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00346.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Christopher Degawa</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00347.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00348.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00349.html">Re: [xz-devel] cmake supp...</a></span> <span class="sender italic">Christopher Degawa</span></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg00350.html">Re: [xz-devel] cmake support?</a></span> <span class="sender italic">Christopher Degawa</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: [xz-devel] cmake supp...</span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00352.html">Re: [xz-devel] cmake supp...</a></span> <span class="sender italic">Mario Emmenlauer</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00353.html">Re: [xz-devel] cmake supp...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00354.html">Re: [xz-devel] cmake supp...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00355.html">Re: [xz-devel] cmake supp...</a></span> <span class="sender italic">Mario Emmenlauer</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00356.html">Re: [xz-devel] cmake supp...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00357.html">Re: [xz-devel] cmake supp...</a></span> <span class="sender italic">Mario Emmenlauer</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00358.html">Re: [xz-devel] cmake supp...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="Re: [xz-devel] cmake support?">
+<input type="hidden" name="msgid" value="20200217025417.75bae07b@tukaani.org">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00351.html">
+<input type="submit" value=" Lasse Collin ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22Re%5C%3A+%5C%5Bxz%5C-devel%5C%5D+cmake+support%5C%3F%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00350.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00352.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20200217025417.75bae07b@tukaani.org</li>
+</ul>
+</div>
+</body>
+</html>

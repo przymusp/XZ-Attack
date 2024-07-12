@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>[xz-devel] Parallel decompression support</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00360" id="c">
+<link rel="index" href="maillist.html#00360" id="i">
+<link rel="prev" href="msg00359.html" id="p">
+<link rel="next" href="msg00361.html" id="n">
+<link rel="canonical" href="https://www.mail-archive.com/xz-devel@tukaani.org/msg00360.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<script language="javascript" type="text/javascript">
+document.onkeydown = NavigateThrough;
+function NavigateThrough (event)
+{
+  if (!document.getElementById) return;
+  if (window.event) event = window.event;
+  if (event.target.tagName == 'INPUT') return;
+  if (event.ctrlKey || event.metaKey) return;
+  var link = null;
+  switch (event.keyCode ? event.keyCode : event.which ? event.which : null) {
+    case 74:
+    case 80:
+      link = document.getElementById ('p');
+      break;
+    case 75:
+    case 78:
+      link = document.getElementById ('n');
+      break;
+    case 69:
+      link = document.getElementById ('e');
+      break;
+    }
+  if (link && link.href) document.location = link.href;
+}
+</script>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+Parallel+decompression+support%22&amp;o=newest" rel="nofollow"><span itemprop="name">[xz-devel] Parallel decompression support</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=xz-devel@tukaani.org&amp;q=from:%22Sebastian+Andrzej+Siewior%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Sebastian Andrzej Siewior</span></span></a></span>
+<span class="date"><a href="/search?l=xz-devel@tukaani.org&amp;q=date:20200404" rel="nofollow">Sat, 04 Apr 2020 13:03:21 -0700</a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Hi,
+
+I had an archive of ~35GiB which decompressed into ~80GiB and it took
+almost 20 minutes to do so. Then I was thinking if it would be possible
+to decompress it in parallel by feeding the individual blocks to the
+available CPUs.</pre><pre>
+
+The patch at the bottom is a small C proof of concept so it is possible.
+I managed to decompress the same file in slightly over two minutes on
+system with 16 CPUs.
+
+Could this feature be merged in an improved way into the `xz' binary?
+Here are a few things I don't like
+- The tool forks `xz -lv' to get the list of blocks. I didn't find an
+  API to get this information.
+
+- To decompress an individual block I create a new lzma_stream, feed the
+  first few bytes from the image so it knows what it is and then feed
+  the block. Once the block is done lzma_end() the stream and start
+  over. It would be nice to create one stream for each CPU and then just
+  reset the date after each block and reuse as much as possible of
+  currently allocated memory.
+
+--- /dev/null
++++ punxz.c
+@@ -0,0 +1,460 @@
++/* PoC of parallel unxz, GPLv2, Sebastian A. Siewior */
++#define _GNU_SOURCE
++#include &lt;errno.h&gt;
++#include &lt;fcntl.h&gt;
++#include &lt;lzma.h&gt;
++#include &lt;pthread.h&gt;
++#include &lt;signal.h&gt;
++#include &lt;stdio.h&gt;
++#include &lt;stdlib.h&gt;
++#include &lt;string.h&gt;
++#include &lt;sys/mman.h&gt;
++#include &lt;sys/stat.h&gt;
++#include &lt;sys/time.h&gt;
++#include &lt;sys/types.h&gt;
++#include &lt;unistd.h&gt;
++
++struct item {
++       off_t pos_comp;
++       off_t pos_decomp;
++       ssize_t len_comp;
++       ssize_t len_decomp;
++};
++
++static int fd_out = -1;
++static pthread_mutex_t item_lock;
++static void *comp_mem;
++static int total_items;
++static int current_item;
++static struct item *items;
++static unsigned long total_comp;
++static unsigned long total_uncomp;
++static unsigned long read_comp;
++static unsigned long written_uncomp;
++
++static void create_items(char *filename)
++{
++       FILE *in;
++       int ret;
++       char output[512];
++       char *cmd;
++       long num_stream, num_block, num_block2, off_comp, offs_decomp;
++       int i;
++
++       ret = asprintf(&amp;cmd, &quot;xz --robot -lv %s&quot;, filename);
++       if (ret &lt; 0) {
++               printf(&quot;asprintf\n&quot;);
++               exit(1);
++       }
++
++       in = popen(cmd, &quot;r&quot;);
++       if (!in) {
++               printf(&quot;popen: %m\n&quot;);
++               exit(1);
++       }
++       free(cmd);
++       if (!fgets(output, sizeof(output), in)) {
++               printf(&quot;fgets() %m\n&quot;);
++               exit(1);
++       }
++
++       ret = strncmp(output, &quot;name\t&quot;, 5);
++       if (ret) {
++               printf(&quot;-&gt; %s\n&quot;, output);
++               exit(1);
++       }
++
++       if (!fgets(output, sizeof(output), in)) {
++               printf(&quot;fgets() %m\n&quot;);
++               exit(1);
++       }
++       ret = sscanf(output, &quot;file\t%ld\t%ld\t&quot;,
++                    &amp;num_stream, &amp;num_block);
++       if (ret != 2) {
++               printf(&quot;'file' match failed\n&quot;);
++               exit(1);
++       }
++       if (num_stream != 1) {
++               printf(&quot;Only one stream\n&quot;);
++               exit(1);
++       }
++       if (!fgets(output, sizeof(output), in)) {
++               printf(&quot;fgets() %m\n&quot;);
++               exit(1);
++       }
++       ret = sscanf(output, &quot;stream\t%ld\t%ld\t%ld\t%ld\t%ld\t%ld&quot;,
++                    &amp;num_stream, &amp;num_block2, &amp;off_comp, &amp;offs_decomp,
++                    &amp;total_comp, &amp;total_uncomp);
++       if (ret != 6 || num_stream != 1 || num_block != num_block2) {
++               printf(&quot;Unexpected block/stream value\n&quot;);
++               exit(1);
++       }
++       if (off_comp != 0 || offs_decomp != 0) {
++               printf(&quot;Unexpected comp/uncomp offset\n&quot;);
++               exit(1);
++       }
++       if (!total_comp || !total_uncomp) {
++               printf(&quot;Total comp/uncomp size is zero\n&quot;);
++               exit(1);
++       }
++
++       items = malloc(sizeof(struct item) * num_block);
++       total_items = num_block;
++       current_item = 0;
++       if (!items) {
++               printf(&quot;malloc()\n&quot;);
++               exit(1);
++       }
++
++       for (i = 0; i &lt; num_block; i++) {
++               long cur_block, comp_off, uncomp_off, comp_size, uncomp_size;
++
++               if (!fgets(output, sizeof(output), in)) {
++                       printf(&quot;fgets() %m\n&quot;);
++                       exit(1);
++               }
++               ret = sscanf(output, 
+&quot;block\t%*d\t%*d\t%ld\t%ld\t%ld\t%ld\t%ld\t&quot;,
++                            &amp;cur_block,  &amp;comp_off, &amp;uncomp_off, &amp;comp_size, 
+&amp;uncomp_size);
++               if (ret != 5) {
++                       printf(&quot;Parsing failed\n&quot;);
++                       exit(1);
++               }
++               if (i != cur_block -1) {
++                       printf(&quot;Block num missmatch\n&quot;);
++                       exit(1);
++               }
++               items[i].pos_comp = comp_off;
++               items[i].pos_decomp = uncomp_off;
++               items[i].len_comp = comp_size;
++               items[i].len_decomp = uncomp_size;
++       }
++       do {
++               if (!fgets(output, sizeof(output), in))
++                       break;
++       } while (1);
++       pclose(in);
++}
++
++static void *decomp_one_block(struct item *item)
++{
++       lzma_stream strm = LZMA_STREAM_INIT;
++       lzma_ret lr;
++       char buf[512 * 1024];
++       off_t written = 0;
++
++       lr = lzma_stream_decoder(&amp;strm, 1 &lt;&lt; 30, LZMA_TELL_UNSUPPORTED_CHECK);
++       if (lr != LZMA_OK)
++               printf(&quot;Not okay\n&quot;);
++
++       strm.next_in = comp_mem;
++       strm.avail_in = items[0].pos_comp;
++
++       lr = lzma_code(&amp;strm, LZMA_RUN);
++       if (lr != LZMA_OK) {
++               printf(&quot;Error #1\n&quot;);
++               exit(1);
++       }
++
++       strm.next_in = comp_mem + item-&gt;pos_comp;
++       strm.avail_in = item-&gt;len_comp;
++
++       do {
++               off_t itw;
++               ssize_t w;
++
++               strm.next_out = (void *)buf;
++               strm.avail_out = sizeof(buf);
++
++               lr = lzma_code(&amp;strm, LZMA_RUN);
++               if (lr != LZMA_OK) {
++                       printf(&quot;Failed\n&quot;);
++                       exit(1);
++               }
++               itw = sizeof(buf) - strm.avail_out;
++
++               if (fd_out &gt;= 0) {
++                       w = pwrite(fd_out, buf, itw, item-&gt;pos_decomp + 
+written);
++                       if (w != itw) {
++                               printf(&quot;\n\nFailed to write: %m\n&quot;);
++                               exit(1);
++                       }
++               }
++
++               written += itw;
++
++               if (written == item-&gt;len_decomp)
++                       break;
++       } while (1);
++       lzma_end(&amp;strm);
++       return NULL;
++}
++
++static void *decomp_thread(void *data)
++{
++       struct item item;
++
++       memset(&amp;item, 0, sizeof(item));
++
++       do {
++               int ret;
++               unsigned long page_offs;
++               unsigned long page_len;
++               int inc = 0;
++
++               pthread_mutex_lock(&amp;item_lock);
++               if (item.len_decomp) {
++
++                       written_uncomp += item.len_decomp;
++                       read_comp += item.len_comp;
++               }
++               if (current_item &lt; total_items) {
++                       item = items[current_item];
++                       current_item++;
++               } else {
++                       pthread_mutex_unlock(&amp;item_lock);
++                       return NULL;
++               }
++               pthread_mutex_unlock(&amp;item_lock);
++
++               decomp_one_block(&amp;item);
++               page_offs = (unsigned long)comp_mem + item.pos_comp;
++               if (page_offs &amp; (4096 - 1))
++                       inc = 1;
++
++               page_offs &amp;= ~(4096 - 1);
++               if (inc)
++                       page_offs += 4096;
++
++               page_len = item.len_comp;
++               page_len &amp;= ~(4096 - 1);
++               ret = madvise((void *)page_offs, page_len, MADV_DONTNEED);
++               if (ret)
++                       printf(&quot;madvise(): %lx %lx\n&quot;, page_offs, page_len);
++       } while (1);
++
++       return NULL;
++}
++
++static char *conv_unit(unsigned long *val)
++{
++       unsigned long v = *val;
++       char *units[] = { &quot;&quot;, &quot;KiB&quot;, &quot;MiB&quot;, &quot;GiB&quot;, NULL };
++       int i = 0;
++
++       do {
++               if (v &lt; 10 * 1024)
++                       break;
++               v /= 1024;
++               i++;
++       } while (units[i]);
++       *val = v;
++       return units[i];
++}
++
++static unsigned long last_written;
++
++static void stats_sig(int signum)
++{
++       double mib = 0;
++       unsigned long local_ucomp;
++       unsigned long diff;
++       unsigned long c_written_uncomp, c_read_comp, c_total_uncomp, 
+c_total_comp;
++       char *u_written_uncomp, *u_read_comp, *u_total_uncomp, *u_total_comp;
++
++       local_ucomp = written_uncomp;
++
++       if (!last_written) {
++               last_written = local_ucomp;
++       } else {
++               diff = local_ucomp - last_written;
++               mib = diff;
++               mib /= (1024 * 1024);
++               last_written = local_ucomp;
++       }
++
++       c_written_uncomp = written_uncomp;
++       c_read_comp = read_comp;
++       c_total_uncomp = total_uncomp;
++       c_total_comp = total_comp;
++
++       u_written_uncomp = conv_unit(&amp;c_written_uncomp);
++       u_read_comp = conv_unit(&amp;c_read_comp);
++       u_total_uncomp = conv_unit(&amp;c_total_uncomp);
++       u_total_comp = conv_unit(&amp;c_total_comp);
++
++       fprintf(stderr, &quot;\r%ld%s (%ld%s) of %ld%s (%ld%s) - %3.2f%% %5.2f 
+MiB/sec %20s&quot;,
++               c_written_uncomp, u_written_uncomp,
++               c_read_comp, u_read_comp,
++               c_total_uncomp, u_total_uncomp,
++               c_total_comp, u_total_comp,
++               100.0 / total_uncomp * written_uncomp,
++               mib, &quot;&quot;);
++}
++
++static void set_progress_signal(void)
++{
++       struct sigaction sa;
++       struct itimerval itv;
++
++       memset(&amp;sa, 0, sizeof(sa));
++       sigemptyset(&amp;sa.sa_mask);
++       sa.sa_handler = stats_sig;
++       sa.sa_flags = SA_RESTART;
++       sigaction(SIGALRM, &amp;sa, NULL);
++
++       itv.it_interval.tv_sec = 1;
++       itv.it_interval.tv_usec = 0;
++       itv.it_value = itv.it_interval;
++       setitimer(ITIMER_REAL, &amp;itv, NULL);
++}
++
++static void clr_progress_signal(void)
++{
++       sigaction(SIGALRM, NULL, NULL);
++       stats_sig(0);
++}
++
++#define USEC_PER_SEC   1000000
++static inline int64_t calcdiff(struct timespec t1, struct timespec t2)
++{
++       int64_t diff = USEC_PER_SEC * (long long)((int) t1.tv_sec - (int) 
+t2.tv_sec);
++       diff += ((int) t1.tv_nsec - (int) t2.tv_nsec) / 1000;
++       return diff;
++}
++
++static int get_cpu_num(void)
++{
++       cpu_set_t cpu_mask;
++       int ret = 1;
++
++       if (!sched_getaffinity(0, sizeof(cpu_mask), &amp;cpu_mask))
++               ret = CPU_COUNT(&amp;cpu_mask);
++       return ret;
++}
++
++static void usage(char *s)
++{
++       printf(&quot;Usage: %s [-t num] [-o name] filename.xz\n&quot;, s);
++       printf(&quot;-t num\t Number of threads to use.\n&quot;);
++       printf(&quot;-o name\t Filename to write the output. Default none / test 
+mode\n&quot;);
++       exit(1);
++}
++
++int main(int argc, char *argv[])
++{
++       pthread_mutexattr_t attr;
++       struct stat sbuf;
++       struct timespec ts_begin;
++       struct timespec ts_end;
++       char *fname_in = NULL;
++       char *fname_out = NULL;
++       pthread_t *threads;
++       int num_threads = 0;
++       int ret;
++       int fd;
++       int i;
++       int64_t usec_diff;
++       int opt;
++
++       do {
++               opt = getopt(argc, argv, &quot;t:o:&quot;);
++               if (opt &lt; 0)
++                       break;
++               switch (opt) {
++               case 't':
++                       num_threads = atoi(optarg);
++                       if (num_threads &lt; 0)
++                               num_threads = 0;
++                       break;
++
++               case 'o':
++                       fname_out = optarg;
++                       break;
++
++               default:
++                       usage(argv[0]);
++               }
++       } while (1);
++
++       if (argc == optind + 1)
++               fname_in = argv[optind];
++       else
++               usage(argv[0]);
++
++       fd = open(fname_in, O_RDONLY);
++       if (fd &lt; 0) {
++               printf(&quot;Can't open %s\n&quot;, fname_in);
++               return 1;
++       }
++       ret = fstat(fd, &amp;sbuf);
++       if (ret &lt; 0) {
++               printf(&quot;stat: %m\n&quot;);
++               return 1;
++       }
++       comp_mem = mmap(NULL, sbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
++       if (comp_mem == MAP_FAILED) {
++               printf(&quot;mmap: %m\n&quot;);
++               return 1;
++       }
++       close(fd);
++
++       create_items(fname_in);
++
++       pthread_mutexattr_init(&amp;attr);
++       pthread_mutexattr_setprotocol(&amp;attr, PTHREAD_PRIO_INHERIT);
++       pthread_mutex_init(&amp;item_lock, &amp;attr);
++
++       if (!num_threads)
++               num_threads = get_cpu_num();
++
++       threads = malloc(num_threads * sizeof(pthread_t));
++       if (!threads) {
++               printf(&quot;malloc()\n&quot;);
++               exit(1);
++       }
++
++       if (fname_out) {
++               fd_out = open(fname_out, O_WRONLY | O_CREAT | O_EXCL, 0644);
++               if (fd_out &lt; 0) {
++                       printf(&quot;Can't create new file %s: %m\n&quot;, fname_out);
++                       exit(1);
++               }
++       }
++
++       set_progress_signal();
++
++       ret = clock_gettime(CLOCK_MONOTONIC, &amp;ts_begin);
++       if (ret) {
++               printf(&quot;clock_gettime() failed %m\n&quot;);
++               exit(1);
++       }
++       for (i = 0; i &lt; num_threads; i++) {
++               ret = pthread_create(&amp;threads[i], NULL, decomp_thread, NULL);
++               if (ret != 0) {
++                       printf(&quot;pthread_create() %m\n&quot;);
++                       exit(1);
++               }
++       }
++       for (i = 0; i &lt; num_threads; i++) {
++               ret = pthread_join(threads[i], NULL);
++               if (ret != 0) {
++                       printf(&quot;pthread_join() %m\n&quot;);
++                       exit(1);
++               }
++       }
++       ret = clock_gettime(CLOCK_MONOTONIC, &amp;ts_end);
++       if (ret)
++               printf(&quot;clock_gettime() failed %m\n&quot;);
++       clr_progress_signal();
++       free(threads);
++       free(items);
++       munmap(comp_mem, sbuf.st_size);
++       if (fd_out &gt;= 0)
++               close(fd_out);
++       usec_diff = calcdiff(ts_end, ts_begin);
++
++       printf(&quot;\nOverall write performance: %.3f MiB/sec (%ld bytes in %ld 
+sec).\n&quot;,
++              (double) written_uncomp / usec_diff * 1000 * 1000 / 1024 / 1024,
++              written_uncomp, usec_diff / 1000 / 1000);
++       return 0;
++}
+
+Sebastian
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00359.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00360">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00360">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00361.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceList margintopdouble">
+<ul class="icons monospace">
+<li class="icons-email tSliceCur"><span class="subject">[xz-devel] Parallel decompression support</span> <span class="sender italic">Sebastian Andrzej Siewior</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00361.html">Re: [xz-devel] Parallel decompression suppo...</a></span> <span class="sender italic">Lasse Collin</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00364.html">Re: [xz-devel] Parallel decompression s...</a></span> <span class="sender italic">Lasse Collin</span></li>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="hidden" name="subject" value="[xz-devel] Parallel decompression support">
+<input type="hidden" name="msgid" value="20200404200240.u54xkymqylmqh5u6@flow">
+<input type="hidden" name="relpath" value="xz-devel@tukaani.org/msg00360.html">
+<input type="submit" value=" Sebastian Andrzej Siewior ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="xz-devel@tukaani.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search xz-devel">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/xz-devel@tukaani.org/">xz-devel - all messages</a></li>
+<li class="icons-about"><a href="/xz-devel@tukaani.org/info.html">xz-devel - about the list</a></li>
+<li class="icons-expand"><a href="/search?l=xz-devel@tukaani.org&amp;q=subject:%22%5C%5Bxz%5C-devel%5C%5D+Parallel+decompression+support%22&amp;o=newest&amp;f=1" title="e" id="e">Expand</a></li>
+<li class="icons-prev"><a href="msg00359.html" title="p">Previous message</a></li>
+<li class="icons-next"><a href="msg00361.html" title="n">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+
+</div>
+<div class="margintopdouble">
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+<li class="darkgray">20200404200240.u54xkymqylmqh5u6@flow</li>
+</ul>
+</div>
+</body>
+</html>

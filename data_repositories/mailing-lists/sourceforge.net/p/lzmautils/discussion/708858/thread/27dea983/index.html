@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+
+<html lang="en" class="no-js">
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+<title>
+  XZ Utils / Discussion /
+  Open Discussion: Porting onto powerpc embedded target
+</title>
+<meta name="viewport" content="width=1100">
+<link rel="icon" sizes="180x180" href="https://a.fsdn.com/con/img/sandiego/logo-180x180.png" type="image/png">
+<link rel="icon" sizes="any" href="https://a.fsdn.com/con/img/sandiego/svg/originals/sf-icon-orange-no_sf.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="https://a.fsdn.com/con/img/sandiego/logo-180x180.png">
+<link rel="mask-icon" href="https://a.fsdn.com/con/img/sandiego/svg/originals/sf-icon-orange-no_sf.svg" color="#FF6600">
+<link rel="stylesheet" href="https://a.fsdn.com/con/css/lato.css?">
+<script>
+if (!window.SF) { window.SF = {}; }
+SF.sandiego = false;
+SF.sandiego_chrome = true;
+SF.cdn = "https://a.fsdn.com/con";
+SF.fpid = '49274a03-34cc-42cc-b6f5-2520776e440f';
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=allura%2Fcss%2Fforge%2Fhilite.css%3Ballura%2Fcss%2Fforge%2Ftooltipster.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/allura/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/theme/sftheme/css/forge.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=css%2Fpage_list.css%3Bcss%2Fjquery.tagsinput.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/css/easymde.min.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=css%2Fmarkitup_sf.css%3Bcss%2Fshow-hint.css">
+<style>
+        div.moderate {
+            color:grey;
+        }
+        </style>
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/theme/sftheme/css/sftheme/sandiego/cmp.css">
+
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery-3.6.0.min.js%3Ballura%2Fjs%2Fjquery.cookie-1.4.1.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fcmp2.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fshared_head.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Ftypescript%2Fcompliance.js"></script>
+
+<style type="text/css">
+            /* make URL &amp; Project custom fields in support tickets not get hidden as much */
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(5),
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(6) {
+  overflow: visible;
+  font-size: 22px;
+  width: 340px;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(5) label, .project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(6) label {
+  font-size: 14px;
+}
+        </style>
+<style>.XwpjCtCDrmJofjDCkMOwqWwoHCsWEGwpJwqg {
+        display: none
+    }</style>
+<link rel="canonical" href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/" />
+<script>
+        window.bizx.cmp.init({
+            gam_gdpr_technical_delivery: true,
+        });
+    </script>
+<script>
+    function initPiwik(){
+      var _paq = window._paq = window._paq || [];
+      _paq.push(['trackPageView', document.title, {
+            dimension1: 'lzmautils',
+            dimension2: 'discussion'
+      }]);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//analytics.slashdotmedia.com/";
+        _paq.push(['setTrackerUrl', u+'sf.php']);
+        _paq.push(['setSiteId', 39]);
+        
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'sf.js'; s.parentNode.insertBefore(g,s);
+      })();
+    }
+    bizx.cmp.ifConsent({ purposes: ['storage', 'measurement'], vendors: 'sdm'}, initPiwik);
+</script>
+</head>
+<body class="
+body_class sandiego_chrome  legacy_chrome 
+" id="forge">
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery-ui-1.13.2.min.js"></script>
+
+<div class="off-canvas position-right" id="offCanvas" data-off-canvas>
+
+<ul class="header-nav-menulist">
+<li class="highlight search">
+<form method="get" action="/directory/" class="m-search-form">
+<input type="text" placeholder="Search for software or solutions" autocomplete="off" name="q">
+<label>
+<input type="submit" class="bt" value>
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</label>
+</form>
+</li>
+<li class="highlight"><a href="/auth/">Join/Login</a></li>
+<li><a href="/directory/">Open Source Software</a></li>
+<li><a href="/software/">Business Software</a></li>
+<li><a href="/software/vendors/" title="For Vendors">For Vendors</a></li>
+<li><a href="/blog/" title="Blog">Blog</a></li>
+<li><a href="/about">About</a></li>
+<li><a id="header-nav-more" data-toggle="header-nav-more header-nav-more-content" data-toggler=".toggled">More</a></li>
+<li>
+<ul id="header-nav-more-content" class="toggled" data-toggler=".toggled">
+<li><a href="/articles/">Articles</a></li>
+<li><a href="/create">Create</a></li>
+<li><a href="/learn/">Learn</a></li>
+<li><a href="https://sourceforge.net/articles/category/sourceforge-podcast/">SourceForge Podcast</a></li>
+<li><a href="https://sourceforge.net/p/forge/documentation/Docs%20Home/">Site Documentation</a></li>
+<li><a href="/user/newsletters">Subscribe to our Newsletter</a></li>
+<li><a href="/support">Support Request</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="off-canvas-content" data-off-canvas-content>
+<script>
+    SF.linkout_icon = '<svg  data-name="sf-linkout-icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve"><polygon class="st0" points="243.2,243.2 56.8,243.2 56.8,56.8 123,56.8 123,9 9,9 9,291 291,291 291,179.4 243.2,179 "/><polygon class="st0" points="128.5,213 155,186.5 176,165.5 206.7,196.3 235.5,132.5 248.9,102.6 290.6,9.8 291,9 290.6,9.2 197.4,51.1 169.1,63.8 103.7,93.3 137,126.5 115.9,147.5 89.5,174 "/></svg>';
+</script>
+<div class="l-header-nav  sandiego">
+<section class="sandiego l-header-nav-top show-for-large">
+<div class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<nav class="links">
+<a href="/software/vendors/" title="For Vendors">For Vendors</a>
+<a href="/support" title="Help">Help</a>
+<a href="/create/" title="Create">Create</a>
+<a href="/user/registration" title="Join">Join</a>
+<a href="/auth/" title="Login">Login</a>
+</nav>
+</div>
+</section>
+<section class="sandiego l-header-nav-top hide-for-large">
+<div class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<div class="title-bar-right">
+<button type="button" class="menu-icon" data-toggle="offCanvas"></button>
+</div>
+</div>
+</section>
+<section class="sandiego l-header-nav-bottom">
+<nav class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<div class="links">
+<div class="nav-dropdown">
+<a href="/directory/" title="Browse">Open Source Software</a>
+</div>
+<div class="nav-dropdown">
+<a href="/software/">Business Software</a>
+</div>
+<div class="nav-dropdown">
+<a>Resources</a>
+<ul class="nav-dropdown-menu">
+<li><a href="/articles/">Articles</a></li>
+<li><a href="/software/case-studies/">Case Studies</a></li>
+<li><a href="/learn/">Learn</a></li>
+<li><a href="/blog/">Blog</a></li>
+<li><a href="https://sourceforge.net/articles/category/sourceforge-podcast/">SourceForge Podcast</a></li>
+</ul>
+</div>
+<div class="dev-menu-when-stuck">
+Menu
+<ul class="dev-menu-dropdown header-nav-menulist">
+<li><a href="/support">Help</a></li>
+<li><a href="/create">Create</a></li>
+<li><a href="/user/registration/" title="Join">Join</a></li>
+<li><a href="/auth/" title="Login">Login</a></li>
+</ul>
+</div>
+<div class="search-toggle-when-stuck">
+<a class="search-toggle">
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</a>
+</div>
+</div>
+<div class="search">
+<div class="main-nav-button">
+<a href="/p/import_project/github/" rel="nofollow" title="Sync your Github project to SourceForge" id="github-link">
+<img src="https://a.fsdn.com/con/images/sandiego/github-sync.png" srcset="https://a.fsdn.com/con/images/sandiego/github-sync_2x.png 2x" alt="GitHub sync" id="main-nav-badge" />
+</a>
+</div>
+<form method="get" action="/directory/" class="m-search-form">
+<div class="typeahead__container">
+<div class="typeahead__field">
+<div class="typeahead__query">
+<input type="text" placeholder="Search for software or solutions" autocomplete="off" name="q">
+</div>
+<label>
+<input type="submit" class="bt" value>
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</label>
+</div>
+</div>
+</form>
+</div>
+</nav>
+</section>
+</div>
+<div class="notification-on-project-page">
+</div>
+<section id="page-body" class=" neighborhood-Projects project-lzmautils mountpoint-discussion 
+
+">
+<div id="nav_menu_holder">
+<div class="sandiego">
+<section class="project-masthead">
+<div class="backdrop" style="box-sizing: content-box; padding-bottom: 24px"></div>
+<div class="content">
+<nav id="breadcrumbs" class="breadcrumbs rtl">
+<ul itemscope itemtype="http://schema.org/BreadcrumbList">
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/"><span itemprop="name">Home</span></a>
+<meta itemprop="position" content="1" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/directory/"><span itemprop="name">Browse</span></a>
+<meta itemprop="position" content="2" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/p/lzmautils/"><span itemprop="name">XZ Utils</span></a>
+<meta itemprop="position" content="3" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<span itemprop="name">Discussion</span>
+<meta itemprop="position" content="4" />
+</li>
+</ul>
+</nav>
+<div class="overview">
+<div class="project-icon  default-project-icon ">
+<svg data-name="default-icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve"><rect class="st0" width="300" height="300" /><g><path class="st1" d="M162.5,154.8c0-28.9-10.2-42-15.6-46.9c-1.1-1-2.7-0.1-2.6,1.3c1.1,16.3-19.4,20.3-19.4,45.9h0c0,0.1,0,0.1,0,0.2c0,15.6,11.8,28.3,26.3,28.3c14.5,0,26.3-12.7,26.3-28.3c0-0.1,0-0.1,0-0.2h0c0-7.2-2.7-14.1-5.5-19.3c-0.5-1-2.1-0.6-1.9,0.3C174.9,158.1,162.5,171.8,162.5,154.8z" /><g><path class="st1" d="M131.2,215.6c-0.7,0-1.3-0.3-1.8-0.7l-67.2-67.1c-1-1-1-2.6,0-3.6l70.9-70.9c0.5-0.5,1.1-0.7,1.8-0.7h20.4c1.2,0,2,0.8,2.3,1.6c0.3,0.7,0.3,1.9-0.5,2.7l-66.7,66.7c-1.3,1.3-1.3,3.5,0,4.9l52.7,52.7c1,1,1,2.6,0,3.6L133,214.9C132.5,215.4,131.9,215.6,131.2,215.6z" /></g><g><path class="st1" d="M144.7,227.4c-1.2,0-2-0.8-2.3-1.5c-0.3-0.7-0.3-1.9,0.5-2.7l66.7-66.7c0.7-0.6,1-1.5,1-2.4s-0.4-1.8-1-2.4l-52.7-52.7c-1-1-1-2.6,0-3.6l10.2-10.2c0.5-0.5,1.1-0.7,1.8-0.7c0.7,0,1.3,0.3,1.8,0.7l67,67.1c0.5,0.5,0.7,1.1,0.7,1.8s-0.3,1.3-0.7,1.8l-70.9,70.9c-0.5,0.5-1.1,0.7-1.8,0.7H144.7z" /></g></g></svg>
+</div>
+<div class="title ">
+<meta itemprop="name" content="XZ Utils" />
+<h1>Porting onto powerpc embedded target
+</h1>
+<div class="as-h3 brought-by">
+Brought to you by:
+<a href="/u/larhzu/profile/">larhzu</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div id="top_nav" class>
+<div id="top_nav_admin">
+<ul class="dropdown">
+<li class>
+<a href="/projects/lzmautils/" class="tool-summary-32">
+Summary
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/files/" class="tool-files-sf-32">
+Files
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/reviews/" class="tool-reviews-32">
+Reviews
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/support" class="tool-support-32">
+Support
+</a>
+</li>
+<li class>
+<a href="/p/lzmautils/wiki/" class="tool-wiki-32">
+Wiki
+</a>
+</li>
+<li class>
+<a href="/p/lzmautils/news/" class="tool-blog-32">
+News
+</a>
+</li>
+<li class="selected">
+<a href="/p/lzmautils/discussion/" class="tool-discussion-32">
+Discussion
+</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content_base">
+<a id="sidebar-activate" href="#">
+<span class="btn-label">Menu</span>
+<span class="btn-arrow-down">▾</span>
+<span class="btn-arrow-up">▴</span>
+</a>
+<div id="sidebar">
+<form id="search" method="GET" action="/p/lzmautils/discussion/search/">
+<input name="q" type="text" title="Search Discussion" placeholder="Search Discussion">
+<label>
+<input type="submit" style="display:none">
+<b class="fa fa-search" title="Submit"></b>
+</label>
+</form>
+<ul class="sidebarmenu">
+<li>
+<a class="icon" href="/p/lzmautils/discussion/create_topic/708858" title="Add"><i class="fa fa-plus-circle"></i>
+<span>Create Topic</span>
+</a>
+</li>
+<li>
+<a class="icon" href="/p/lzmautils/discussion/stats" title="Stats"><i class="fa fa-line-chart"></i>
+<span>Stats Graph</span>
+</a>
+</li>
+</ul>
+<h3 class>Forums</h3>
+<ul class="sidebarmenu">
+<li>
+<a href="/p/lzmautils/discussion/708858/">
+<span class="has_small">Open Discussion</span>
+<small>163</small></a>
+</li>
+</ul>
+<h3 class>Help</h3>
+<ul class="sidebarmenu">
+<li>
+<a href="/nf/markdown_syntax" target="_blank">
+<span>Formatting Help</span>
+</a>
+</li>
+</ul>
+</div>
+<script>
+$('#sidebar-admin-header').on('click', function(e){
+    $("#sidebar-admin-menu").toggleClass("hidden");
+    $(this).toggleClass("expanded");
+    e.preventDefault();
+});
+</script>
+<div class="grid-20 pad">
+<h2 class="dark title">
+<span>Porting onto powerpc embedded target</span>
+
+<small>
+<a class="icon thread_feed0" href="feed.rss" rel="nofollow" title="Follow This"><i class="fa fa-rss"></i></a>
+<div id="subscription-form" style="display: inline;"></div>
+<script>
+  document.SUBSCRIPTION_OPTIONS = {
+    "thing": "topic",
+    "subscribed": false,
+    "url": "subscribe",
+    "icon": {
+      "css": "fa fa-envelope-o"
+    }
+  };
+</script>
+</small>
+
+</h2>
+<div class="editbox">
+<div class="grid-5"><label>Forum:</label> <a href="/p/lzmautils/discussion/708858/">Open Discussion</a></div>
+<div class="grid-5"><label>Creator:</label>
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+</div>
+<div class="grid-4"><label>Created:</label>
+<span title="Wed Nov 23, 2011 08:04 PM UTC">
+2011-11-23
+</span>
+</div>
+<div class="grid-5"><label>Updated:</label>
+<span title="Thu May 30, 2013 04:56 PM UTC">
+2013-05-30
+</span>
+</div>
+</div>
+<div>
+<div>
+<div class="comment-row">
+<div id="comment">
+<ul>
+
+<li>
+<div>
+<div id="e484" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Wed Nov 23, 2011 08:04 PM UTC">
+2011-11-23
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#e484" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Question to Author/Experts, </p>
+<p>The utility is great windows and linux.  I was trying to port this onto the target plartforms like powerpc with memory constraint as 2MB RAM.  I think its failing to compress. </p>
+<p>What is the minimum memory requirement ? <br/>
+I read that you just need 4kilo bytes for compress towards dictionary .  <br/>
+No dictionary memory requirement for uncompression algorithm. </p>
+<p>Is this library suitable for memory constrained target boards eg., 100Mhz with 2MB RAM.  </p>
+<p>Any quick thoughts or suggestions?  </p>
+<p>Appreciate your sincere response. </p>
+<p>Regards,<br/>
+azss</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#e484">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="cfcb" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Thu Nov 24, 2011 09:48 AM UTC">
+2011-11-24
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#cfcb" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Do you need compression, or is decompression support enough? </p>
+<p>If decompression is enough, XZ Embedded is a good choice. The code is 8-20 KiB. The decompressor needs about 30 KiB memory to decompress complete .xz streams from one memory buffer into another memory buffer. If you cannot keep both input and output in RAM at once, it will need 30 KiB + dictionary size bytes of memory. </p>
+<p>LZMA SDK from 7-zip.org is also a good choice. It has similar memory requirements. </p>
+<p>If you also need compression, both liblzma from XZ Utils and LZMA SDK can work with 2 MiB RAM. liblzma code is a bit big but you can reduce it a little with configure options. Still, LZMA SDK will probably have smaller code size. Test compression with 64 KiB dictionary size and HC4 match finder, or 32 KiB dictionary and BT4 match finder. Those should work with 2 MiB RAM. </p>
+<p>It is possible to reduce compressor memory usage by about 200 KiB if you switch to fast mode (LZMA_MODE_FAST in liblzma) *and* edit the source code so that certain structures don't get allocated. Both liblzma and LZMA SDK allocate the structures needed for the normal mode even when compressing in fast mode. Since the fast mode doesn't need those structures, omitting them saves RAM. But it takes some extra work to comment them and their initializations out.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#cfcb">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="125e" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Thu Nov 24, 2011 06:37 PM UTC">
+2011-11-24
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#125e" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Larhzu Thank you for your response.<br/>
+I would like to do both i.e., compression and decompression on the target.  <br/>
+And I will try your suggestions. </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#125e">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="5733" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Thu Nov 24, 2011 08:57 PM UTC">
+2011-11-24
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#5733" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Try also HC3, BT2, and BT3 match finders. They use less RAM. For example, BT2 and 64 KiB dictionary should work while the same dictionary with BT4 might use too much.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#5733">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="6ce1" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Wed Dec 07, 2011 03:57 AM UTC">
+2011-12-07
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#6ce1" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>I am trying to read a compressed file, would like read exactly 200 uncompressed bytes in a loop, </p>
+<p>stream.next_out =mybuff<br/>
+stream.avail_out = mylen<br/>
+stream.next_in = cmpressbufferpointer<br/>
+stream.avail_in = cmpressbufferlen </p>
+<p>I observed that once we do lz_code(&amp;stream, LZMA_RUN).  I see avail_out is set to 0 which make sense like it finished decoding. <br/>
+What is correct way to read a compressed file,  I mean how to calculate the out buffer required or can we limit number of  uncompressed bytes.  Currently my input buffer lengh is 7 times bigger than compressed buffer len. </p>
+<p>I have another question, what is the correct way to set dictionary size and filter.  I am using the 3 api's from the library to compress and uncompress files. </p>
+<p>ie., lzma_easy_encoder, <br/>
+lz_code,<br/>
+lz_end </p>
+<p>Temporarily i had inserted one line of code  to set the dictionary size right after lzma_encoder_init insider the lzma_easy_encoder function.  Performance is better as by default it uses 8MB. Now i see its takes about 1.5MB for encoding and 800KB for decoding. </p>
+<p>Any suggestions? </p>
+<p>Thanks,<br/>
+AZSS </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#6ce1">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="8e20" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Wed Dec 07, 2011 07:47 PM UTC">
+2011-12-07
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#8e20" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>I tried to uncompress on 400KB file, i see the decoder needs approx 10MB to uncompress. will it help setting dictionary size? </p>
+<p>Any suggestions on this and above question. </p>
+<p>Regards,<br/>
+AZSS<br/>
+allocated.. 88<br/>
+allocated.. 1400<br/>
+allocated.. 320<br/>
+allocated.. 112<br/>
+allocated.. 216<br/>
+allocated.. 4272<br/>
+allocated.. 184<br/>
+allocated.. 28352<br/>
+allocated.. 8388608 </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#8e20">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="e7c2" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Thu Dec 08, 2011 03:34 PM UTC">
+2011-12-08
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#e7c2" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>I'm not sure if I understood your first question. If you want to get 200 uncompressed bytes at a time, set avail_out to 200 and next_out to point to buffer of at least 200 bytes. Set those variables again and call lzma_code again to get more data. </p>
+<p>With lzma_easy_encoder you can affect the dictionary size indirectly by setting a different preset. If you want to set the dictionary size directly, you need to use lzma_stream_encoder: </p>
+<p>lzma_options_lzma opt; // from lzma/lzma.h<br/>
+lzma_lzma_preset(&amp;opt, LZMA_PRESET_DEFAULT);<br/>
+opt.dict_size = 512 * 1024; </p>
+<p>lzma_filter filters; // from lzma/filter.h<br/>
+filters.id = LZMA_FILTER_LZMA2;<br/>
+filters.options = &amp;opt;<br/>
+filters.id = LZMA_VLI_UNKNOWN; </p>
+<p>lzma_stream strm = LZMA_STREAM_INIT;<br/>
+if (lzma_stream_encoder(&amp;strm, filters, LZMA_CHECK_CRC32) != LZMA_OK) {<br/>
+    // Handle error<br/>
+} </p>
+<p>Then continue with lzma_code like you did before. </p>
+<p>The LZMA2 decompressor memory usage depends on the dictionary size that was used when compressing the file. So yes, setting the dictionary size will reduce the memory usage, but you need to do it when compressing the file. Using a dictionary bigger than the uncompressed size of the file is waste of memory.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#e7c2">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="c918" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Wed Dec 14, 2011 10:41 PM UTC">
+2011-12-14
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#c918" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Could you please confirm on the following code, <br/>
+1) when a pointer is null why are you freeing the buffer? (i == NULL, lzma_free(i,..)<br/>
+2) when a pointer is null how you are accessing its members under lzma_stream_end?<br/>
+3) What is the value of allocator, some of the compiler does like structure.free(buf, alloc). does it has any serious impact if we try to use just free(ptr); instead of allocar.free(ptr)<br/>
+Appreciate your comments.<br/>
+Regards,<br/>
+AZSS<br/>
+extern LZMA_API(lzma_index *)<br/>
+lzma_index_init(lzma_allocator *allocator)<br/>
+{<br/>
+lzma_index *i = index_init_plain(allocator);<br/>
+index_stream *s = index_stream_init(0, 0, 1, 0, allocator);<br/>
+if (i == NULL || s == NULL) {<br/>
+index_stream_end(s, allocator);<br/>
+lzma_free(i, allocator);<br/>
+} </p>
+<p>index_tree_append(&amp;i-&gt;streams, &amp;s-&gt;node);</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#c918">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="24e5" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Thu Dec 15, 2011 06:56 PM UTC">
+2011-12-15
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#24e5" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>That function had a bug. It was fixed a few months ago, but after 5.0.3 release. <a class href="http://git.tukaani.org/?p=xz.git%3Ba=blobdiff%3Bf=src/liblzma/common/index.c%3Bh=9af4bc19d1b540c17f10af264dc365410b3b8c45%3Bhp=ddb9d364362395da59923c9fbed696638e1459eb%3Bhb=844f84fcad9670c543550edf7c7e42630c8f7715%3Bhpb=240e8b9791df597063a3b68d04ffcb3aa4f2de6a" rel="nofollow">The fix</a> will be in 5.0.4. </p>
+<p>The allocator simply allows replacing malloc() and free() with custom versions. It's documented in <a class href="http://git.tukaani.org/?p=xz.git%3Ba=blob%3Bf=src/liblzma/api/lzma/base.h%3Bh=0bad7bc1722899ac0b472f06f0be3b7f5c8498cc%3Bhb=HEAD" rel="nofollow">base.h</a> starting from the line 325. Normally the allocator is NULL and malloc() and free() will be used. I copied the idea of custom allocators from the zlib API. I think it was a mistake, but the custom allocator support cannot be removed without breaking the API and ABI.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#24e5">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="d28d" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Fri Dec 30, 2011 09:53 PM UTC">
+2011-12-30
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#d28d" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Question:<br/>
+I had set the dictionary to 16KiB and I am not setting the filter option.<br/>
+Compression and uncompression works good on the host perfectly.<br/>
+On the target the uncompression works with the following error. The uncompressed file is in good shape with no data loss.  To my understanding the buffers are not updating correctly.  Any quick thoughts something like flushing?<br/>
+lzma_code error: 9<br/>
+lzma_code error: 11 </p>
+<p>Regards,<br/>
+AZSS </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#d28d">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="ac13" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Wed Jan 04, 2012 12:46 PM UTC">
+2012-01-04
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#ac13" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>I don't have much ideas. Do you use identical code on both systems? Did you use normal configure &amp;&amp; make to build liblzma for the target system, or did you create a custom build system (like a custom makefile)?</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#ac13">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="16ec" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Thu Jan 05, 2012 11:17 PM UTC">
+2012-01-05
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#16ec" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Yes.  Both are identical makefiles and  both are custom makefiles. </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#16ec">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="5b1f" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Thu Jan 05, 2012 11:41 PM UTC">
+2012-01-05
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#5b1f" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Question:<br/>
+Is there any API that tells how much memory is required to uncompress just by reading header.<br/>
+I guess when you compress a file with huge dictionary, during uncompression it might create that big dictionary?</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#5b1f">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="c0d9" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Tue Jan 10, 2012 03:04 PM UTC">
+2012-01-10
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#c0d9" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>It might be an endianness issue. config.h must define WORDS_BIGENDIAN on a big endian system. </p>
+<p>There's no good API to get file information like decompressor memory requirements or uncompressed size. It should be added. Other people have asked for it too. "xz -lvv foo.xz" can show that information, but it needs more work to make such code fit into liblzma. </p>
+<p>There's a fairly simple hack (with some limitations) that you can use though: </p>
+<div class="codehilite"><pre><span></span>uint8_t in[4096];
+size_t in_size = fread(in, 1, sizeof(in), input_stream);
+if (in_size == 0) handle_error();
+size_t in_pos = 0;
+size_t out_pos = 0;
+uint64_t mem = 96 &lt;&lt; 10;
+lzma_ret ret = lzma_stream_buffer_decode(&amp;mem, 0, NULL, in, &amp;in_pos, in_size, NULL, &amp;out_pos, 0);
+</pre></div>
+<p>If it returns LZMA_OK, it is a .xz file with no data inside. If it returns LZMA_BUF_ERROR, the memory requirement is less than 96 KiB. If it returns LZMA_MEMLIMIT_ERROR, the memory requirement is over 96 KiB and has been stored in the mem variable. </p>
+<p>One limitation of this hack is that it checks only the first .xz Block. Usually that doesn't matter because if there are multiple Blocks, they tend to have the same memory requirements in practice. </p>
+<p>It would be better to do this with the multi-call API (lzma_stream_decoder and lzma_code). It would work with concatenated empty streams (which is an unusual but possible situation), and it would keep working also if future .xz format and liblzma  versions get metadata support, which can push the relevant header beyond the first 4096 bytes. I used lzma_stream_buffer_decode above because it made the example simpler and might be enough for you. </p>
+<p>Note that liblzma isn't very accurate with memory usage calculation. I have tried to make it so that the real usage is unlikely to exceed the calculated value. </p>
+<p>Decompressor memory usage depends on the dictionary size. If you compress with 8 MiB dictionary, the decompressor will allocate 8 MiB dictionary too.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#c0d9">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="095f" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Fri Jan 20, 2012 05:25 AM UTC">
+2012-01-20
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#095f" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>I still get the LZMA_DATA_ERROR.  It fails inside block_decoder.c.<br/>
+The uncompressed file looks to be good and everytime it happens in the last final block.<br/>
+Compressed file on the intel host using the following method.  <br/>
+xz -z -lzma2=dict=16KiB -check=crc32<br/>
+In another case compression is done onthe target by setting filter to LZMA_FILTER_LZMA2, dictionary to 16Kib and it fails under the following line.<br/>
+if (lzma_check_is_supported(coder-&gt;block-&gt;check)<br/>
+&amp;&amp; memcmp(coder-&gt;block-&gt;raw_check,<br/>
+coder-&gt;check.buffer.u8,<br/>
+check_size) != 0)<br/>
+I think i am missing some bit setting under config file. <br/>
+FYI: I had already taken take of above suggestion on endianness.<br/>
+Any suggestions?</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#095f">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="3ebd" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Fri Jan 20, 2012 07:25 AM UTC">
+2012-01-20
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#3ebd" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>That's exactly where I thought an endianness issue would appear if the endianness has been set incorrectly. Did you try compressing on the target system and then decompress that file on x86 system? </p>
+<p>The only other setting that could have some effect is TUKLIB_FAST_UNALIGNED_ACCESS. It should be fine on both x86 and PowerPC, although I have heard that there are some (older, possibly non-standard) embedded PowerPC CPUs that don't support unaligned access. </p>
+<p>You could try to print (as hex) the first check_size bytes of coder-&gt;block-&gt;raw_check and see how they differ between PowerPC and x86 when decompressing the same file. </p>
+<p>If you still don't find the problem, try disabling compiler optimizations. If that helps, there might be a bug in the compiler but it is also possible that there's a bug in XZ Utils.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#3ebd">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="bc4b" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Mon Jan 23, 2012 09:09 PM UTC">
+2012-01-23
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#bc4b" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Question:<br/>
+When i tried to print the data (i guess its footer block) looks to have byte swapping issue(I guess so). </p>
+<p>if (lzma_check_is_supported(coder-&gt;block-&gt;check)<br/>
+&amp;&amp; memcmp(coder-&gt;block-&gt;raw_check,<br/>
+coder-&gt;check.buffer.u8,<br/>
+check_size) != 0) </p>
+<p>return LZMA_DATA_ERROR; </p>
+<p>x86 (debug output) </p>
+<p>(gdb) p coder-&gt;block-&gt;raw_check<br/>
+$1 = "pÃ•\233\200", '\000' &lt;repeats 59 times&gt;<br/>
+(gdb) p coder-&gt;check.buffer.u8<br/>
+$2 = "pÃ•\233\200", '\000' &lt;repeats 59 times&gt;<br/>
+(gdb) p check_size </p>
+<p>PPC (debug output)<br/>
+(gdb) p coder-&gt;block-&gt;raw_check<br/>
+$14 = "\200\233Ã•p", '\000' &lt;repeats 59 times&gt;<br/>
+(gdb) p coder-&gt;check.buffer.u8<br/>
+$15 = "####", '\000' &lt;repeats 59 times&gt; </p>
+<p>Now, i would like to know what could casue this encoding even after you have taken care on target flags related to big endian while compression like BIG_ENDIAN under config.h  What other flags are related to encoding.  I see same problem if i encode on X86, decode on PPC (Big Endian) target or vice versa. </p>
+<p>Appreciate your comments/suggestions. </p>
+<p>Regards,<br/>
+AZSS </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#bc4b">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="3ef8" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="SOMS" title="SOMS" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/azss/profile/" class="user-mention">
+SOMS
+</a>
+- <i style="color: #777">
+<span title="Thu Jan 26, 2012 06:16 PM UTC">
+2012-01-26
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#3ef8" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Please ignore my request.  I found the issue.<br/>
+My apology, In my config i need set the SIZE_MAX to correct value like 32BIT MAX. That has taken care.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/27dea983/#3ef8">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+</div>
+<div style="clear:both"></div>
+<div style="clear:both"></div>
+</div>
+</div>
+<hr>
+<p>
+<a href="/auth/">Log in</a> to post a comment.
+</p>
+</div>
+</div>
+</div>
+</section>
+<footer class="sandiego">
+<div class="as-row">
+<div class="footer-wrapper">
+<nav aria-label="Site Links" role="navigation">
+<section>
+<div class="as-h2">SourceForge</div>
+<ul>
+<li><a href="/create/" title="Create a Project">Create a Project</a></li>
+<li><a href="/directory/" title="Open Source Software Directory">Open Source Software</a></li>
+<li><a href="/software/" title="Business Software Directory">Business Software</a></li>
+<li><a href="/top" title="Top Open Source Projects">Top Downloaded Projects</a></li>
+</ul>
+</section>
+</nav>
+<nav aria-label="Company Links" role="navigation">
+<section>
+<div class="as-h2">Company</div>
+<ul>
+<li><a href="/about">About</a></li>
+<li><a href="/about/leadership" title="Open Source Software Directory">Team</a></li>
+<li class="h-card">
+<address>
+<span class="p-name p-org">SourceForge Headquarters</span><br>
+<span class="p-street-address">225 Broadway Suite 1600</span><br>
+<span class="p-locality">San Diego, CA <span class="p-postal-code">92101</span></span><br>
+<span class="p-tel">+1 (858) 454-5900</span><br>
+</address>
+</li>
+<li id="social">
+<span></span>
+<a href="https://twitter.com/sourceforge" class="twitter" rel="nofollow" target="_blank">
+<svg class="vertical-icon-fix" data-name="twitter" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z" /></svg></a>
+<a href="https://fosstodon.org/@sourceforge" rel="me nofollow" target="_blank">
+<svg class="vertical-icon-fix" data-name="mastodon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z" /></svg></a>
+<a href="https://www.facebook.com/sourceforgenet/" class="facebook" rel="nofollow" target="_blank">
+<svg data-name="facebook" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1343 12v264h-157q-86 0-116 36t-30 108v189h293l-39 296h-254v759h-306v-759h-255v-296h255v-218q0-186 104-288.5t277-102.5q147 0 228 12z" /></svg></a>
+<a href="https://www.linkedin.com/company/sourceforge.net" class="linkedin" rel="nofollow" target="_blank">
+<svg data-name="linkedin" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M477 625v991h-330v-991h330zm21-306q1 73-50.5 122t-135.5 49h-2q-82 0-132-49t-50-122q0-74 51.5-122.5t134.5-48.5 133 48.5 51 122.5zm1166 729v568h-329v-530q0-105-40.5-164.5t-126.5-59.5q-63 0-105.5 34.5t-63.5 85.5q-11 30-11 81v553h-329q2-399 2-647t-1-296l-1-48h329v144h-2q20-32 41-56t56.5-52 87-43.5 114.5-15.5q171 0 275 113.5t104 332.5z" /></svg></a>
+<span></span>
+</li>
+</ul>
+</section>
+</nav>
+<nav aria-label="Resources Links" role="navigation">
+<section>
+<div class="as-h2">Resources</div>
+<ul>
+<li><a href="/support" title="Support Section">Support</a></li>
+<li><a href="/p/forge/documentation/Docs%20Home/" title="Site Documentation">Site Documentation</a></li>
+<li><a href="https://fosstodon.org/@sourceforgestatus" title="Site Status" rel="me nofollow">Site Status</a></li>
+</ul>
+</section>
+</nav>
+<section class="footer-logo">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+</section>
+</div>
+</div>
+<section class="l-nav-bottom">
+<nav class="row">
+<div class="columns small-12 large-6 copyright-notice">
+&copy; 2024 Slashdot Media. All Rights Reserved.
+</div>
+<div class="columns large-6 links links-right">
+<a href="https://slashdotmedia.com/terms-of-use" title="Terms" rel="nofollow">Terms</a>
+<a href="https://slashdotmedia.com/privacy-statement/" title="Privacy" rel="nofollow">Privacy</a>
+<a href="#" title="Privacy Choices" id="privacy-choices" class="btn-privay-choices">Privacy Choices</a>
+<a href="https://slashdotmedia.com/contact/" target="_blank" title="Advertise" rel="nofollow">Advertise</a>
+</div>
+</nav>
+</section>
+</footer>
+</div>
+<div id="messages">
+</div>
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery.notify.js%3Ballura%2Fjs%2Fjquery.tooltipster.js%3Ballura%2Fjs%2Fallura-base.js%3Ballura%2Fjs%2Fchecklist.js%3Ballura%2Fjs%2Fadmin_modal.js%3Bjs%2Fjquery.lightbox_me.js%3Ballura%2Fjs%2Fmemorable.js%3Bjs%2Fjquery.tagsinput.js%3Bjs%2Feasymde.min.js%3Bjs%2Fsf_markitup.js%3Bjs%2Fshow-hint.js%3Bjs%2Fusermentions-helper.js%3Bjs%2Fpost.js%3Bjs%2Freactions.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fshared.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsticky.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Fchrome.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Futilities.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.core.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.mediaQuery.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.keyboard.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.box.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.nest.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.dropdownMenu.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.offcanvas.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.toggler.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Fproject.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Fjquery.typeahead.min.js%3Ballura%2Fjs%2Freact.production.min.js%3Ballura%2Fjs%2Freact-dom.production.min.js%3Ballura%2Fjs%2Fcreate-react-class.min.js%3Ballura%2Fjs%2Fprop-types.min.js"></script>
+
+
+<script type="text/javascript">$(function () {
+            $('select.results_per_page').change(function () {
+                this.form.submit();});});
+$(function () {
+          $('input.label_edit').tagsInput({
+              'height':'100%',
+              'width':'100%',
+              'autocomplete_url':'/p/lzmautils/discussion/tags'
+          });
+          $('form').on('blur', '.ui-autocomplete-input', function() {
+              setTimeout(function(){
+                  var clicked = $(document.activeElement); // This is the element that has focus
+                  if (clicked.is('#ui-active-menuitem')) {
+                      return false;
+                  } else {
+                      var value = $('div.tagsinput div input').val();
+                      var exists = $('input.label_edit').tagExist(value);
+                      var default_value = $('div.tagsinput div input').attr('data-default');
+                      if ((value !== default_value) && (!exists) && value !== '') {
+                          $('input.label_edit').addTag(value);
+                      }
+                      $('input[type=submit]', this).prop('disabled', true);
+                  }
+                }, 1);
+            });
+        });
+$(function () {getProjectUsers('/p/lzmautils//users')});
+$(document).ready(function () {
+            $("a.attachment_form_add_button").click(function(evt){
+                $(this).hide();
+                $(".attachment_form_fields", this.parentNode).show();
+                evt.preventDefault();
+            });
+            $("a.cancel_edit_post").click(function(evt){
+                evt.preventDefault();
+                var form = this.parentNode;
+                var orig_val = $("input.original_value", form).val();
+                $("textarea", form).val(orig_val);
+                get_cm(form).setValue(orig_val);
+                $("input.attachment_form_fields", form).val('');
+                $(this).closest('.reply_post_form').hide();
+            });
+         });
+
+        $(document).ready(function () {
+            var thread_tag = $('a.thread_tag');
+            var thread_spam = $('a.sidebar_thread_spam');
+            var tag_thread_holder = $('#tag_thread_holder');
+            var allow_moderate = $('#allow_moderate');
+            var mod_thread_link = $('#mod_thread_link');
+            var mod_thread_form = $('#mod_thread_form');
+            if (mod_thread_link.length) {
+                if (mod_thread_form.length) {
+                    mod_thread_link.click(function (e) {
+                        mod_thread_form.toggle();
+                        return false;
+                    });
+                }
+            }
+            if (thread_tag.length) {
+                if (tag_thread_holder.length) {
+                    var submit_button = $('input[type="submit"]', tag_thread_holder);
+                    var cancel_button = $('<a href="#" class="btn link">Cancel</a>').click(function(evt){
+                        evt.preventDefault();
+                        tag_thread_holder.hide();
+                        thread_tag.removeClass('active');
+                    });
+                    submit_button.after(cancel_button);
+                    thread_tag.click(function (e) {
+                        tag_thread_holder.show();
+                        thread_tag.addClass('active');
+                        // focus the submit to scroll to the form, then focus the subject for them to start typing
+                        submit_button.focus();
+                        $('input[type="text"]', tag_thread_holder).focus();
+                        return false;
+                    });
+                }
+            }
+            if (thread_spam.length) {
+                if (allow_moderate.length) {
+                    thread_spam[0].style.display='block';
+                }
+            }
+        });
+        
+
+            var global_reactions = {":+1:": "\ud83d\udc4d", ":-1:": "\ud83d\udc4e", ":smile:": "\ud83d\ude04", ":tada:": "\ud83c\udf89", ":confused:": "\ud83d\ude15", ":heart:": "\u2764\ufe0f"};
+        </script>
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=theme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.triggers.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.reveal.min.js"></script>
+
+<script>
+    bizx.cmp.ifConsent('', ['all', 'google-ads'], function () {}, function(){
+        $('body').addClass('no-ads-consent'); 
+    });
+</script>
+<script>
+        $(document).foundation();
+    </script>
+
+<script>
+    (function () {
+        bizx.cmp.ifConsent({ purposes: 'all', vendors: 'bombora'}, function () {
+            /*global _ml:true, window */
+            _ml = window._ml || {};
+            _ml.eid = '771';
+            _ml.fp = '49274a03-34cc-42cc-b6f5-2520776e440f';  
+            var s = document.getElementsByTagName('script')[0], cd = new Date(), mltag = document.createElement('script');
+            mltag.type = 'text/javascript';
+            mltag.async = true;
+            mltag.defer = true;
+            mltag.src = '//ml314.com/tag.aspx?' + cd.getDate() + cd.getMonth() + cd.getFullYear();
+            s.parentNode.insertBefore(mltag, s);
+        });
+    })();
+</script>
+
+<script>
+    $(document).ready(function () {
+        $(".tooltip, .m-tooltip").each(function(){
+            let $el = $(this);
+            $el.tooltipster({
+                animation: 'fade',
+                delay: 200,
+                theme: 'tooltipster-light',
+                trigger: 'hover',
+                position: $el.data('position') || 'right',
+                iconCloning: false,
+                maxWidth: 300,
+                contentAsHTML: true,
+                interactive: true
+            }).focus(function () {
+                $(this).tooltipster('show');
+            }).blur(function () {
+                $(this).tooltipster('hide');
+            });
+        });
+    });
+</script>
+</script>
+</body>
+</html>

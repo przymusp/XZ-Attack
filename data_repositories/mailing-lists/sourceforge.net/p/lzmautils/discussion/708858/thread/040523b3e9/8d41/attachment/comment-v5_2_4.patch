@@ -1,0 +1,69 @@
+diff -Npur xz-5.2.4-ori/src/liblzma/common/alone_encoder.c xz-5.2.4/src/liblzma/common/alone_encoder.c
+--- xz-5.2.4-ori/src/liblzma/common/alone_encoder.c	2018-04-29 23:10:38.000000000 +0800
++++ xz-5.2.4/src/liblzma/common/alone_encoder.c	2019-05-20 20:49:08.966878500 +0800
+@@ -1,7 +1,7 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+-/// \file       alone_decoder.c
+-/// \brief      Decoder for LZMA_Alone files
++/// \file       alone_encoder.c
++/// \brief      Encoder for LZMA_Alone files
+ //
+ //  Author:     Lasse Collin
+ //
+diff -Npur xz-5.2.4-ori/src/liblzma/common/block_util.c xz-5.2.4/src/liblzma/common/block_util.c
+--- xz-5.2.4-ori/src/liblzma/common/block_util.c	2018-04-29 23:10:38.000000000 +0800
++++ xz-5.2.4/src/liblzma/common/block_util.c	2019-05-20 20:49:20.982970000 +0800
+@@ -1,6 +1,6 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+-/// \file       block_header.c
++/// \file       block_util.c
+ /// \brief      Utility functions to handle lzma_block
+ //
+ //  Author:     Lasse Collin
+diff -Npur xz-5.2.4-ori/src/liblzma/common/common.c xz-5.2.4/src/liblzma/common/common.c
+--- xz-5.2.4-ori/src/liblzma/common/common.c	2018-04-29 23:10:38.000000000 +0800
++++ xz-5.2.4/src/liblzma/common/common.c	2019-05-20 20:49:27.956267500 +0800
+@@ -1,6 +1,6 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+-/// \file       common.h
++/// \file       common.c
+ /// \brief      Common functions needed in many places in liblzma
+ //
+ //  Author:     Lasse Collin
+diff -Npur xz-5.2.4-ori/src/liblzma/common/filter_common.h xz-5.2.4/src/liblzma/common/filter_common.h
+--- xz-5.2.4-ori/src/liblzma/common/filter_common.h	2018-04-29 23:10:38.000000000 +0800
++++ xz-5.2.4/src/liblzma/common/filter_common.h	2019-05-20 20:49:38.651122500 +0800
+@@ -1,6 +1,6 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+-/// \file       filter_common.c
++/// \file       filter_common.h
+ /// \brief      Filter-specific stuff common for both encoder and decoder
+ //
+ //  Author:     Lasse Collin
+diff -Npur xz-5.2.4-ori/src/liblzma/common/filter_decoder.h xz-5.2.4/src/liblzma/common/filter_decoder.h
+--- xz-5.2.4-ori/src/liblzma/common/filter_decoder.h	2018-04-29 23:10:38.000000000 +0800
++++ xz-5.2.4/src/liblzma/common/filter_decoder.h	2019-05-20 20:49:47.925088000 +0800
+@@ -1,6 +1,6 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+-/// \file       filter_decoder.c
++/// \file       filter_decoder.h
+ /// \brief      Filter ID mapping to filter-specific functions
+ //
+ //  Author:     Lasse Collin
+diff -Npur xz-5.2.4-ori/src/liblzma/common/filter_flags_encoder.c xz-5.2.4/src/liblzma/common/filter_flags_encoder.c
+--- xz-5.2.4-ori/src/liblzma/common/filter_flags_encoder.c	2018-04-29 23:10:38.000000000 +0800
++++ xz-5.2.4/src/liblzma/common/filter_flags_encoder.c	2019-05-20 20:50:09.521965000 +0800
+@@ -1,7 +1,7 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ /// \file       filter_flags_encoder.c
+-/// \brief      Decodes a Filter Flags field
++/// \brief      Encodes a Filter Flags field
+ //
+ //  Author:     Lasse Collin
+ //

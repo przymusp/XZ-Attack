@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to Comment Errors</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/040523b3e9/</link><description>Recent posts to Comment Errors</description><language>en</language><lastBuildDate>Mon, 03 Jun 2019 17:49:06 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/040523b3e9/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>Comment Errors</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/040523b3e9/?limit=25#c468</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Thanks! Committed.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Mon, 03 Jun 2019 17:49:06 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net5f5260a87caee0f0195bfe7033672896f396f45a</guid></item><item><title>Comment Errors</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/040523b3e9/?limit=25#8d41</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Hi, Lasse Collin. I found some comment errors in Version 5.2.4.&lt;br/&gt;
+The comment errors  are as follows:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;src/liblzma/common/alone_encoder.c&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file   alone_decoder.c
+/// \brief  Decoder for LZMA_Alone files
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I think it should be &lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file   alone_encoder.c
+/// \brief  Encoder for LZMA_Alone files
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;src/liblzma/common/block_util.c&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file   block_header.c
+/// \brief  Ultility funcitons to handle lzma_block
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I think it should be &lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file   block_util.c
+/// \brief  Ultility funcitons to handle lzma_block
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;src/liblzma/common/common.c&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file   common.h
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I think it should be &lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file   common.c
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;src/liblzma/common/filter_common.h&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file   filter_common.c
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I think it should be &lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file   filter_common.h
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;src/liblzma/common/ filter_decoder.h&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file    filter_decoder.c
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I think it should be &lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file    filter_decoder.h
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;src/liblzma/common/ filter_flags_encoder.c&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/// \file    filter_flags_encoder.c
+/// \brief   Decodes a Filter Flags field
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I think it should be &lt;br/&gt;
+ ~~~&lt;br/&gt;
+/// \file    filter_flags_encoder.c&lt;br/&gt;
+/// \brief   Encodes a Filter Flags field&lt;br/&gt;
+~~~&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">lipeng</dc:creator><pubDate>Mon, 20 May 2019 10:58:01 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net88ab91d49ea9a4f0d3fba66a78875e4c18af98d7</guid></item></channel></rss>

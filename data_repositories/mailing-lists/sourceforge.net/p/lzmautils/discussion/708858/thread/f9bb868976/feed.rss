@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to Compile Error: Automake Version</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/f9bb868976/</link><description>Recent posts to Compile Error: Automake Version</description><language>en</language><lastBuildDate>Thu, 14 Nov 2019 20:07:50 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/f9bb868976/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>Compile Error: Automake Version</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/f9bb868976/?limit=25#94fd</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I have been on a computer only now and then in the past several months and had ignored this forum. I'm sorry for the delay. I reply in case this still happens to be relevant.&lt;/p&gt;
+&lt;p&gt;Older Automake should be fine but if you use a release tarball, you need to use the older Automake to generate the build files. That is, run &lt;code&gt;autoreconf -fi&lt;/code&gt; before trying &lt;code&gt;./configure&lt;/code&gt; and it should work fine (unless I've accidentally done something that requires a newer Automake). Note that you don't need Automake at all when you use a released tarball unless you modify the build-related files; one can just run &lt;code&gt;./configure&lt;/code&gt;.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Thu, 14 Nov 2019 20:07:50 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netcf694fcffee07b49072d98ab8c5355aeffdf1dbd</guid></item><item><title>Compile Error: Automake Version</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/f9bb868976/?limit=25#f60b</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Hi,&lt;br/&gt;
+I met a compile error from source code in CentOS.&lt;br/&gt;
+In the system, I install automake 1.13.4 according to follow messge.&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Branches: 
+•master: the latest development code
+•v5.2: fixes for the next 5.2.x release
+•v5.0: fixes for the next 5.0.x release (unmaintained)
+
+Building the code from the git repository requires GNU Autotools. Here are the minimum versions that should work with XZ Utils; using the latest versions is strongly recommended: 
+•Autoconf 2.64
+•Automake 1.12
+•gettext 0.19 (Note: autopoint depends on cvs!)
+•libtool 2.2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;But I met these error (I run automake and ./configure again, but the error again) when I run make command:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;***/src/build-aux/missing: line 81: aclocal-1.15: command not found
+WARNING: 'alocal-1.15' is missing on your system.
+....
+....
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And when I install automake 1.15, it builds successful.&lt;br/&gt;
+What is the problem? The requirement for automake change to  1.15?&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Bruce Stark</dc:creator><pubDate>Fri, 26 Jul 2019 03:42:01 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netffa7aa1fec66815f99ca80c0901523102dc2c7c8</guid></item></channel></rss>

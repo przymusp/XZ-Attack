@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to Diffrence between 7z and xz lzma2 code</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/d4a4effd/</link><description>Recent posts to Diffrence between 7z and xz lzma2 code</description><language>en</language><lastBuildDate>Tue, 21 May 2019 13:33:14 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d4a4effd/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>Diffrence between 7z and xz lzma2 code</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/d4a4effd/?limit=25#4c83</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I tried to find the exact same code for the LZMA2 used in the XZ Utils and LZMA SDK , unfortunately it was not found.&lt;br/&gt;
+But I found some code that the internal logic is same and they are all contributed by Igor Pavlov.&lt;/p&gt;
+&lt;p&gt;I have listed the following records:&lt;/p&gt;
+&lt;p&gt;1&amp;gt; LZMA SDK --- file : LzFind.c --- function : MatchFinder_Create(...) :&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;   if (p-&amp;gt;numHashBytes == 2)
+        hs = (1 &amp;lt;&amp;lt; 16) - 1;
+      else
+      {
+        hs = historySize - 1;
+        hs |= (hs &amp;gt;&amp;gt; 1);
+        hs |= (hs &amp;gt;&amp;gt; 2);
+        hs |= (hs &amp;gt;&amp;gt; 4);
+        hs |= (hs &amp;gt;&amp;gt; 8);
+        hs &amp;gt;&amp;gt;= 1;
+        /* hs &amp;gt;&amp;gt;= p-&amp;gt;skipModeBits; */
+        hs |= 0xFFFF; /* don't change it! It's required for Deflate */
+        if (hs &amp;gt; (1 &amp;lt;&amp;lt; 24))
+        {
+          if (p-&amp;gt;numHashBytes == 3)
+            hs = (1 &amp;lt;&amp;lt; 24) - 1;
+          else
+            hs &amp;gt;&amp;gt;= 1;
+        }
+      }
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;XZ Utils --- file : lz_encoder.c --- function : lz_encoder_prepare(...) :&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;   if (hash_bytes == 2) {
+        hs = 0xFFFF;
+    } else {
+        // Round dictionary size up to the next 2^n - 1 so it can
+        // be used as a hash mask.
+        hs = lz_options-&amp;gt;dict_size - 1;
+        hs |= hs &amp;gt;&amp;gt; 1;
+        hs |= hs &amp;gt;&amp;gt; 2;
+        hs |= hs &amp;gt;&amp;gt; 4;
+        hs |= hs &amp;gt;&amp;gt; 8;
+        hs &amp;gt;&amp;gt;= 1;
+        hs |= 0xFFFF;
+
+        if (hs &amp;gt; (UINT32_C(1) &amp;lt;&amp;lt; 24)) {
+            if (hash_bytes == 3)
+                hs = (UINT32_C(1) &amp;lt;&amp;lt; 24) - 1;
+            else
+                hs &amp;gt;&amp;gt;= 1;
+        }
+    }
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr/&gt;
+&lt;p&gt;2&amp;gt;  LZMA SDK --- file : LzmaEnc.c --- function : GetOptimumFast(...) :&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    if (repLen &amp;gt;= 2 &amp;amp;&amp;amp; (
+        (repLen + 1 &amp;gt;= mainLen) ||
+        (repLen + 2 &amp;gt;= mainLen &amp;amp;&amp;amp; mainDist &amp;gt;= (1 &amp;lt;&amp;lt; 9)) ||
+        (repLen + 3 &amp;gt;= mainLen &amp;amp;&amp;amp; mainDist &amp;gt;= (1 &amp;lt;&amp;lt; 15))))
+    {
+      *backRes = repIndex;
+      MovePos(p, repLen - 1);
+      return repLen;
+    }
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;XZ Utils --- file : lzma_encoder_optimum_fast.c --- function : lzma_lzma_optimum_fast(...) :&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    The data processing logic in the  interface is as follows:
+    if (rep_len &amp;gt;= 2) {
+        if (rep_len + 1 &amp;gt;= len_main
+                || (rep_len + 2 &amp;gt;= len_main
+                    &amp;amp;&amp;amp; back_main &amp;gt; (UINT32_C(1) &amp;lt;&amp;lt; 9))
+                || (rep_len + 3 &amp;gt;= len_main
+                    &amp;amp;&amp;amp; back_main &amp;gt; (UINT32_C(1) &amp;lt;&amp;lt; 15))) {
+            *back_res = rep_index;
+            *len_res = rep_len;
+            mf_skip(mf, rep_len - 1);
+            return;
+        }
+    }
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As the examples above, their processing logic is the same.&lt;br/&gt;
+But the interface implementation, as well as the number of parameters passed and the data structure are completely different.&lt;/p&gt;
+&lt;p&gt;If anyone want to integrate the 7z lzma2 code bases into the xz code bases, it may be necessary to make a large revision &lt;br/&gt;
+to the code, which is likely to cause other problems. I think it is not recommended.&lt;br/&gt;
+As Lasse Collin said, the LZMA2 code in XZ Utils is based on the LZMA SDK (7-Zip) code, so the LZMA SDK is a reference.I think it is better to use LZMA SDK.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">lipeng</dc:creator><pubDate>Tue, 21 May 2019 13:33:14 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net322411059601e0d521a5ca91d57d808ceff12524</guid></item><item><title>Diffrence between 7z and xz lzma2 code</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/d4a4effd/?limit=25#7b4a</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;LZMA2 code in XZ Utils is based on LZMA SDK (7-Zip) code, so LZMA SDK is the reference. Both support the same file format and thus are interoperable.&lt;/p&gt;
+&lt;p&gt;I'm not sure what you mean with integrating 7z code to the xz code base. I know that the xz code should be cleaned up a bit and updated with the latest changes in LZMA SDK, but I think it's not so urgent.&lt;/p&gt;
+&lt;p&gt;If you are reading the code to learn, you might want to look at XZ for Java too as it has cleaner code than XZ Utils.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Wed, 01 Feb 2017 15:29:56 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net889598d7a85154defab2e74580220cbbe4ba0c55</guid></item><item><title>Diffrence between 7z and xz lzma2 code</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/d4a4effd/?limit=25#16b1</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Hello All,&lt;/p&gt;
+&lt;p&gt;one question regardiing lzma2 code, &lt;br/&gt;
+&lt;strong&gt;7z and xz both are using diffrent lzma2 code&lt;/strong&gt;, is these both codes are developed on same code base...?, &lt;br/&gt;
+i want to integrate 7z lzma2 code base to xz code base, is it possible..? &lt;br/&gt;
+as of now i have gone through both code bases, data structures  and functional design are different ..&lt;br/&gt;
+is anybody can help which version of code base can be for reference...some point..?&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">kranthiH</dc:creator><pubDate>Wed, 01 Feb 2017 11:03:37 -0000</pubDate><guid isPermaLink="false">https://sourceforge.nete7e2732f20a8ccfa74eb22311cdecb09eb96f62b</guid></item></channel></rss>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to XZ implementaion doubts</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/e0ec55dd/</link><description>Recent posts to XZ implementaion doubts</description><language>en</language><lastBuildDate>Tue, 21 May 2019 13:26:03 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/e0ec55dd/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>XZ implementaion doubts</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/e0ec55dd/?limit=25#24db</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I also have such doubts.&lt;br/&gt;
+I tried to find the exact same code for the LZMA2 used in the XZ Utils and LZMA SDK , unfortunately it was not found.&lt;br/&gt;
+As Igor Pavlov said, the code in "xz utils" is not identical to "lzma sdk" code.&lt;br/&gt;
+But I found some code that the internal logic is same and they are all contributed by Igor Pavlov.&lt;/p&gt;
+&lt;p&gt;I have listed the following records:&lt;/p&gt;
+&lt;p&gt;1&amp;gt; LZMA SDK --- file : LzFind.c --- function : MatchFinder_Create(...) :&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;   if (p-&amp;gt;numHashBytes == 2)
+        hs = (1 &amp;lt;&amp;lt; 16) - 1;
+      else
+      {
+        hs = historySize - 1;
+        hs |= (hs &amp;gt;&amp;gt; 1);
+        hs |= (hs &amp;gt;&amp;gt; 2);
+        hs |= (hs &amp;gt;&amp;gt; 4);
+        hs |= (hs &amp;gt;&amp;gt; 8);
+        hs &amp;gt;&amp;gt;= 1;
+        /* hs &amp;gt;&amp;gt;= p-&amp;gt;skipModeBits; */
+        hs |= 0xFFFF; /* don't change it! It's required for Deflate */
+        if (hs &amp;gt; (1 &amp;lt;&amp;lt; 24))
+        {
+          if (p-&amp;gt;numHashBytes == 3)
+            hs = (1 &amp;lt;&amp;lt; 24) - 1;
+          else
+            hs &amp;gt;&amp;gt;= 1;
+        }
+      }
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;XZ Utils --- file : lz_encoder.c --- function : lz_encoder_prepare(...) :&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;   if (hash_bytes == 2) {
+        hs = 0xFFFF;
+    } else {
+        // Round dictionary size up to the next 2^n - 1 so it can
+        // be used as a hash mask.
+        hs = lz_options-&amp;gt;dict_size - 1;
+        hs |= hs &amp;gt;&amp;gt; 1;
+        hs |= hs &amp;gt;&amp;gt; 2;
+        hs |= hs &amp;gt;&amp;gt; 4;
+        hs |= hs &amp;gt;&amp;gt; 8;
+        hs &amp;gt;&amp;gt;= 1;
+        hs |= 0xFFFF;
+
+        if (hs &amp;gt; (UINT32_C(1) &amp;lt;&amp;lt; 24)) {
+            if (hash_bytes == 3)
+                hs = (UINT32_C(1) &amp;lt;&amp;lt; 24) - 1;
+            else
+                hs &amp;gt;&amp;gt;= 1;
+        }
+    }
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr/&gt;
+&lt;p&gt;2&amp;gt;  LZMA SDK --- file : LzmaEnc.c --- function : GetOptimumFast(...) :&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    if (repLen &amp;gt;= 2 &amp;amp;&amp;amp; (
+        (repLen + 1 &amp;gt;= mainLen) ||
+        (repLen + 2 &amp;gt;= mainLen &amp;amp;&amp;amp; mainDist &amp;gt;= (1 &amp;lt;&amp;lt; 9)) ||
+        (repLen + 3 &amp;gt;= mainLen &amp;amp;&amp;amp; mainDist &amp;gt;= (1 &amp;lt;&amp;lt; 15))))
+    {
+      *backRes = repIndex;
+      MovePos(p, repLen - 1);
+      return repLen;
+    }
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;XZ Utils --- file : lzma_encoder_optimum_fast.c --- function : lzma_lzma_optimum_fast(...) :&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    The data processing logic in the  interface is as follows:
+    if (rep_len &amp;gt;= 2) {
+        if (rep_len + 1 &amp;gt;= len_main
+                || (rep_len + 2 &amp;gt;= len_main
+                    &amp;amp;&amp;amp; back_main &amp;gt; (UINT32_C(1) &amp;lt;&amp;lt; 9))
+                || (rep_len + 3 &amp;gt;= len_main
+                    &amp;amp;&amp;amp; back_main &amp;gt; (UINT32_C(1) &amp;lt;&amp;lt; 15))) {
+            *back_res = rep_index;
+            *len_res = rep_len;
+            mf_skip(mf, rep_len - 1);
+            return;
+        }
+    }
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As the examples above, their processing logic is the same, so lzma2 will be compatible.&lt;br/&gt;
+But the interface implementation, as well as the number of parameters passed and the data structure are completely different.&lt;/p&gt;
+&lt;p&gt;How did I find out?&lt;br/&gt;
+I searched through "Igor Pavlov" as a keyword and found some code files (such as lzma_encoder_optimum_fast.c, lz_encoder.c, ...&lt;br/&gt;
+) in XZ Utils code. Similar code files exist in lzma sdk, such as LzFind.c, LzmaLib.c, LzmaEnc.c, ....&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">lipeng</dc:creator><pubDate>Tue, 21 May 2019 13:26:03 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netd2c4fc45086569702b1f23594b4e642550db0656</guid></item><item><title>XZ implementaion doubts</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/e0ec55dd/?limit=25#7d9b/f9a9</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Thank you, that was my doubt.&lt;br/&gt;
+Cleared :)&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Sebu Elias</dc:creator><pubDate>Wed, 11 Jan 2017 09:55:36 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net0371512ffef7a9f3db84cb5882c637fbd7d4df89</guid></item><item><title>XZ implementaion doubts</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/e0ec55dd/?limit=25#7d9b</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Correction:&lt;br/&gt;
+"lzma sdk" uses same lzma2 code for lzma2 in 7z and lzma2 in xz.&lt;br/&gt;
+But the code in "xz utils" is not identical to "lzma sdk" code.&lt;br/&gt;
+But data streams must be compatible in any case.&lt;br/&gt;
+So you can use any code.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Igor Pavlov</dc:creator><pubDate>Wed, 11 Jan 2017 07:46:23 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netfb2562bc7bc0bf3f57d7849311ee547670f35ca0</guid></item><item><title>XZ implementaion doubts</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/e0ec55dd/?limit=25#2249/6466</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Thank you, that clears my doubt&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Sebu Elias</dc:creator><pubDate>Wed, 11 Jan 2017 06:42:15 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net7373dc51c0c2aacab76db6f4987a9c6e57f13917</guid></item><item><title>XZ implementaion doubts</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/e0ec55dd/?limit=25#2249</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I don't understand your question.&lt;br/&gt;
+xz uses lzma2.&lt;br/&gt;
+lzma2 is just data stream.&lt;br/&gt;
+xz provides more features over lzma2: headers, CRC, additional filters.&lt;br/&gt;
+xz_without_crc_and_without_filters  is just lzma2 with additional headers: headers before and after lzma2 stream.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Igor Pavlov</dc:creator><pubDate>Tue, 10 Jan 2017 15:29:17 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net5d761e9a591015f9412c640e87db7ba0c72b51ed</guid></item><item><title>XZ implementaion doubts</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/e0ec55dd/?limit=25#71b7</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;HI,&lt;br/&gt;
+Can you please let me know if the LZMA2 code used in XZ and 7z code are the same?&lt;br/&gt;
+As in, I know XZ has made some changes to suit them in the lzma2 code, but will it work if I implement it using the code from LZMA sdk?&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Sebu Elias</dc:creator><pubDate>Tue, 10 Jan 2017 14:38:39 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net249ea85a5f530e557f24887246b9e8144d559c92</guid></item></channel></rss>

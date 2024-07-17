@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+
+<html lang="en" class="no-js">
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+<title>
+  XZ Utils / Discussion /
+  Open Discussion: [Bug] Link failes when using lld from LLVM as linker
+</title>
+<meta name="viewport" content="width=1100">
+<link rel="icon" sizes="180x180" href="https://a.fsdn.com/con/img/sandiego/logo-180x180.png" type="image/png">
+<link rel="icon" sizes="any" href="https://a.fsdn.com/con/img/sandiego/svg/originals/sf-icon-orange-no_sf.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="https://a.fsdn.com/con/img/sandiego/logo-180x180.png">
+<link rel="mask-icon" href="https://a.fsdn.com/con/img/sandiego/svg/originals/sf-icon-orange-no_sf.svg" color="#FF6600">
+<link rel="stylesheet" href="https://a.fsdn.com/con/css/lato.css?">
+<script>
+if (!window.SF) { window.SF = {}; }
+SF.sandiego = false;
+SF.sandiego_chrome = true;
+SF.cdn = "https://a.fsdn.com/con";
+SF.fpid = '49274a03-34cc-42cc-b6f5-2520776e440f';
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=allura%2Fcss%2Fforge%2Fhilite.css%3Ballura%2Fcss%2Fforge%2Ftooltipster.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/allura/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/theme/sftheme/css/forge.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=css%2Fpage_list.css%3Bcss%2Fjquery.tagsinput.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/css/easymde.min.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=css%2Fmarkitup_sf.css%3Bcss%2Fshow-hint.css">
+<style>
+        div.moderate {
+            color:grey;
+        }
+        </style>
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/theme/sftheme/css/sftheme/sandiego/cmp.css">
+
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery-3.6.0.min.js%3Ballura%2Fjs%2Fjquery.cookie-1.4.1.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fcmp2.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fshared_head.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Ftypescript%2Fcompliance.js"></script>
+
+<style type="text/css">
+            /* make URL &amp; Project custom fields in support tickets not get hidden as much */
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(5),
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(6) {
+  overflow: visible;
+  font-size: 22px;
+  width: 340px;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(5) label, .project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(6) label {
+  font-size: 14px;
+}
+        </style>
+<style>.XwrzCjsKFwoHDmSCrMOUbVBwwZdwrwOnjCuSrDkA {
+        display: none
+    }</style>
+<link rel="canonical" href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/" />
+<script>
+        window.bizx.cmp.init({
+            gam_gdpr_technical_delivery: true,
+        });
+    </script>
+<script>
+    function initPiwik(){
+      var _paq = window._paq = window._paq || [];
+      _paq.push(['trackPageView', document.title, {
+            dimension1: 'lzmautils',
+            dimension2: 'discussion'
+      }]);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//analytics.slashdotmedia.com/";
+        _paq.push(['setTrackerUrl', u+'sf.php']);
+        _paq.push(['setSiteId', 39]);
+        
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'sf.js'; s.parentNode.insertBefore(g,s);
+      })();
+    }
+    bizx.cmp.ifConsent({ purposes: ['storage', 'measurement'], vendors: 'sdm'}, initPiwik);
+</script>
+</head>
+<body class="
+body_class sandiego_chrome  legacy_chrome 
+" id="forge">
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery-ui-1.13.2.min.js"></script>
+
+<div class="off-canvas position-right" id="offCanvas" data-off-canvas>
+
+<ul class="header-nav-menulist">
+<li class="highlight search">
+<form method="get" action="/directory/" class="m-search-form">
+<input type="text" placeholder="Search for software or solutions" autocomplete="off" name="q">
+<label>
+<input type="submit" class="bt" value>
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</label>
+</form>
+</li>
+<li class="highlight"><a href="/auth/">Join/Login</a></li>
+<li><a href="/directory/">Open Source Software</a></li>
+<li><a href="/software/">Business Software</a></li>
+<li><a href="/software/vendors/" title="For Vendors">For Vendors</a></li>
+<li><a href="/blog/" title="Blog">Blog</a></li>
+<li><a href="/about">About</a></li>
+<li><a id="header-nav-more" data-toggle="header-nav-more header-nav-more-content" data-toggler=".toggled">More</a></li>
+<li>
+<ul id="header-nav-more-content" class="toggled" data-toggler=".toggled">
+<li><a href="/articles/">Articles</a></li>
+<li><a href="/create">Create</a></li>
+<li><a href="/learn/">Learn</a></li>
+<li><a href="https://sourceforge.net/articles/category/sourceforge-podcast/">SourceForge Podcast</a></li>
+<li><a href="https://sourceforge.net/p/forge/documentation/Docs%20Home/">Site Documentation</a></li>
+<li><a href="/user/newsletters">Subscribe to our Newsletter</a></li>
+<li><a href="/support">Support Request</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="off-canvas-content" data-off-canvas-content>
+<script>
+    SF.linkout_icon = '<svg  data-name="sf-linkout-icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve"><polygon class="st0" points="243.2,243.2 56.8,243.2 56.8,56.8 123,56.8 123,9 9,9 9,291 291,291 291,179.4 243.2,179 "/><polygon class="st0" points="128.5,213 155,186.5 176,165.5 206.7,196.3 235.5,132.5 248.9,102.6 290.6,9.8 291,9 290.6,9.2 197.4,51.1 169.1,63.8 103.7,93.3 137,126.5 115.9,147.5 89.5,174 "/></svg>';
+</script>
+<div class="l-header-nav  sandiego">
+<section class="sandiego l-header-nav-top show-for-large">
+<div class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<nav class="links">
+<a href="/software/vendors/" title="For Vendors">For Vendors</a>
+<a href="/support" title="Help">Help</a>
+<a href="/create/" title="Create">Create</a>
+<a href="/user/registration" title="Join">Join</a>
+<a href="/auth/" title="Login">Login</a>
+</nav>
+</div>
+</section>
+<section class="sandiego l-header-nav-top hide-for-large">
+<div class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<div class="title-bar-right">
+<button type="button" class="menu-icon" data-toggle="offCanvas"></button>
+</div>
+</div>
+</section>
+<section class="sandiego l-header-nav-bottom">
+<nav class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<div class="links">
+<div class="nav-dropdown">
+<a href="/directory/" title="Browse">Open Source Software</a>
+</div>
+<div class="nav-dropdown">
+<a href="/software/">Business Software</a>
+</div>
+<div class="nav-dropdown">
+<a>Resources</a>
+<ul class="nav-dropdown-menu">
+<li><a href="/articles/">Articles</a></li>
+<li><a href="/software/case-studies/">Case Studies</a></li>
+<li><a href="/learn/">Learn</a></li>
+<li><a href="/blog/">Blog</a></li>
+<li><a href="https://sourceforge.net/articles/category/sourceforge-podcast/">SourceForge Podcast</a></li>
+</ul>
+</div>
+<div class="dev-menu-when-stuck">
+Menu
+<ul class="dev-menu-dropdown header-nav-menulist">
+<li><a href="/support">Help</a></li>
+<li><a href="/create">Create</a></li>
+<li><a href="/user/registration/" title="Join">Join</a></li>
+<li><a href="/auth/" title="Login">Login</a></li>
+</ul>
+</div>
+<div class="search-toggle-when-stuck">
+<a class="search-toggle">
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</a>
+</div>
+</div>
+<div class="search">
+<div class="main-nav-button">
+<a href="/p/import_project/github/" rel="nofollow" title="Sync your Github project to SourceForge" id="github-link">
+<img src="https://a.fsdn.com/con/images/sandiego/github-sync.png" srcset="https://a.fsdn.com/con/images/sandiego/github-sync_2x.png 2x" alt="GitHub sync" id="main-nav-badge" />
+</a>
+</div>
+<form method="get" action="/directory/" class="m-search-form">
+<div class="typeahead__container">
+<div class="typeahead__field">
+<div class="typeahead__query">
+<input type="text" placeholder="Search for software or solutions" autocomplete="off" name="q">
+</div>
+<label>
+<input type="submit" class="bt" value>
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</label>
+</div>
+</div>
+</form>
+</div>
+</nav>
+</section>
+</div>
+<div class="notification-on-project-page">
+</div>
+<section id="page-body" class=" neighborhood-Projects project-lzmautils mountpoint-discussion 
+
+">
+<div id="nav_menu_holder">
+<div class="sandiego">
+<section class="project-masthead">
+<div class="backdrop" style="box-sizing: content-box; padding-bottom: 24px"></div>
+<div class="content">
+<nav id="breadcrumbs" class="breadcrumbs rtl">
+<ul itemscope itemtype="http://schema.org/BreadcrumbList">
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/"><span itemprop="name">Home</span></a>
+<meta itemprop="position" content="1" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/directory/"><span itemprop="name">Browse</span></a>
+<meta itemprop="position" content="2" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/p/lzmautils/"><span itemprop="name">XZ Utils</span></a>
+<meta itemprop="position" content="3" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<span itemprop="name">Discussion</span>
+<meta itemprop="position" content="4" />
+</li>
+</ul>
+</nav>
+<div class="overview">
+<div class="project-icon  default-project-icon ">
+<svg data-name="default-icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve"><rect class="st0" width="300" height="300" /><g><path class="st1" d="M162.5,154.8c0-28.9-10.2-42-15.6-46.9c-1.1-1-2.7-0.1-2.6,1.3c1.1,16.3-19.4,20.3-19.4,45.9h0c0,0.1,0,0.1,0,0.2c0,15.6,11.8,28.3,26.3,28.3c14.5,0,26.3-12.7,26.3-28.3c0-0.1,0-0.1,0-0.2h0c0-7.2-2.7-14.1-5.5-19.3c-0.5-1-2.1-0.6-1.9,0.3C174.9,158.1,162.5,171.8,162.5,154.8z" /><g><path class="st1" d="M131.2,215.6c-0.7,0-1.3-0.3-1.8-0.7l-67.2-67.1c-1-1-1-2.6,0-3.6l70.9-70.9c0.5-0.5,1.1-0.7,1.8-0.7h20.4c1.2,0,2,0.8,2.3,1.6c0.3,0.7,0.3,1.9-0.5,2.7l-66.7,66.7c-1.3,1.3-1.3,3.5,0,4.9l52.7,52.7c1,1,1,2.6,0,3.6L133,214.9C132.5,215.4,131.9,215.6,131.2,215.6z" /></g><g><path class="st1" d="M144.7,227.4c-1.2,0-2-0.8-2.3-1.5c-0.3-0.7-0.3-1.9,0.5-2.7l66.7-66.7c0.7-0.6,1-1.5,1-2.4s-0.4-1.8-1-2.4l-52.7-52.7c-1-1-1-2.6,0-3.6l10.2-10.2c0.5-0.5,1.1-0.7,1.8-0.7c0.7,0,1.3,0.3,1.8,0.7l67,67.1c0.5,0.5,0.7,1.1,0.7,1.8s-0.3,1.3-0.7,1.8l-70.9,70.9c-0.5,0.5-1.1,0.7-1.8,0.7H144.7z" /></g></g></svg>
+</div>
+<div class="title ">
+<meta itemprop="name" content="XZ Utils" />
+<h1>[Bug] Link failes when using lld from LLVM as linker
+</h1>
+<div class="as-h3 brought-by">
+Brought to you by:
+<a href="/u/larhzu/profile/">larhzu</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div id="top_nav" class>
+<div id="top_nav_admin">
+<ul class="dropdown">
+<li class>
+<a href="/projects/lzmautils/" class="tool-summary-32">
+Summary
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/files/" class="tool-files-sf-32">
+Files
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/reviews/" class="tool-reviews-32">
+Reviews
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/support" class="tool-support-32">
+Support
+</a>
+</li>
+<li class>
+<a href="/p/lzmautils/wiki/" class="tool-wiki-32">
+Wiki
+</a>
+</li>
+<li class>
+<a href="/p/lzmautils/news/" class="tool-blog-32">
+News
+</a>
+</li>
+<li class="selected">
+<a href="/p/lzmautils/discussion/" class="tool-discussion-32">
+Discussion
+</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content_base">
+<a id="sidebar-activate" href="#">
+<span class="btn-label">Menu</span>
+<span class="btn-arrow-down">▾</span>
+<span class="btn-arrow-up">▴</span>
+</a>
+<div id="sidebar">
+<form id="search" method="GET" action="/p/lzmautils/discussion/search/">
+<input name="q" type="text" title="Search Discussion" placeholder="Search Discussion">
+<label>
+<input type="submit" style="display:none">
+<b class="fa fa-search" title="Submit"></b>
+</label>
+</form>
+<ul class="sidebarmenu">
+<li>
+<a class="icon" href="/p/lzmautils/discussion/create_topic/708858" title="Add"><i class="fa fa-plus-circle"></i>
+<span>Create Topic</span>
+</a>
+</li>
+<li>
+<a class="icon" href="/p/lzmautils/discussion/stats" title="Stats"><i class="fa fa-line-chart"></i>
+<span>Stats Graph</span>
+</a>
+</li>
+</ul>
+<h3 class>Forums</h3>
+<ul class="sidebarmenu">
+<li>
+<a href="/p/lzmautils/discussion/708858/">
+<span class="has_small">Open Discussion</span>
+<small>163</small></a>
+</li>
+</ul>
+<h3 class>Help</h3>
+<ul class="sidebarmenu">
+<li>
+<a href="/nf/markdown_syntax" target="_blank">
+<span>Formatting Help</span>
+</a>
+</li>
+</ul>
+</div>
+<script>
+$('#sidebar-admin-header').on('click', function(e){
+    $("#sidebar-admin-menu").toggleClass("hidden");
+    $(this).toggleClass("expanded");
+    e.preventDefault();
+});
+</script>
+<div class="grid-20 pad">
+<h2 class="dark title">
+<span>[Bug] Link failes when using lld from LLVM as linker</span>
+
+<small>
+<a class="icon thread_feed0" href="feed.rss" rel="nofollow" title="Follow This"><i class="fa fa-rss"></i></a>
+<div id="subscription-form" style="display: inline;"></div>
+<script>
+  document.SUBSCRIPTION_OPTIONS = {
+    "thing": "topic",
+    "subscribed": false,
+    "url": "subscribe",
+    "icon": {
+      "css": "fa fa-envelope-o"
+    }
+  };
+</script>
+</small>
+
+</h2>
+<div class="editbox">
+<div class="grid-5"><label>Forum:</label> <a href="/p/lzmautils/discussion/708858/">Open Discussion</a></div>
+<div class="grid-5"><label>Creator:</label>
+<a href="/u/bebuch/profile/" class="user-mention">
+Benjamin Buch
+</a>
+</div>
+<div class="grid-4"><label>Created:</label>
+<span title="Mon Jan 27, 2020 02:56 PM UTC">
+2020-01-27
+</span>
+</div>
+<div class="grid-5"><label>Updated:</label>
+<span title="Wed Feb 05, 2020 08:26 PM UTC">
+2020-02-05
+</span>
+</div>
+</div>
+<div>
+<div>
+<div class="comment-row">
+<div id="comment">
+<ul>
+
+<li>
+<div>
+<div id="d69a" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Benjamin Buch" title="Benjamin Buch" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/bebuch/profile/" class="user-mention">
+Benjamin Buch
+</a>
+- <i style="color: #777">
+<span title="Mon Jan 27, 2020 02:56 PM UTC">
+2020-01-27
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/#d69a" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>You can simply reproduce by my docker image:</p>
+<div class="codehilite"><pre><span></span>$ docker run -it --rm tuiqbv/clang-cmake
+<span class="c1"># export XZ_UTILS_VERSION=5.2.4</span>
+<span class="c1"># cd /opt</span>
+<span class="c1"># curl https://tukaani.org/xz/xz-${XZ_UTILS_VERSION}.tar.gz -L --output xz.tar.gz</span>
+<span class="c1"># tar xf xz.tar.gz</span>
+<span class="c1"># cd xz-${XZ_UTILS_VERSION}</span>
+<span class="c1"># ./configure --prefix=/opt/image-io</span>
+<span class="c1"># make VERBOSE=1</span>
+</pre></div>
+<div class="codehilite"><pre><span></span>root@1494cf89d0a3:/opt/xz-5.2.4# <span class="nb">export</span> <span class="nv">XZ_UTILS_VERSION</span><span class="o">=</span><span class="m">5</span>.2.4
+root@1494cf89d0a3:/opt/xz-5.2.4# <span class="nb">cd</span> /opt
+root@1494cf89d0a3:/opt# curl https://tukaani.org/xz/xz-<span class="si">${</span><span class="nv">XZ_UTILS_VERSION</span><span class="si">}</span>.tar.gz -L --output xz.tar.gz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+<span class="m">100</span>   <span class="m">257</span>  <span class="m">100</span>   <span class="m">257</span>    <span class="m">0</span>     <span class="m">0</span>   <span class="m">1443</span>      <span class="m">0</span> --:--:-- --:--:-- --:--:--  <span class="m">1443</span>
+<span class="m">100</span>   <span class="m">401</span>  <span class="m">100</span>   <span class="m">401</span>    <span class="m">0</span>     <span class="m">0</span>    <span class="m">444</span>      <span class="m">0</span> --:--:-- --:--:-- --:--:--   <span class="m">774</span>
+<span class="m">100</span>   <span class="m">315</span>  <span class="m">100</span>   <span class="m">315</span>    <span class="m">0</span>     <span class="m">0</span>    <span class="m">202</span>      <span class="m">0</span>  <span class="m">0</span>:00:01  <span class="m">0</span>:00:01 --:--:--  <span class="m">1789</span>
+<span class="m">100</span> 1535k  <span class="m">100</span> 1535k    <span class="m">0</span>     <span class="m">0</span>   477k      <span class="m">0</span>  <span class="m">0</span>:00:03  <span class="m">0</span>:00:03 --:--:-- 1210k
+root@1494cf89d0a3:/opt# tar xf xz.tar.gz
+root@1494cf89d0a3:/opt# <span class="nb">cd</span> xz-<span class="si">${</span><span class="nv">XZ_UTILS_VERSION</span><span class="si">}</span>
+root@1494cf89d0a3:/opt/xz-5.2.4# <span class="nv">LD</span><span class="o">=</span>/usr/bin/ld.gold ./configure --prefix<span class="o">=</span>/opt/image-io
+
+XZ Utils <span class="m">5</span>.2.4
+
+System type:
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... x86_64-pc-linux-gnu
+
+Configure options:
+checking <span class="k">if</span> debugging code should be compiled... no
+checking which encoders to build... lzma1 lzma2 delta x86 powerpc ia64 arm armthumb sparc
+checking which decoders to build... lzma1 lzma2 delta x86 powerpc ia64 arm armthumb sparc
+checking which match finders to build... hc3 hc4 bt2 bt3 bt4
+checking which integrity checks to build... crc32 crc64 sha256
+checking <span class="k">if</span> external SHA-256 should be used... no
+checking <span class="k">if</span> assembler optimizations should be used... x86_64
+checking <span class="k">if</span> small size is preferred over speed... no
+checking <span class="k">if</span> threading support is wanted... yes, posix
+checking how much RAM to assume <span class="k">if</span> the real amount is unknown... <span class="m">128</span> MiB
+checking <span class="k">if</span> library symbol versioning should be used... yes
+checking <span class="k">if</span> sandboxing should be used... no
+
+checking <span class="k">for</span> a shell that conforms to POSIX... /bin/bash
+
+Initializing Automake:
+checking <span class="k">for</span> a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking <span class="k">for</span> a thread-safe mkdir -p... /bin/mkdir -p
+checking <span class="k">for</span> gawk... gawk
+checking whether make sets <span class="k">$(</span>MAKE<span class="k">)</span>... yes
+checking whether make supports nested variables... yes
+checking whether ln -s works... yes
+checking <span class="k">for</span> style of include used by make... GNU
+checking <span class="k">for</span> gcc... clang
+checking whether the C compiler works... yes
+checking <span class="k">for</span> C compiler default output file name... a.out
+checking <span class="k">for</span> suffix of executables... 
+checking whether we are cross compiling... no
+checking <span class="k">for</span> suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether clang accepts -g... yes
+checking <span class="k">for</span> clang option to accept ISO C89... none needed
+checking whether clang understands -c and -o together... yes
+checking dependency style of clang... gcc3
+checking <span class="k">for</span> clang option to accept ISO C99... none needed
+checking dependency style of clang... gcc3
+checking how to run the C preprocessor... clang-cpp
+checking <span class="k">for</span> grep that handles long lines and -e... /bin/grep
+checking <span class="k">for</span> egrep... /bin/grep -E
+checking <span class="k">for</span> ANSI C header files... yes
+checking <span class="k">for</span> sys/types.h... yes
+checking <span class="k">for</span> sys/stat.h... yes
+checking <span class="k">for</span> stdlib.h... yes
+checking <span class="k">for</span> string.h... yes
+checking <span class="k">for</span> memory.h... yes
+checking <span class="k">for</span> strings.h... yes
+checking <span class="k">for</span> inttypes.h... yes
+checking <span class="k">for</span> stdint.h... yes
+checking <span class="k">for</span> unistd.h... yes
+checking minix/config.h usability... no
+checking minix/config.h presence... no
+checking <span class="k">for</span> minix/config.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+
+POSIX threading support:
+checking <span class="k">if</span> compiler needs -Werror to reject unknown flags... yes
+checking <span class="k">for</span> the pthreads library -lpthreads... no
+checking whether pthreads work without any flags... no
+checking whether pthreads work with -Kthread... no
+checking whether pthreads work with -kthread... no
+checking <span class="k">for</span> the pthreads library -llthread... no
+checking whether pthreads work with -pthread... yes
+checking <span class="k">for</span> joinable pthread attribute... PTHREAD_CREATE_JOINABLE
+checking <span class="k">if</span> more special flags are required <span class="k">for</span> pthreads... no
+checking <span class="k">for</span> PTHREAD_PRIO_INHERIT... yes
+checking <span class="k">for</span> library containing clock_gettime... none required
+checking <span class="k">for</span> clock_gettime... yes
+checking <span class="k">for</span> pthread_condattr_setclock... yes
+checking whether CLOCK_MONOTONIC is declared... yes
+
+Initializing Libtool:
+checking how to print strings... <span class="nb">printf</span>
+checking <span class="k">for</span> a sed that does not truncate output... /bin/sed
+checking <span class="k">for</span> fgrep... /bin/grep -F
+checking <span class="k">for</span> ld used by clang... /usr/bin/ld.gold
+checking <span class="k">if</span> the linker <span class="o">(</span>/usr/bin/ld.gold<span class="o">)</span> is GNU ld... yes
+checking <span class="k">for</span> BSD- or MS-compatible name lister <span class="o">(</span>nm<span class="o">)</span>... /usr/bin/nm -B
+checking the name lister <span class="o">(</span>/usr/bin/nm -B<span class="o">)</span> interface... BSD nm
+checking the maximum length of <span class="nb">command</span> line arguments... <span class="m">1572864</span>
+checking how to convert x86_64-pc-linux-gnu file names to x86_64-pc-linux-gnu format... func_convert_file_noop
+checking how to convert x86_64-pc-linux-gnu file names to toolchain format... func_convert_file_noop
+checking <span class="k">for</span> /usr/bin/ld.gold option to reload object files... -r
+checking <span class="k">for</span> objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking <span class="k">for</span> dlltool... no
+checking how to associate runtime and link libraries... <span class="nb">printf</span> %s<span class="se">\n</span>
+checking <span class="k">for</span> ar... ar
+checking <span class="k">for</span> archiver @FILE support... @
+checking <span class="k">for</span> strip... strip
+checking <span class="k">for</span> ranlib... ranlib
+checking <span class="nb">command</span> to parse /usr/bin/nm -B output from clang object... ok
+checking <span class="k">for</span> sysroot... no
+checking <span class="k">for</span> a working dd... /bin/dd
+checking how to truncate binary pipes... /bin/dd <span class="nv">bs</span><span class="o">=</span><span class="m">4096</span> <span class="nv">count</span><span class="o">=</span><span class="m">1</span>
+checking <span class="k">for</span> mt... no
+checking <span class="k">if</span> : is a manifest tool... no
+checking <span class="k">for</span> dlfcn.h... yes
+checking <span class="k">for</span> objdir... .libs
+checking <span class="k">if</span> clang supports -fno-rtti -fno-exceptions... yes
+checking <span class="k">for</span> clang option to produce PIC... -fPIC -DPIC
+checking <span class="k">if</span> clang PIC flag -fPIC -DPIC works... yes
+checking <span class="k">if</span> clang static flag -static works... no
+checking <span class="k">if</span> clang supports -c -o file.o... yes
+checking <span class="k">if</span> clang supports -c -o file.o... <span class="o">(</span>cached<span class="o">)</span> yes
+checking whether the clang linker <span class="o">(</span>/usr/bin/ld.gold -m elf_x86_64<span class="o">)</span> supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking <span class="k">if</span> libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking <span class="k">for</span> windres... no
+
+Initializing gettext:
+checking whether NLS is requested... yes
+checking <span class="k">for</span> msgfmt... no
+checking <span class="k">for</span> gmsgfmt... :
+checking <span class="k">for</span> xgettext... no
+checking <span class="k">for</span> msgmerge... no
+checking <span class="k">for</span> ld used by clang... /usr/bin/ld.gold -m elf_x86_64
+checking <span class="k">if</span> the linker <span class="o">(</span>/usr/bin/ld.gold -m elf_x86_64<span class="o">)</span> is GNU ld... yes
+checking <span class="k">for</span> shared library run path origin... <span class="k">done</span>
+checking <span class="k">for</span> CFPreferencesCopyAppValue... no
+checking <span class="k">for</span> CFLocaleCopyCurrent... no
+checking <span class="k">for</span> GNU gettext in libc... yes
+checking whether to use NLS... yes
+checking where the gettext <span class="k">function</span> comes from... libc
+
+System headers and functions:
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking <span class="k">for</span> fcntl.h... yes
+checking limits.h usability... yes
+checking limits.h presence... yes
+checking <span class="k">for</span> limits.h... yes
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking <span class="k">for</span> sys/time.h... yes
+checking immintrin.h usability... yes
+checking immintrin.h presence... yes
+checking <span class="k">for</span> immintrin.h... yes
+checking <span class="k">for</span> stdbool.h that conforms to C99... yes
+checking <span class="k">for</span> _Bool... yes
+checking <span class="k">for</span> uint8_t... yes
+checking <span class="k">for</span> uint16_t... yes
+checking <span class="k">for</span> int32_t... yes
+checking <span class="k">for</span> uint32_t... yes
+checking <span class="k">for</span> int64_t... yes
+checking <span class="k">for</span> uint64_t... yes
+checking <span class="k">for</span> uintptr_t... yes
+checking size of size_t... <span class="m">8</span>
+checking <span class="k">for</span> struct stat.st_atim.tv_nsec... yes
+checking <span class="k">for</span> struct stat.st_atimespec.tv_nsec... no
+checking <span class="k">for</span> struct stat.st_atimensec... no
+checking <span class="k">for</span> struct stat.st_uatime... no
+checking <span class="k">for</span> struct stat.st_atim.st__tim.tv_nsec... no
+checking <span class="k">for</span> special C compiler options needed <span class="k">for</span> large files... no
+checking <span class="k">for</span> _FILE_OFFSET_BITS value needed <span class="k">for</span> large files... no
+checking whether byte ordering is bigendian... no
+checking getopt.h usability... yes
+checking getopt.h presence... yes
+checking <span class="k">for</span> getopt.h... yes
+checking <span class="k">for</span> getopt_long... yes
+checking whether optreset is declared... no
+checking <span class="k">for</span> futimens... yes
+checking <span class="k">for</span> posix_fadvise... yes
+checking whether program_invocation_name is declared... yes
+checking byteswap.h usability... yes
+checking byteswap.h presence... yes
+checking <span class="k">for</span> byteswap.h... yes
+checking <span class="k">if</span> bswap_16 is available... yes
+checking <span class="k">if</span> bswap_32 is available... yes
+checking <span class="k">if</span> bswap_64 is available... yes
+checking <span class="k">if</span> unaligned memory access should be used... yes
+checking sys/param.h usability... yes
+checking sys/param.h presence... yes
+checking <span class="k">for</span> sys/param.h... yes
+checking how to detect the amount of physical memory... sysconf
+checking <span class="k">for</span> sys/param.h... <span class="o">(</span>cached<span class="o">)</span> yes
+checking how to detect the number of available CPU cores... sched_getaffinity
+checking whether mbrtowc and mbstate_t are properly declared... yes
+checking <span class="k">for</span> wcwidth... yes
+checking whether _mm_movemask_epi8 is declared... yes
+
+GCC extensions:
+checking whether the -Werror option is usable... yes
+checking <span class="k">for</span> simple visibility declarations... yes
+checking <span class="k">if</span> clang accepts -Wall... yes
+checking <span class="k">if</span> clang accepts -Wextra... yes
+checking <span class="k">if</span> clang accepts -Wvla... yes
+checking <span class="k">if</span> clang accepts -Wformat<span class="o">=</span><span class="m">2</span>... yes
+checking <span class="k">if</span> clang accepts -Winit-self... yes
+checking <span class="k">if</span> clang accepts -Wmissing-include-dirs... yes
+checking <span class="k">if</span> clang accepts -Wstrict-aliasing... yes
+checking <span class="k">if</span> clang accepts -Wfloat-equal... yes
+checking <span class="k">if</span> clang accepts -Wundef... yes
+checking <span class="k">if</span> clang accepts -Wshadow... yes
+checking <span class="k">if</span> clang accepts -Wpointer-arith... yes
+checking <span class="k">if</span> clang accepts -Wbad-function-cast... yes
+checking <span class="k">if</span> clang accepts -Wwrite-strings... yes
+checking <span class="k">if</span> clang accepts -Wlogical-op... no
+checking <span class="k">if</span> clang accepts -Waggregate-return... yes
+checking <span class="k">if</span> clang accepts -Wstrict-prototypes... yes
+checking <span class="k">if</span> clang accepts -Wold-style-definition... yes
+checking <span class="k">if</span> clang accepts -Wmissing-prototypes... yes
+checking <span class="k">if</span> clang accepts -Wmissing-declarations... yes
+checking <span class="k">if</span> clang accepts -Wmissing-noreturn... yes
+checking <span class="k">if</span> clang accepts -Wredundant-decls... yes
+
+checking that generated files are newer than configure... <span class="k">done</span>
+configure: creating ./config.status
+config.status: creating Doxyfile
+config.status: creating Makefile
+config.status: creating po/Makefile.in
+config.status: creating lib/Makefile
+config.status: creating src/Makefile
+config.status: creating src/liblzma/Makefile
+config.status: creating src/liblzma/api/Makefile
+config.status: creating src/xz/Makefile
+config.status: creating src/xzdec/Makefile
+config.status: creating src/lzmainfo/Makefile
+config.status: creating src/scripts/Makefile
+config.status: creating tests/Makefile
+config.status: creating debug/Makefile
+config.status: creating src/scripts/xzdiff
+config.status: creating src/scripts/xzgrep
+config.status: creating src/scripts/xzmore
+config.status: creating src/scripts/xzless
+config.status: creating config.h
+config.status: config.h is unchanged
+config.status: executing depfiles commands
+config.status: executing libtool commands
+config.status: executing po-directories commands
+config.status: creating po/POTFILES
+config.status: creating po/Makefile
+
+root@1494cf89d0a3:/opt/xz-5.2.4# env
+<span class="o">[</span>...<span class="o">]</span>
+<span class="nv">XZ_UTILS_VERSION</span><span class="o">=</span><span class="m">5</span>.2.4
+<span class="nv">CC</span><span class="o">=</span>clang
+<span class="nv">CXX</span><span class="o">=</span>clang++
+<span class="nv">CPP</span><span class="o">=</span>clang-cpp
+<span class="nv">LD</span><span class="o">=</span>lld
+
+root@1494cf89d0a3:/opt/xz-5.2.4# make <span class="nv">VERBOSE</span><span class="o">=</span><span class="m">1</span>
+<span class="o">[</span>...<span class="o">]</span>
+make  all-recursive
+make<span class="o">[</span><span class="m">1</span><span class="o">]</span>: Entering directory <span class="s1">'/opt/xz-5.2.4'</span>
+Making all in src
+make<span class="o">[</span><span class="m">2</span><span class="o">]</span>: Entering directory <span class="s1">'/opt/xz-5.2.4/src'</span>
+Making all in liblzma
+make<span class="o">[</span><span class="m">3</span><span class="o">]</span>: Entering directory <span class="s1">'/opt/xz-5.2.4/src/liblzma'</span>
+Making all in api
+make<span class="o">[</span><span class="m">4</span><span class="o">]</span>: Entering directory <span class="s1">'/opt/xz-5.2.4/src/liblzma/api'</span>
+make<span class="o">[</span><span class="m">4</span><span class="o">]</span>: Nothing to be <span class="k">done</span> <span class="k">for</span> <span class="s1">'all'</span>.
+make<span class="o">[</span><span class="m">4</span><span class="o">]</span>: Leaving directory <span class="s1">'/opt/xz-5.2.4/src/liblzma/api'</span>
+make<span class="o">[</span><span class="m">4</span><span class="o">]</span>: Entering directory <span class="s1">'/opt/xz-5.2.4/src/liblzma'</span>
+make<span class="o">[</span><span class="m">4</span><span class="o">]</span>: Nothing to be <span class="k">done</span> <span class="k">for</span> <span class="s1">'all-am'</span>.
+make<span class="o">[</span><span class="m">4</span><span class="o">]</span>: Leaving directory <span class="s1">'/opt/xz-5.2.4/src/liblzma'</span>
+make<span class="o">[</span><span class="m">3</span><span class="o">]</span>: Leaving directory <span class="s1">'/opt/xz-5.2.4/src/liblzma'</span>
+Making all in xzdec
+make<span class="o">[</span><span class="m">3</span><span class="o">]</span>: Entering directory <span class="s1">'/opt/xz-5.2.4/src/xzdec'</span>
+/bin/bash ../../libtool  --tag<span class="o">=</span>CC   --mode<span class="o">=</span>link clang -pthread -fvisibility<span class="o">=</span>hidden -Wall -Wextra -Wvla -Wformat<span class="o">=</span><span class="m">2</span> -Winit-self -Wmissing-include-dirs -Wstrict-aliasing -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -Wredundant-decls -g -O2   -o xzdec xzdec-xzdec.o xzdec-tuklib_progname.o xzdec-tuklib_exit.o  ../../src/liblzma/liblzma.la   
+libtool: link: clang -pthread -fvisibility<span class="o">=</span>hidden -Wall -Wextra -Wvla -Wformat<span class="o">=</span><span class="m">2</span> -Winit-self -Wmissing-include-dirs -Wstrict-aliasing -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -Wredundant-decls -g -O2 -o .libs/xzdec xzdec-xzdec.o xzdec-tuklib_progname.o xzdec-tuklib_exit.o  ../../src/liblzma/.libs/liblzma.so -pthread
+clang-9: error: no such file or directory: <span class="s1">'../../src/liblzma/.libs/liblzma.so'</span>
+Makefile:500: recipe <span class="k">for</span> target <span class="s1">'xzdec'</span> failed
+make<span class="o">[</span><span class="m">3</span><span class="o">]</span>: *** <span class="o">[</span>xzdec<span class="o">]</span> Error <span class="m">1</span>
+make<span class="o">[</span><span class="m">3</span><span class="o">]</span>: Leaving directory <span class="s1">'/opt/xz-5.2.4/src/xzdec'</span>
+Makefile:420: recipe <span class="k">for</span> target <span class="s1">'all-recursive'</span> failed
+make<span class="o">[</span><span class="m">2</span><span class="o">]</span>: *** <span class="o">[</span>all-recursive<span class="o">]</span> Error <span class="m">1</span>
+make<span class="o">[</span><span class="m">2</span><span class="o">]</span>: Leaving directory <span class="s1">'/opt/xz-5.2.4/src'</span>
+Makefile:613: recipe <span class="k">for</span> target <span class="s1">'all-recursive'</span> failed
+make<span class="o">[</span><span class="m">1</span><span class="o">]</span>: *** <span class="o">[</span>all-recursive<span class="o">]</span> Error <span class="m">1</span>
+make<span class="o">[</span><span class="m">1</span><span class="o">]</span>: Leaving directory <span class="s1">'/opt/xz-5.2.4'</span>
+Makefile:480: recipe <span class="k">for</span> target <span class="s1">'all'</span> failed
+make: *** <span class="o">[</span>all<span class="o">]</span> Error <span class="m">2</span>
+</pre></div>
+</div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/#d69a">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="7dec" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Sat Feb 01, 2020 11:29 PM UTC">
+2020-02-01
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/#7dec" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>I don't have much clue about Docker. On my system I need to set <code>LD=ld.lld</code> instead of <code>LD=lld</code>. Otherwise I will get the same error as you did.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/#7dec">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="86ee" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Benjamin Buch" title="Benjamin Buch" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/bebuch/profile/" class="user-mention">
+Benjamin Buch
+</a>
+- <i style="color: #777">
+<span title="Sun Feb 02, 2020 01:54 PM UTC">
+2020-02-02
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/#86ee" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Thank you very much! I can confirm that <code>ld.lld</code> works for me as a workaround.. Nevertheless, <code>lld</code> should also work.</p>
+<p>(The Docker image is just a way to reproduce my problem very quickly and easily. It has nothing to do with the bug and is not necessary to reproduce it. On every computer where Docker is installed, you can simply run the line with the Docker call and you will instantly have exactly the same Linux environment where the problem occurred. ;-) )</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/#86ee">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="3a1d" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Wed Feb 05, 2020 08:26 PM UTC">
+2020-02-05
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/#3a1d" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>On my system <code>lld</code> says this:</p>
+<blockquote>
+<p>lld is a generic driver.<br/>
+Invoke ld.lld (Unix), ld64.lld (macOS), lld-link (Windows), wasm-ld (WebAssembly) instead</p>
+</blockquote>
+<p>Which is a bit confusing but sounds like that perhaps this <code>lld</code> shouldn't be used directly.</p>
+<p>There are messages on the web that GNU Libtool lacks direct support for LLD. My impression is that Libtool has a severe lack of resources (no active developers). <code>ld.lld</code> works around the lack of direct Libtool support by adding the string "GNU" in the <code>ld.lld --version</code> output which makes Libtool treat it like GNU ld.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/#3a1d">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+</div>
+<div style="clear:both"></div>
+<div style="clear:both"></div>
+</div>
+</div>
+<hr>
+<p>
+<a href="/auth/">Log in</a> to post a comment.
+</p>
+</div>
+</div>
+</div>
+</section>
+<footer class="sandiego">
+<div class="as-row">
+<div class="footer-wrapper">
+<nav aria-label="Site Links" role="navigation">
+<section>
+<div class="as-h2">SourceForge</div>
+<ul>
+<li><a href="/create/" title="Create a Project">Create a Project</a></li>
+<li><a href="/directory/" title="Open Source Software Directory">Open Source Software</a></li>
+<li><a href="/software/" title="Business Software Directory">Business Software</a></li>
+<li><a href="/top" title="Top Open Source Projects">Top Downloaded Projects</a></li>
+</ul>
+</section>
+</nav>
+<nav aria-label="Company Links" role="navigation">
+<section>
+<div class="as-h2">Company</div>
+<ul>
+<li><a href="/about">About</a></li>
+<li><a href="/about/leadership" title="Open Source Software Directory">Team</a></li>
+<li class="h-card">
+<address>
+<span class="p-name p-org">SourceForge Headquarters</span><br>
+<span class="p-street-address">225 Broadway Suite 1600</span><br>
+<span class="p-locality">San Diego, CA <span class="p-postal-code">92101</span></span><br>
+<span class="p-tel">+1 (858) 454-5900</span><br>
+</address>
+</li>
+<li id="social">
+<span></span>
+<a href="https://twitter.com/sourceforge" class="twitter" rel="nofollow" target="_blank">
+<svg class="vertical-icon-fix" data-name="twitter" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z" /></svg></a>
+<a href="https://fosstodon.org/@sourceforge" rel="me nofollow" target="_blank">
+<svg class="vertical-icon-fix" data-name="mastodon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z" /></svg></a>
+<a href="https://www.facebook.com/sourceforgenet/" class="facebook" rel="nofollow" target="_blank">
+<svg data-name="facebook" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1343 12v264h-157q-86 0-116 36t-30 108v189h293l-39 296h-254v759h-306v-759h-255v-296h255v-218q0-186 104-288.5t277-102.5q147 0 228 12z" /></svg></a>
+<a href="https://www.linkedin.com/company/sourceforge.net" class="linkedin" rel="nofollow" target="_blank">
+<svg data-name="linkedin" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M477 625v991h-330v-991h330zm21-306q1 73-50.5 122t-135.5 49h-2q-82 0-132-49t-50-122q0-74 51.5-122.5t134.5-48.5 133 48.5 51 122.5zm1166 729v568h-329v-530q0-105-40.5-164.5t-126.5-59.5q-63 0-105.5 34.5t-63.5 85.5q-11 30-11 81v553h-329q2-399 2-647t-1-296l-1-48h329v144h-2q20-32 41-56t56.5-52 87-43.5 114.5-15.5q171 0 275 113.5t104 332.5z" /></svg></a>
+<span></span>
+</li>
+</ul>
+</section>
+</nav>
+<nav aria-label="Resources Links" role="navigation">
+<section>
+<div class="as-h2">Resources</div>
+<ul>
+<li><a href="/support" title="Support Section">Support</a></li>
+<li><a href="/p/forge/documentation/Docs%20Home/" title="Site Documentation">Site Documentation</a></li>
+<li><a href="https://fosstodon.org/@sourceforgestatus" title="Site Status" rel="me nofollow">Site Status</a></li>
+</ul>
+</section>
+</nav>
+<section class="footer-logo">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+</section>
+</div>
+</div>
+<section class="l-nav-bottom">
+<nav class="row">
+<div class="columns small-12 large-6 copyright-notice">
+&copy; 2024 Slashdot Media. All Rights Reserved.
+</div>
+<div class="columns large-6 links links-right">
+<a href="https://slashdotmedia.com/terms-of-use" title="Terms" rel="nofollow">Terms</a>
+<a href="https://slashdotmedia.com/privacy-statement/" title="Privacy" rel="nofollow">Privacy</a>
+<a href="#" title="Privacy Choices" id="privacy-choices" class="btn-privay-choices">Privacy Choices</a>
+<a href="https://slashdotmedia.com/contact/" target="_blank" title="Advertise" rel="nofollow">Advertise</a>
+</div>
+</nav>
+</section>
+</footer>
+</div>
+<div id="messages">
+</div>
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery.notify.js%3Ballura%2Fjs%2Fjquery.tooltipster.js%3Ballura%2Fjs%2Fallura-base.js%3Ballura%2Fjs%2Fchecklist.js%3Ballura%2Fjs%2Fadmin_modal.js%3Bjs%2Fjquery.lightbox_me.js%3Ballura%2Fjs%2Fmemorable.js%3Bjs%2Fjquery.tagsinput.js%3Bjs%2Feasymde.min.js%3Bjs%2Fsf_markitup.js%3Bjs%2Fshow-hint.js%3Bjs%2Fusermentions-helper.js%3Bjs%2Fpost.js%3Bjs%2Freactions.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fshared.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsticky.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Fchrome.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Futilities.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.core.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.mediaQuery.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.keyboard.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.box.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.nest.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.dropdownMenu.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.offcanvas.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.toggler.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Fproject.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Fjquery.typeahead.min.js%3Ballura%2Fjs%2Freact.production.min.js%3Ballura%2Fjs%2Freact-dom.production.min.js%3Ballura%2Fjs%2Fcreate-react-class.min.js%3Ballura%2Fjs%2Fprop-types.min.js"></script>
+
+
+<script type="text/javascript">$(function () {
+            $('select.results_per_page').change(function () {
+                this.form.submit();});});
+$(function () {
+          $('input.label_edit').tagsInput({
+              'height':'100%',
+              'width':'100%',
+              'autocomplete_url':'/p/lzmautils/discussion/tags'
+          });
+          $('form').on('blur', '.ui-autocomplete-input', function() {
+              setTimeout(function(){
+                  var clicked = $(document.activeElement); // This is the element that has focus
+                  if (clicked.is('#ui-active-menuitem')) {
+                      return false;
+                  } else {
+                      var value = $('div.tagsinput div input').val();
+                      var exists = $('input.label_edit').tagExist(value);
+                      var default_value = $('div.tagsinput div input').attr('data-default');
+                      if ((value !== default_value) && (!exists) && value !== '') {
+                          $('input.label_edit').addTag(value);
+                      }
+                      $('input[type=submit]', this).prop('disabled', true);
+                  }
+                }, 1);
+            });
+        });
+$(function () {getProjectUsers('/p/lzmautils//users')});
+$(document).ready(function () {
+            $("a.attachment_form_add_button").click(function(evt){
+                $(this).hide();
+                $(".attachment_form_fields", this.parentNode).show();
+                evt.preventDefault();
+            });
+            $("a.cancel_edit_post").click(function(evt){
+                evt.preventDefault();
+                var form = this.parentNode;
+                var orig_val = $("input.original_value", form).val();
+                $("textarea", form).val(orig_val);
+                get_cm(form).setValue(orig_val);
+                $("input.attachment_form_fields", form).val('');
+                $(this).closest('.reply_post_form').hide();
+            });
+         });
+
+        $(document).ready(function () {
+            var thread_tag = $('a.thread_tag');
+            var thread_spam = $('a.sidebar_thread_spam');
+            var tag_thread_holder = $('#tag_thread_holder');
+            var allow_moderate = $('#allow_moderate');
+            var mod_thread_link = $('#mod_thread_link');
+            var mod_thread_form = $('#mod_thread_form');
+            if (mod_thread_link.length) {
+                if (mod_thread_form.length) {
+                    mod_thread_link.click(function (e) {
+                        mod_thread_form.toggle();
+                        return false;
+                    });
+                }
+            }
+            if (thread_tag.length) {
+                if (tag_thread_holder.length) {
+                    var submit_button = $('input[type="submit"]', tag_thread_holder);
+                    var cancel_button = $('<a href="#" class="btn link">Cancel</a>').click(function(evt){
+                        evt.preventDefault();
+                        tag_thread_holder.hide();
+                        thread_tag.removeClass('active');
+                    });
+                    submit_button.after(cancel_button);
+                    thread_tag.click(function (e) {
+                        tag_thread_holder.show();
+                        thread_tag.addClass('active');
+                        // focus the submit to scroll to the form, then focus the subject for them to start typing
+                        submit_button.focus();
+                        $('input[type="text"]', tag_thread_holder).focus();
+                        return false;
+                    });
+                }
+            }
+            if (thread_spam.length) {
+                if (allow_moderate.length) {
+                    thread_spam[0].style.display='block';
+                }
+            }
+        });
+        
+
+            var global_reactions = {":+1:": "\ud83d\udc4d", ":-1:": "\ud83d\udc4e", ":smile:": "\ud83d\ude04", ":tada:": "\ud83c\udf89", ":confused:": "\ud83d\ude15", ":heart:": "\u2764\ufe0f"};
+        </script>
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=theme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.triggers.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.reveal.min.js"></script>
+
+<script>
+    bizx.cmp.ifConsent('', ['all', 'google-ads'], function () {}, function(){
+        $('body').addClass('no-ads-consent'); 
+    });
+</script>
+<script>
+        $(document).foundation();
+    </script>
+
+<script>
+    (function () {
+        bizx.cmp.ifConsent({ purposes: 'all', vendors: 'bombora'}, function () {
+            /*global _ml:true, window */
+            _ml = window._ml || {};
+            _ml.eid = '771';
+            _ml.fp = '49274a03-34cc-42cc-b6f5-2520776e440f';  
+            var s = document.getElementsByTagName('script')[0], cd = new Date(), mltag = document.createElement('script');
+            mltag.type = 'text/javascript';
+            mltag.async = true;
+            mltag.defer = true;
+            mltag.src = '//ml314.com/tag.aspx?' + cd.getDate() + cd.getMonth() + cd.getFullYear();
+            s.parentNode.insertBefore(mltag, s);
+        });
+    })();
+</script>
+
+<script>
+    $(document).ready(function () {
+        $(".tooltip, .m-tooltip").each(function(){
+            let $el = $(this);
+            $el.tooltipster({
+                animation: 'fade',
+                delay: 200,
+                theme: 'tooltipster-light',
+                trigger: 'hover',
+                position: $el.data('position') || 'right',
+                iconCloning: false,
+                maxWidth: 300,
+                contentAsHTML: true,
+                interactive: true
+            }).focus(function () {
+                $(this).tooltipster('show');
+            }).blur(function () {
+                $(this).tooltipster('hide');
+            });
+        });
+    });
+</script>
+</script>
+</body>
+</html>

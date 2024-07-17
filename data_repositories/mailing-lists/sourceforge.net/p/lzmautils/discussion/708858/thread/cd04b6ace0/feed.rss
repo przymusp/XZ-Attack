@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to SWF (flash files) LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/cd04b6ace0/</link><description>Recent posts to SWF (flash files) LZMA compression</description><language>en</language><lastBuildDate>Wed, 01 May 2019 14:59:05 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/cd04b6ace0/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>SWF (flash files) LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/cd04b6ace0/?limit=25#cb9b</link><description>&lt;div class="markdown_content"&gt;&lt;blockquote&gt;
+&lt;p&gt;I tried omitting the first 8 bytes and it didn't work. &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;I never suggested doing that. In my previous message I suggested omitting the bytes 5-12, that is, when using lzma_alone_encoder to compress, copy the first 5 output bytes as is, then skip 8 bytes, and then copy the rest.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Also that does not explain why decompressing a file that was compressed using the LZMA SDK gives the errors that I mentioned...&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;There are different kinds of headers and file formats used for LZMA compressed data. If you pass a file with 5-byte header to a decompressor that only works with a 13-byte header, unsurprisingly the decompressor won't decompress it.&lt;/p&gt;
+&lt;p&gt;To decompress the 5-byte header variant with liblzma, you need to either use raw decoder APIs or you can convert the 5-byte header back to 13-byte header and use lzma_alone_decoder. The latter can be simple at least for streams created with pylzma (those streams include an end-of-stream marker): copy the first 5 bytes, insert 8 bytes of 0xFF, and copy the rest. That way you have a file that lzma_alone_decoder should be able to decode.&lt;/p&gt;
+&lt;p&gt;However, I don't know if SWF files may have LZMA streams that don't have end-of-stream marker. If such LZMA streams are allowed, then this hack won't work with those files and this hack isn't very practical. For such files (if they exist) you would need to put the uncompressed size in the new header instead of 8 bytes of 0xFF.&lt;/p&gt;
+&lt;p&gt;If you are going to use Python anyway and pylzma let's you easily get the results you need, I suggest you keep using pylzma. That project is actively maintained. If you use C/C++ and prefer to use liblzma, either convert between 5- and 13-byte headers for lzma_alone_{en,de}coder or use raw encoder and decoder. For raw encoding my previous message already has an example.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Wed, 01 May 2019 14:59:05 -0000</pubDate><guid isPermaLink="false">https://sourceforge.neta9c2d431358db0f8a4c1b6f03a16b016bcac6cd2</guid></item><item><title>SWF (flash files) LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/cd04b6ace0/?limit=25#6050/26c2</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Hello @Lasse, thank you for your reply. I tried omitting the first 8 bytes and it didn't work. Also that does not explain why decompressing a file that was compressed using the LZMA SDK gives the errors that I mentioned...&lt;/p&gt;&lt;/div&gt;</description><pubDate>Sun, 28 Apr 2019 19:13:22 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net5861d2f1d22994bbf16a5e109a31ec90b3dc6dc0</guid></item><item><title>SWF (flash files) LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/cd04b6ace0/?limit=25#6050</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;lzma_alone_encoder is compatible with LZMA SDK's tool from its LZMA_Alone directory. Often such files have the suffix .lzma. That format has a 13-byte header (5 bytes for properties, 8 bytes for uncompressed size) followed by the LZMA data.&lt;/p&gt;
+&lt;p&gt;I think the format you want doesn't have the 8-byte uncompressed size field. You can either use lzma_alone_encoder and omit the bytes 5 to 12, or you can use lzma_raw_encoder or lzma_raw_buffer_encode:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;lzma_options_lzma opt_lzma1;
+lzma_lzma_preset(&amp;amp;opt_lzma1, LZMA_PRESET_DEFAULT);
+
+lzma_filter filters[] = {
+    { .id = LZMA_FILTER_LZMA1, .options = &amp;amp;opt_lzma1 },
+    { .id = LZMA_VLI_UNKNOWN, .options = NULL },
+};
+
+uint8_t *in = ...;
+size_t in_size = ...;
+uint8_t *out = ...;
+size_t out_used = 5; // LZMA props byte + 4-byte dict size
+size_t out_size_max = ...;
+
+if (lzma_properties_encode(&amp;amp;filters[0], out) != LZMA_OK) {
+    // Error cannot happen with the presets though.
+    handle_error();
+    ...
+}
+
+lzma_ret ret = lzma_raw_buffer_encode(filters, NULL,
+        in, in_size, out, &amp;amp;out_used, out_size_max);
+if (ret != LZMA_OK) {
+    handle_error();
+    ...
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I didn't test the above. Hopefully there aren't any significant mistakes.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Sun, 17 Feb 2019 18:59:19 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net0bc43bc554ae950b8929f86de04f667556af0369</guid></item><item><title>SWF (flash files) LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/cd04b6ace0/?limit=25#d244</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Hello, I was trying to compress SWF files using the LZMA. Using LZMA SDK I was successful but using XZ utils I was not successful.&lt;/p&gt;
+&lt;p&gt;Quick contextualization:&lt;/p&gt;
+&lt;p&gt;SWF files can be uncompressed, zlib compressed or lzma compressed. SWF files start with signature FWS, CWS or ZWS respectively, followed by SWF version and uncompressed length. In the case of LZMA compression, they are also followed by the compressed length minus 5 (LZMA properties). Then they are followed by the compressed data.&lt;/p&gt;
+&lt;p&gt;The problem I am having is that when compressing the data with XZ Utils, the Adobe Flash Player refuses to play the SWF file. I have tried both .xz and .lzma formats, using &lt;code&gt;lzma_easy_encoder&lt;/code&gt; and &lt;code&gt;lzma_alone_encoder&lt;/code&gt; in C++ respectively.&lt;/p&gt;
+&lt;p&gt;Moreover, I cannot decompressed the data that was compressed with LZMA SDK using &lt;code&gt;lzma_alone_decoder&lt;/code&gt;. To simplify, I have tried doing this in Python, using the &lt;code&gt;pylzma&lt;/code&gt;(LZMA SDK based)  and &lt;code&gt;lzma&lt;/code&gt; (XZ Utils based) libraries. My code to decompress is as follows:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;decompress&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;inputFile&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;outputFile&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;swfData&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;inputFile&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"rb"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;swf&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;swfData&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;bytearray&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;swf&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Signature, version and file length are not compressed&lt;/span&gt;
+    &lt;span class="n"&gt;tmpdata&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;bytearray&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;swfData&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;tmpdata&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;ord&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'C'&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="c1"&gt;# zlib&lt;/span&gt;
+        &lt;span class="n"&gt;decompressed_data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;zlib&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;decompress&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;swfData&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;:])&lt;/span&gt;
+    &lt;span class="k"&gt;elif&lt;/span&gt; &lt;span class="n"&gt;tmpdata&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;ord&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'Z'&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="c1"&gt;# lzma sdk&lt;/span&gt;
+        &lt;span class="c1"&gt;#decompressed_data = pylzma.decompress(bytes(swfData[12:]))&lt;/span&gt;
+
+        &lt;span class="c1"&gt;# xz utils&lt;/span&gt;
+        &lt;span class="n"&gt;decompressed_data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;decompress_lzma&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;bytes&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;swfData&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;:]))&lt;/span&gt;
+    &lt;span class="k"&gt;elif&lt;/span&gt; &lt;span class="n"&gt;tmpdata&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;ord&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'F'&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"SWF file is not compressed."&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="nb"&gt;exit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Invalid SWF file."&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="nb"&gt;exit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;tmpdata&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;ord&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'F'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;tmpdata&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;decompressed_data&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outputFile&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"wb"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;write&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;bytes&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tmpdata&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;decompress_lzma&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;decomp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;lzma&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;LZMADecompressor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lzma&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FORMAT_AUTO&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="n"&gt;res&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;decomp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;decompress&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;except&lt;/span&gt; &lt;span class="n"&gt;lzma&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;LZMAError&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="k"&gt;break&lt;/span&gt;  &lt;span class="c1"&gt;# Leftover data is not a valid LZMA/XZ stream; ignore it.&lt;/span&gt;
+            &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="k"&gt;raise&lt;/span&gt;  &lt;span class="c1"&gt;# Error on the first iteration; bail out.&lt;/span&gt;
+        &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;decomp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;unused_data&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;break&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;decomp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;eof&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="n"&gt;lzma&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;LZMAError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Compressed data ended before the end-of-stream marker was reached"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="sa"&gt;b&lt;/span&gt;&lt;span class="s2"&gt;""&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;When I attempt to decompress what was compressed using &lt;code&gt;pylzma&lt;/code&gt;, I get &lt;code&gt;_lzma.LZMAError: Input format not supported by decoder&lt;/code&gt;, on C++ I get &lt;code&gt;LZMA_FORMAT_ERROR&lt;/code&gt;. However, Adobe Flash player is able to play the file, so it cannot be wrong. But files compressed with liblzma simply don't play...&lt;/p&gt;
+&lt;p&gt;Any help? Thanks.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Mon, 11 Feb 2019 14:35:07 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net3ae90a499453daabf38a5970a4d7d5e7e3e0cb44</guid></item></channel></rss>

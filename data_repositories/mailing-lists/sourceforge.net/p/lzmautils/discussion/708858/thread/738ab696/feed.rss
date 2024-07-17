@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to build issue on AIX with IBMs complier</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/738ab696/</link><description>Recent posts to build issue on AIX with IBMs complier</description><language>en</language><lastBuildDate>Sun, 12 Jul 2015 18:03:07 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/738ab696/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>build issue on AIX with IBMs complier</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/738ab696/</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I don't have much clue about the problem. Can you test if the problem occurs with other XZ Utils versions like 5.2.0, 5.0.8, or 5.0.5? The point of 5.0.5 is that it includes an older Libtool which might have something to do with this, but this is just a guess.&lt;/p&gt;
+&lt;p&gt;You could also test passing --disable-shared to configure which omits the shared version of liblzma. This is obviously not a solution but it could help debugging the issue.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Sun, 12 Jul 2015 18:03:07 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net11d2df9641912765bc651f77d1e55b6221f1801d</guid></item><item><title>build issue on AIX with IBMs complier</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/738ab696/</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;oslevel -s 7100-03-03-1415&lt;br /&gt;
+/usr/bin/ld: LD 7.1.3(4/1/14)&lt;br /&gt;
+IBM XL C/C++ for AIX, V12.1 (5765-J02, 5725-C72)&lt;br /&gt;
+Version: 12.01.0000.0000&lt;br /&gt;
+Driver Version: 12.01(C/C++) Level: 120315&lt;br /&gt;
+C Front End Version: 12.01(C/C++) Level: 120322&lt;br /&gt;
+C++ Front End Version: 12.01(C/C++) Level: 120315&lt;br /&gt;
+High-Level Optimizer Version: 12.01(C/C++) and 14.01(Fortran) Level: 120315&lt;br /&gt;
+Low-Level Optimizer Version: 12.01(C/C++) and 14.01(Fortran) Level: 120321&lt;/p&gt;
+&lt;p&gt;PATH    /usr/local/bin:/usr/bin:/etc:/usr/sbin:/usr/ucb:/home/buildsw/bin:/usr/bin/X11:/sbin:.:/usr/vac/bin:/usr/vacpp/bin&lt;/p&gt;
+&lt;p&gt;OBJECT_MODE 64&lt;/p&gt;
+&lt;p&gt;CC       xlc_r&lt;br /&gt;
+CFLAGS   -O3 -qmaxmem=-1 -qarch=pwr7 -qtune=pwr7 -qcache=auto -I/usr/local/include&lt;br /&gt;
+LDFLAGS  -L/usr/local/lib64 -L/usr/local/lib -bmaxdata:0x80000000 -brtl&lt;br /&gt;
+CXX      xlc++_r&lt;br /&gt;
+CXXFLAGS -O3 -qmaxmem=-1 -qarch=pwr7 -qtune=pwr7 -qcache=auto -DSYSV -D_AIX -D_AIX71 -D_ALL_SOURCE -DFUNCPROTO=15 -O5 -I/usr/local/include&lt;/p&gt;
+&lt;p&gt;make check&lt;/p&gt;
+&lt;p&gt;make&lt;span&gt;[2]&lt;/span&gt;: Entering directory '/home/buildsw/packages/xz-5.2.1/tests'&lt;br /&gt;
+Could not load program /home/buildsw/packages/xz-5.2.1/tests/.libs/lt-test_check:&lt;br /&gt;
+        Dependent module /home/buildsw/packages/xz-5.2.1/src/liblzma/.libs/liblzma.a(liblzma.so.5) could not be loaded.&lt;br /&gt;
+        Member liblzma.so.5 is not found in archive &lt;br /&gt;
+FAIL: test_check&lt;/p&gt;
+&lt;p&gt;and the same for the others&lt;/p&gt;
+&lt;p&gt;&lt;span&gt;[aix7test3:/home/buildsw/packages/xz-5.2.1]&lt;/span&gt;$ find . -name liblzma.a&lt;br /&gt;
+./src/liblzma/.libs/liblzma.a&lt;/p&gt;
+&lt;p&gt;&lt;span&gt;[aix7test3:/home/buildsw/packages/xz-5.2.1]&lt;/span&gt;$ find . -name liblzma.so.5&lt;br /&gt;
+./src/liblzma/.libs/liblzma.so.5&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Pete Lancashire</dc:creator><pubDate>Tue, 07 Jul 2015 19:08:47 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netcac6a9833f8584619dfd07a05315219a4a262597</guid></item></channel></rss>

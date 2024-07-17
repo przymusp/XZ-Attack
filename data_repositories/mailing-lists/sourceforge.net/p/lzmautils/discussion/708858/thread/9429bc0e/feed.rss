@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to LZMA_OPTIONS_ERROR from lzma_easy_buffer_encode</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/9429bc0e/</link><description>Recent posts to LZMA_OPTIONS_ERROR from lzma_easy_buffer_encode</description><language>en</language><lastBuildDate>Tue, 12 Dec 2017 23:10:37 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/9429bc0e/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>LZMA_OPTIONS_ERROR from lzma_easy_buffer_encode</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/9429bc0e/?limit=25#3bd1</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;In addition to missing the HAVE_ENCODERS/HAVE_DECODERS definitions I was also missing HAVE_MF* definitions in my CMakeLists.txt file. &lt;/p&gt;
+&lt;p&gt;This problem is resolved.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Quincy Wofford</dc:creator><pubDate>Tue, 12 Dec 2017 23:10:37 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netde97e0bbf1b582575c22ee0f934320b7f1a384e4</guid></item><item><title>LZMA_OPTIONS_ERROR from lzma_easy_buffer_encode</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/9429bc0e/?limit=25#1755/61bb</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I have ensured that these definitons exist. Thanks for this.&lt;/p&gt;
+&lt;p&gt;I am contributing to a project which is written in C++ and wrapped in Python. All of my tests prior to this moment were using the Python wrappings. I wrote a small test in C++, and LZMA works as expected.&lt;/p&gt;
+&lt;p&gt;I ran the wrapped code through a debugger and set a breakpoint at the easy_buffer_encode line. Output below:&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://pastebin.com/sC1RyapK" rel="nofollow"&gt;https://pastebin.com/sC1RyapK&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;From my perspective, it appears that the preset parameter is valid, but I get an LZMA_OPTIONS_ERROR return value along with a SEGFAULT anyway.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Quincy Wofford</dc:creator><pubDate>Tue, 12 Dec 2017 00:50:50 -0000</pubDate><guid isPermaLink="false">https://sourceforge.neta661f6b14b875578863a1376ad52676b1a606acc</guid></item><item><title>LZMA_OPTIONS_ERROR from lzma_easy_buffer_encode</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/9429bc0e/?limit=25#1755</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;As mentioned in the NEWS file, XZ Utils 5.2.3 has two new #defines in config.h: HAVE_ENCODERS and HAVE_DECODERS. I suspect you missed those in your build configuration.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Mon, 11 Dec 2017 15:33:45 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net60ab590b36753a5a47415cb27065a96463aac5c3</guid></item><item><title>LZMA_OPTIONS_ERROR from lzma_easy_buffer_encode</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/9429bc0e/?limit=25#c4ab</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Hello,&lt;/p&gt;
+&lt;p&gt;I am building xz-utils v5.2.3, and I'm curious why I might be getting LZMA_OPTIONS_ERROR returned from a call to lzma_easy_buffer_encode with a valid preset (5 is my default case, stored in this-&amp;gt;CompressionLevel, seen below).&lt;/p&gt;
+&lt;p&gt;lzma_ret xz_ret = lzma_easy_buffer_encode(this-&amp;gt;CompressionLevel,&lt;br/&gt;
+                                            LZMA_CHECK_NONE,&lt;br/&gt;
+                                            NULL,&lt;br/&gt;
+                                            reinterpret_cast&amp;lt;const uint8_t="" *=""&amp;gt;(uncompressedData), uncompressedSize,&lt;br/&gt;
+                                            reinterpret_cast&amp;lt;uint8_t*&amp;gt;(compressedData), &amp;amp;out_pos, compressionSpace);&lt;/p&gt;
+&lt;p&gt;I &lt;em&gt;believe&lt;/em&gt; that I had previously been using this call with xz-utils v5.2.2, and so I am surprised that this no longer works. &lt;/p&gt;
+&lt;p&gt;I see some description of LZMA_OPTIONS_ERROR in src/liblzma/api/lzma/base.h:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;            /**&amp;lt;
+             * \brief       Invalid or unsupported options
+             *
+             * Invalid or unsupported options, for example
+             *  - unsupported filter(s) or filter options; or
+             *  - reserved bits set in headers (decoder only).
+             *
+             * **Rebuilding liblzma with more features enabled**, or
+             * upgrading to a newer version of liblzma may help.
+             */
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I must build xz-utils through cmake, and so it is possible that I have missed an important include in the CMakeLists file, but I believe I have everything in place.&lt;/p&gt;
+&lt;p&gt;Thanks very much for your time. If I can provide any other details which will be useful, please let me know.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Quincy Wofford</dc:creator><pubDate>Sun, 10 Dec 2017 01:50:56 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netdc40c86e10c983d2ad3eb1a8f606fcd51887d8c1</guid></item></channel></rss>

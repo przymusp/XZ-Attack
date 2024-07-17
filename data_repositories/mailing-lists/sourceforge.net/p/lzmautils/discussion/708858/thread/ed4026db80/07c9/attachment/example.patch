@@ -1,0 +1,605 @@
+diff -Npur xz-5.2.4-ori/doc/examples/05_compress_alone.c xz-5.2.4/doc/examples/05_compress_alone.c
+--- xz-5.2.4-ori/doc/examples/05_compress_alone.c	1970-01-01 08:00:00.000000000 +0800
++++ xz-5.2.4/doc/examples/05_compress_alone.c	2019-06-01 17:20:51.682631600 +0800
+@@ -0,0 +1,252 @@
++///////////////////////////////////////////////////////////////////////////////
++//
++/// \file       05_compress_alone.c
++/// \brief      Compress from stdin to stdout in multi-call mode
++///
++/// Usage:      ./05_compress_alone  < INFILE > OUTFILE
++///
++/// Example:    ./05_compress_alone < foo > foo.lzma
++//
++//  Author:     Modified from 01_compress_easy.c
++//
++//  This file has been put into the public domain.
++//  You can do whatever you want with this file.
++//
++///////////////////////////////////////////////////////////////////////////////
++
++#include <stdbool.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <errno.h>
++#include <lzma.h>
++
++
++static bool
++init_encoder(lzma_stream *strm)
++{
++	lzma_options_lzma options;
++    if (lzma_lzma_preset(&options, LZMA_PRESET_DEFAULT)) {
++        fprintf(stderr, "Unsupported preset, possibly a bug\n")
++        return false;
++    }
++	lzma_ret ret = lzma_alone_encoder(strm, &options);
++
++	// Return successfully if the initialization went fine.
++	if (ret == LZMA_OK)
++		return true;
++
++	// Something went wrong. The possible errors are documented in
++	// lzma/container.h (src/liblzma/api/lzma/container.h in the source
++	// package or e.g. /usr/include/lzma/container.h depending on the
++	// install prefix).
++	const char *msg;
++	switch (ret) {
++	case LZMA_MEM_ERROR:
++		msg = "Memory allocation failed";
++		break;
++
++	case LZMA_OPTIONS_ERROR:
++		msg = "Specified preset is not supported";
++		break;
++
++	case LZMA_PROG_ERROR:
++		msg = "Programming error";
++		break;
++
++	default:
++		// This is most likely LZMA_PROG_ERROR indicating a bug in
++		// this program or in liblzma. It is inconvenient to have a
++		// separate error message for errors that should be impossible
++		// to occur, but knowing the error code is important for
++		// debugging. That's why it is good to print the error code
++		// at least when there is no good error message to show.
++		msg = "Unknown error, possibly a bug";
++		break;
++	}
++
++	fprintf(stderr, "Error initializing the encoder: %s (error code %u)\n",
++			msg, ret);
++	return false;
++}
++
++
++static bool
++compress(lzma_stream *strm, FILE *infile, FILE *outfile)
++{
++	// This will be LZMA_RUN until the end of the input file is reached.
++	// This tells lzma_code() when there will be no more input.
++	lzma_action action = LZMA_RUN;
++
++	// Buffers to temporarily hold uncompressed input
++	// and compressed output.
++	uint8_t inbuf[BUFSIZ];
++	uint8_t outbuf[BUFSIZ];
++
++	// Initialize the input and output pointers. Initializing next_in
++	// and avail_in isn't really necessary when we are going to encode
++	// just one file since LZMA_STREAM_INIT takes care of initializing
++	// those already. 
++	//
++	// While we don't care about strm->total_in or strm->total_out in this
++	// example, it is worth noting that initializing the encoder will
++	// always reset total_in and total_out to zero. But the encoder
++	// initialization doesn't touch next_in, avail_in, next_out, or
++	// avail_out.
++	strm->next_in = NULL;
++	strm->avail_in = 0;
++	strm->next_out = outbuf;
++	strm->avail_out = sizeof(outbuf);
++
++	// Loop until the file has been successfully compressed or until
++	// an error occurs.
++	while (true) {
++		// Fill the input buffer if it is empty.
++		if (strm->avail_in == 0 && !feof(infile)) {
++			strm->next_in = inbuf;
++			strm->avail_in = fread(inbuf, 1, sizeof(inbuf),
++					infile);
++
++			if (ferror(infile)) {
++				fprintf(stderr, "Read error: %s\n",
++						strerror(errno));
++				return false;
++			}// Once the end of the input file has been reached,
++			// we need to tell lzma_code() that no more input
++			// will be coming and that it should finish the
++			// encoding.
++			if (feof(infile))
++				action = LZMA_FINISH;
++		}
++
++		// Tell liblzma do the actual encoding.
++		//
++		// This reads up to strm->avail_in bytes of input starting
++		// from strm->next_in. avail_in will be decremented and
++		// next_in incremented by an equal amount to match the
++		// number of input bytes consumed.
++		//
++		// Up to strm->avail_out bytes of compressed output will be
++		// written starting from strm->next_out. avail_out and next_out
++		// will be incremented by an equal amount to match the number
++		// of output bytes written.
++		//
++		// The encoder has to do internal buffering, which means that
++		// it may take quite a bit of input before the same data is
++		// available in compressed form in the output buffer.
++		lzma_ret ret = lzma_code(strm, action);
++        // If the output buffer is full or if the compression finished
++		// successfully, write the data from the output bufffer to
++		// the output file.
++		if (strm->avail_out == 0 || ret == LZMA_STREAM_END) {
++			// When lzma_code() has returned LZMA_STREAM_END,
++			// the output buffer is likely to be only partially
++			// full. Calculate how much new data there is to
++			// be written to the output file.
++			size_t write_size = sizeof(outbuf) - strm->avail_out;
++
++			if (fwrite(outbuf, 1, write_size, outfile)
++					!= write_size) {
++				fprintf(stderr, "Write error: %s\n",
++						strerror(errno));
++				return false;
++			}
++
++			// Reset next_out and avail_out.
++			strm->next_out = outbuf;
++			strm->avail_out = sizeof(outbuf);
++		}
++        // Normally the return value of lzma_code() will be LZMA_OK
++		// until everything has been encoded.
++		if (ret != LZMA_OK) {
++			// Once everything has been encoded successfully, the
++			// return value of lzma_code() will be LZMA_STREAM_END.
++			//
++			// It is important to check for LZMA_STREAM_END. Do not
++			// assume that getting ret != LZMA_OK would mean that
++			// everything has gone well.
++			if (ret == LZMA_STREAM_END)
++				return true;
++
++			// It's not LZMA_OK nor LZMA_STREAM_END,
++			// so it must be an error code. See lzma/base.h
++			// (src/liblzma/api/lzma/base.h in the source package
++			// or e.g. /usr/include/lzma/base.h depending on the
++			// install prefix) for the list and documentation of
++			// possible values. Most values listen in lzma_ret
++			// enumeration aren't possible in this example.
++			const char *msg;
++			switch (ret) {
++			case LZMA_MEM_ERROR:
++				msg = "Memory allocation failed";
++				break;
++
++			case LZMA_DATA_ERROR:
++				// This error is returned if the compressed
++				// or uncompressed size get near 8 EiB
++				// (2^63 bytes) because that's where the .xz
++				// file format size limits currently are.
++				// That is, the possibility of this error
++				// is mostly theoretical unless you are doing
++				// something very unusual.
++				//
++				// Note that strm->total_in and strm->total_out
++				// have nothing to do with this error. Changing
++				// those variables won't increase or decrease
++				// the chance of getting this error.
++				msg = "File size limits exceeded";
++				break;
++
++			default:
++				// This is most likely LZMA_PROG_ERROR, but
++				// if this program is buggy (or liblzma has
++				// a bug), it may be e.g. LZMA_BUF_ERROR or
++				// LZMA_OPTIONS_ERROR too.
++				//
++				// It is inconvenient to have a separate
++				// error message for errors that should be
++				// impossible to occur, but knowing the error
++				// code is important for debugging. That's why
++				// it is good to print the error code at least
++				// when there is no good error message to show.
++				msg = "Unknown error, possibly a bug";
++				break;
++			}
++
++			fprintf(stderr, "Encoder error: %s (error code %u)\n",
++					msg, ret);
++			return false;
++		}
++	}
++}
++
++
++extern int
++main(void)
++{
++	
++	lzma_stream strm = LZMA_STREAM_INIT;
++
++	// Initialize the encoder. If it succeeds, compress from
++	// stdin to stdout.
++	bool success = init_encoder(&strm);
++	if (success)
++		success = compress(&strm, stdin, stdout);
++
++	// Free the memory allocated for the encoder. If we were encoding
++	// multiple files, this would only need to be done after the last
++	// file. See 02_decompress.c for handling of multiple files.
++	//
++	// It is OK to call lzma_end() multiple times or when it hasn't been
++	// actually used except initialized with LZMA_STREAM_INIT.
++	lzma_end(&strm);
++
++	// Close stdout to catch possible write errors that can occur
++	// when pending data is flushed from the stdio buffers.
++	if (fclose(stdout)) {
++		fprintf(stderr, "Write error: %s\n", strerror(errno));
++		success = false;
++	}
++
++	return success ? EXIT_SUCCESS : EXIT_FAILURE;
++}
+diff -Npur xz-5.2.4-ori/doc/examples/06_compress_buffer.c xz-5.2.4/doc/examples/06_compress_buffer.c
+--- xz-5.2.4-ori/doc/examples/06_compress_buffer.c	1970-01-01 08:00:00.000000000 +0800
++++ xz-5.2.4/doc/examples/06_compress_buffer.c	2019-06-01 17:25:33.403302600 +0800
+@@ -0,0 +1,139 @@
++///////////////////////////////////////////////////////////////////////////////
++//
++/// \file       05_compress_buffer.c
++/// \brief      Compress from stdin to stdout in multi-call mode
++///
++/// Usage:      ./06_compress_buffer  < INFILE > OUTFILE
++///
++/// Example:    ./06_compress_buffer < foo > foo.xz
++//
++//  Author:     Modified from 01_compress_easy.c
++//
++//  This file has been put into the public domain.
++//  You can do whatever you want with this file.
++//
++///////////////////////////////////////////////////////////////////////////////
++
++#include <stdbool.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <errno.h>
++#include <lzma.h>
++
++static bool
++compress( FILE *infile, FILE *outfile)
++{
++	lzma_options_lzma options;
++    if (lzma_lzma_preset(&options, LZMA_PRESET_DEFAULT)) {
++        fprintf(stderr, "Unsupported preset, possibly a bug\n")
++        return false;
++    }
++
++    opt_lzma2.dict_size = 1 << 20;
++
++    lzma_filter filters[2] = {
++        {.id = LZMA_FILTER_LZMA2, .options = &pot_lzma2},
++        {.id = LZMA_VLI_UNKONWN, .options = NULL},
++    }
++	// Buffers to temporarily hold uncompressed input
++	// and compressed output.
++	uint8_t inbuf[BUFSIZ];
++	uint8_t outbuf[BUFSIZ];
++
++	
++	int avail_in = 0;
++    unit8_t *next_out = outbuf;
++	static unit64_t avail_out = sizeof(outbuf);
++	static size_t compress_size = 0;
++
++	// Loop until the file has been successfully compressed or until
++	// an error occurs.
++	while (true) {
++		// Fill the input buffer if it is empty.
++		if ( !feof(infile)) {
++			avail_in = fread(inbuf, 1, sizeof(inbuf),
++					infile);
++
++			if (ferror(infile)) {
++				fprintf(stderr, "Read error: %s\n",
++						strerror(errno));
++				return false;
++			} 
++		} else {
++            return 0;
++        }
++
++		
++		lzma_ret ret = lzma_stream_buffer_encode(filters, LZMA_CHECK_CRC32, NULL, inbuf, avail_in, outbuf, &compress_size, avail_out);
++       
++
++        if (ret == LZMA_OK) {
++			
++			size_t write_size = compress_sizet;
++
++			if (fwrite(outbuf, 1, write_size, outfile)
++					!= write_size) {
++				fprintf(stderr, "Write error: %s\n",
++						strerror(errno));
++				return false;
++			}
++
++			// Reset next_out and avail_out.
++			strm->next_out = outbuf;
++			strm->avail_out = sizeof(outbuf);
++		}
++
++		if (ret != LZMA_OK) {
++
++			if (ret == LZMA_STREAM_END)
++				return true;
++
++            // It's not LZMA_OK nor LZMA_STREAM_END,
++			// so it must be an error code. See lzma/base.h
++			// (src/liblzma/api/lzma/base.h in the source package
++			// or e.g. /usr/include/lzma/base.h depending on the
++			// install prefix) for the list and documentation of
++			// possible values. Most values listen in lzma_ret
++			// enumeration aren't possible in this example.
++			const char *msg;
++			switch (ret) {
++			case LZMA_MEM_ERROR:
++				msg = "Memory allocation failed";
++				break;
++
++			case LZMA_OPTIONS_ERROR:
++			
++				msg = "Specified preset is not supported";
++				break;
++
++            case LZMA_PROG_ERROR:
++		        msg = "Programming error";
++		        break;
++
++            default:
++				msg = "Unknown error, possibly a bug";
++				break;
++			}
++
++			fprintf(stderr, "Encoder error: %s (error code %u)\n",
++					msg, ret);
++			return false;
++		}
++	}
++}
++
++
++extern int
++main(int argc, char **argv)
++{
++		
++	bool success = compress(&strm, stdin, stdout);
++
++	if (fclose(stdout)) {
++		fprintf(stderr, "Write error: %s\n", strerror(errno));
++		success = false;
++	}
++
++	return success ? EXIT_SUCCESS : EXIT_FAILURE;
++}
+\ No newline at end of file
+diff -Npur xz-5.2.4-ori/doc/examples/07_decompress_alone.c xz-5.2.4/doc/examples/07_decompress_alone.c
+--- xz-5.2.4-ori/doc/examples/07_decompress_alone.c	1970-01-01 08:00:00.000000000 +0800
++++ xz-5.2.4/doc/examples/07_decompress_alone.c	2019-06-01 17:25:52.034581100 +0800
+@@ -0,0 +1,186 @@
++///////////////////////////////////////////////////////////////////////////////
++//
++/// \file       07_decompress_alone.c
++/// \brief      Decompress .lzma files to stdout
++///
++/// Usage:      ./07_decompress_alone < INFILE > OUTFILE
++///
++/// Example:    ./07_decompress_alone < foo.lzma > foo
++//
++//  Author:     Modified from 02_decompress.c
++//
++//  This file has been put into the public domain.
++//  You can do whatever you want with this file.
++//
++///////////////////////////////////////////////////////////////////////////////
++
++#include <stdbool.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <errno.h>
++#include <lzma.h>
++
++
++static bool
++init_decoder(lzma_stream *strm)
++{
++	
++	lzma_ret ret = lzma_alone_decoder(strm, UINT64_MAX);
++
++	// Return successfully if the initialization went fine.
++	if (ret == LZMA_OK)
++		return true;
++
++	// Something went wrong. The possible errors are documented in
++	// lzma/container.h (src/liblzma/api/lzma/container.h in the source
++	// package or e.g. /usr/include/lzma/container.h depending on the
++	// install prefix).
++	//
++	// Note that LZMA_MEMLIMIT_ERROR is never possible here. If you
++	// specify a very tiny limit, the error will be delayed until
++	// the first headers have been parsed by a call to lzma_code().
++	const char *msg;
++	switch (ret) {
++	case LZMA_MEM_ERROR:
++		msg = "Memory allocation failed";
++		break;
++
++	case LZMA_PROG_ERROR:
++		msg = "Programming error";
++		break;
++
++	default:
++		// This is most likely LZMA_PROG_ERROR indicating a bug in
++		// this program or in liblzma. It is inconvenient to have a
++		// separate error message for errors that should be impossible
++		// to occur, but knowing the error code is important for
++		// debugging. That's why it is good to print the error code
++		// at least when there is no good error message to show.
++		msg = "Unknown error, possibly a bug";
++		break;
++	}
++
++	fprintf(stderr, "Error initializing the decoder: %s (error code %u)\n",
++			msg, ret);
++	return false;
++}
++
++
++static bool
++decompress(lzma_stream *strm,  FILE *infile, FILE *outfile)
++{
++	
++	lzma_action action = LZMA_RUN;
++
++	uint8_t inbuf[BUFSIZ];
++	uint8_t outbuf[BUFSIZ];
++
++	strm->next_in = NULL;
++	strm->avail_in = 0;
++	strm->next_out = outbuf;
++	strm->avail_out = sizeof(outbuf);
++
++	while (true) {
++		if (strm->avail_in == 0 && !feof(infile)) {
++			strm->next_in = inbuf;
++			strm->avail_in = fread(inbuf, 1, sizeof(inbuf),
++					infile);
++
++			if (ferror(infile)) {
++				fprintf(stderr, "%s: Read error: %s\n",
++						inname, strerror(errno));
++				return false;
++			}
++
++			// Once the end of the input file has been reached,
++			// we need to tell lzma_code() that no more input
++			// will be coming. As said before, this isn't required
++			// if the LZMA_CONCATENATED flag isn't used when
++			// initializing the decoder.
++			if (feof(infile))
++				action = LZMA_FINISH;
++		}
++
++		lzma_ret ret = lzma_code(strm, action);
++
++		if (strm->avail_out == 0 || ret == LZMA_STREAM_END) {
++			size_t write_size = sizeof(outbuf) - strm->avail_out;
++
++			if (fwrite(outbuf, 1, write_size, outfile)
++					!= write_size) {
++				fprintf(stderr, "Write error: %s\n",
++						strerror(errno));
++				return false;
++			}
++
++			strm->next_out = outbuf;
++			strm->avail_out = sizeof(outbuf);
++		}
++
++		if (ret != LZMA_OK) {
++			// Once everything has been decoded successfully, the
++			// return value of lzma_code() will be LZMA_STREAM_END.
++			//
++			// It is important to check for LZMA_STREAM_END. Do not
++			// assume that getting ret != LZMA_OK would mean that
++			// everything has gone well or that when you aren't
++			// getting more output it must have successfully
++			// decoded everything.
++			if (ret == LZMA_STREAM_END)
++				return true;
++
++			// It's not LZMA_OK nor LZMA_STREAM_END,
++			// so it must be an error code. See lzma/base.h
++			// (src/liblzma/api/lzma/base.h in the source package
++			// or e.g. /usr/include/lzma/base.h depending on the
++			// install prefix) for the list and documentation of
++			// possible values. Many values listen in lzma_ret
++			// enumeration aren't possible in this example, but
++			// can be made possible by enabling memory usage limit
++			// or adding flags to the decoder initialization.
++			const char *msg;
++			switch (ret) {
++			case LZMA_MEM_ERROR:
++				msg = "Memory allocation failed";
++				break;
++
++			case LZMA_DATA_ERROR:
++				msg = "File size limits exceeded";
++				break;
++
++			default:
++				// This is most likely LZMA_PROG_ERROR.
++				msg = "Unknown error, possibly a bug";
++				break;
++			}
++
++			fprintf(stderr, "%s: Decoder error: "
++					"%s (error code %u)\n",
++					inname, msg, ret);
++			return false;
++		}
++	}
++}
++
++
++extern int
++main(int argc, char **argv)
++{
++	lzma_stream strm = LZMA_STREAM_INIT;
++
++	bool success = init_decoder(&strm);
++	if (success)
++	    success = decompress(&strm, stdin, stdout);
++
++	// Free the memory allocated for the decoder. This only needs to be
++	// done after the last file.
++	lzma_end(&strm);
++
++	if (fclose(stdout)) {
++		fprintf(stderr, "Write error: %s\n", strerror(errno));
++		success = false;
++	}
++
++	return success ? EXIT_SUCCESS : EXIT_FAILURE;
++}
+diff -Npur xz-5.2.4-ori/doc/examples/Makefile xz-5.2.4/doc/examples/Makefile
+--- xz-5.2.4-ori/doc/examples/Makefile	2018-04-29 23:10:38.000000000 +0800
++++ xz-5.2.4/doc/examples/Makefile	2019-05-31 10:18:25.989000400 +0800
+@@ -13,7 +13,10 @@ PROGS = \
+ 	01_compress_easy \
+ 	02_decompress \
+ 	03_compress_custom \
+-	04_compress_easy_mt
++	04_compress_easy_mt \
++	05_compress_alone \
++	06_compress_buffer \
++	07_decompress_alone
+ 
+ all: $(PROGS)
+ 

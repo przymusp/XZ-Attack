@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to xz is very slow</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/6f4a75537e/</link><description>Recent posts to xz is very slow</description><language>en</language><lastBuildDate>Thu, 28 Oct 2021 21:59:24 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/6f4a75537e/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>xz is very slow</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/6f4a75537e/?limit=25#ea90</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Sorry for the far too long delay. Thanks for the report!&lt;/p&gt;
+&lt;p&gt;I haven't looked at LZMA SDK in a long time (I haven't gotten much done around xz in general) but it's quite possible that there are some new great optimizations.&lt;/p&gt;
+&lt;p&gt;I tried xz 5.2.5 and 7z 17.04 on that file. I got 16.9 s for xz and 15.3 s for 7z. ;-) My computer is old but the relative difference in speeds wasn't as huge as for you. I wonder if there is something in the code or compilers that make the difference bigger on new processors, or what else could explain the big relative difference between xz and 16.02 on your system (16.02 is older than 17.04 that I tried so I suppose it should be fair enough comparison).&lt;/p&gt;
+&lt;p&gt;Anyway, clearly something should be done in xz to make it faster. Actually there are quite a few things that should be done in xz and I'm not getting much done... Thus, at the moment it's unlikely that this speed problem will be improved very soon. I'm sorry.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Thu, 28 Oct 2021 21:59:24 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net5a7ca7f39162c10b6a40ef06b56284f5b14789b3</guid></item><item><title>xz is very slow</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/6f4a75537e/?limit=25#f0f5</link><description>&lt;div class="markdown_content"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;time 7zz t digiKam-7.1.0-Win32.tar.xz 
+7-Zip (z) 21.03 beta (x64)
+
+real    0m4.426s
+user    0m4.405s
+sys     0m0.020s
+
+time 7z t digiKam-7.1.0-Win32.tar.xz
+7-Zip [64] 16.02
+
+real    0m6.866s
+user    0m6.847s
+sys     0m0.017s
+
+time xz -t digiKam-7.1.0-Win32.tar.xz 
+
+real    0m9.143s
+user    0m9.122s
+sys     0m0.019s
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;More than twice as slow as 7zz 21.03 beta, at least 50% slower than p7zip 16.02.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Artem S. Tashkinov</dc:creator><pubDate>Sun, 19 Sep 2021 20:51:27 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netcfa2a6f5aa53e4a3bb7f4a2a3d9445539338563b</guid></item></channel></rss>

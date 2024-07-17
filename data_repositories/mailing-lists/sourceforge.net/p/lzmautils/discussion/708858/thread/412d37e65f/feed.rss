@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to Compile Error: Make in po File</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/412d37e65f/</link><description>Recent posts to Compile Error: Make in po File</description><language>en</language><lastBuildDate>Thu, 11 Jul 2019 07:26:01 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/412d37e65f/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>Compile Error: Make in po File</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/412d37e65f/?limit=25#92ba</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Thanks, it is helpful to install Gettext or pass --disable-nls to configure.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Bruce Stark</dc:creator><pubDate>Thu, 11 Jul 2019 07:26:01 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netcec88281edbf10a6607d1b14f09639b30772c373</guid></item><item><title>Compile Error: Make in po File</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/412d37e65f/?limit=25#4331</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;If you first extracted the source package to one directory and then copied it to another directory using cp -R, the timestamps of the files will be the current time. This way, for example, po/xz.pot may end up with a newer timestamp than po/*.po and then the build system will want to update the translation files. However, according to the configure output, Gettext tools aren't available in the build environment and thus you get errors.&lt;/p&gt;
+&lt;p&gt;I suggest copying the files so that timestamps are preserved. This can be done, for example, by using cp -Rp (or cp -a to preserve all metadata as much as possible since you are using GNU cp). I hope this will fix the problem. Note that there is no need to install Gettext tools to the build environment since you are building from a source package and aren't modifying the build files.&lt;/p&gt;
+&lt;p&gt;If that doesn't help: If you don't care about translated messages in xz, you can pass --disable-nls to configure. That should avoid the problem too.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Wed, 10 Jul 2019 17:43:25 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net5e26f865990cdc5ae6e95385db00183fd41b62ab</guid></item><item><title>Compile Error: Make in po File</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/412d37e65f/?limit=25#52c1</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;The other message in Centos Docker:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Initializing gettext:
+checking whether NLS is requested... yes
+checking for msgfmt... no
+checking for gmsgfmt... :
+checking for xgettext... no
+checking for msgmerge... no
+checking for ld used by gcc -std=gnu99... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for shared library run path origin... done
+checking for CFPreferencesCopyAppValue... no
+checking for CFLocaleCopyCurrent... no
+checking for GNU gettext in libc... yes
+checking whether to use NLS... yes
+checking where the gettext function comes from... libc
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Bruce Stark</dc:creator><pubDate>Wed, 10 Jul 2019 03:00:26 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net11f1b2d7e05a99aeca91d695aa42e7e6f8f4b0df</guid></item><item><title>Compile Error: Make in po File</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/412d37e65f/?limit=25#d08c</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;The problem was also occurred in Suse and Ubuntu &lt;span&gt;[Docker]&lt;/span&gt;.&lt;br/&gt;
+I didn't test in the real env but in docker &lt;span&gt;[provde different linux sys]&lt;/span&gt;.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Bruce Stark</dc:creator><pubDate>Wed, 10 Jul 2019 02:49:21 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net59105062021000c318f85a857576b36d9ff90eea</guid></item><item><title>Compile Error: Make in po File</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/412d37e65f/?limit=25#a29e</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Hi, I got a wired error when I compiled the source code &lt;span&gt;[V5.2.4]&lt;/span&gt;&lt;br/&gt;
+I used Docker &lt;span&gt;[Centos 7.2 + automake 1.15 + pkg-config 0.29.1  + gcc 4.8]&lt;/span&gt; to compile the source &lt;span&gt;[ XZ Utils, Version:5.2.4]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;What I have done:&lt;br/&gt;
+1、copy the source code to /opt/src in docker&lt;br/&gt;
+2、run command: ./configure &amp;amp;&amp;amp; make&lt;/p&gt;
+&lt;p&gt;But I met these errors sometimes (the errors was not occurred everytime, sometime they were occurred and sometime they were not occurred):&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Making all in po
+make[2]: Entering directory `/opt/XZ-Utils/src/po'
+test ! -f ./xz.pot || \
+  test -z "cs.gmo de.gmo fr.gmo it.gmo pl.gmo vi.gmo" || make cs.gmo de.gmo fr.gmo it.gmo pl.gmo vi.gmo
+make[3]: Entering directory `/opt/XZ-Utils/src/po'
+: --update  --lang=cs cs.po xz.pot
+: --update  --lang=de de.po xz.pot
+: --update  --lang=fr fr.po xz.pot
+: --update  --lang=it it.po xz.pot
+: --update  --lang=pl pl.po xz.pot
+rm -f vi.gmo &amp;amp;&amp;amp; : -c --statistics --verbose -o vi.gmo vi.po
+mv: cannot stat 't-vi.gmo': No such file or directory
+make[3]: *** [vi.gmo] Error 1
+make[3]: Leaving directory `/opt/XZ-Utils/src/po'
+make[2]: *** [stamp-po] Error 2
+make[2]: Leaving directory `/opt/XZ-Utils/src/po'
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory `/opt/XZ-Utils/src'
+make: *** [all] Error 2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;When these errors were not occurred, the message:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Making all in po
+make[2]: Entering directory `/opt/XZ-Utils/src/po'
+make[2]: Nothing to be done for `all'.
+make[2]: Leaving directory `/opt/XZ-Utils/src/po'
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I use a shell to make sure that everytime I run the same images and do the same thing in docker.&lt;br/&gt;
+I have no idea about this problem.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Bruce Stark</dc:creator><pubDate>Wed, 10 Jul 2019 02:29:36 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net9ce3c0ca6208bcb3a0d42820d75c9f4d9020e1c1</guid></item></channel></rss>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to AES256 decrypt : org.tukaani.xz.CorruptedInputException: Compressed data is corrupt exception </title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/d728c592/</link><description>Recent posts to AES256 decrypt : org.tukaani.xz.CorruptedInputException: Compressed data is corrupt exception </description><language>en</language><lastBuildDate>Sat, 22 Jul 2017 18:42:48 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d728c592/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>AES256 decrypt : org.tukaani.xz.CorruptedInputException: Compressed data is corrupt exception </title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/d728c592/?limit=25#d4b8</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;You are using Apache Commons Compress which uses XZ for Java which is the thing I maintain. I'm not very familiar with Commons Compress APIs.&lt;/p&gt;
+&lt;p&gt;Looking at your code, password.getBytes("UTF16") looks suspicious. Instead of "UTF16" or "UTF-16" (which uses byte-order mark for autodetection and defaults to big endian), you probably want "UTF-16LE". The .7z format is little endian and encodes strings in UTF-16LE.&lt;/p&gt;
+&lt;p&gt;See:&lt;br/&gt;
+&lt;a href="https://docs.oracle.com/javase/7/docs/api/java/nio/charset/Charset.html" rel="nofollow"&gt;https://docs.oracle.com/javase/7/docs/api/java/nio/charset/Charset.html&lt;/a&gt;&lt;br/&gt;
+&lt;a href="https://commons.apache.org/proper/commons-compress/apidocs/org/apache/commons/compress/archivers/sevenz/SevenZFile.html#SevenZFile-java.nio.channels.SeekableByteChannel-byte:A-" rel="nofollow"&gt;https://commons.apache.org/proper/commons-compress/apidocs/org/apache/commons/compress/archivers/sevenz/SevenZFile.html#SevenZFile-java.nio.channels.SeekableByteChannel-byte:A-&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Sat, 22 Jul 2017 18:42:48 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netb498c44418a58e43832c9e1898923790cb378045</guid></item><item><title>AES256 decrypt : org.tukaani.xz.CorruptedInputException: Compressed data is corrupt exception </title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/d728c592/?limit=25#0774</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I'm a beginner to compression. I am trying to unpack a password protected AES 256 encoded 7z file but getting below error. It is working find without password protected 7z file. &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Am I missing anything?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Error&lt;/strong&gt;&lt;br/&gt;
+org.tukaani.xz.CorruptedInputException: Compressed data is corrupt&lt;br/&gt;
+    at org.tukaani.xz.rangecoder.RangeDecoderFromStream.&amp;lt;init&amp;gt;(Unknown Source)&lt;br/&gt;
+    at org.tukaani.xz.LZMAInputStream.initialize(Unknown Source)&lt;br/&gt;
+    at org.tukaani.xz.LZMAInputStream.initialize(Unknown Source)&lt;br/&gt;
+    at org.tukaani.xz.LZMAInputStream.&amp;lt;init&amp;gt;(Unknown Source)&lt;br/&gt;
+    at org.apache.commons.compress.archivers.sevenz.LZMADecoder.decode(LZMADecoder.java:43)&lt;br/&gt;
+    at org.apache.commons.compress.archivers.sevenz.Coders.addDecoder(Coders.java:76)&lt;br/&gt;
+    at org.apache.commons.compress.archivers.sevenz.SevenZFile.buildDecoderStack(SevenZFile.java:933)&lt;br/&gt;
+    at org.apache.commons.compress.archivers.sevenz.SevenZFile.buildDecodingStream(SevenZFile.java:909)&lt;br/&gt;
+    at org.apache.commons.compress.archivers.sevenz.SevenZFile.getNextEntry(SevenZFile.java:222)&lt;br/&gt;
+    at com.concept.utilities.zip.DecryptionUtil.SevenZFile(DecryptionUtil.java:50)&lt;br/&gt;
+    at com.concept.utilities.zip.DecryptionUtil.main(DecryptionUtil.java:107)&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;There is the code I have written&lt;/strong&gt;&lt;br/&gt;
+public void SevenZFile(String directory, String encryptCompressFileName, String password) {&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;    SevenZFile sevenZFile = null;
+    SevenZArchiveEntry entry = null;
+
+    try {
+
+        File file = new File(directory+encryptCompressFileName);
+        byte[] inputData = new byte[(int) file.length()];
+        FileInputStream fis = new FileInputStream(file);
+        fis.read(inputData);
+        fis.close();
+
+        // SeekableInMemoryByteChannel inMemoryByteChannel = new SeekableInMemoryByteChannel(inputData);
+        if(null != password){
+            byte[] pass = password.getBytes("UTF16");
+            sevenZFile = new SevenZFile(file, pass);
+        }else{
+            sevenZFile = new SevenZFile(file);
+        }
+
+        // Go through all entries
+        while (null != (entry = sevenZFile.getNextEntry())) {
+
+            // Maybe filter by name. Name can contain a path.
+            String processingFileName = entry.getName();
+            if (entry.isDirectory()) {
+                System.out.println(String.format("Found directory entry %s", processingFileName));
+
+            } else {
+
+                // If this is a file, we read the file content into a ByteArrayOutputStream ...
+                System.out.println(String.format("Unpacking start %s ...", processingFileName));
+                ByteArrayOutputStream contentBytes = new ByteArrayOutputStream();
+
+                // ... using a small buffer byte array.
+                byte[] buffer = new byte[2048];
+                int bytesRead;
+
+                while ((bytesRead = sevenZFile.read(buffer)) != -1) {
+                    contentBytes.write(buffer, 0, bytesRead);
+                }
+
+                if (processingFileName.endsWith("xls")) {
+                    // Writing into xls
+                    Workbook wb = new HSSFWorkbook();
+                    //String safeName = WorkbookUtil.createSafeSheetName(processingFileName);
+                    //Sheet sheet = wb.createSheet(safeName);
+                    FileOutputStream fileOut = new FileOutputStream(directory+processingFileName);
+                    fileOut.write(contentBytes.toByteArray());
+                    fileOut.flush();
+                    wb.write(fileOut);
+                    fileOut.close();
+                    wb.close();
+                }else{ //regular file
+                    System.out.println(contentBytes.toString("UTF-8"));
+                }
+                System.out.println(String.format("Unpacking finish %s ...", processingFileName));   
+            }
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            sevenZFile.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Rajarshi</dc:creator><pubDate>Wed, 19 Jul 2017 12:59:03 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netf32ffde8fd9285c6f763210a10e903cdcb3f6f8b</guid></item></channel></rss>

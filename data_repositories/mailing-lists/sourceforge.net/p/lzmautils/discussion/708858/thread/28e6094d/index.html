@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+
+<html lang="en" class="no-js">
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+<title>
+  XZ Utils / Discussion /
+  Open Discussion: Use compression context readonly
+</title>
+<meta name="viewport" content="width=1100">
+<link rel="icon" sizes="180x180" href="https://a.fsdn.com/con/img/sandiego/logo-180x180.png" type="image/png">
+<link rel="icon" sizes="any" href="https://a.fsdn.com/con/img/sandiego/svg/originals/sf-icon-orange-no_sf.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="https://a.fsdn.com/con/img/sandiego/logo-180x180.png">
+<link rel="mask-icon" href="https://a.fsdn.com/con/img/sandiego/svg/originals/sf-icon-orange-no_sf.svg" color="#FF6600">
+<link rel="stylesheet" href="https://a.fsdn.com/con/css/lato.css?">
+<script>
+if (!window.SF) { window.SF = {}; }
+SF.sandiego = false;
+SF.sandiego_chrome = true;
+SF.cdn = "https://a.fsdn.com/con";
+SF.fpid = '49274a03-34cc-42cc-b6f5-2520776e440f';
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=allura%2Fcss%2Fforge%2Fhilite.css%3Ballura%2Fcss%2Fforge%2Ftooltipster.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/allura/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/theme/sftheme/css/forge.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=css%2Fpage_list.css%3Bcss%2Fjquery.tagsinput.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/css/easymde.min.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=css%2Fmarkitup_sf.css%3Bcss%2Fshow-hint.css">
+<style>
+        div.moderate {
+            color:grey;
+        }
+        </style>
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/theme/sftheme/css/sftheme/sandiego/cmp.css">
+
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery-3.6.0.min.js%3Ballura%2Fjs%2Fjquery.cookie-1.4.1.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fcmp2.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fshared_head.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Ftypescript%2Fcompliance.js"></script>
+
+<style type="text/css">
+            /* make URL &amp; Project custom fields in support tickets not get hidden as much */
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(5),
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(6) {
+  overflow: visible;
+  font-size: 22px;
+  width: 340px;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(5) label, .project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(6) label {
+  font-size: 14px;
+}
+        </style>
+<style>.XGmZpaALChOGwowubQjCjToCwprDiMOuwqvDtU {
+        display: none
+    }</style>
+<link rel="canonical" href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/" />
+<script>
+        window.bizx.cmp.init({
+            gam_gdpr_technical_delivery: true,
+        });
+    </script>
+<script>
+    function initPiwik(){
+      var _paq = window._paq = window._paq || [];
+      _paq.push(['trackPageView', document.title, {
+            dimension1: 'lzmautils',
+            dimension2: 'discussion'
+      }]);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//analytics.slashdotmedia.com/";
+        _paq.push(['setTrackerUrl', u+'sf.php']);
+        _paq.push(['setSiteId', 39]);
+        
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'sf.js'; s.parentNode.insertBefore(g,s);
+      })();
+    }
+    bizx.cmp.ifConsent({ purposes: ['storage', 'measurement'], vendors: 'sdm'}, initPiwik);
+</script>
+</head>
+<body class="
+body_class sandiego_chrome  legacy_chrome 
+" id="forge">
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery-ui-1.13.2.min.js"></script>
+
+<div class="off-canvas position-right" id="offCanvas" data-off-canvas>
+
+<ul class="header-nav-menulist">
+<li class="highlight search">
+<form method="get" action="/directory/" class="m-search-form">
+<input type="text" placeholder="Search for software or solutions" autocomplete="off" name="q">
+<label>
+<input type="submit" class="bt" value>
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</label>
+</form>
+</li>
+<li class="highlight"><a href="/auth/">Join/Login</a></li>
+<li><a href="/directory/">Open Source Software</a></li>
+<li><a href="/software/">Business Software</a></li>
+<li><a href="/software/vendors/" title="For Vendors">For Vendors</a></li>
+<li><a href="/blog/" title="Blog">Blog</a></li>
+<li><a href="/about">About</a></li>
+<li><a id="header-nav-more" data-toggle="header-nav-more header-nav-more-content" data-toggler=".toggled">More</a></li>
+<li>
+<ul id="header-nav-more-content" class="toggled" data-toggler=".toggled">
+<li><a href="/articles/">Articles</a></li>
+<li><a href="/create">Create</a></li>
+<li><a href="/learn/">Learn</a></li>
+<li><a href="https://sourceforge.net/articles/category/sourceforge-podcast/">SourceForge Podcast</a></li>
+<li><a href="https://sourceforge.net/p/forge/documentation/Docs%20Home/">Site Documentation</a></li>
+<li><a href="/user/newsletters">Subscribe to our Newsletter</a></li>
+<li><a href="/support">Support Request</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="off-canvas-content" data-off-canvas-content>
+<script>
+    SF.linkout_icon = '<svg  data-name="sf-linkout-icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve"><polygon class="st0" points="243.2,243.2 56.8,243.2 56.8,56.8 123,56.8 123,9 9,9 9,291 291,291 291,179.4 243.2,179 "/><polygon class="st0" points="128.5,213 155,186.5 176,165.5 206.7,196.3 235.5,132.5 248.9,102.6 290.6,9.8 291,9 290.6,9.2 197.4,51.1 169.1,63.8 103.7,93.3 137,126.5 115.9,147.5 89.5,174 "/></svg>';
+</script>
+<div class="l-header-nav  sandiego">
+<section class="sandiego l-header-nav-top show-for-large">
+<div class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<nav class="links">
+<a href="/software/vendors/" title="For Vendors">For Vendors</a>
+<a href="/support" title="Help">Help</a>
+<a href="/create/" title="Create">Create</a>
+<a href="/user/registration" title="Join">Join</a>
+<a href="/auth/" title="Login">Login</a>
+</nav>
+</div>
+</section>
+<section class="sandiego l-header-nav-top hide-for-large">
+<div class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<div class="title-bar-right">
+<button type="button" class="menu-icon" data-toggle="offCanvas"></button>
+</div>
+</div>
+</section>
+<section class="sandiego l-header-nav-bottom">
+<nav class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<div class="links">
+<div class="nav-dropdown">
+<a href="/directory/" title="Browse">Open Source Software</a>
+</div>
+<div class="nav-dropdown">
+<a href="/software/">Business Software</a>
+</div>
+<div class="nav-dropdown">
+<a>Resources</a>
+<ul class="nav-dropdown-menu">
+<li><a href="/articles/">Articles</a></li>
+<li><a href="/software/case-studies/">Case Studies</a></li>
+<li><a href="/learn/">Learn</a></li>
+<li><a href="/blog/">Blog</a></li>
+<li><a href="https://sourceforge.net/articles/category/sourceforge-podcast/">SourceForge Podcast</a></li>
+</ul>
+</div>
+<div class="dev-menu-when-stuck">
+Menu
+<ul class="dev-menu-dropdown header-nav-menulist">
+<li><a href="/support">Help</a></li>
+<li><a href="/create">Create</a></li>
+<li><a href="/user/registration/" title="Join">Join</a></li>
+<li><a href="/auth/" title="Login">Login</a></li>
+</ul>
+</div>
+<div class="search-toggle-when-stuck">
+<a class="search-toggle">
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</a>
+</div>
+</div>
+<div class="search">
+<div class="main-nav-button">
+<a href="/p/import_project/github/" rel="nofollow" title="Sync your Github project to SourceForge" id="github-link">
+<img src="https://a.fsdn.com/con/images/sandiego/github-sync.png" srcset="https://a.fsdn.com/con/images/sandiego/github-sync_2x.png 2x" alt="GitHub sync" id="main-nav-badge" />
+</a>
+</div>
+<form method="get" action="/directory/" class="m-search-form">
+<div class="typeahead__container">
+<div class="typeahead__field">
+<div class="typeahead__query">
+<input type="text" placeholder="Search for software or solutions" autocomplete="off" name="q">
+</div>
+<label>
+<input type="submit" class="bt" value>
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</label>
+</div>
+</div>
+</form>
+</div>
+</nav>
+</section>
+</div>
+<div class="notification-on-project-page">
+</div>
+<section id="page-body" class=" neighborhood-Projects project-lzmautils mountpoint-discussion 
+
+">
+<div id="nav_menu_holder">
+<div class="sandiego">
+<section class="project-masthead">
+<div class="backdrop" style="box-sizing: content-box; padding-bottom: 24px"></div>
+<div class="content">
+<nav id="breadcrumbs" class="breadcrumbs rtl">
+<ul itemscope itemtype="http://schema.org/BreadcrumbList">
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/"><span itemprop="name">Home</span></a>
+<meta itemprop="position" content="1" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/directory/"><span itemprop="name">Browse</span></a>
+<meta itemprop="position" content="2" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/p/lzmautils/"><span itemprop="name">XZ Utils</span></a>
+<meta itemprop="position" content="3" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<span itemprop="name">Discussion</span>
+<meta itemprop="position" content="4" />
+</li>
+</ul>
+</nav>
+<div class="overview">
+<div class="project-icon  default-project-icon ">
+<svg data-name="default-icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve"><rect class="st0" width="300" height="300" /><g><path class="st1" d="M162.5,154.8c0-28.9-10.2-42-15.6-46.9c-1.1-1-2.7-0.1-2.6,1.3c1.1,16.3-19.4,20.3-19.4,45.9h0c0,0.1,0,0.1,0,0.2c0,15.6,11.8,28.3,26.3,28.3c14.5,0,26.3-12.7,26.3-28.3c0-0.1,0-0.1,0-0.2h0c0-7.2-2.7-14.1-5.5-19.3c-0.5-1-2.1-0.6-1.9,0.3C174.9,158.1,162.5,171.8,162.5,154.8z" /><g><path class="st1" d="M131.2,215.6c-0.7,0-1.3-0.3-1.8-0.7l-67.2-67.1c-1-1-1-2.6,0-3.6l70.9-70.9c0.5-0.5,1.1-0.7,1.8-0.7h20.4c1.2,0,2,0.8,2.3,1.6c0.3,0.7,0.3,1.9-0.5,2.7l-66.7,66.7c-1.3,1.3-1.3,3.5,0,4.9l52.7,52.7c1,1,1,2.6,0,3.6L133,214.9C132.5,215.4,131.9,215.6,131.2,215.6z" /></g><g><path class="st1" d="M144.7,227.4c-1.2,0-2-0.8-2.3-1.5c-0.3-0.7-0.3-1.9,0.5-2.7l66.7-66.7c0.7-0.6,1-1.5,1-2.4s-0.4-1.8-1-2.4l-52.7-52.7c-1-1-1-2.6,0-3.6l10.2-10.2c0.5-0.5,1.1-0.7,1.8-0.7c0.7,0,1.3,0.3,1.8,0.7l67,67.1c0.5,0.5,0.7,1.1,0.7,1.8s-0.3,1.3-0.7,1.8l-70.9,70.9c-0.5,0.5-1.1,0.7-1.8,0.7H144.7z" /></g></g></svg>
+</div>
+<div class="title ">
+<meta itemprop="name" content="XZ Utils" />
+<h1>Use compression context readonly
+</h1>
+<div class="as-h3 brought-by">
+Brought to you by:
+<a href="/u/larhzu/profile/">larhzu</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div id="top_nav" class>
+<div id="top_nav_admin">
+<ul class="dropdown">
+<li class>
+<a href="/projects/lzmautils/" class="tool-summary-32">
+Summary
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/files/" class="tool-files-sf-32">
+Files
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/reviews/" class="tool-reviews-32">
+Reviews
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/support" class="tool-support-32">
+Support
+</a>
+</li>
+<li class>
+<a href="/p/lzmautils/wiki/" class="tool-wiki-32">
+Wiki
+</a>
+</li>
+<li class>
+<a href="/p/lzmautils/news/" class="tool-blog-32">
+News
+</a>
+</li>
+<li class="selected">
+<a href="/p/lzmautils/discussion/" class="tool-discussion-32">
+Discussion
+</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content_base">
+<a id="sidebar-activate" href="#">
+<span class="btn-label">Menu</span>
+<span class="btn-arrow-down">▾</span>
+<span class="btn-arrow-up">▴</span>
+</a>
+<div id="sidebar">
+<form id="search" method="GET" action="/p/lzmautils/discussion/search/">
+<input name="q" type="text" title="Search Discussion" placeholder="Search Discussion">
+<label>
+<input type="submit" style="display:none">
+<b class="fa fa-search" title="Submit"></b>
+</label>
+</form>
+<ul class="sidebarmenu">
+<li>
+<a class="icon" href="/p/lzmautils/discussion/create_topic/708858" title="Add"><i class="fa fa-plus-circle"></i>
+<span>Create Topic</span>
+</a>
+</li>
+<li>
+<a class="icon" href="/p/lzmautils/discussion/stats" title="Stats"><i class="fa fa-line-chart"></i>
+<span>Stats Graph</span>
+</a>
+</li>
+</ul>
+<h3 class>Forums</h3>
+<ul class="sidebarmenu">
+<li>
+<a href="/p/lzmautils/discussion/708858/">
+<span class="has_small">Open Discussion</span>
+<small>163</small></a>
+</li>
+</ul>
+<h3 class>Help</h3>
+<ul class="sidebarmenu">
+<li>
+<a href="/nf/markdown_syntax" target="_blank">
+<span>Formatting Help</span>
+</a>
+</li>
+</ul>
+</div>
+<script>
+$('#sidebar-admin-header').on('click', function(e){
+    $("#sidebar-admin-menu").toggleClass("hidden");
+    $(this).toggleClass("expanded");
+    e.preventDefault();
+});
+</script>
+<div class="grid-20 pad">
+<h2 class="dark title">
+<span>Use compression context readonly</span>
+
+<small>
+<a class="icon thread_feed0" href="feed.rss" rel="nofollow" title="Follow This"><i class="fa fa-rss"></i></a>
+<div id="subscription-form" style="display: inline;"></div>
+<script>
+  document.SUBSCRIPTION_OPTIONS = {
+    "thing": "topic",
+    "subscribed": false,
+    "url": "subscribe",
+    "icon": {
+      "css": "fa fa-envelope-o"
+    }
+  };
+</script>
+</small>
+
+</h2>
+<div class="editbox">
+<div class="grid-5"><label>Forum:</label> <a href="/p/lzmautils/discussion/708858/">Open Discussion</a></div>
+<div class="grid-5"><label>Creator:</label>
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+</div>
+<div class="grid-4"><label>Created:</label>
+<span title="Mon Nov 08, 2010 11:07 AM UTC">
+2010-11-08
+</span>
+</div>
+<div class="grid-5"><label>Updated:</label>
+<span title="Thu May 30, 2013 04:56 PM UTC">
+2013-05-30
+</span>
+</div>
+</div>
+<div>
+<div>
+<div class="comment-row">
+<div id="comment">
+<ul>
+
+<li>
+<div>
+<div id="612e" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="P.Marek" title="P.Marek" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+- <i style="color: #777">
+<span title="Mon Nov 08, 2010 11:07 AM UTC">
+2010-11-08
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#612e" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Hello, </p>
+<p>I've got another question. </p>
+<p>Is there some way to pass some amount of data (at least the dictionary size), <br/>
+and then switch to some kind of readonly mode, so that multiple threads can use <br/>
+the stored information to compress the new data? </p>
+<p>This is about a memory-constrained system which should nonetheless operate <br/>
+multithreaded.<br/>
+Using a higher level gets better compression; but using one context per thread <br/>
+isn't possible due to memory constraints. </p>
+<p>So I'd like to pass the first batches of data through a single thread; and when <br/>
+the basic structure of data is known, switch the context to readonly, and use <br/>
+multiple threads on this context. </p>
+<p>From time to time I'd like to "thaw" the context again, to enable LZMA to learn <br/>
+about the current data again, to "freeze" again some time later. </p>
+<p>Is it possible to do that, or would it make much work to implement that? </p>
+<p>Regards, </p>
+<p>Phil </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#612e">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="1a5d" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Tue Nov 09, 2010 06:05 PM UTC">
+2010-11-09
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#1a5d" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>It's not possible now. I can imagine some ways to do something like that with LZMA2 but it doesn't sound practical. It could be better to have a different algorithm (could be heavily based on LZMA2). I don't have time to work on such a thing for now. It's also hard to guess how much worse the compression ratio would be. With bad luck it wouldn't be so useful in practice. </p>
+<p>How memory constrained is the system? How many threads? How big dictionary do you need? Would it be OK to use the HC4 match finder instead of BT4?</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#1a5d">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="6973" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="P.Marek" title="P.Marek" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+- <i style="color: #777">
+<span title="Wed Nov 10, 2010 08:07 AM UTC">
+2010-11-10
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#6973" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Well, if I say that at the highest compression level I have to think about 1.5GB of RAM per thread, and there could easily be two Quad-cores (so 8 threads), that would mean 12GB RAM … and if I want to be able to handle several connections in parallel, I'd need separate contexts for each thread for each connection, so that doesn't really scale for the next few years. </p>
+<p>Of course, going with a lower compression and about 150MB RAM per context does work fine for some time … </p>
+<p>What would HC4 instead of BT4 mean? Would that influence the stored dictionary?<br/>
+One of the fine things about LZMA is that is stores such a long history of previous data, so similar blocks can be efficiently transferred. That's the thing I'd like to keep - but then I'd need contexts as big as possible again … </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#6973">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="b3f6" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="P.Marek" title="P.Marek" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+- <i style="color: #777">
+<span title="Wed Nov 10, 2010 12:26 PM UTC">
+2010-11-10
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#b3f6" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>In other words, I'd like a way to compress a block using a context with history *without* touching the context. </p>
+<p>Now, for me this sounds like a flag (or maybe a new function) that simply doesn't update the context after compressing ;-) </p>
+<p>In case that's easier I'd be happy about leaving the input buffer size unused in the dictionary (so that the compress function can think that can copy the data in there) - that would lose me about 32kB, and gain a history of 1.5GB ;-) </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#b3f6">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="56ce" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Thu Nov 11, 2010 06:30 PM UTC">
+2010-11-11
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#56ce" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>That doesn't sound very memory constrained. I was thinking that you have some embedded system with a dual-core CPU. </p>
+<p>The preset 9 uses 64 MiB dictionary and needs 674 MiB of memory to encode. liblzma's maximum dictionary size is currently 1.5 GiB. With the BT4 match finder, 1.5 GiB dictionary needs 16.3 GiB of memory (10.3 GiB with HC4, but it compresses worse). But 1.5 GiB dictionary would be insane for most uses even if there was enough RAM. Even the 64 MiB dictionary used by the preset 9 often doesn't help so much compared to a little smaller dictionaries. </p>
+<p>Naturally it depends on the exact use case. E.g. rzip and rzip-based lrzip show that a huge dictionary can be good for speed and compression ratio at the same time when compressing big files. That's why there may be something rzip-like in liblzma in the future. </p>
+<p>There are many more details than just adding a flag to freeze the state of the encoder. You still need thread-specific state (small) for the range encoder and other data that is needed when creating the compressed stream. That is, you want to freeze only the match finder state, which is what eats so much RAM. The data being compressed is first copied to the dictionary and then processed from there. Since the match finder state is frozen, you cannot write the new input data to the dictionary, and thus you need to change the code in several places to accommodate the frozen match finder state. </p>
+<p>You might also want to make the match finder take into account the new data, which adds more complexity but can improve compression ratio. LZ77-based algorithms refer to the data in the dictionary as a distance from the end of the dictionary. LZMA (and many other LZ77-based algorithms) encode short distances with fewer bits than large distances. So you usually want to use the shortest distance when multiple identical matches are available in the dictionary. </p>
+<p>I understand that something like this could be useful, but unforunately I won't have time to work on this in the foreseeable future. </p>
+<p>Since you would be compressing only 32 KiB, have you tried if a preset dictionary of 256 KiB to maybe 8 MiB would give good results? That should keep the per-thread memory usage sane. Currently the preset dictionary can be used only with raw LZMA2 streams with C code, but support for it will likely be added to the .xz format and the xz tool in the future. </p>
+<p>liblzma doesn't currently have a function duplicate the encoder state (zlib has deflateCopy()), which can be a problem from performance point of view when using a preset dictionary. I will add such a function in the future.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#56ce">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="6576" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="P.Marek" title="P.Marek" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+- <i style="color: #777">
+<span title="Fri Nov 12, 2010 08:09 AM UTC">
+2010-11-12
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#6576" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Sorry, I wasn't clear enough. </p>
+<p>The normal block size that I get for streaming will be 4kB to 32kB - but the data stream itself might go indefinitly long.<br/>
+One of these uses had 12.1GB since Tuesday - so a bigger history should definitely help for delta-encoding and similar. </p>
+<p>In a test I had LZMA use ~150MB - and repeatedly streaming data from a 64MB block (random length, random position) got a very good compression ratio, so I'd like to get the dictionary as big as possible.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#6576">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="25e0" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Mon Nov 15, 2010 12:20 PM UTC">
+2010-11-15
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#25e0" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Do you need to use LZMA_SYNC_FLUSH after each block of a few kilobytes? If yes, have you checked if using HC4 match finder instead of BT4 will give you better compression? The BT match finders generally give poor results if LZMA_SYNC_FLUSH is used very often (1 KiB is very often, but 32 KiB is unclear). </p>
+<p>To know how much bigger dictionary can significantly help, you need to test it. Take a few gigabytes of real-world data and compress it with different settings. If you use LZMA_SYNC_FLUSH in real situation, you need to use it in testing too to get useful results. </p>
+<p>About freezing the encoder state: If the LZMA2 stream format is kept unmodified, the results cannot be great for long continuous streams. It might be OK for compressing small blocks and resetting the stream state after each block (so a long stream would be made from many small blocks). If the LZMA2 stream format is modified, then it might work OK for long streams without resetting between blocks. It would still have some effect on compression ratio, and I cannot predict or easily test how big the effect would be.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#25e0">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="73a1" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="P.Marek" title="P.Marek" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+- <i style="color: #777">
+<span title="Mon Nov 15, 2010 01:21 PM UTC">
+2010-11-15
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#73a1" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Yes, I'm using SYNC_FLUSH. No, I'm not really playing around with the <br/>
+individual parameters; currently, for testing, I'm just using easy_encoder with <br/>
+a level of 1 or 2. </p>
+<p>But:<br/>
+I've run 128MB of (constant) data through a bit more than 1000 (randomly) <br/>
+chosen parameter sets (consisting of blocksize, mode, dict_size, lc, lp, pb, <br/>
+nice_len, depth, and mf), and I'm looking at various subsets. </p>
+<p>For 1KB blocks HC3 and HC4 seem to do a bit better than BT* (cpu and <br/>
+compression).<br/>
+For 8KB the compression is nearly the same. </p>
+<p>I'm aware that I'd have to thaw the encoder from time to time, to let it get <br/>
+up-to-date for the new data.<br/>
+Alternatively, if the live/frozen distinction is just a flag given to<br/>
+lzma_code(), I'd think about doing a few blocks with a readonly context,<br/>
+a few more doing live compression, and so on.<br/>
+(Maybe depending on current throughput, or something similar). </p>
+<p>I could guarantee you that the encoder state won't be touched during a readonly <br/>
+compression, if that helps; I'm already using RW-locks, so it's no big deal. </p>
+<p>Increasing the dictionary value gives me these data amounts, ratio is given <br/>
+relative to original size (so 0.3 means 70% saved):<br/>
+  dict_size     ratio   variance    data points<br/>
+     4096       0.324   3.76e-3     204<br/>
+    16384       0.307   4.79e-3     187<br/>
+   262244       0.292   4.56e-3     201 </p>
+<p>So a big dictionary brings me about 10% less data after compression.<br/>
+This is expected, as the data is expected to be somewhat correlated - and I'd <br/>
+like to exploit that. </p>
+<p>I'm planning to do more tests later; do you have any special ideas what <br/>
+I should test? </p>
+<p>Regards, </p>
+<p>Phil </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#73a1">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="f928" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Mon Nov 15, 2010 02:49 PM UTC">
+2010-11-15
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#f928" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>dict_size = 262144 (I suppose you meant that) is 256 KiB, which is still quite small dictionary. Compare to gzip whose maximum is 32 KiB. The xz preset 0 uses 256 KiB dictionary (xz -0 on the command line). 256 KiB dictionary needs 3-4 MiB of encoder memory and less than 1 MiB to decompress. </p>
+<p>Increasing the dictionary size will have a big effect at first. When the dictionary size increases, it typically helps less and less. There are exceptions to this, of course, but seeing a big improvement when going from 4 KiB to 256 KiB is expected. </p>
+<p>To test the dictionary size, take the default preset (LZMA_PRESET_DEFAULT i.e. 6) as the starting point: </p>
+<p>lzma_options_lzma opt;<br/>
+lzma_lzma_preset(&amp;opt, LZMA_PRESET_DEFAULT); </p>
+<p>Test with dictionary sizes from 32 KiB to 128 MiB using powers of two (1 &lt;&lt; n, 15 &lt;= n &lt;= 27) as opt.dict_size. Repeat with opt.mf = LZMA_MF_HC4 if you use small blocks with LZMA_SYNC_FLUSH. Use lzma_stream_encoder() to initialize the encoder: </p>
+<p>lzma_filter filters = { { LZMA_FILTER_LZMA2, &amp;opt }, { LZMA_VLI_UNKNOWN, NULL }};<br/>
+lzma_stream strm = LZMA_STREAM_INIT;<br/>
+lzma_stream_encoder(&amp;strm, &amp;filters, LZMA_CHECK_CRC32); </p>
+<p>If easily possible, use a test file that is 500 megabytes or so. It will give more truthful results with the biggest dictionary sizes (64 MiB and 128 MiB). </p>
+<p>The idea is to see how much the dictionary size affects the compression. The speed won't be the best with these settings, but let's not worry about that for now. I want you to find out how much it helps to increase the dictionary size. Then we can see how much memory a good enough dictionary size needs and if that is low enough to let each thread use their own encoder state.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#f928">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="daa6" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="P.Marek" title="P.Marek" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+- <i style="color: #777">
+<span title="Wed Nov 17, 2010 08:34 AM UTC">
+2010-11-17
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#daa6" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Dear Lasse, </p>
+<p>first of all, thank you very much for your patience and help.<br/>
+I really appreciate that. </p>
+<p>I've got a few results for you. </p>
+<p>I've taken 64MB of a /usr-tar, and put random blocks of it through LZMA <br/>
+compression and decompression in a process until 256MB have been transferred.<br/>
+dict_size was from 16kB to 128MB. </p>
+<p>(Sorry that it's not more data - but I couldn't test with dictionaries over <br/>
+128MB anyway, as the memory got exhausted.) </p>
+<p>Average ratio:<br/>
+dict_size | bt2   | bt3   | bt4   | hc3   | hc4   | Total<br/>
+    -------+-----+-----+-----+-----+-----+----<br/>
+16384      | 0,336 | 0,316 | 0,318 | 0,315 | 0,300 | 0,316<br/>
+1048576    | 0,264 | 0,291 | 0,266 | 0,271 | 0,276 | 0,272<br/>
+16777216   | 0,168 | 0,173 | 0,173 | 0,159 | 0,164 | 0,167<br/>
+67108864   | 0,103 | 0,088 | 0,087 | 0,107 | 0,098 | 0,097<br/>
+134217728  | 0,090 | 0,071 | 0,076 | 0,098 | 0,071 | 0,081<br/>
+    -------+-----+-----+-----+-----+-----+----<br/>
+Total     | 0,189 | 0,174 | 0,190 | 0,192 | 0,179 | 0,185 </p>
+<p>CPU time:<br/>
+dict_size | bt2 | bt3 | bt4 | hc3 | hc4 | Total<br/>
+-------+---+---+---+---+---+-----<br/>
+16384 | 146 | 127 | 126 | 98  | 98  | 118<br/>
+  1048576 | 179 | 200 | 167 | 189 | 156 | 178<br/>
+16777216 | 242 | 223 | 189 | 208 | 170 | 204<br/>
+67108864 | 242 | 236 | 225 | 150 | 130 | 197<br/>
+134217728 | 222 | 221 | 221 | 95  | 85  | 171<br/>
+-------+---+---+---+---+---+-----<br/>
+Total     | 208 | 207 | 183 | 152 | 129 | 175 </p>
+<p>My result is that a bigger dictionary helps very much, up to the amount of <br/>
+"hot" data transferred. CPU usage is reduced by a bigger dictionary, too. </p>
+<p>Now for the bad news …<br/>
+I got these memory needs; they are mostly independent of other parameters.<br/>
+hc3: dict_size *  7.0 + 12.0<br/>
+hc4: dict_size *  7.5 +  6.5<br/>
+bt2: dict_size * 10.5 +  1.1<br/>
+bt3: dict_size * 11.0 + 12.2<br/>
+bt4: dict_size * 11.5 +  6.5 </p>
+<p>So, if I can use 3.5GB memory, I can make the dictionary about 500MB - if<br/>
+I limit myself to a single thread. </p>
+<p>I see real value in being able to make the context readonly, so that multiple <br/>
+threads can use it independently. Extra points for making the context useable<br/>
+multithreaded, so that automatically one thread gets to update it and the <br/>
+others use it readonly - then I wouldn't have to take care about locking <br/>
+myself. </p>
+<p>Thank you very much! </p>
+<p>Regards, </p>
+<p>Phil </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#daa6">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="8c49" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Wed Nov 17, 2010 09:34 PM UTC">
+2010-11-17
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#8c49" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Thanks. It seems that a bigger dictionary helps you significantly, assuming this test case matches a real-world situation. </p>
+<p>My current situation is that I cannot even plan the frozen state support for now. I have too many other things on the to-do list already. Freezing the state is not so quick thing to implement that it sounds to you. But I will keep this kind of use case in mind. </p>
+<p>What exactly is your application doing? It sounds like a file server from which clients often request the same data. Anyway, have you taken into account that with frozen encoder state and multiple threads &amp; connections, all receivers would need to have the same dictionary buffer that was used for encoding? So if you use 512 MiB dictionary, all receivers would need 512 MiB dictionary buffer in memory and they would have to match the state of the encoder.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#8c49">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="b7a9" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="P.Marek" title="P.Marek" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+- <i style="color: #777">
+<span title="Fri Jan 14, 2011 02:19 PM UTC">
+2011-01-14
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#b7a9" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Another idea: Is it possible to cut the index size? I'd be happy if matches were found only if they are aligned on multiples of 512 bytes; I think that this would reduce the trees enough that I could use a much bigger dictionary. </p>
+<p>How about a mode that just looks for similar blocks on 512 byte borders, and if it finds one, simply does a huffman(buffer XOR old-block)? should be efficient enough, and might need most of my needs. </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#b7a9">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="e2e9" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Wed Jan 19, 2011 04:31 PM UTC">
+2011-01-19
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#e2e9" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Yes, it is technically possible. </p>
+<p>Note I haven't been able to work on XZ Utils recently. I haven't even added the ability to change the mode parameter yet.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#e2e9">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="9ca3" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="P.Marek" title="P.Marek" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+- <i style="color: #777">
+<span title="Thu Jul 12, 2012 02:30 PM UTC">
+2012-07-12
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#9ca3" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Another wish: please provide a callback (similar to the allocate/free ones) that gets called to "unlock" a context when the necessary things have been done, to allow overlapping processing. </p>
+<p>I imagine this workflow:<br/>
+* a thread "locks" a context (within some user-defined memory)<br/>
+* calls lzma_(compress|uncompress)<br/>
+    - this copies the given data into the dictionary,<br/>
+    - adjusts some values,<br/>
+    - fixes indizes<br/>
+    - then the lzma function invokes the callback<br/>
+    - and continues to compress the given data with the available dictionary<br/>
+* after the unlock has been issued, another thread can start to pass<br/>
+   data to lzma </p>
+<p>Now the granularity/parallelicity might not be that great currently …<br/>
+but perhaps LZMA can allocate more memory beforehand, and do some RCU to<br/>
+allow concurrent processing? </p>
+<p>I have to admit that I don't know enough internals to say whether that's easy,<br/>
+hard, or impossible … </p>
+<p>How much work could that be, ie. could sponsoring help? </p>
+<p>Thank you very much! </p>
+<p>Regards, </p>
+<p>Phil </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#9ca3">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="90ee" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Sun Jul 22, 2012 01:50 PM UTC">
+2012-07-22
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#90ee" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>There are a couple of quite major problems: </p>
+<p>- My ability to work on XZ Utils is still limited. When I work on XZ Utils, I have several things that have a higher priority. I'm sorry. </p>
+<p>- I don't completely understand what kind of feature you are requesting. </p>
+<p>- I don't understand the underlying problem as a whole that you are trying to solve. Thus, even if I fully understood what you are requesting, I would have no idea if it actually does what you are hoping it to do. </p>
+<p>:-) </p>
+<p>I have got an impression that you have a server that serves multiple clients. You want to compress the data streams between the server and clients. The problem is keeping the memory usage low enough on the server when many clients are connected at the same time. The memory usage on the clients isn't a problem. </p>
+<p>Since you are sending (somewhat) different data to each client, you cannot use a single encoder state and send the same compressed output to every client. You are suggesting that the encoder should able to freeze the state for a while and share this frozen read-only state between threads so that it could be used to encode data to be sent to multiple clients (different data to each client). Now and then the state would be unfrozen and updated to contain recently seen data. </p>
+<p>I don't know how much I got it wrong above; please correct me if needed. I continue with the assumption that the above is correct. </p>
+<p>Even if something like LZMA2 with freezing support was implemented, the step where the new data is added to the dictionary on the server sounds a bit suspicious (I already tried to point out a potential problem in message 11, paragraph 3). </p>
+<p>To simplify, the encoder state can be split into dictionary (dict_size bytes or slightly more), match finder (a few times dict_size), and other data (not significant in this discussion). The decoder needs state for the dictionary (dict_size bytes) and other data (not significant here). </p>
+<p>You need to keep the states of the decoders on the clients in sync with the encoder on the server. If you add several megabytes of data to the dictionary on the server, you need to get the same data added to the dictionaries of the clients too. Sending megabytes of data to every client just to update their dictionary buffers might make the idea of frozen encoder useless in your situation, but it depends on the details, I guess. </p>
+<p>Encoder freezing support might really be what you want, but since I don't know what the underlying problem as a whole is, it's possible that something very different could be much better.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#90ee">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="a161" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="P.Marek" title="P.Marek" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/pmarek/profile/" class="user-mention">
+P.Marek
+</a>
+- <i style="color: #777">
+<span title="Sun Jul 22, 2012 06:45 PM UTC">
+2012-07-22
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#a161" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>No, the stream that is to be compressed is for a single client. </p>
+<p>But: I'd like to take advantage of the many CPUs that are available, by doing some kind of parallel processing. </p>
+<p>There are a few options for this: </p>
+<p>** Use multiple LZMA contexts. </p>
+<p>+ scales to many CPUs<br/>
+- much more memory needed<br/>
+- bad compression ratio, as each context will only see parts of the data and might not know that the same has just been processed. </p>
+<p>** have a single context and locking </p>
+<p>+ works now<br/>
++ best compression<br/>
++ memory usage only for 1 context<br/>
+- only a single CPU can work at a time </p>
+<p>And that's where the idea that I tried to explain above comes it: </p>
+<p>** Use a single context, but some more memory<br/>
+I know that each incoming block is at most L bytes long, and that there are C CPUs (threads). </p>
+<p>So it might be possible to allocate a dictionary that's L*C bytes longer; then each thread can add its data without worrying that it destroys the dictionary of the (still active) threads that started earlier. </p>
+<p>Now, if there was a way to get the indizes be useable in parallel, too , this should work. </p>
+<p>+ scales to many CPUs<br/>
++- uses a bit more memory than normal<br/>
++ has the complete dictionary size for finding matches </p>
+<p>If the indexes granularity would be made coarser, eg. to 64 or 512 bytes, their size might shrink a fair bit, too. </p>
+<p>Ad 1: of course the indizes have to get some more memory, too<br/>
+Ad 2: perhaps by making them kind of constant - instead of changing an entry copy it and all parents to build a new tree? </p>
+<p>I hope that clarifies a bit what I want to achieve.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#a161">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="6400" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Fri Jul 27, 2012 12:32 PM UTC">
+2012-07-27
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#6400" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>In short, you seem to want threaded compression with support for frequent flushing. However, you don't need it to happen as a single continuous stream; you are fine with having parallel streams that depend on each other. Making such an algorithm sounds possible but I'm not willing to try it in the foreseeable future, sorry. </p>
+<p>In the message 12 you mentioned that it might be enough to look for matches aligned to multiples of 512 bytes. Some random thoughts about that: </p>
+<p>There's an old idea to have a two-level match finder for LZMA: One that works like the current ones and another that cares about e.g. aligned 512-byte blocks. That will reduce memory usage and hopefully not reduce compression ratio too much. </p>
+<p>Maybe a much simpler thing would be enough for you: Have a simple long-range LZ77 algorithm that works on aligned 512-byte blocks without any entropy coding. That should be fast and perhaps a single thread would be enough. Optionally the output of that could be compressed with e.g. zlib or liblzma (with a small dictionary). </p>
+<p>rzip has a long-range algorithm that is fancier than the above example but it's still fast. The output of the long-range step is compressed with bzip2. lrzip continued from rzip and supports multiple algorithms to compress the output of the long-range step. You could try how lrzip compresses your data (with different backend compressors and also without any backend compression).</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/28e6094d/#6400">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+</div>
+<div style="clear:both"></div>
+<div style="clear:both"></div>
+</div>
+</div>
+<hr>
+<p>
+<a href="/auth/">Log in</a> to post a comment.
+</p>
+</div>
+</div>
+</div>
+</section>
+<footer class="sandiego">
+<div class="as-row">
+<div class="footer-wrapper">
+<nav aria-label="Site Links" role="navigation">
+<section>
+<div class="as-h2">SourceForge</div>
+<ul>
+<li><a href="/create/" title="Create a Project">Create a Project</a></li>
+<li><a href="/directory/" title="Open Source Software Directory">Open Source Software</a></li>
+<li><a href="/software/" title="Business Software Directory">Business Software</a></li>
+<li><a href="/top" title="Top Open Source Projects">Top Downloaded Projects</a></li>
+</ul>
+</section>
+</nav>
+<nav aria-label="Company Links" role="navigation">
+<section>
+<div class="as-h2">Company</div>
+<ul>
+<li><a href="/about">About</a></li>
+<li><a href="/about/leadership" title="Open Source Software Directory">Team</a></li>
+<li class="h-card">
+<address>
+<span class="p-name p-org">SourceForge Headquarters</span><br>
+<span class="p-street-address">225 Broadway Suite 1600</span><br>
+<span class="p-locality">San Diego, CA <span class="p-postal-code">92101</span></span><br>
+<span class="p-tel">+1 (858) 454-5900</span><br>
+</address>
+</li>
+<li id="social">
+<span></span>
+<a href="https://twitter.com/sourceforge" class="twitter" rel="nofollow" target="_blank">
+<svg class="vertical-icon-fix" data-name="twitter" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z" /></svg></a>
+<a href="https://fosstodon.org/@sourceforge" rel="me nofollow" target="_blank">
+<svg class="vertical-icon-fix" data-name="mastodon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z" /></svg></a>
+<a href="https://www.facebook.com/sourceforgenet/" class="facebook" rel="nofollow" target="_blank">
+<svg data-name="facebook" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1343 12v264h-157q-86 0-116 36t-30 108v189h293l-39 296h-254v759h-306v-759h-255v-296h255v-218q0-186 104-288.5t277-102.5q147 0 228 12z" /></svg></a>
+<a href="https://www.linkedin.com/company/sourceforge.net" class="linkedin" rel="nofollow" target="_blank">
+<svg data-name="linkedin" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M477 625v991h-330v-991h330zm21-306q1 73-50.5 122t-135.5 49h-2q-82 0-132-49t-50-122q0-74 51.5-122.5t134.5-48.5 133 48.5 51 122.5zm1166 729v568h-329v-530q0-105-40.5-164.5t-126.5-59.5q-63 0-105.5 34.5t-63.5 85.5q-11 30-11 81v553h-329q2-399 2-647t-1-296l-1-48h329v144h-2q20-32 41-56t56.5-52 87-43.5 114.5-15.5q171 0 275 113.5t104 332.5z" /></svg></a>
+<span></span>
+</li>
+</ul>
+</section>
+</nav>
+<nav aria-label="Resources Links" role="navigation">
+<section>
+<div class="as-h2">Resources</div>
+<ul>
+<li><a href="/support" title="Support Section">Support</a></li>
+<li><a href="/p/forge/documentation/Docs%20Home/" title="Site Documentation">Site Documentation</a></li>
+<li><a href="https://fosstodon.org/@sourceforgestatus" title="Site Status" rel="me nofollow">Site Status</a></li>
+</ul>
+</section>
+</nav>
+<section class="footer-logo">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+</section>
+</div>
+</div>
+<section class="l-nav-bottom">
+<nav class="row">
+<div class="columns small-12 large-6 copyright-notice">
+&copy; 2024 Slashdot Media. All Rights Reserved.
+</div>
+<div class="columns large-6 links links-right">
+<a href="https://slashdotmedia.com/terms-of-use" title="Terms" rel="nofollow">Terms</a>
+<a href="https://slashdotmedia.com/privacy-statement/" title="Privacy" rel="nofollow">Privacy</a>
+<a href="#" title="Privacy Choices" id="privacy-choices" class="btn-privay-choices">Privacy Choices</a>
+<a href="https://slashdotmedia.com/contact/" target="_blank" title="Advertise" rel="nofollow">Advertise</a>
+</div>
+</nav>
+</section>
+</footer>
+</div>
+<div id="messages">
+</div>
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery.notify.js%3Ballura%2Fjs%2Fjquery.tooltipster.js%3Ballura%2Fjs%2Fallura-base.js%3Ballura%2Fjs%2Fchecklist.js%3Ballura%2Fjs%2Fadmin_modal.js%3Bjs%2Fjquery.lightbox_me.js%3Ballura%2Fjs%2Fmemorable.js%3Bjs%2Fjquery.tagsinput.js%3Bjs%2Feasymde.min.js%3Bjs%2Fsf_markitup.js%3Bjs%2Fshow-hint.js%3Bjs%2Fusermentions-helper.js%3Bjs%2Fpost.js%3Bjs%2Freactions.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fshared.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsticky.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Fchrome.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Futilities.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.core.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.mediaQuery.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.keyboard.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.box.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.nest.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.dropdownMenu.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.offcanvas.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.toggler.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Fproject.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Fjquery.typeahead.min.js%3Ballura%2Fjs%2Freact.production.min.js%3Ballura%2Fjs%2Freact-dom.production.min.js%3Ballura%2Fjs%2Fcreate-react-class.min.js%3Ballura%2Fjs%2Fprop-types.min.js"></script>
+
+
+<script type="text/javascript">$(function () {
+            $('select.results_per_page').change(function () {
+                this.form.submit();});});
+$(function () {
+          $('input.label_edit').tagsInput({
+              'height':'100%',
+              'width':'100%',
+              'autocomplete_url':'/p/lzmautils/discussion/tags'
+          });
+          $('form').on('blur', '.ui-autocomplete-input', function() {
+              setTimeout(function(){
+                  var clicked = $(document.activeElement); // This is the element that has focus
+                  if (clicked.is('#ui-active-menuitem')) {
+                      return false;
+                  } else {
+                      var value = $('div.tagsinput div input').val();
+                      var exists = $('input.label_edit').tagExist(value);
+                      var default_value = $('div.tagsinput div input').attr('data-default');
+                      if ((value !== default_value) && (!exists) && value !== '') {
+                          $('input.label_edit').addTag(value);
+                      }
+                      $('input[type=submit]', this).prop('disabled', true);
+                  }
+                }, 1);
+            });
+        });
+$(function () {getProjectUsers('/p/lzmautils//users')});
+$(document).ready(function () {
+            $("a.attachment_form_add_button").click(function(evt){
+                $(this).hide();
+                $(".attachment_form_fields", this.parentNode).show();
+                evt.preventDefault();
+            });
+            $("a.cancel_edit_post").click(function(evt){
+                evt.preventDefault();
+                var form = this.parentNode;
+                var orig_val = $("input.original_value", form).val();
+                $("textarea", form).val(orig_val);
+                get_cm(form).setValue(orig_val);
+                $("input.attachment_form_fields", form).val('');
+                $(this).closest('.reply_post_form').hide();
+            });
+         });
+
+        $(document).ready(function () {
+            var thread_tag = $('a.thread_tag');
+            var thread_spam = $('a.sidebar_thread_spam');
+            var tag_thread_holder = $('#tag_thread_holder');
+            var allow_moderate = $('#allow_moderate');
+            var mod_thread_link = $('#mod_thread_link');
+            var mod_thread_form = $('#mod_thread_form');
+            if (mod_thread_link.length) {
+                if (mod_thread_form.length) {
+                    mod_thread_link.click(function (e) {
+                        mod_thread_form.toggle();
+                        return false;
+                    });
+                }
+            }
+            if (thread_tag.length) {
+                if (tag_thread_holder.length) {
+                    var submit_button = $('input[type="submit"]', tag_thread_holder);
+                    var cancel_button = $('<a href="#" class="btn link">Cancel</a>').click(function(evt){
+                        evt.preventDefault();
+                        tag_thread_holder.hide();
+                        thread_tag.removeClass('active');
+                    });
+                    submit_button.after(cancel_button);
+                    thread_tag.click(function (e) {
+                        tag_thread_holder.show();
+                        thread_tag.addClass('active');
+                        // focus the submit to scroll to the form, then focus the subject for them to start typing
+                        submit_button.focus();
+                        $('input[type="text"]', tag_thread_holder).focus();
+                        return false;
+                    });
+                }
+            }
+            if (thread_spam.length) {
+                if (allow_moderate.length) {
+                    thread_spam[0].style.display='block';
+                }
+            }
+        });
+        
+
+            var global_reactions = {":+1:": "\ud83d\udc4d", ":-1:": "\ud83d\udc4e", ":smile:": "\ud83d\ude04", ":tada:": "\ud83c\udf89", ":confused:": "\ud83d\ude15", ":heart:": "\u2764\ufe0f"};
+        </script>
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=theme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.triggers.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.reveal.min.js"></script>
+
+<script>
+    bizx.cmp.ifConsent('', ['all', 'google-ads'], function () {}, function(){
+        $('body').addClass('no-ads-consent'); 
+    });
+</script>
+<script>
+        $(document).foundation();
+    </script>
+
+<script>
+    (function () {
+        bizx.cmp.ifConsent({ purposes: 'all', vendors: 'bombora'}, function () {
+            /*global _ml:true, window */
+            _ml = window._ml || {};
+            _ml.eid = '771';
+            _ml.fp = '49274a03-34cc-42cc-b6f5-2520776e440f';  
+            var s = document.getElementsByTagName('script')[0], cd = new Date(), mltag = document.createElement('script');
+            mltag.type = 'text/javascript';
+            mltag.async = true;
+            mltag.defer = true;
+            mltag.src = '//ml314.com/tag.aspx?' + cd.getDate() + cd.getMonth() + cd.getFullYear();
+            s.parentNode.insertBefore(mltag, s);
+        });
+    })();
+</script>
+
+<script>
+    $(document).ready(function () {
+        $(".tooltip, .m-tooltip").each(function(){
+            let $el = $(this);
+            $el.tooltipster({
+                animation: 'fade',
+                delay: 200,
+                theme: 'tooltipster-light',
+                trigger: 'hover',
+                position: $el.data('position') || 'right',
+                iconCloning: false,
+                maxWidth: 300,
+                contentAsHTML: true,
+                interactive: true
+            }).focus(function () {
+                $(this).tooltipster('show');
+            }).blur(function () {
+                $(this).tooltipster('hide');
+            });
+        });
+    });
+</script>
+</script>
+</body>
+</html>

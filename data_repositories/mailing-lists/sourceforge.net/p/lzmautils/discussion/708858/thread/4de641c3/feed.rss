@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to check/crc32_x86.S:96: Error: invalid instruction suffix for `push'</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/4de641c3/</link><description>Recent posts to check/crc32_x86.S:96: Error: invalid instruction suffix for `push'</description><language>en</language><lastBuildDate>Thu, 17 May 2018 19:04:55 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/4de641c3/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>check/crc32_x86.S:96: Error: invalid instruction suffix for `push'</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/4de641c3/?limit=25#8d88</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;The official Windows binaries are compiled with MinGW-w64 (under MSYS) using the script windows/build.bash, so at least that combination is known to work. Perhaps you didn't pass the correct --build option as under MSYS the default guess can be wrong (since MSYS is 32-bit). For MinGW-w64 x86-64 use --build=x86_64-w64-mingw32. For 32-bit x86 with MinGW-w64 --build=i686-w64-mingw32 is the correct option (yes, w64 still).&lt;/p&gt;
+&lt;p&gt;If you are using Win10's Linux compatibility feature/mode, I have no experience about it, but wrong --build is still a likely reason (or --host, but probably not as cross-compilation mode hopefully isn't needed).&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Thu, 17 May 2018 19:04:55 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net5d2c57261075386aac6dc436eff3ca341d53cb09</guid></item><item><title>check/crc32_x86.S:96: Error: invalid instruction suffix for `push'</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/4de641c3/?limit=25#f3dc</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I tried to compile xz (5.2.4) in mingw64 under win10_x64 and when it comes to &lt;code&gt;$XZ_DIR/src/liblzma/check/crc32_x86.S&lt;/code&gt; it gives this exact error:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;check/crc32_x86.S: Assembler messages:&lt;br/&gt;
+check/crc32_x86.S:96: Error: invalid instruction suffix for `push'&lt;br/&gt;
+(+ x3 in next consecutive lines)&lt;br/&gt;
+check/crc32_x86.S:265: Error: invalid instruction suffix for `pop'&lt;br/&gt;
+(+ x3 in next consecutive lines)&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;I found on &lt;a class="" href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=48713" rel="nofollow"&gt;bugzilla&lt;/a&gt; that it's not a bug - it's cause by x64 assembler trying to compile x86 code (&lt;code&gt;crc32_x86.S&lt;/code&gt;)&lt;/p&gt;
+&lt;p&gt;So then I checked how linux resolves that and it turns out it's not using assembler code at all and it's done in configure step.&lt;br/&gt;
+I found that ./configure finds working x64 assembler and sets these variables:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;COND_ASM_X86_64_FALSE=''
+COND_ASM_X86_64_TRUE='#'
+COND_ASM_X86_FALSE='#'
+COND_ASM_X86_TRUE=''
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;So the problem is ./configure wrongly tries to compile x86 assembler code when it should use either x64 code (which is not present in source) or C code.&lt;/p&gt;
+&lt;p&gt;Now what am I to do with that? &lt;code&gt;./configure --help&lt;/code&gt; doesn't give any hint. Shall I compile manually &lt;code&gt;crc32_fast.c&lt;/code&gt; and then link?&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Sam Tansy</dc:creator><pubDate>Wed, 16 May 2018 13:53:02 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net191e21012d9850f28baa046b383b21660e6a4e31</guid></item></channel></rss>

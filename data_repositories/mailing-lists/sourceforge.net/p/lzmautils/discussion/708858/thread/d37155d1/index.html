@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+
+<html lang="en" class="no-js">
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+<title>
+  XZ Utils / Discussion /
+  Open Discussion: Multi-threaded compression, when?
+</title>
+<meta name="viewport" content="width=1100">
+<link rel="icon" sizes="180x180" href="https://a.fsdn.com/con/img/sandiego/logo-180x180.png" type="image/png">
+<link rel="icon" sizes="any" href="https://a.fsdn.com/con/img/sandiego/svg/originals/sf-icon-orange-no_sf.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="https://a.fsdn.com/con/img/sandiego/logo-180x180.png">
+<link rel="mask-icon" href="https://a.fsdn.com/con/img/sandiego/svg/originals/sf-icon-orange-no_sf.svg" color="#FF6600">
+<link rel="stylesheet" href="https://a.fsdn.com/con/css/lato.css?">
+<script>
+if (!window.SF) { window.SF = {}; }
+SF.sandiego = false;
+SF.sandiego_chrome = true;
+SF.cdn = "https://a.fsdn.com/con";
+SF.fpid = '49274a03-34cc-42cc-b6f5-2520776e440f';
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=allura%2Fcss%2Fforge%2Fhilite.css%3Ballura%2Fcss%2Fforge%2Ftooltipster.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/allura/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/theme/sftheme/css/forge.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=css%2Fpage_list.css%3Bcss%2Fjquery.tagsinput.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/css/easymde.min.css">
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/css?href=css%2Fmarkitup_sf.css%3Bcss%2Fshow-hint.css">
+<style>
+        div.moderate {
+            color:grey;
+        }
+        </style>
+<link rel="stylesheet" type="text/css" href="https://a.fsdn.com/allura/nf/1720797364/_ew_/theme/sftheme/css/sftheme/sandiego/cmp.css">
+
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery-3.6.0.min.js%3Ballura%2Fjs%2Fjquery.cookie-1.4.1.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fcmp2.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fshared_head.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Ftypescript%2Fcompliance.js"></script>
+
+<style type="text/css">
+            /* make URL &amp; Project custom fields in support tickets not get hidden as much */
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(5),
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(6) {
+  overflow: visible;
+  font-size: 22px;
+  width: 340px;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(5) label, .project-forge.mountpoint-site-support .view_holder .grid-4:nth-child(6) label {
+  font-size: 14px;
+}
+        </style>
+<style>.XwpxASDDlWRzampCwDiMKZBOiXwJUQ {
+        display: none
+    }</style>
+<link rel="canonical" href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/" />
+<script>
+        window.bizx.cmp.init({
+            gam_gdpr_technical_delivery: true,
+        });
+    </script>
+<script>
+    function initPiwik(){
+      var _paq = window._paq = window._paq || [];
+      _paq.push(['trackPageView', document.title, {
+            dimension1: 'lzmautils',
+            dimension2: 'discussion'
+      }]);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//analytics.slashdotmedia.com/";
+        _paq.push(['setTrackerUrl', u+'sf.php']);
+        _paq.push(['setSiteId', 39]);
+        
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'sf.js'; s.parentNode.insertBefore(g,s);
+      })();
+    }
+    bizx.cmp.ifConsent({ purposes: ['storage', 'measurement'], vendors: 'sdm'}, initPiwik);
+</script>
+</head>
+<body class="
+body_class sandiego_chrome  legacy_chrome 
+" id="forge">
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery-ui-1.13.2.min.js"></script>
+
+<div class="off-canvas position-right" id="offCanvas" data-off-canvas>
+
+<ul class="header-nav-menulist">
+<li class="highlight search">
+<form method="get" action="/directory/" class="m-search-form">
+<input type="text" placeholder="Search for software or solutions" autocomplete="off" name="q">
+<label>
+<input type="submit" class="bt" value>
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</label>
+</form>
+</li>
+<li class="highlight"><a href="/auth/">Join/Login</a></li>
+<li><a href="/directory/">Open Source Software</a></li>
+<li><a href="/software/">Business Software</a></li>
+<li><a href="/software/vendors/" title="For Vendors">For Vendors</a></li>
+<li><a href="/blog/" title="Blog">Blog</a></li>
+<li><a href="/about">About</a></li>
+<li><a id="header-nav-more" data-toggle="header-nav-more header-nav-more-content" data-toggler=".toggled">More</a></li>
+<li>
+<ul id="header-nav-more-content" class="toggled" data-toggler=".toggled">
+<li><a href="/articles/">Articles</a></li>
+<li><a href="/create">Create</a></li>
+<li><a href="/learn/">Learn</a></li>
+<li><a href="https://sourceforge.net/articles/category/sourceforge-podcast/">SourceForge Podcast</a></li>
+<li><a href="https://sourceforge.net/p/forge/documentation/Docs%20Home/">Site Documentation</a></li>
+<li><a href="/user/newsletters">Subscribe to our Newsletter</a></li>
+<li><a href="/support">Support Request</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="off-canvas-content" data-off-canvas-content>
+<script>
+    SF.linkout_icon = '<svg  data-name="sf-linkout-icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve"><polygon class="st0" points="243.2,243.2 56.8,243.2 56.8,56.8 123,56.8 123,9 9,9 9,291 291,291 291,179.4 243.2,179 "/><polygon class="st0" points="128.5,213 155,186.5 176,165.5 206.7,196.3 235.5,132.5 248.9,102.6 290.6,9.8 291,9 290.6,9.2 197.4,51.1 169.1,63.8 103.7,93.3 137,126.5 115.9,147.5 89.5,174 "/></svg>';
+</script>
+<div class="l-header-nav  sandiego">
+<section class="sandiego l-header-nav-top show-for-large">
+<div class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<nav class="links">
+<a href="/software/vendors/" title="For Vendors">For Vendors</a>
+<a href="/support" title="Help">Help</a>
+<a href="/create/" title="Create">Create</a>
+<a href="/user/registration" title="Join">Join</a>
+<a href="/auth/" title="Login">Login</a>
+</nav>
+</div>
+</section>
+<section class="sandiego l-header-nav-top hide-for-large">
+<div class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<div class="title-bar-right">
+<button type="button" class="menu-icon" data-toggle="offCanvas"></button>
+</div>
+</div>
+</section>
+<section class="sandiego l-header-nav-bottom">
+<nav class="row">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+<div class="links">
+<div class="nav-dropdown">
+<a href="/directory/" title="Browse">Open Source Software</a>
+</div>
+<div class="nav-dropdown">
+<a href="/software/">Business Software</a>
+</div>
+<div class="nav-dropdown">
+<a>Resources</a>
+<ul class="nav-dropdown-menu">
+<li><a href="/articles/">Articles</a></li>
+<li><a href="/software/case-studies/">Case Studies</a></li>
+<li><a href="/learn/">Learn</a></li>
+<li><a href="/blog/">Blog</a></li>
+<li><a href="https://sourceforge.net/articles/category/sourceforge-podcast/">SourceForge Podcast</a></li>
+</ul>
+</div>
+<div class="dev-menu-when-stuck">
+Menu
+<ul class="dev-menu-dropdown header-nav-menulist">
+<li><a href="/support">Help</a></li>
+<li><a href="/create">Create</a></li>
+<li><a href="/user/registration/" title="Join">Join</a></li>
+<li><a href="/auth/" title="Login">Login</a></li>
+</ul>
+</div>
+<div class="search-toggle-when-stuck">
+<a class="search-toggle">
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</a>
+</div>
+</div>
+<div class="search">
+<div class="main-nav-button">
+<a href="/p/import_project/github/" rel="nofollow" title="Sync your Github project to SourceForge" id="github-link">
+<img src="https://a.fsdn.com/con/images/sandiego/github-sync.png" srcset="https://a.fsdn.com/con/images/sandiego/github-sync_2x.png 2x" alt="GitHub sync" id="main-nav-badge" />
+</a>
+</div>
+<form method="get" action="/directory/" class="m-search-form">
+<div class="typeahead__container">
+<div class="typeahead__field">
+<div class="typeahead__query">
+<input type="text" placeholder="Search for software or solutions" autocomplete="off" name="q">
+</div>
+<label>
+<input type="submit" class="bt" value>
+<svg data-name="search" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 832q0-185-131.5-316.5t-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5 316.5-131.5 131.5-316.5zm512 832q0 52-38 90t-90 38q-54 0-90-38l-343-342q-179 124-399 124-143 0-273.5-55.5t-225-150-150-225-55.5-273.5 55.5-273.5 150-225 225-150 273.5-55.5 273.5 55.5 225 150 150 225 55.5 273.5q0 220-124 399l343 343q37 37 37 90z" /></svg>
+</label>
+</div>
+</div>
+</form>
+</div>
+</nav>
+</section>
+</div>
+<div class="notification-on-project-page">
+</div>
+<section id="page-body" class=" neighborhood-Projects project-lzmautils mountpoint-discussion 
+
+">
+<div id="nav_menu_holder">
+<div class="sandiego">
+<section class="project-masthead">
+<div class="backdrop" style="box-sizing: content-box; padding-bottom: 24px"></div>
+<div class="content">
+<nav id="breadcrumbs" class="breadcrumbs rtl">
+<ul itemscope itemtype="http://schema.org/BreadcrumbList">
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/"><span itemprop="name">Home</span></a>
+<meta itemprop="position" content="1" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/directory/"><span itemprop="name">Browse</span></a>
+<meta itemprop="position" content="2" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/p/lzmautils/"><span itemprop="name">XZ Utils</span></a>
+<meta itemprop="position" content="3" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<span itemprop="name">Discussion</span>
+<meta itemprop="position" content="4" />
+</li>
+</ul>
+</nav>
+<div class="overview">
+<div class="project-icon  default-project-icon ">
+<svg data-name="default-icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve"><rect class="st0" width="300" height="300" /><g><path class="st1" d="M162.5,154.8c0-28.9-10.2-42-15.6-46.9c-1.1-1-2.7-0.1-2.6,1.3c1.1,16.3-19.4,20.3-19.4,45.9h0c0,0.1,0,0.1,0,0.2c0,15.6,11.8,28.3,26.3,28.3c14.5,0,26.3-12.7,26.3-28.3c0-0.1,0-0.1,0-0.2h0c0-7.2-2.7-14.1-5.5-19.3c-0.5-1-2.1-0.6-1.9,0.3C174.9,158.1,162.5,171.8,162.5,154.8z" /><g><path class="st1" d="M131.2,215.6c-0.7,0-1.3-0.3-1.8-0.7l-67.2-67.1c-1-1-1-2.6,0-3.6l70.9-70.9c0.5-0.5,1.1-0.7,1.8-0.7h20.4c1.2,0,2,0.8,2.3,1.6c0.3,0.7,0.3,1.9-0.5,2.7l-66.7,66.7c-1.3,1.3-1.3,3.5,0,4.9l52.7,52.7c1,1,1,2.6,0,3.6L133,214.9C132.5,215.4,131.9,215.6,131.2,215.6z" /></g><g><path class="st1" d="M144.7,227.4c-1.2,0-2-0.8-2.3-1.5c-0.3-0.7-0.3-1.9,0.5-2.7l66.7-66.7c0.7-0.6,1-1.5,1-2.4s-0.4-1.8-1-2.4l-52.7-52.7c-1-1-1-2.6,0-3.6l10.2-10.2c0.5-0.5,1.1-0.7,1.8-0.7c0.7,0,1.3,0.3,1.8,0.7l67,67.1c0.5,0.5,0.7,1.1,0.7,1.8s-0.3,1.3-0.7,1.8l-70.9,70.9c-0.5,0.5-1.1,0.7-1.8,0.7H144.7z" /></g></g></svg>
+</div>
+<div class="title ">
+<meta itemprop="name" content="XZ Utils" />
+<h1>Multi-threaded compression, when?
+</h1>
+<div class="as-h3 brought-by">
+Brought to you by:
+<a href="/u/larhzu/profile/">larhzu</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div id="top_nav" class>
+<div id="top_nav_admin">
+<ul class="dropdown">
+<li class>
+<a href="/projects/lzmautils/" class="tool-summary-32">
+Summary
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/files/" class="tool-files-sf-32">
+Files
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/reviews/" class="tool-reviews-32">
+Reviews
+</a>
+</li>
+<li class>
+<a href="/projects/lzmautils/support" class="tool-support-32">
+Support
+</a>
+</li>
+<li class>
+<a href="/p/lzmautils/wiki/" class="tool-wiki-32">
+Wiki
+</a>
+</li>
+<li class>
+<a href="/p/lzmautils/news/" class="tool-blog-32">
+News
+</a>
+</li>
+<li class="selected">
+<a href="/p/lzmautils/discussion/" class="tool-discussion-32">
+Discussion
+</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content_base">
+<a id="sidebar-activate" href="#">
+<span class="btn-label">Menu</span>
+<span class="btn-arrow-down">▾</span>
+<span class="btn-arrow-up">▴</span>
+</a>
+<div id="sidebar">
+<form id="search" method="GET" action="/p/lzmautils/discussion/search/">
+<input name="q" type="text" title="Search Discussion" placeholder="Search Discussion">
+<label>
+<input type="submit" style="display:none">
+<b class="fa fa-search" title="Submit"></b>
+</label>
+</form>
+<ul class="sidebarmenu">
+<li>
+<a class="icon" href="/p/lzmautils/discussion/create_topic/708858" title="Add"><i class="fa fa-plus-circle"></i>
+<span>Create Topic</span>
+</a>
+</li>
+<li>
+<a class="icon" href="/p/lzmautils/discussion/stats" title="Stats"><i class="fa fa-line-chart"></i>
+<span>Stats Graph</span>
+</a>
+</li>
+</ul>
+<h3 class>Forums</h3>
+<ul class="sidebarmenu">
+<li>
+<a href="/p/lzmautils/discussion/708858/">
+<span class="has_small">Open Discussion</span>
+<small>163</small></a>
+</li>
+</ul>
+<h3 class>Help</h3>
+<ul class="sidebarmenu">
+<li>
+<a href="/nf/markdown_syntax" target="_blank">
+<span>Formatting Help</span>
+</a>
+</li>
+</ul>
+</div>
+<script>
+$('#sidebar-admin-header').on('click', function(e){
+    $("#sidebar-admin-menu").toggleClass("hidden");
+    $(this).toggleClass("expanded");
+    e.preventDefault();
+});
+</script>
+<div class="grid-20 pad">
+<h2 class="dark title">
+<span>Multi-threaded compression, when?</span>
+
+<small>
+<a class="icon thread_feed0" href="feed.rss" rel="nofollow" title="Follow This"><i class="fa fa-rss"></i></a>
+<div id="subscription-form" style="display: inline;"></div>
+<script>
+  document.SUBSCRIPTION_OPTIONS = {
+    "thing": "topic",
+    "subscribed": false,
+    "url": "subscribe",
+    "icon": {
+      "css": "fa fa-envelope-o"
+    }
+  };
+</script>
+</small>
+
+</h2>
+<div class="editbox">
+<div class="grid-5"><label>Forum:</label> <a href="/p/lzmautils/discussion/708858/">Open Discussion</a></div>
+<div class="grid-5"><label>Creator:</label>
+<a href="/u/funtoos/profile/" class="user-mention">
+funtoos
+</a>
+</div>
+<div class="grid-4"><label>Created:</label>
+<span title="Tue Jan 12, 2010 09:01 AM UTC">
+2010-01-12
+</span>
+</div>
+<div class="grid-5"><label>Updated:</label>
+<span title="Wed Jun 03, 2015 07:21 PM UTC">
+2015-06-03
+</span>
+</div>
+</div>
+<div>
+<div>
+<div class="comment-row">
+<div id="comment">
+<ul>
+
+<li>
+<div>
+<div id="fd87" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="funtoos" title="funtoos" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/funtoos/profile/" class="user-mention">
+funtoos
+</a>
+- <i style="color: #777">
+<span title="Tue Jan 12, 2010 09:01 AM UTC">
+2010-01-12
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#fd87" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Any ideas on when will the multi-threaded compression be available?</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#fd87">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="958e" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Wed Jan 13, 2010 10:22 AM UTC">
+2010-01-13
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#958e" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>It's one of the most important features to add after XZ Utils 5.0.0 is out. I cannot say anything more exact, since it depends on how quickly or slowly I get things done. </p>
+<p>Note that 7-Zip and p7zip 9 betas support the .xz format. They can use multi-threading (not limited to two threads) when compressing into the .xz format. It may be worth trying before XZ Utils catches up.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#958e">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="8a35" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Edward Ned Harvey" title="Edward Ned Harvey" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/rahvee/profile/" class="user-mention">
+Edward Ned Harvey
+</a>
+- <i style="color: #777">
+<span title="Wed Mar 09, 2011 04:25 PM UTC">
+2011-03-09
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#8a35" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Now that 5.0.1 is out, I'm looking for a changelog, or a roadmap or something to indicate when xz will support multithreading…</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#8a35">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="7be6" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Thu Mar 10, 2011 07:58 PM UTC">
+2011-03-10
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#7be6" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>I'm not able to give any schedule. This is a hobby for me. Recently I have been able to work on xz only a little. </p>
+<p>The positive thing is that you can use p7zip, lxz, or pxz to do threaded compression. p7zip is included in most distros already.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#7be6">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="600b" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Edward Ned Harvey" title="Edward Ned Harvey" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/rahvee/profile/" class="user-mention">
+Edward Ned Harvey
+</a>
+- <i style="color: #777">
+<span title="Sun Mar 13, 2011 04:40 AM UTC">
+2011-03-13
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#600b" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Thank you for the response.  Unfortunately, p7zip is only multithreaded in some distributions, and I was not able to get multithreaded from any of those packages (p7zip, lxz, pxz) on the platforms that I care about…  So I created another one.  </p>
+<p>threadzip ( <a href="http://code.google.com/p/threadzip/" rel="nofollow">http://code.google.com/p/threadzip/</a> )  is implemented in python and therefore highly cross-platform compatible.  Unfortunately the only library that ships with python by default is zlib (like gzip) so you have to add-on pylzma as a separate module.  This was very easy on some machines, but I didn't get it working on solaris (yet).</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#600b">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="f49f" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="funtoos" title="funtoos" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/funtoos/profile/" class="user-mention">
+funtoos
+</a>
+- <i style="color: #777">
+<span title="Sun Mar 13, 2011 04:52 AM UTC">
+2011-03-13
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#f49f" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>The problem with most parallel implementations is that they are not in-place replacements for the non-parallel ones. The program should take same options and work well with stdin/stdout.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#f49f">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="8e33" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Dave Vasilevsky" title="Dave Vasilevsky" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/vasi/profile/" class="user-mention">
+Dave Vasilevsky
+</a>
+- <i style="color: #777">
+<span title="Fri Mar 25, 2011 10:39 AM UTC">
+2011-03-25
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#8e33" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>My <a class href="http://pixz" rel="nofollow">pixz</a> utility does multi-threaded compression and decompression, with a file-format fully compatible with existing xz. I'd love any feedback.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#8e33">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="851e" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Dave Vasilevsky" title="Dave Vasilevsky" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/vasi/profile/" class="user-mention">
+Dave Vasilevsky
+</a>
+- <i style="color: #777">
+<span title="Fri Mar 25, 2011 10:40 AM UTC">
+2011-03-25
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#851e" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Gah, I hate BBCode. That link should be <a href="https://github.com/vasi/pixz" rel="nofollow">https://github.com/vasi/pixz</a></p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#851e">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="3429" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Max Pray" title="Max Pray" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/synthead/profile/" class="user-mention">
+Max Pray
+</a>
+- <i style="color: #777">
+<span title="Tue May 17, 2011 06:01 PM UTC">
+2011-05-17
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#3429" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Thanks, vasi and rahvee!  I added these programs to the Arch Linux AUR: </p>
+<p><a href="https://aur.archlinux.org/packages.php?ID=49137" rel="nofollow">https://aur.archlinux.org/packages.php?ID=49137</a><br/>
+<a href="https://aur.archlinux.org/packages.php?ID=49138" rel="nofollow">https://aur.archlinux.org/packages.php?ID=49138</a></p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#3429">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="1d54" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="richud" title="richud" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/richud/profile/" class="user-mention">
+richud
+</a>
+- <i style="color: #777">
+<span title="Tue Jan 17, 2012 08:18 AM UTC">
+2012-01-17
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#1d54" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Hi vasi,<br/>
+Could you please support stdin and stdout ?<br/>
+I am after a multithreaded decompressor (like pigz) for lzma/xz that works ok with a piped input stream and piped output. xz works but even the latest 5.1.1 alpha doesnt do multithreaded decompress.<br/>
+Thanks!</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#1d54">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="c2b3" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Edward Ned Harvey" title="Edward Ned Harvey" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/rahvee/profile/" class="user-mention">
+Edward Ned Harvey
+</a>
+- <i style="color: #777">
+<span title="Tue Jan 17, 2012 01:34 PM UTC">
+2012-01-17
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#c2b3" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Threadzip uses multithreaded compress &amp; decompress on stdin/stdout.  </p>
+<p>If you want to use lzma with threadzip, you need to install pylzma.  </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#c2b3">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="ce94" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="J.M. Becker - TechZilla " title="J.M. Becker - TechZilla " class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/cyberpunkspike/profile/" class="user-mention">
+J.M. Becker - TechZilla
+</a>
+- <i style="color: #777">
+<span title="Sun Jan 22, 2012 11:07 AM UTC">
+2012-01-22
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#ce94" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Anyone working on a MT implementation, should just put their effort toward the xz-utils code base.  No other temporary implementation will bring that level of accomplishment. </p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#ce94">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="cc11" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="J.M. Becker - TechZilla " title="J.M. Becker - TechZilla " class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/cyberpunkspike/profile/" class="user-mention">
+J.M. Becker - TechZilla
+</a>
+- <i style="color: #777">
+<span title="Sun Jan 22, 2012 11:10 AM UTC">
+2012-01-22
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#cc11" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>I'd also like to know what is the major implementation problem? is MT support not in the LZMA SDK?  More specifically, the code is not 20 years old like gzip, why wasn't MT support considered from conception?</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#cc11">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="5562" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Fri Jan 27, 2012 08:00 PM UTC">
+2012-01-27
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#5562" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>The problem is that I haven't worked on the code much in the past months. I don't use LZMA SDK code as is. liblzma in XZ Utils has different API (buffer-to-buffer, no callbacks), which affects the internal implementation too. </p>
+<p>Current git snapshot is kind of usable already though. RAM usage would be lower in a more sophisticated implementation without affecting anything else, and the progress indicator doesn't work very well. But it does compress in parallel and has decent performance and shouldn't corrupt data. :-) I still don't recommend it for production use just to be safe.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#5562">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+
+<li>
+<div>
+<div id="5562/576c" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Broken.zhou" title="Broken.zhou" class="emboss x32">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 632px;   margin-right:0px ">
+<div class="header">
+<a href="/u/zhou13/profile/" class="user-mention">
+Broken.zhou
+</a>
+- <i style="color: #777">
+<span title="Mon Sep 02, 2013 07:15 AM UTC">
+2013-09-02
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#5562/576c" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Is this feature available now?</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+<br><small>Last edit: Broken.zhou 2013-09-02</small>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#5562/576c">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="7256" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Mon Sep 02, 2013 06:39 PM UTC">
+2013-09-02
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#7256" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>There is 5.1.2alpha which has threading. A few minor fixes have been made after that release and they are available in the git repository.</p>
+<p>I still don't know when a stable release will be made. I don't plan much new things before 5.2.0. I just need to get it done.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#7256">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="dbf5" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Broken.zhou" title="Broken.zhou" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/zhou13/profile/" class="user-mention">
+Broken.zhou
+</a>
+- <i style="color: #777">
+<span title="Fri Jan 17, 2014 03:26 PM UTC">
+2014-01-17
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#dbf5" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>I have tested the new version of xz and found it really great! Thanks for the work!</p>
+<p>In order to use the multithread feature, I need to add</p>
+<p>XZ_DEFAULTS="--threads 0"</p>
+<p>to my environment variable. Will this be the defaults setting finally?</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#dbf5">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="6721" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Fri Jan 24, 2014 07:39 PM UTC">
+2014-01-24
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#6721" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Not in 5.2.0 and maybe never. The current implementation of threading makes the compression slightly worse. I currently guess that I will get fewer complaints by keeping the old behavior as the default, at least for the foreseeable future.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#6721">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="fec6" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Victor" title="Victor" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/oceanocean/profile/" class="user-mention">
+Victor
+</a>
+- <i style="color: #777">
+<span title="Thu Feb 20, 2014 09:37 AM UTC">
+2014-02-20
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#fec6" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Can 5.2.0 mutithread feature be used in Linux?</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#fec6">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="d8af" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Fri Feb 21, 2014 07:03 PM UTC">
+2014-02-21
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#d8af" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Threading in 5.1.3alpha (and 5.2.0, whenever it gets released) works on GNU/Linux and other OSes that support pthreads. For Windows there's support for native threading APIs.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#d8af">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="93d8" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="paletta" title="paletta" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/paletta/profile/" class="user-mention">
+paletta
+</a>
+- <i style="color: #777">
+<span title="Fri May 22, 2015 03:22 PM UTC">
+2015-05-22
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#93d8" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>Hi, and thanks for implementing the MT improvements in 5.2! I tested 5.2.1 -T0 on a 16 core VM with -3 mode, here are my findings vs. default:</p>
+<ul>
+<li>speed: 7.3x than default (ideally it could be 16.0x)</li>
+<li>size: the file size is 1.30x (ideally it should be 1.00x)</li>
+</ul>
+<p>I managed to improve the MT compression ratio (to a slightly better size than without -T0) using --lzma2=preset=3,dict=16MiB (speed is also a bit faster(!), however it uses more RAM), however when using the same setting without -T0 I still get a much better compression ratio. So -T0 vs -T1 with --lzma2=preset=3,dict=16MiB:</p>
+<ul>
+<li>speed: 9.9x than default (ideally it could be 16.0x)</li>
+<li>size: the file size is 1.11x (ideally it should be 1.00x)</li>
+</ul>
+<p>In the end MT is very good, but still doesn't scale perfectly. Is there any hope to improve MT scaling or these limitations can't be overcomed?</p>
+<p>Thanks again for this great tool!</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#93d8">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+<ul>
+
+<li>
+<div>
+<div id="975d" class="discussion-post">
+<div class="comment-row">
+<div class="grid-2 tcenter gravatar">
+<p class="gravatar">
+<img src="https://a.fsdn.com/con/images/sandiego/icons/default-avatar.png" alt="Lasse Collin" title="Lasse Collin" class="emboss x48">
+</p>
+</div>
+<div class="grid-16 post-content bubble" style="width: 652px;  ">
+<div class="header">
+<a href="/u/larhzu/profile/" class="user-mention">
+Lasse Collin
+</a>
+- <i style="color: #777">
+<span title="Wed Jun 03, 2015 07:21 PM UTC">
+2015-06-03
+</span>
+</i>
+<div class="tools">
+<a href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#975d" title="Link" class="little_link shortlink icon btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span><i class="fa fa-link" aria-hidden="true"></i></span></a>
+</div>
+</div>
+<div class="display_post">
+<div><div class="markdown_content"><p>The current threading method splits the data into blocks and compresses them independently. This makes the compression ratio worse, but usually the increase is only a few percent. With some types of data the effect on compression ratio is higher, and the worst case can be really bad (making threading useless).</p>
+<p>Your 30 % increase in file size sounds bad. If you have many files like the one you tested, then searching for different compression options is a good idea like you have already done. The counterintuitive effect on speed may be explained by the change in compression ratio: with a bigger dictionary and block size the encoder might be able to find long repeated chunks of data more easily and thus need less time to analyze the data.</p>
+<p>The default block size is 3 times the LZMA2 dictionary size or at least 1 MiB. The -3 preset uses 4 MiB dictionary and thus 12 MiB block size by default. To get 16 threads, you need at least 16 * 12 MiB = 192 MiB input file. If your input file isn't a multiple of that, the end of the file probably won't use all cores (depends on how fast the blocks finish). When you set 16 MiB dictionary, the default block size increases to 48 MiB.</p>
+<p>Increasing the block size has smaller effect on memory usage than increasing the dictionary size. You could test e.g. "xz -3 --block-size=78MiB" which uses the same amount of memory as the settings you tested but the bigger block size might improve the file size.</p>
+<p>For the current threading method (splitting into blocks) there's some hope to get the memory usage down a little (not a big improvement), but I don't see much hope for improving compression ratio or performance. However, other threading methods should be implemented. 7-Zip has had match finder threading as long as I remember (I think over a decade) which scales to two cores without increasing memory usage. Combining it with the current method would allow using bigger dictionaries and block sizes with the same amount of memory.</p>
+<p>The third planned threading method comes from pigz (parallel gzip). There's <a class href="http://tukaani.org/xz/lzma2-openmp.c" rel="nofollow">an old prototype</a> (not intended for production use!) in case you are curious. See the comments in the code for more information.</p></div></div>&nbsp;
+<div class="reactions" style="user-select: none; cursor: default">
+</div>
+</div>
+</div>
+<div class="shortlink_popup modal" style="display: none">
+<a class="icon close" href="#" title="Close"><i class="fa fa-close"></i></a>
+<div>If you would like to refer to this comment somewhere else in this project, copy and paste the following link:</div>
+<input type="text" style="width:100%;" value="https://sourceforge.net/p/lzmautils/discussion/708858/thread/d37155d1/#975d">
+</div>
+</div>
+<ul>
+<li>
+</li>
+</ul>
+</div>
+</div>
+<script>
+$('.attachment_toolbar #remove-attachment').on('click', function(e){
+    $(this).closest('form').submit();
+})
+</script>
+
+<ul>
+</ul>
+
+</li>
+
+</ul>
+</div>
+<div style="clear:both"></div>
+<div style="clear:both"></div>
+</div>
+</div>
+<hr>
+<p>
+<a href="/auth/">Log in</a> to post a comment.
+</p>
+</div>
+</div>
+</div>
+</section>
+<footer class="sandiego">
+<div class="as-row">
+<div class="footer-wrapper">
+<nav aria-label="Site Links" role="navigation">
+<section>
+<div class="as-h2">SourceForge</div>
+<ul>
+<li><a href="/create/" title="Create a Project">Create a Project</a></li>
+<li><a href="/directory/" title="Open Source Software Directory">Open Source Software</a></li>
+<li><a href="/software/" title="Business Software Directory">Business Software</a></li>
+<li><a href="/top" title="Top Open Source Projects">Top Downloaded Projects</a></li>
+</ul>
+</section>
+</nav>
+<nav aria-label="Company Links" role="navigation">
+<section>
+<div class="as-h2">Company</div>
+<ul>
+<li><a href="/about">About</a></li>
+<li><a href="/about/leadership" title="Open Source Software Directory">Team</a></li>
+<li class="h-card">
+<address>
+<span class="p-name p-org">SourceForge Headquarters</span><br>
+<span class="p-street-address">225 Broadway Suite 1600</span><br>
+<span class="p-locality">San Diego, CA <span class="p-postal-code">92101</span></span><br>
+<span class="p-tel">+1 (858) 454-5900</span><br>
+</address>
+</li>
+<li id="social">
+<span></span>
+<a href="https://twitter.com/sourceforge" class="twitter" rel="nofollow" target="_blank">
+<svg class="vertical-icon-fix" data-name="twitter" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z" /></svg></a>
+<a href="https://fosstodon.org/@sourceforge" rel="me nofollow" target="_blank">
+<svg class="vertical-icon-fix" data-name="mastodon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z" /></svg></a>
+<a href="https://www.facebook.com/sourceforgenet/" class="facebook" rel="nofollow" target="_blank">
+<svg data-name="facebook" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1343 12v264h-157q-86 0-116 36t-30 108v189h293l-39 296h-254v759h-306v-759h-255v-296h255v-218q0-186 104-288.5t277-102.5q147 0 228 12z" /></svg></a>
+<a href="https://www.linkedin.com/company/sourceforge.net" class="linkedin" rel="nofollow" target="_blank">
+<svg data-name="linkedin" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M477 625v991h-330v-991h330zm21-306q1 73-50.5 122t-135.5 49h-2q-82 0-132-49t-50-122q0-74 51.5-122.5t134.5-48.5 133 48.5 51 122.5zm1166 729v568h-329v-530q0-105-40.5-164.5t-126.5-59.5q-63 0-105.5 34.5t-63.5 85.5q-11 30-11 81v553h-329q2-399 2-647t-1-296l-1-48h329v144h-2q20-32 41-56t56.5-52 87-43.5 114.5-15.5q171 0 275 113.5t104 332.5z" /></svg></a>
+<span></span>
+</li>
+</ul>
+</section>
+</nav>
+<nav aria-label="Resources Links" role="navigation">
+<section>
+<div class="as-h2">Resources</div>
+<ul>
+<li><a href="/support" title="Support Section">Support</a></li>
+<li><a href="/p/forge/documentation/Docs%20Home/" title="Site Documentation">Site Documentation</a></li>
+<li><a href="https://fosstodon.org/@sourceforgestatus" title="Site Status" rel="me nofollow">Site Status</a></li>
+</ul>
+</section>
+</nav>
+<section class="footer-logo">
+<a href="/" title="Home" class="sf-logo">
+<img src="https://a.fsdn.com/con/images/sandiego/sf-logo-full.svg" alt="SourceForge logo" class="sf-logo-full" />
+</a>
+</section>
+</div>
+</div>
+<section class="l-nav-bottom">
+<nav class="row">
+<div class="columns small-12 large-6 copyright-notice">
+&copy; 2024 Slashdot Media. All Rights Reserved.
+</div>
+<div class="columns large-6 links links-right">
+<a href="https://slashdotmedia.com/terms-of-use" title="Terms" rel="nofollow">Terms</a>
+<a href="https://slashdotmedia.com/privacy-statement/" title="Privacy" rel="nofollow">Privacy</a>
+<a href="#" title="Privacy Choices" id="privacy-choices" class="btn-privay-choices">Privacy Choices</a>
+<a href="https://slashdotmedia.com/contact/" target="_blank" title="Advertise" rel="nofollow">Advertise</a>
+</div>
+</nav>
+</section>
+</footer>
+</div>
+<div id="messages">
+</div>
+
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=allura%2Fjs%2Fjquery.notify.js%3Ballura%2Fjs%2Fjquery.tooltipster.js%3Ballura%2Fjs%2Fallura-base.js%3Ballura%2Fjs%2Fchecklist.js%3Ballura%2Fjs%2Fadmin_modal.js%3Bjs%2Fjquery.lightbox_me.js%3Ballura%2Fjs%2Fmemorable.js%3Bjs%2Fjquery.tagsinput.js%3Bjs%2Feasymde.min.js%3Bjs%2Fsf_markitup.js%3Bjs%2Fshow-hint.js%3Bjs%2Fusermentions-helper.js%3Bjs%2Fpost.js%3Bjs%2Freactions.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fshared.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsticky.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Fchrome.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Futilities.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.core.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.mediaQuery.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.keyboard.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.box.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.nest.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.dropdownMenu.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.offcanvas.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.toggler.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fsandiego%2Fproject.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Fjquery.typeahead.min.js%3Ballura%2Fjs%2Freact.production.min.js%3Ballura%2Fjs%2Freact-dom.production.min.js%3Ballura%2Fjs%2Fcreate-react-class.min.js%3Ballura%2Fjs%2Fprop-types.min.js"></script>
+
+
+<script type="text/javascript">$(function () {
+            $('select.results_per_page').change(function () {
+                this.form.submit();});});
+$(function () {
+          $('input.label_edit').tagsInput({
+              'height':'100%',
+              'width':'100%',
+              'autocomplete_url':'/p/lzmautils/discussion/tags'
+          });
+          $('form').on('blur', '.ui-autocomplete-input', function() {
+              setTimeout(function(){
+                  var clicked = $(document.activeElement); // This is the element that has focus
+                  if (clicked.is('#ui-active-menuitem')) {
+                      return false;
+                  } else {
+                      var value = $('div.tagsinput div input').val();
+                      var exists = $('input.label_edit').tagExist(value);
+                      var default_value = $('div.tagsinput div input').attr('data-default');
+                      if ((value !== default_value) && (!exists) && value !== '') {
+                          $('input.label_edit').addTag(value);
+                      }
+                      $('input[type=submit]', this).prop('disabled', true);
+                  }
+                }, 1);
+            });
+        });
+$(function () {getProjectUsers('/p/lzmautils//users')});
+$(document).ready(function () {
+            $("a.attachment_form_add_button").click(function(evt){
+                $(this).hide();
+                $(".attachment_form_fields", this.parentNode).show();
+                evt.preventDefault();
+            });
+            $("a.cancel_edit_post").click(function(evt){
+                evt.preventDefault();
+                var form = this.parentNode;
+                var orig_val = $("input.original_value", form).val();
+                $("textarea", form).val(orig_val);
+                get_cm(form).setValue(orig_val);
+                $("input.attachment_form_fields", form).val('');
+                $(this).closest('.reply_post_form').hide();
+            });
+         });
+
+        $(document).ready(function () {
+            var thread_tag = $('a.thread_tag');
+            var thread_spam = $('a.sidebar_thread_spam');
+            var tag_thread_holder = $('#tag_thread_holder');
+            var allow_moderate = $('#allow_moderate');
+            var mod_thread_link = $('#mod_thread_link');
+            var mod_thread_form = $('#mod_thread_form');
+            if (mod_thread_link.length) {
+                if (mod_thread_form.length) {
+                    mod_thread_link.click(function (e) {
+                        mod_thread_form.toggle();
+                        return false;
+                    });
+                }
+            }
+            if (thread_tag.length) {
+                if (tag_thread_holder.length) {
+                    var submit_button = $('input[type="submit"]', tag_thread_holder);
+                    var cancel_button = $('<a href="#" class="btn link">Cancel</a>').click(function(evt){
+                        evt.preventDefault();
+                        tag_thread_holder.hide();
+                        thread_tag.removeClass('active');
+                    });
+                    submit_button.after(cancel_button);
+                    thread_tag.click(function (e) {
+                        tag_thread_holder.show();
+                        thread_tag.addClass('active');
+                        // focus the submit to scroll to the form, then focus the subject for them to start typing
+                        submit_button.focus();
+                        $('input[type="text"]', tag_thread_holder).focus();
+                        return false;
+                    });
+                }
+            }
+            if (thread_spam.length) {
+                if (allow_moderate.length) {
+                    thread_spam[0].style.display='block';
+                }
+            }
+        });
+        
+
+            var global_reactions = {":+1:": "\ud83d\udc4d", ":-1:": "\ud83d\udc4e", ":smile:": "\ud83d\ude04", ":tada:": "\ud83c\udf89", ":confused:": "\ud83d\ude15", ":heart:": "\u2764\ufe0f"};
+        </script>
+<script type="text/javascript" src="https://a.fsdn.com/allura/nf/1720797364/_ew_/_slim/js?href=theme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.util.triggers.min.js%3Btheme%2Fsftheme%2Fjs%2Fsftheme%2Fvendor%2Ffoundation6%2Fplugins%2Ffoundation.reveal.min.js"></script>
+
+<script>
+    bizx.cmp.ifConsent('', ['all', 'google-ads'], function () {}, function(){
+        $('body').addClass('no-ads-consent'); 
+    });
+</script>
+<script>
+        $(document).foundation();
+    </script>
+
+<script>
+    (function () {
+        bizx.cmp.ifConsent({ purposes: 'all', vendors: 'bombora'}, function () {
+            /*global _ml:true, window */
+            _ml = window._ml || {};
+            _ml.eid = '771';
+            _ml.fp = '49274a03-34cc-42cc-b6f5-2520776e440f';  
+            var s = document.getElementsByTagName('script')[0], cd = new Date(), mltag = document.createElement('script');
+            mltag.type = 'text/javascript';
+            mltag.async = true;
+            mltag.defer = true;
+            mltag.src = '//ml314.com/tag.aspx?' + cd.getDate() + cd.getMonth() + cd.getFullYear();
+            s.parentNode.insertBefore(mltag, s);
+        });
+    })();
+</script>
+
+<script>
+    $(document).ready(function () {
+        $(".tooltip, .m-tooltip").each(function(){
+            let $el = $(this);
+            $el.tooltipster({
+                animation: 'fade',
+                delay: 200,
+                theme: 'tooltipster-light',
+                trigger: 'hover',
+                position: $el.data('position') || 'right',
+                iconCloning: false,
+                maxWidth: 300,
+                contentAsHTML: true,
+                interactive: true
+            }).focus(function () {
+                $(this).tooltipster('show');
+            }).blur(function () {
+                $(this).tooltipster('hide');
+            });
+        });
+    });
+</script>
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to lzma_easy_buffer_encode memory requirements</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/96520b67/</link><description>Recent posts to lzma_easy_buffer_encode memory requirements</description><language>en</language><lastBuildDate>Thu, 20 Jun 2019 09:34:30 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/96520b67/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>lzma_easy_buffer_encode memory requirements</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/96520b67/?limit=25#f648</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Thanks!&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Bruce Stark</dc:creator><pubDate>Thu, 20 Jun 2019 09:34:30 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netea527f8ac5a36d8e24fe07771915aa1dc61b1a95</guid></item><item><title>lzma_easy_buffer_encode memory requirements</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/96520b67/?limit=25#fe1d</link><description>&lt;div class="markdown_content"&gt;&lt;blockquote&gt;
+&lt;p&gt;But in my test, it will alloc 10.33 MiB in lzma_alloc().&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;There is also lzma_alloc_zero().&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Or the sum of the requested memory includes compression and decompression?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;No.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Mon, 03 Jun 2019 18:45:25 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net9b50a5d1c843e6d5fc57717daa82ad9fce1d299b</guid></item><item><title>lzma_easy_buffer_encode memory requirements</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/96520b67/?limit=25#a266</link><description>&lt;div class="markdown_content"&gt;&lt;ul&gt;
+&lt;li&gt;If you take the preset 6 (or any of 6-9 as they only differ in dictionary size) and override the dictionary to 1 MiB, the encoder will need 13 MiB of RAM. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The encoder will need 13MiB of RAM.&lt;br/&gt;
+But in lzma_alloc(), it will alloc 10.33 MiB.&lt;br/&gt;
+Or the sum of the requested memory includes compression and decompression?&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">lipeng</dc:creator><pubDate>Mon, 20 May 2019 09:26:56 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net8c22b1fd9ab7d01c553118954bd2e611391337a9</guid></item><item><title>lzma_easy_buffer_encode memory requirements</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/96520b67/?limit=25#c37f</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;yes, as Lasse Collin said, I tried extracting the compress() code from the &lt;br/&gt;
+test_bcj_exact_size.c file, then setted and changed the dictionary size, and added a line of code &lt;br/&gt;
+printf("size = %d", size) to the lzma_alloc() interface to print out the request memory.&lt;br/&gt;
+The statistics of the single request maximum memory consumption and the sum of the requested &lt;br/&gt;
+memory(that is the value---"size = %d") are as follows:&lt;/p&gt;
+&lt;hr/&gt;
+&lt;p&gt;dictionary setting size        memory consumption       Single request maximum memory&lt;br/&gt;
+  4M                                                      38.83M                                   32M&lt;br/&gt;
+  2M                                                      20.85M                                   16M&lt;br/&gt;
+  1M                                                      10.33M                                   8M&lt;br/&gt;
+512k                                                     5.58M                                     4M&lt;br/&gt;
+256K                                                    3.20M                                     2M&lt;br/&gt;
+128K                                                    2.01M                                    1000K&lt;br/&gt;
+...                                                             ...                                                 ...&lt;/p&gt;
+&lt;p&gt;Also, the command is very useful:&lt;br/&gt;
+xz -vv --lzma2=dict=1MiB&lt;/p&gt;
+&lt;p&gt;without any input file, it will tell the memory usage:&lt;br/&gt;
+xz: Filter chain: --lzma2=dict=1MiB,lc=3,lp=0,pb=2,mode=normal,nice=64,mf=bt4,depth=0&lt;br/&gt;
+xz: 13 MiB of memory is required. The limiter is disabled.&lt;br/&gt;
+xz: Decompression will need 2 MiB of memory.&lt;br/&gt;
+xz: Compressed data cannot be written to a terminal&lt;br/&gt;
+xz: Try `xz --help' for more information.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">lipeng</dc:creator><pubDate>Mon, 20 May 2019 09:18:16 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netbae115630f9e443bc64f89944f4ba675258bc25a</guid></item><item><title>lzma_easy_buffer_encode memory requirements</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/96520b67/?limit=25#faa7</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;The _buffer_encode functions are dumb in sense that they don't use the known input buffer size to adjust the compression settings down. The preset 6 uses an 8 MiB dictionary but using a dictionary bigger than the input is waste of RAM.&lt;/p&gt;
+&lt;p&gt;If you take the preset 6 (or any of 6-9 as they only differ in dictionary size) and override the dictionary to 1 MiB, the encoder will need 13 MiB of RAM. You can see the memory usage quickly with a command like this (without any input file):&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;xz -vv --lzma2=dict=1MiB
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Overriding the dictionary size of the default preset using liblzma:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;lzma_options_lzma opt_lzma2;
+if (lzma_lzma_preset(&amp;amp;opt_lzma2, LZMA_PRESET_DEFAULT)) {
+    // It should never fail with LZMA_PRESET_DEFAULT
+    // but it's a good habit to check anyway.
+    return SOME_ERROR_CODE;
+}
+
+opt_lzma2.dict_size = 1 &amp;lt;&amp;lt; 20;
+
+lzma_filter filters[] = {
+    { .id = LZMA_FILTER_LZMA2, .options = &amp;amp;opt_lzma2 },
+    { .id = LZMA_VLI_UNKNOWN, .options = NULL },
+};
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Then use lzma_stream_buffer_encode() instead of lzma_easy_buffer_encode().&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Tue, 19 Jun 2018 19:19:35 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net65173c81a1f372a677973898e8e47dee525214fb</guid></item><item><title>lzma_easy_buffer_encode memory requirements</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/96520b67/?limit=25#b4d2</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I am trying to use the subject api in an embedded application with very limited (~20MB) memory.  I am getting LZMA_MEM_ERROR even though the memory buffer I am trying to encode is about 1MB (and the file containing it compresses to about 200KB if I use the xz program.)  I decided to use lzma_allocator to see what kind of memory is being requested.  Here is what I got for a single encode call:&lt;/p&gt;
+&lt;p&gt;utils.compression INFO] &lt;span&gt;[compression.c 22]&lt;/span&gt; Asking for 160 bytes of memory                        &lt;br/&gt;
+&lt;span&gt;[utils.compression INFO]&lt;/span&gt; &lt;span&gt;[compression.c 22]&lt;/span&gt; Asking for 65664 bytes of memory                      &lt;br/&gt;
+&lt;span&gt;[utils.compression INFO]&lt;/span&gt; &lt;span&gt;[compression.c 22]&lt;/span&gt; Asking for 249336 bytes of memory                     &lt;br/&gt;
+&lt;span&gt;[utils.compression INFO]&lt;/span&gt; &lt;span&gt;[compression.c 22]&lt;/span&gt; Asking for 13119899 bytes of memory                   &lt;br/&gt;
+&lt;span&gt;[utils.compression INFO]&lt;/span&gt; &lt;span&gt;[compression.c 22]&lt;/span&gt; Asking for 17043456 bytes of memory                   &lt;br/&gt;
+&lt;span&gt;[utils.compression INFO]&lt;/span&gt; &lt;span&gt;[compression.c 22]&lt;/span&gt; Asking for 67108872 bytes of memory                   &lt;br/&gt;
+&lt;span&gt;[utils.compression ERROR]&lt;/span&gt; &lt;span&gt;[compression.c 30]&lt;/span&gt; Out of memory! &lt;/p&gt;
+&lt;p&gt;What is causing this  amount of memory to be needed?  I am using the default preset level of 6.  Is there any way to control the amount of memory needed for encoding?&lt;/p&gt;
+&lt;p&gt;Thanks.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Michael Dalpee</dc:creator><pubDate>Sat, 16 Jun 2018 11:59:26 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netcfd967f41ccf068a6775afd647c84d4c1e67c4fe</guid></item></channel></rss>

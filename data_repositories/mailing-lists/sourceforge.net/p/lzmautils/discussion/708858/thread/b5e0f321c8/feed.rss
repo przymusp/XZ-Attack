@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to [Bug] Link failes when using lld from LLVM as linker</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/</link><description>Recent posts to [Bug] Link failes when using lld from LLVM as linker</description><language>en</language><lastBuildDate>Wed, 05 Feb 2020 20:26:42 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>[Bug] Link failes when using lld from LLVM as linker</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/?limit=25#3a1d</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;On my system &lt;code&gt;lld&lt;/code&gt; says this:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;lld is a generic driver.&lt;br/&gt;
+Invoke ld.lld (Unix), ld64.lld (macOS), lld-link (Windows), wasm-ld (WebAssembly) instead&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Which is a bit confusing but sounds like that perhaps this &lt;code&gt;lld&lt;/code&gt; shouldn't be used directly.&lt;/p&gt;
+&lt;p&gt;There are messages on the web that GNU Libtool lacks direct support for LLD. My impression is that Libtool has a severe lack of resources (no active developers). &lt;code&gt;ld.lld&lt;/code&gt; works around the lack of direct Libtool support by adding the string "GNU" in the &lt;code&gt;ld.lld --version&lt;/code&gt; output which makes Libtool treat it like GNU ld.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Wed, 05 Feb 2020 20:26:42 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net36d0cc7fc3152a0529593a855d628a8696c887d2</guid></item><item><title>[Bug] Link failes when using lld from LLVM as linker</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/?limit=25#86ee</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Thank you very much! I can confirm that &lt;code&gt;ld.lld&lt;/code&gt; works for me as a workaround.. Nevertheless, &lt;code&gt;lld&lt;/code&gt; should also work.&lt;/p&gt;
+&lt;p&gt;(The Docker image is just a way to reproduce my problem very quickly and easily. It has nothing to do with the bug and is not necessary to reproduce it. On every computer where Docker is installed, you can simply run the line with the Docker call and you will instantly have exactly the same Linux environment where the problem occurred. ;-) )&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Benjamin Buch</dc:creator><pubDate>Sun, 02 Feb 2020 13:54:44 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net4c7ff318b4ede61295bf761a627478e8189b564b</guid></item><item><title>[Bug] Link failes when using lld from LLVM as linker</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/?limit=25#7dec</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I don't have much clue about Docker. On my system I need to set &lt;code&gt;LD=ld.lld&lt;/code&gt; instead of &lt;code&gt;LD=lld&lt;/code&gt;. Otherwise I will get the same error as you did.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Sat, 01 Feb 2020 23:29:38 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net172fcac466dedd78e5cde373fd40b29513d3c762</guid></item><item><title>[Bug] Link failes when using lld from LLVM as linker</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/b5e0f321c8/?limit=25#d69a</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;You can simply reproduce by my docker image:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ docker run -it --rm tuiqbv/clang-cmake
+&lt;span class="c1"&gt;# export XZ_UTILS_VERSION=5.2.4&lt;/span&gt;
+&lt;span class="c1"&gt;# cd /opt&lt;/span&gt;
+&lt;span class="c1"&gt;# curl https://tukaani.org/xz/xz-${XZ_UTILS_VERSION}.tar.gz -L --output xz.tar.gz&lt;/span&gt;
+&lt;span class="c1"&gt;# tar xf xz.tar.gz&lt;/span&gt;
+&lt;span class="c1"&gt;# cd xz-${XZ_UTILS_VERSION}&lt;/span&gt;
+&lt;span class="c1"&gt;# ./configure --prefix=/opt/image-io&lt;/span&gt;
+&lt;span class="c1"&gt;# make VERBOSE=1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;root@1494cf89d0a3:/opt/xz-5.2.4# &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;XZ_UTILS_VERSION&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;5&lt;/span&gt;.2.4
+root@1494cf89d0a3:/opt/xz-5.2.4# &lt;span class="nb"&gt;cd&lt;/span&gt; /opt
+root@1494cf89d0a3:/opt# curl https://tukaani.org/xz/xz-&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;XZ_UTILS_VERSION&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;.tar.gz -L --output xz.tar.gz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+&lt;span class="m"&gt;100&lt;/span&gt;   &lt;span class="m"&gt;257&lt;/span&gt;  &lt;span class="m"&gt;100&lt;/span&gt;   &lt;span class="m"&gt;257&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;     &lt;span class="m"&gt;0&lt;/span&gt;   &lt;span class="m"&gt;1443&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; --:--:-- --:--:-- --:--:--  &lt;span class="m"&gt;1443&lt;/span&gt;
+&lt;span class="m"&gt;100&lt;/span&gt;   &lt;span class="m"&gt;401&lt;/span&gt;  &lt;span class="m"&gt;100&lt;/span&gt;   &lt;span class="m"&gt;401&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;444&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; --:--:-- --:--:-- --:--:--   &lt;span class="m"&gt;774&lt;/span&gt;
+&lt;span class="m"&gt;100&lt;/span&gt;   &lt;span class="m"&gt;315&lt;/span&gt;  &lt;span class="m"&gt;100&lt;/span&gt;   &lt;span class="m"&gt;315&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;202&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt;  &lt;span class="m"&gt;0&lt;/span&gt;:00:01  &lt;span class="m"&gt;0&lt;/span&gt;:00:01 --:--:--  &lt;span class="m"&gt;1789&lt;/span&gt;
+&lt;span class="m"&gt;100&lt;/span&gt; 1535k  &lt;span class="m"&gt;100&lt;/span&gt; 1535k    &lt;span class="m"&gt;0&lt;/span&gt;     &lt;span class="m"&gt;0&lt;/span&gt;   477k      &lt;span class="m"&gt;0&lt;/span&gt;  &lt;span class="m"&gt;0&lt;/span&gt;:00:03  &lt;span class="m"&gt;0&lt;/span&gt;:00:03 --:--:-- 1210k
+root@1494cf89d0a3:/opt# tar xf xz.tar.gz
+root@1494cf89d0a3:/opt# &lt;span class="nb"&gt;cd&lt;/span&gt; xz-&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;XZ_UTILS_VERSION&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;
+root@1494cf89d0a3:/opt/xz-5.2.4# &lt;span class="nv"&gt;LD&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/usr/bin/ld.gold ./configure --prefix&lt;span class="o"&gt;=&lt;/span&gt;/opt/image-io
+
+XZ Utils &lt;span class="m"&gt;5&lt;/span&gt;.2.4
+
+System type:
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... x86_64-pc-linux-gnu
+
+Configure options:
+checking &lt;span class="k"&gt;if&lt;/span&gt; debugging code should be compiled... no
+checking which encoders to build... lzma1 lzma2 delta x86 powerpc ia64 arm armthumb sparc
+checking which decoders to build... lzma1 lzma2 delta x86 powerpc ia64 arm armthumb sparc
+checking which match finders to build... hc3 hc4 bt2 bt3 bt4
+checking which integrity checks to build... crc32 crc64 sha256
+checking &lt;span class="k"&gt;if&lt;/span&gt; external SHA-256 should be used... no
+checking &lt;span class="k"&gt;if&lt;/span&gt; assembler optimizations should be used... x86_64
+checking &lt;span class="k"&gt;if&lt;/span&gt; small size is preferred over speed... no
+checking &lt;span class="k"&gt;if&lt;/span&gt; threading support is wanted... yes, posix
+checking how much RAM to assume &lt;span class="k"&gt;if&lt;/span&gt; the real amount is unknown... &lt;span class="m"&gt;128&lt;/span&gt; MiB
+checking &lt;span class="k"&gt;if&lt;/span&gt; library symbol versioning should be used... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; sandboxing should be used... no
+
+checking &lt;span class="k"&gt;for&lt;/span&gt; a shell that conforms to POSIX... /bin/bash
+
+Initializing Automake:
+checking &lt;span class="k"&gt;for&lt;/span&gt; a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; a thread-safe mkdir -p... /bin/mkdir -p
+checking &lt;span class="k"&gt;for&lt;/span&gt; gawk... gawk
+checking whether make sets &lt;span class="k"&gt;$(&lt;/span&gt;MAKE&lt;span class="k"&gt;)&lt;/span&gt;... yes
+checking whether make supports nested variables... yes
+checking whether ln -s works... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; style of include used by make... GNU
+checking &lt;span class="k"&gt;for&lt;/span&gt; gcc... clang
+checking whether the C compiler works... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; C compiler default output file name... a.out
+checking &lt;span class="k"&gt;for&lt;/span&gt; suffix of executables... 
+checking whether we are cross compiling... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether clang accepts -g... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; clang option to accept ISO C89... none needed
+checking whether clang understands -c and -o together... yes
+checking dependency style of clang... gcc3
+checking &lt;span class="k"&gt;for&lt;/span&gt; clang option to accept ISO C99... none needed
+checking dependency style of clang... gcc3
+checking how to run the C preprocessor... clang-cpp
+checking &lt;span class="k"&gt;for&lt;/span&gt; grep that handles long lines and -e... /bin/grep
+checking &lt;span class="k"&gt;for&lt;/span&gt; egrep... /bin/grep -E
+checking &lt;span class="k"&gt;for&lt;/span&gt; ANSI C header files... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; sys/types.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; sys/stat.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; stdlib.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; string.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; memory.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; strings.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; inttypes.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; stdint.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; unistd.h... yes
+checking minix/config.h usability... no
+checking minix/config.h presence... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; minix/config.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+
+POSIX threading support:
+checking &lt;span class="k"&gt;if&lt;/span&gt; compiler needs -Werror to reject unknown flags... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; the pthreads library -lpthreads... no
+checking whether pthreads work without any flags... no
+checking whether pthreads work with -Kthread... no
+checking whether pthreads work with -kthread... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; the pthreads library -llthread... no
+checking whether pthreads work with -pthread... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; joinable pthread attribute... PTHREAD_CREATE_JOINABLE
+checking &lt;span class="k"&gt;if&lt;/span&gt; more special flags are required &lt;span class="k"&gt;for&lt;/span&gt; pthreads... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; PTHREAD_PRIO_INHERIT... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; library containing clock_gettime... none required
+checking &lt;span class="k"&gt;for&lt;/span&gt; clock_gettime... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; pthread_condattr_setclock... yes
+checking whether CLOCK_MONOTONIC is declared... yes
+
+Initializing Libtool:
+checking how to print strings... &lt;span class="nb"&gt;printf&lt;/span&gt;
+checking &lt;span class="k"&gt;for&lt;/span&gt; a sed that does not truncate output... /bin/sed
+checking &lt;span class="k"&gt;for&lt;/span&gt; fgrep... /bin/grep -F
+checking &lt;span class="k"&gt;for&lt;/span&gt; ld used by clang... /usr/bin/ld.gold
+checking &lt;span class="k"&gt;if&lt;/span&gt; the linker &lt;span class="o"&gt;(&lt;/span&gt;/usr/bin/ld.gold&lt;span class="o"&gt;)&lt;/span&gt; is GNU ld... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; BSD- or MS-compatible name lister &lt;span class="o"&gt;(&lt;/span&gt;nm&lt;span class="o"&gt;)&lt;/span&gt;... /usr/bin/nm -B
+checking the name lister &lt;span class="o"&gt;(&lt;/span&gt;/usr/bin/nm -B&lt;span class="o"&gt;)&lt;/span&gt; interface... BSD nm
+checking the maximum length of &lt;span class="nb"&gt;command&lt;/span&gt; line arguments... &lt;span class="m"&gt;1572864&lt;/span&gt;
+checking how to convert x86_64-pc-linux-gnu file names to x86_64-pc-linux-gnu format... func_convert_file_noop
+checking how to convert x86_64-pc-linux-gnu file names to toolchain format... func_convert_file_noop
+checking &lt;span class="k"&gt;for&lt;/span&gt; /usr/bin/ld.gold option to reload object files... -r
+checking &lt;span class="k"&gt;for&lt;/span&gt; objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking &lt;span class="k"&gt;for&lt;/span&gt; dlltool... no
+checking how to associate runtime and link libraries... &lt;span class="nb"&gt;printf&lt;/span&gt; %s&lt;span class="se"&gt;\n&lt;/span&gt;
+checking &lt;span class="k"&gt;for&lt;/span&gt; ar... ar
+checking &lt;span class="k"&gt;for&lt;/span&gt; archiver @FILE support... @
+checking &lt;span class="k"&gt;for&lt;/span&gt; strip... strip
+checking &lt;span class="k"&gt;for&lt;/span&gt; ranlib... ranlib
+checking &lt;span class="nb"&gt;command&lt;/span&gt; to parse /usr/bin/nm -B output from clang object... ok
+checking &lt;span class="k"&gt;for&lt;/span&gt; sysroot... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; a working dd... /bin/dd
+checking how to truncate binary pipes... /bin/dd &lt;span class="nv"&gt;bs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;4096&lt;/span&gt; &lt;span class="nv"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;
+checking &lt;span class="k"&gt;for&lt;/span&gt; mt... no
+checking &lt;span class="k"&gt;if&lt;/span&gt; : is a manifest tool... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; dlfcn.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; objdir... .libs
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang supports -fno-rtti -fno-exceptions... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; clang option to produce PIC... -fPIC -DPIC
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang PIC flag -fPIC -DPIC works... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang static flag -static works... no
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang supports -c -o file.o... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang supports -c -o file.o... &lt;span class="o"&gt;(&lt;/span&gt;cached&lt;span class="o"&gt;)&lt;/span&gt; yes
+checking whether the clang linker &lt;span class="o"&gt;(&lt;/span&gt;/usr/bin/ld.gold -m elf_x86_64&lt;span class="o"&gt;)&lt;/span&gt; supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; windres... no
+
+Initializing gettext:
+checking whether NLS is requested... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; msgfmt... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; gmsgfmt... :
+checking &lt;span class="k"&gt;for&lt;/span&gt; xgettext... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; msgmerge... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; ld used by clang... /usr/bin/ld.gold -m elf_x86_64
+checking &lt;span class="k"&gt;if&lt;/span&gt; the linker &lt;span class="o"&gt;(&lt;/span&gt;/usr/bin/ld.gold -m elf_x86_64&lt;span class="o"&gt;)&lt;/span&gt; is GNU ld... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; shared library run path origin... &lt;span class="k"&gt;done&lt;/span&gt;
+checking &lt;span class="k"&gt;for&lt;/span&gt; CFPreferencesCopyAppValue... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; CFLocaleCopyCurrent... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; GNU gettext in libc... yes
+checking whether to use NLS... yes
+checking where the gettext &lt;span class="k"&gt;function&lt;/span&gt; comes from... libc
+
+System headers and functions:
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; fcntl.h... yes
+checking limits.h usability... yes
+checking limits.h presence... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; limits.h... yes
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; sys/time.h... yes
+checking immintrin.h usability... yes
+checking immintrin.h presence... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; immintrin.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; stdbool.h that conforms to C99... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; _Bool... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; uint8_t... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; uint16_t... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; int32_t... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; uint32_t... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; int64_t... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; uint64_t... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; uintptr_t... yes
+checking size of size_t... &lt;span class="m"&gt;8&lt;/span&gt;
+checking &lt;span class="k"&gt;for&lt;/span&gt; struct stat.st_atim.tv_nsec... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; struct stat.st_atimespec.tv_nsec... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; struct stat.st_atimensec... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; struct stat.st_uatime... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; struct stat.st_atim.st__tim.tv_nsec... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; special C compiler options needed &lt;span class="k"&gt;for&lt;/span&gt; large files... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; _FILE_OFFSET_BITS value needed &lt;span class="k"&gt;for&lt;/span&gt; large files... no
+checking whether byte ordering is bigendian... no
+checking getopt.h usability... yes
+checking getopt.h presence... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; getopt.h... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; getopt_long... yes
+checking whether optreset is declared... no
+checking &lt;span class="k"&gt;for&lt;/span&gt; futimens... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; posix_fadvise... yes
+checking whether program_invocation_name is declared... yes
+checking byteswap.h usability... yes
+checking byteswap.h presence... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; byteswap.h... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; bswap_16 is available... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; bswap_32 is available... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; bswap_64 is available... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; unaligned memory access should be used... yes
+checking sys/param.h usability... yes
+checking sys/param.h presence... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; sys/param.h... yes
+checking how to detect the amount of physical memory... sysconf
+checking &lt;span class="k"&gt;for&lt;/span&gt; sys/param.h... &lt;span class="o"&gt;(&lt;/span&gt;cached&lt;span class="o"&gt;)&lt;/span&gt; yes
+checking how to detect the number of available CPU cores... sched_getaffinity
+checking whether mbrtowc and mbstate_t are properly declared... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; wcwidth... yes
+checking whether _mm_movemask_epi8 is declared... yes
+
+GCC extensions:
+checking whether the -Werror option is usable... yes
+checking &lt;span class="k"&gt;for&lt;/span&gt; simple visibility declarations... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wall... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wextra... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wvla... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wformat&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Winit-self... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wmissing-include-dirs... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wstrict-aliasing... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wfloat-equal... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wundef... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wshadow... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wpointer-arith... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wbad-function-cast... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wwrite-strings... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wlogical-op... no
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Waggregate-return... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wstrict-prototypes... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wold-style-definition... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wmissing-prototypes... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wmissing-declarations... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wmissing-noreturn... yes
+checking &lt;span class="k"&gt;if&lt;/span&gt; clang accepts -Wredundant-decls... yes
+
+checking that generated files are newer than configure... &lt;span class="k"&gt;done&lt;/span&gt;
+configure: creating ./config.status
+config.status: creating Doxyfile
+config.status: creating Makefile
+config.status: creating po/Makefile.in
+config.status: creating lib/Makefile
+config.status: creating src/Makefile
+config.status: creating src/liblzma/Makefile
+config.status: creating src/liblzma/api/Makefile
+config.status: creating src/xz/Makefile
+config.status: creating src/xzdec/Makefile
+config.status: creating src/lzmainfo/Makefile
+config.status: creating src/scripts/Makefile
+config.status: creating tests/Makefile
+config.status: creating debug/Makefile
+config.status: creating src/scripts/xzdiff
+config.status: creating src/scripts/xzgrep
+config.status: creating src/scripts/xzmore
+config.status: creating src/scripts/xzless
+config.status: creating config.h
+config.status: config.h is unchanged
+config.status: executing depfiles commands
+config.status: executing libtool commands
+config.status: executing po-directories commands
+config.status: creating po/POTFILES
+config.status: creating po/Makefile
+
+root@1494cf89d0a3:/opt/xz-5.2.4# env
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;XZ_UTILS_VERSION&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;5&lt;/span&gt;.2.4
+&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang
+&lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++
+&lt;span class="nv"&gt;CPP&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang-cpp
+&lt;span class="nv"&gt;LD&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;lld
+
+root@1494cf89d0a3:/opt/xz-5.2.4# make &lt;span class="nv"&gt;VERBOSE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+make  all-recursive
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Entering directory &lt;span class="s1"&gt;'/opt/xz-5.2.4'&lt;/span&gt;
+Making all in src
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Entering directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src'&lt;/span&gt;
+Making all in liblzma
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Entering directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src/liblzma'&lt;/span&gt;
+Making all in api
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Entering directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src/liblzma/api'&lt;/span&gt;
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Nothing to be &lt;span class="k"&gt;done&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="s1"&gt;'all'&lt;/span&gt;.
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Leaving directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src/liblzma/api'&lt;/span&gt;
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Entering directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src/liblzma'&lt;/span&gt;
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Nothing to be &lt;span class="k"&gt;done&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="s1"&gt;'all-am'&lt;/span&gt;.
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Leaving directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src/liblzma'&lt;/span&gt;
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Leaving directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src/liblzma'&lt;/span&gt;
+Making all in xzdec
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Entering directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src/xzdec'&lt;/span&gt;
+/bin/bash ../../libtool  --tag&lt;span class="o"&gt;=&lt;/span&gt;CC   --mode&lt;span class="o"&gt;=&lt;/span&gt;link clang -pthread -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -Wall -Wextra -Wvla -Wformat&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt; -Winit-self -Wmissing-include-dirs -Wstrict-aliasing -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -Wredundant-decls -g -O2   -o xzdec xzdec-xzdec.o xzdec-tuklib_progname.o xzdec-tuklib_exit.o  ../../src/liblzma/liblzma.la   
+libtool: link: clang -pthread -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -Wall -Wextra -Wvla -Wformat&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt; -Winit-self -Wmissing-include-dirs -Wstrict-aliasing -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -Wredundant-decls -g -O2 -o .libs/xzdec xzdec-xzdec.o xzdec-tuklib_progname.o xzdec-tuklib_exit.o  ../../src/liblzma/.libs/liblzma.so -pthread
+clang-9: error: no such file or directory: &lt;span class="s1"&gt;'../../src/liblzma/.libs/liblzma.so'&lt;/span&gt;
+Makefile:500: recipe &lt;span class="k"&gt;for&lt;/span&gt; target &lt;span class="s1"&gt;'xzdec'&lt;/span&gt; failed
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: *** &lt;span class="o"&gt;[&lt;/span&gt;xzdec&lt;span class="o"&gt;]&lt;/span&gt; Error &lt;span class="m"&gt;1&lt;/span&gt;
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Leaving directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src/xzdec'&lt;/span&gt;
+Makefile:420: recipe &lt;span class="k"&gt;for&lt;/span&gt; target &lt;span class="s1"&gt;'all-recursive'&lt;/span&gt; failed
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: *** &lt;span class="o"&gt;[&lt;/span&gt;all-recursive&lt;span class="o"&gt;]&lt;/span&gt; Error &lt;span class="m"&gt;1&lt;/span&gt;
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Leaving directory &lt;span class="s1"&gt;'/opt/xz-5.2.4/src'&lt;/span&gt;
+Makefile:613: recipe &lt;span class="k"&gt;for&lt;/span&gt; target &lt;span class="s1"&gt;'all-recursive'&lt;/span&gt; failed
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: *** &lt;span class="o"&gt;[&lt;/span&gt;all-recursive&lt;span class="o"&gt;]&lt;/span&gt; Error &lt;span class="m"&gt;1&lt;/span&gt;
+make&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: Leaving directory &lt;span class="s1"&gt;'/opt/xz-5.2.4'&lt;/span&gt;
+Makefile:480: recipe &lt;span class="k"&gt;for&lt;/span&gt; target &lt;span class="s1"&gt;'all'&lt;/span&gt; failed
+make: *** &lt;span class="o"&gt;[&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt; Error &lt;span class="m"&gt;2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Benjamin Buch</dc:creator><pubDate>Mon, 27 Jan 2020 14:56:34 -0000</pubDate><guid isPermaLink="false">https://sourceforge.netd6512ed58db2dd04bca56b742ae3176e9a978600</guid></item></channel></rss>

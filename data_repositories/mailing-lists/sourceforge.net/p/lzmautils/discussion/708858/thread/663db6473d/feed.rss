@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Recent posts to Unzip a .zipx file with LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/663db6473d/</link><description>Recent posts to Unzip a .zipx file with LZMA compression</description><language>en</language><lastBuildDate>Fri, 18 Jan 2019 17:33:05 -0000</lastBuildDate><atom:link href="https://sourceforge.net/p/lzmautils/discussion/708858/thread/663db6473d/feed.rss" rel="self" type="application/rss+xml"></atom:link><item><title>Unzip a .zipx file with LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/663db6473d/?limit=25#63b6</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Thank you, this seems useful! will try it out. &lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Abha Dubey</dc:creator><pubDate>Fri, 18 Jan 2019 17:33:05 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net7f3463f6f837485a3f2d55a521f4c085581cf525</guid></item><item><title>Unzip a .zipx file with LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/663db6473d/?limit=25#2919</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;If you call org.tukaani.xz.LZMAInputStream with one argument, it will expect a .lzma file which has a 13-byte header. The header of a LZMA entry in .zip is different. I looked at ZipHandler.cpp in 7-Zip and PKWARE's APPNOTE.TXT. The header before raw LZMA data seems to be nine (4+5) bytes:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Position&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0-1&lt;/td&gt;
+&lt;td&gt;LZMA SDK version. You can ignore these two bytes.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2-3&lt;/td&gt;
+&lt;td&gt;Properties size as 16-bit little endian integer. This must be 5, that is, the first byte is 5 and the second is 0.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;LZMA lc/lp/pb values encoded into a single byte. This is called propsByte in org.tukaani.xz.LZMAInputStream.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;5-8&lt;/td&gt;
+&lt;td&gt;LZMA dictionary size (dictSize in org.tukaani.xz.LZMAInputStream) as 32-bit little endian integer. You need to convert these four bytes to an int so that it can be passed to org.tukaani.xz.LZMAInputStream.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;So you get something like this (I didn't test anything):&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;InputStream inRaw = ...;
+InputStream inData = new DataInputStream(inRaw);
+
+byte[] header = new byte[9];
+inData.readFully(header);
+
+if (header[2] != 5 || header[3] != 0)
+    throw ...;
+
+byte propsByte = header[4];
+int dictSize = (header[5] &amp;amp; 0xFF)
+               | ((header[6] &amp;amp; 0xFF) &amp;lt;&amp;lt; 8) 
+               | ((header[7] &amp;amp; 0xFF) &amp;lt;&amp;lt; 16)
+               | ((header[8] &amp;amp; 0xFF) &amp;lt;&amp;lt; 24);
+InputStream inLZMA = new LZMAInputStream(inRaw, -1,
+                                         propsByte, dictSize);
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;According to APPNOTE.TXT, there is also a possibility that the end of stream marker (EOS) isn't used (indicated by the general purpose bit 1). If so, then you need to pass the uncompressed size as the third argument instead of -1.&lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Lasse Collin</dc:creator><pubDate>Thu, 17 Jan 2019 17:46:01 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net26cda28234d831f7dda8bb1a8ee029d3c344fd84</guid></item><item><title>Unzip a .zipx file with LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/663db6473d/?limit=25#dfd6</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;Zip file uses small additional 4 bytes header before lzma stream.&lt;br/&gt;
+You can see the fields of that header in 7-Zip source code.&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ZipHandler.cpp
+CLzmaDecoder::Code(
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Igor Pavlov</dc:creator><pubDate>Thu, 17 Jan 2019 09:08:47 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net6a5468520ce943bf825b6deff29f5384c7205943</guid></item><item><title>Unzip a .zipx file with LZMA compression</title><link>https://sourceforge.net/p/lzmautils/discussion/708858/thread/663db6473d/?limit=25#6e14</link><description>&lt;div class="markdown_content"&gt;&lt;p&gt;I have a .zipx file which contains a single .pdf file which is  compressed using LZMA compression. Is it possible to unzip this file using the XZ library? I tried doing something like what is shown below, but I am getting an error. &lt;/p&gt;
+&lt;p&gt;InputStream in = new LZMAInputStream(new BufferedInputStream(zipFile.getRawInputStream(entry)));&lt;/p&gt;
+&lt;p&gt;This is the error I get: &lt;br/&gt;
+org.tukaani.xz.CorruptedInputException: Compressed data is corrupt&lt;br/&gt;
+    at org.tukaani.xz.rangecoder.RangeDecoderFromStream.&amp;lt;init&amp;gt;(Unknown Source)&lt;br/&gt;
+    at org.tukaani.xz.LZMAInputStream.initialize(Unknown Source)&lt;br/&gt;
+    at org.tukaani.xz.LZMAInputStream.initialize(Unknown Source)&lt;br/&gt;
+    at org.tukaani.xz.LZMAInputStream.&amp;lt;init&amp;gt;(Unknown Source)&lt;br/&gt;
+    at org.tukaani.xz.LZMAInputStream.&amp;lt;init&amp;gt;(Unknown Source)&amp;lt;/init&amp;gt;&amp;lt;/init&amp;gt;&amp;lt;/init&amp;gt;&lt;/p&gt;
+&lt;p&gt;I can easily unzip the file using Winzip, so I know that the data is not corrupt. Unfortunately I am not at liberty to post a lot of code or upload a file. &lt;/p&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Abha Dubey</dc:creator><pubDate>Wed, 16 Jan 2019 18:08:40 -0000</pubDate><guid isPermaLink="false">https://sourceforge.net74eb979e0324bdc02336e14ad3c4da184229e491</guid></item></channel></rss>

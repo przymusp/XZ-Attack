@@ -1,0 +1,408 @@
+f5c2ae58,Lasse Collin,lasse.collin@tukaani.org,2024-06-05,Update THANKS
+e0d6d05c,Lasse Collin,lasse.collin@tukaani.org,2024-06-04,CMake: Fix liblzma filename in Windows environments
+b8d134e6,Lasse Collin,lasse.collin@tukaani.org,2024-05-31,Update THANKS
+4e902385,Lasse Collin,lasse.collin@tukaani.org,2024-05-18,Fix typos
+b14d08fb,Lasse Collin,lasse.collin@tukaani.org,2024-05-18,liblzma: Fix white space
+81efe611,Yaroslav Halchenko,debian@onerussian.com,2024-03-29,codespell: Ignore the THANKS file and debbugs.gnu.org URL
+4ffc60f3,Lasse Collin,lasse.collin@tukaani.org,2024-04-25,tuklib_integer: Rename bswapXX to byteswapXX
+6aa2a6de,Lasse Collin,lasse.collin@tukaani.org,2024-04-19,liblzma: Silence a warning from Coverity static analysis
+eeca8f7c,Lasse Collin,lasse.collin@tukaani.org,2024-04-15,xz: Fix white space error.
+db4dd74a,Lasse Collin,lasse.collin@tukaani.org,2024-04-09,Update THANKS.
+e93e13c8,Lasse Collin,lasse.collin@tukaani.org,2024-04-08,Remove the backdoor found in 5.6.0 and 5.6.1 (CVE-2024-3094).
+df7f4876,Lasse Collin,lasse.collin@tukaani.org,2024-03-13,Update THANKS.
+72d2933b,Jia Tan,jiat0218@gmail.com,2024-03-05,liblzma: Use attribute no_profile_instrument_function with ifunc.
+bbf112e3,Jia Tan,jiat0218@gmail.com,2024-02-27,xz: Change logging level for thread reduction to highest verbosity only.
+649f6447,Lasse Collin,lasse.collin@tukaani.org,2024-02-26,Fix sorting in THANKS.
+1255b7d8,Jia Tan,jiat0218@gmail.com,2024-02-26,Update THANKS.
+898aad9f,Jia Tan,jiat0218@gmail.com,2024-02-21,xzmore: Fix typo in xzmore.1.
+32b0a3ce,Jia Tan,jiat0218@gmail.com,2024-02-23,Build: Fix ARM64 CRC32 instruction feature test.
+120da10a,Lasse Collin,lasse.collin@tukaani.org,2024-02-22,liblzma: Disable branchless C version in range decoder.
+440a2ecc,Jia Tan,jiat0218@gmail.com,2024-01-22,liblzma: Add RISC-V BCJ filter.
+15cf3f04,Lasse Collin,lasse.collin@tukaani.org,2023-12-20,Update THANKS.
+cd64dd70,Lasse Collin,lasse.collin@tukaani.org,2023-12-20,liblzma: Use 8-byte method in memcmplen.h on ARM64.
+d74fb5f0,Jia Tan,jiat0218@gmail.com,2023-12-19,xzdec: Add sandbox support for Pledge, Capsicum, and Landlock.
+4a972a8e,Jia Tan,jiat0218@gmail.com,2023-12-06,Update THANKS.
+685094b8,Jia Tan,jiat0218@gmail.com,2023-11-30,Update THANKS.
+35558adf,Jia Tan,jiat0218@gmail.com,2023-11-30,Update THANKS.
+46007049,Lasse Collin,lasse.collin@tukaani.org,2023-10-31,liblzma: Fix compilation of fastpos_tablegen.c.
+8c0f9376,Jia Tan,jiat0218@gmail.com,2023-10-14,liblzma: Create crc_clmul.c.
+5c4bca52,Lasse Collin,lasse.collin@tukaani.org,2023-10-06,Update THANKS.
+d91cb6e8,Lasse Collin,lasse.collin@tukaani.org,2023-10-06,CMake/Windows: Fix when the windres workaround is applied.
+daea64d1,Lasse Collin,lasse.collin@tukaani.org,2023-09-12,CMake: Allow building xz with Visual Studio 2015 and later.
+af66cd58,Lasse Collin,lasse.collin@tukaani.org,2023-09-12,CMake: Add support for replacement getopt_long (lib/getopt*).
+189f7258,Lasse Collin,lasse.collin@tukaani.org,2023-09-11,Update THANKS.
+79334e7f,Lasse Collin,lasse.collin@tukaani.org,2023-09-05,MSVC: xz: Make file_io.c and file_io.h compatible with MSVC.
+adef92f2,Lasse Collin,lasse.collin@tukaani.org,2023-09-19,Update THANKS.
+f167e79b,Lasse Collin,lasse.collin@tukaani.org,2023-09-14,Update THANKS.
+4f44ef86,Lasse Collin,lasse.collin@tukaani.org,2023-09-14,liblzma: Mark crc64_clmul() with __attribute__((__no_sanitize_address__)).
+49be29d6,Jia Tan,jiat0218@gmail.com,2023-08-28,Update THANKS.
+ae5c07b2,Jia Tan,jiat0218@gmail.com,2023-08-28,liblzma: Add overflow check for Unpadded size in lzma_index_append().
+9a706167,Lasse Collin,lasse.collin@tukaani.org,2023-08-01,Update THANKS.
+33e25a0f,Lasse Collin,lasse.collin@tukaani.org,2023-08-01,Update THANKS.
+f3a055f7,Jia Tan,jiat0218@gmail.com,2023-07-22,CI: Add Windows runner for Autotools builds with MSYS2.
+78704f36,Jia Tan,jiat0218@gmail.com,2023-06-28,liblzma: Prevent uninitialzed warning in mt stream encoder.
+86118ea3,Jia Tan,jiat0218@gmail.com,2023-06-27,Update THANKS.
+ee44863a,Lasse Collin,lasse.collin@tukaani.org,2023-06-27,liblzma: Add ifunc implementation to crc64_fast.c.
+6bcd5168,Jia Tan,jiat0218@gmail.com,2023-06-07,Update THANKS.
+78ccd939,Jia Tan,jiat0218@gmail.com,2023-04-20,Update THANKS.
+7062348b,Jia Tan,jiat0218@gmail.com,2023-04-19,tuklib_integer: Use __builtin_clz() with Clang.
+fb9c50f3,Jia Tan,jiat0218@gmail.com,2023-04-07,Update THANKS.
+3b8890a4,Lasse Collin,lasse.collin@tukaani.org,2023-03-21,Update THANKS.
+5a5bd7f8,Lasse Collin,lasse.collin@tukaani.org,2023-03-21,Build: Fix --disable-threads breaking the building of shared libs.
+dfe17107,Lasse Collin,lasse.collin@tukaani.org,2023-03-19,liblzma: Silence -Wsign-conversion in SSE2 code in memcmplen.h.
+01587dda,Jia Tan,jiat0218@gmail.com,2023-03-07,xz: Fix -Wunused-label in io_sandbox_enter().
+4b7fb3bf,Lasse Collin,lasse.collin@tukaani.org,2023-02-27,CMake: Require that the C compiler supports C99 or a newer standard.
+805b45cd,Lasse Collin,lasse.collin@tukaani.org,2023-02-23,Update THANKS.
+30e95bb4,Lasse Collin,lasse.collin@tukaani.org,2023-02-21,liblzma: Avoid null pointer + 0 (undefined behavior in C).
+b9f171dd,Lasse Collin,lasse.collin@tukaani.org,2023-02-17,Update THANKS.
+2ee86d20,Lasse Collin,lasse.collin@tukaani.org,2023-02-17,Build: Use only the generic symbol versioning on MicroBlaze.
+718b22a6,Lasse Collin,lasse.collin@tukaani.org,2023-02-16,liblzma: Silence a warning from MSVC.
+3b1c8ac8,Jia Tan,jiat0218@gmail.com,2023-01-27,Translations: Add Brazilian Portuguese translation of man pages.
+0b8fa310,Lasse Collin,lasse.collin@tukaani.org,2023-01-10,liblzma: CLMUL CRC64: Work around a bug in MSVC, second attempt.
+cfabb62a,Lasse Collin,lasse.collin@tukaani.org,2023-01-10,Revert "liblzma: CLMUL CRC64: Workaround a bug in MSVC (VS2015-2022)."
+5e34774c,Lasse Collin,lasse.collin@tukaani.org,2023-01-10,CMake: Fix appending to CMAKE_RC_FLAGS.
+36edc65a,Lasse Collin,lasse.collin@tukaani.org,2023-01-09,liblzma: CLMUL CRC64: Workaround a bug in MSVC (VS2015-2022).
+790a12a9,Lasse Collin,lasse.collin@tukaani.org,2023-01-09,CMake: Fix a copypaste error in xzdec Windows resource file handling.
+69d5d78c,Lasse Collin,lasse.collin@tukaani.org,2023-01-08,Update THANKS.
+a890a637,Lasse Collin,lasse.collin@tukaani.org,2023-01-07,Update THANKS.
+6e38e595,Lasse Collin,lasse.collin@tukaani.org,2023-01-07,CMake/Windows: Add resource files to xz.exe and xzdec.exe.
+443dfebc,Lasse Collin,lasse.collin@tukaani.org,2023-01-07,CMake/Windows: Add a workaround for windres from GNU binutils.
+ceb80501,Lasse Collin,lasse.collin@tukaani.org,2023-01-07,Build: Require that _mm_set_epi64x() is usable to enable CLMUL support.
+7657ce1c,Lasse Collin,lasse.collin@tukaani.org,2023-01-04,Update THANKS.
+d0eb345b,Jia Tan,jiat0218@gmail.com,2023-01-03,Translations: Add Korean translation of man pages.
+7339e39d,Jia Tan,jiat0218@gmail.com,2022-12-28,Translations: Add Ukrainian translations of man pages.
+0fb9d355,Lasse Collin,lasse.collin@tukaani.org,2022-12-12,Update THANKS.
+7a5b4b80,Jia Tan,jiat0218@gmail.com,2022-12-06,Translations: Add Romanian translation of man pages.
+ac2a747e,Lasse Collin,lasse.collin@tukaani.org,2022-12-08,liblzma: Check for unexpected NULL pointers in block_header_decode().
+5865f2aa,Lasse Collin,lasse.collin@tukaani.org,2022-12-01,Update THANKS.
+62b27098,Lasse Collin,lasse.collin@tukaani.org,2022-12-01,liblzma: Use __has_attribute(__symver__) to fix Clang detection.
+94adf057,Lasse Collin,lasse.collin@tukaani.org,2022-12-01,liblzma: Silence unused variable warning when BCJ filters are disabled.
+a6e21fce,Lasse Collin,lasse.collin@tukaani.org,2022-11-29,liblzma: Two fixes to lzma_str_list_filters() API docs.
+17ac51e6,Lasse Collin,lasse.collin@tukaani.org,2022-11-24,Update THANKS.
+06824396,Lasse Collin,lasse.collin@tukaani.org,2022-11-24,Build: Don't put GNU/Linux-specific symbol versions into static liblzma.
+f644473a,Lasse Collin,lasse.collin@tukaani.org,2022-11-14,liblzma: Add fast CRC64 for 32/64-bit x86 using SSSE3 + SSE4.1 + CLMUL.
+f9b4ff6e,Lasse Collin,lasse.collin@tukaani.org,2022-11-11,Update THANKS.
+a39961ef,Lasse Collin,lasse.collin@tukaani.org,2022-11-11,liblzma: Fix building with Intel ICC (the classic compiler).
+6552535a,Lasse Collin,lasse.collin@tukaani.org,2022-11-10,Translations: Rename poa4/fr_FR.po to po4a/fr.po.
+0918159c,Lasse Collin,lasse.collin@tukaani.org,2022-11-09,xz: Update the man page about BCJ filters, including upcoming --arm64.
+ba2ae359,Lasse Collin,lasse.collin@tukaani.org,2022-11-09,xz: Add --arm64 to --long-help and omit endianness from ARM(-Thumb).
+3176f992,Lasse Collin,lasse.collin@tukaani.org,2022-10-08,xz: Add .lz (lzip) decompression support.
+034086e1,Lasse Collin,lasse.collin@tukaani.org,2022-10-08,liblzma: Add .lz support to lzma_auto_decoder().
+0538db03,Lasse Collin,lasse.collin@tukaani.org,2022-10-06,liblzma: Add .lz (lzip) decompression support (format versions 0 and 1).
+5e2450c7,Lasse Collin,lasse.collin@tukaani.org,2022-11-07,liblzma: Include cached memory in reported memusage in threaded decoder.
+2611c4d9,Lasse Collin,lasse.collin@tukaani.org,2022-10-20,tuklib_cpucores: Use HW_NCPUONLINE on OpenBSD.
+424ac91c,Lasse Collin,lasse.collin@tukaani.org,2022-10-19,Tests: Skip tests in test_*.sh if encoders and/or decoders are disabled.
+b5f8271b,Lasse Collin,lasse.collin@tukaani.org,2022-10-19,Tests: Add test_memlimit to .gitignore.
+6a86e81c,Jia Tan,jiat0218@gmail.com,2022-10-06,Tests: Refactor test_stream_flags.c.
+827ac5b4,Jia Tan,jiat0218@gmail.com,2022-10-06,Tests: Refactor test_block_header.c.
+84963318,Jia Tan,jiat0218@gmail.com,2022-10-05,Tests: Fix compilation issues.
+6ca5c354,Jia Tan,jiat0218@gmail.com,2022-10-05,Tests: Fix compilation error when threading support has been disabled.
+fae37ad2,Lasse Collin,lasse.collin@tukaani.org,2022-10-05,tuklib_integer: Add 64-bit endianness-converting reads and writes.
+a61d3217,Lasse Collin,lasse.collin@tukaani.org,2022-09-28,tuklib_physmem: Fix Unicode builds on Windows.
+b557b4a0,Lasse Collin,lasse.collin@tukaani.org,2022-09-20,liblzma: ARM64: Fix wrong comment in API doc.
+1fc088d9,Lasse Collin,lasse.collin@tukaani.org,2022-09-16,Update THANKS.
+097c7b67,Lasse Collin,lasse.collin@tukaani.org,2022-09-16,xzgrep: Fix compatibility with old shells.
+9ac06cb5,Lasse Collin,lasse.collin@tukaani.org,2022-09-08,Update THANKS.
+913ddc55,Lasse Collin,lasse.collin@tukaani.org,2022-09-04,liblzma: Vaccinate against an ill patch from RHEL/CentOS 7.
+80a1a8bb,Lasse Collin,lasse.collin@tukaani.org,2022-08-31,CMake: Add xz symlinks.
+a4193bb6,Lasse Collin,lasse.collin@tukaani.org,2022-08-31,CMake: Put xz man page install under if(UNIX) like is for xzdec.
+a93e235d,Lasse Collin,lasse.collin@tukaani.org,2022-07-12,Translations: Add Portuguese translation.
+e7cf5a94,Lasse Collin,lasse.collin@tukaani.org,2022-07-10,Translations: Add Serbian translation.
+cc8617ab,Lasse Collin,lasse.collin@tukaani.org,2022-07-04,Translations: Add Swedish translation.
+c613598c,Lasse Collin,lasse.collin@tukaani.org,2022-07-04,Translations: Add Esperanto translation.
+659a587d,Lasse Collin,lasse.collin@tukaani.org,2022-07-01,Translations: Add Catalan translation.
+739fd8c9,Lasse Collin,lasse.collin@tukaani.org,2022-06-30,Translations: Add Ukrainian translation.
+73280550,Lasse Collin,lasse.collin@tukaani.org,2022-06-30,Translators: Add Romanian translation.
+2465f5b8,Lasse Collin,lasse.collin@tukaani.org,2022-06-29,Translations: Update Brazilian Portuguese translation.
+434e1ffd,Lasse Collin,lasse.collin@tukaani.org,2022-06-29,Translations: Add Croatian translation.
+0732d0f7,Lasse Collin,lasse.collin@tukaani.org,2022-06-29,Translations: Add Spanish translation.
+9899b0f8,Lasse Collin,lasse.collin@tukaani.org,2022-06-29,Translations: Add Korean translation.
+df23c310,Lasse Collin,lasse.collin@tukaani.org,2022-08-22,CMake: Add liblzma tests.
+d13bfcc0,Lasse Collin,lasse.collin@tukaani.org,2022-08-18,Build: Include the CMake files in the distribution.
+e66787bc,Lasse Collin,lasse.collin@tukaani.org,2022-08-18,Windows: Fix broken liblzma.dll build with Visual Studio project files.
+b81bf0c7,Lasse Collin,lasse.collin@tukaani.org,2022-07-19,Update THANKS.
+511feb5e,Lasse Collin,lasse.collin@tukaani.org,2022-07-13,Update THANKS.
+9595a311,Lasse Collin,lasse.collin@tukaani.org,2022-07-13,liblzma: Add optional autodetection of LZMA end marker.
+5c8ffdca,Lasse Collin,lasse.collin@tukaani.org,2022-06-02,Tests: Convert test_check to tuktest.
+0adc13bf,Lasse Collin,lasse.collin@tukaani.org,2022-04-14,xz: Make -T0 use multithreaded mode on single-core systems.
+64b6d496,Lasse Collin,lasse.collin@tukaani.org,2022-04-05,liblzma: Threaded decoder: Always wait for output if LZMA_FINISH is used.
+2ba8173e,Lasse Collin,lasse.collin@tukaani.org,2022-03-31,Update THANKS.
+69d1b3fc,Lasse Collin,lasse.collin@tukaani.org,2022-03-29,xzgrep: Fix escaping of malicious filenames (ZDI-CAN-16587).
+bd93b776,Lasse Collin,lasse.collin@tukaani.org,2022-03-26,liblzma: Fix a deadlock in threaded decoder.
+e0394e94,Lasse Collin,lasse.collin@tukaani.org,2022-03-23,Update THANKS.
+487c77d4,Lasse Collin,lasse.collin@tukaani.org,2022-03-23,liblzma: Threaded decoder: Don't stop threads on LZMA_TIMED_OUT.
+4cce3e27,Lasse Collin,lasse.collin@tukaani.org,2022-03-06,liblzma: Add threaded .xz decompressor.
+20e7a33e,Lasse Collin,lasse.collin@tukaani.org,2022-02-22,liblzma: Minor addition to lzma_vli_size() API doc.
+5313ad66,Lasse Collin,lasse.collin@tukaani.org,2022-02-22,Update THANKS.
+f0da507f,Lasse Collin,lasse.collin@tukaani.org,2022-02-18,Translations: Fix po4a failure with the French man page translations.
+f7711d22,Lasse Collin,lasse.collin@tukaani.org,2022-02-07,Translations: Add French translation of man pages.
+2523c307,Lasse Collin,lasse.collin@tukaani.org,2022-02-06,liblzma: Fix uint64_t vs. size_t confusion.
+400e7a23,Lasse Collin,lasse.collin@tukaani.org,2021-11-13,Update THANKS.
+52435f30,Lasse Collin,lasse.collin@tukaani.org,2021-10-27,Update THANKS.
+2b509c86,Lasse Collin,lasse.collin@tukaani.org,2021-09-17,liblzma: Fix liblzma.map for the lzma_microlzma_* symbols.
+cacb06a9,Lasse Collin,lasse.collin@tukaani.org,2021-09-09,Update THANKS.
+6928aac9,Lasse Collin,lasse.collin@tukaani.org,2021-09-09,liblzma: Use _MSVC_LANG to detect when "noexcept" can be used with MSVC.
+96f5a28a,Lasse Collin,lasse.collin@tukaani.org,2021-06-04,xzless: Fix less(1) version detection when it contains a dot.
+5fb5212d,Lasse Collin,lasse.collin@tukaani.org,2021-04-11,Update THANKS.
+e7da44d5,Lasse Collin,lasse.collin@tukaani.org,2021-02-13,CMake: Use interface library for better FindLibLZMA compatibility.
+a61dd82a,Lasse Collin,lasse.collin@tukaani.org,2021-01-30,CMake: Try to improve compatibility with the FindLibLZMA module.
+5b7bc1b8,Lasse Collin,lasse.collin@tukaani.org,2021-01-29,Update THANKS.
+6c6f0db3,Lasse Collin,lasse.collin@tukaani.org,2021-01-29,liblzma: Fix unitialized variable.
+d9ec3add,Lasse Collin,lasse.collin@tukaani.org,2021-01-11,Update THANKS.
+074259f4,Lasse Collin,lasse.collin@tukaani.org,2021-01-11,xz: Make --keep accept symlinks, hardlinks, and setuid/setgid/sticky.
+194029ff,Lasse Collin,lasse.collin@tukaani.org,2021-01-11,Scripts: Fix exit status of xzdiff/xzcmp.
+a35a69d6,Lasse Collin,lasse.collin@tukaani.org,2020-12-23,Update THANKS.
+bb3b8c6a,Lasse Collin,lasse.collin@tukaani.org,2020-12-16,Update THANKS.
+21588ca3,Lasse Collin,lasse.collin@tukaani.org,2020-12-16,Build: Don't build bundles on Apple OSes.
+d05b0c42,Lasse Collin,lasse.collin@tukaani.org,2020-12-05,Update THANKS.
+1890351f,Adam Borowski,kilobyte@angband.pl,2020-09-25,Scripts: Add zstd support to xzgrep.
+2f108abb,Lasse Collin,lasse.collin@tukaani.org,2020-11-17,CMake: Fix compatibility with CMake 3.13.
+5af726a7,Lasse Collin,lasse.collin@tukaani.org,2020-11-01,Update THANKS.
+4575d9d3,Lasse Collin,lasse.collin@tukaani.org,2020-11-01,xz: Avoid unneeded \f escapes on the man page.
+620b32f5,Lasse Collin,lasse.collin@tukaani.org,2020-11-01,xz: Use non-breaking spaces when intentionally using more than one space.
+cb1f3498,Lasse Collin,lasse.collin@tukaani.org,2020-11-01,xz: Protect the ellipsis (...) on the man page with \&.
+5d224da3,Lasse Collin,lasse.collin@tukaani.org,2020-11-01,xz: Avoid the abbreviation "e.g." on the man page.
+90457dbe,Lasse Collin,lasse.collin@tukaani.org,2020-07-12,xz man page: Change \- (minus) to \(en (en-dash) for a numeric range.
+352ba2d6,Lasse Collin,lasse.collin@tukaani.org,2020-07-12,Windows: Fix building of resource files when config.h isn't used.
+292a5c0f,Lasse Collin,lasse.collin@tukaani.org,2020-02-25,Update THANKS.
+474320e9,Lasse Collin,lasse.collin@tukaani.org,2020-02-25,Build: Fix bugs in the CMake files.
+fa792b8b,Lasse Collin,lasse.collin@tukaani.org,2020-02-14,Translations: Add German translation of the man pages.
+426f9e58,Lasse Collin,lasse.collin@tukaani.org,2020-02-06,Update THANKS.
+c91fbf22,Lasse Collin,lasse.collin@tukaani.org,2020-02-05,Update THANKS.
+cf2df0f0,Lasse Collin,lasse.collin@tukaani.org,2020-01-19,Use $(LIB_FUZZING_ENGINE) in tests/ossfuzz/Makefile.
+8b72950a,Lasse Collin,lasse.collin@tukaani.org,2019-12-29,Tests: Hopefully fix test_check.c to work on EBCDIC systems.
+43ce4ea7,Lasse Collin,lasse.collin@tukaani.org,2019-09-24,Scripts: Put /usr/xpg4/bin to the beginning of PATH on Solaris.
+b525b0c0,Lasse Collin,lasse.collin@tukaani.org,2019-06-03,Update THANKS.
+039a168e,Lasse Collin,lasse.collin@tukaani.org,2019-06-03,liblzma: Fix comments.
+c81d77c5,Lasse Collin,lasse.collin@tukaani.org,2019-06-01,Update THANKS.
+33773c6f,Lasse Collin,lasse.collin@tukaani.org,2019-06-01,liblzma: Use unaligned_readXXne functions instead of type punning.
+2a22de43,Lasse Collin,lasse.collin@tukaani.org,2019-05-13,liblzma: Avoid memcpy(NULL, foo, 0) because it is undefined behavior.
+d3fc850c,Lasse Collin,lasse.collin@tukaani.org,2019-05-11,Update THANKS.
+01d01b7c,Lasse Collin,lasse.collin@tukaani.org,2019-05-01,Update THANKS.
+1e3f29b6,Lasse Collin,lasse.collin@tukaani.org,2019-01-13,Windows/VS2017: Omit WindowsTargetPlatformVersion from project files.
+4d860763,Lasse Collin,lasse.collin@tukaani.org,2018-12-20,Update THANKS.
+b55d7946,Lasse Collin,lasse.collin@tukaani.org,2018-12-14,xz: Fix a crash in progress indicator when in passthru mode.
+9eca51ef,Lasse Collin,lasse.collin@tukaani.org,2018-11-02,Update THANKS.
+106d1a66,Lasse Collin,lasse.collin@tukaani.org,2018-11-02,Tests: Add a fuzz test program and a config file for OSS-Fuzz.
+f76f7516,Lasse Collin,lasse.collin@tukaani.org,2018-07-27,xzless: Rename unused variables to silence static analysers.
+3cbcaeb0,Lasse Collin,lasse.collin@tukaani.org,2018-07-27,liblzma: Remove an always-true condition from lzma_index_cat().
+47b59d47,Lasse Collin,lasse.collin@tukaani.org,2018-02-06,Update THANKS.
+fb6d4f83,Lasse Collin,lasse.collin@tukaani.org,2018-02-06,liblzma: Remove incorrect #ifdef from range_common.h.
+bc577d35,Lasse Collin,lasse.collin@tukaani.org,2018-01-10,Update THANKS.
+713bbc1a,Lasse Collin,lasse.collin@tukaani.org,2018-01-10,tuklib_integer: New Intel C compiler needs immintrin.h.
+a0ee1afb,Lasse Collin,lasse.collin@tukaani.org,2017-09-24,Update THANKS.
+a015cd1f,Lasse Collin,lasse.collin@tukaani.org,2017-05-23,xz: Fix "xz --list --robot missing_or_bad_file.xz".
+a01794c5,Lasse Collin,lasse.collin@tukaani.org,2016-10-24,Update THANKS.
+df8f446e,Lasse Collin,lasse.collin@tukaani.org,2016-10-24,tuklib_cpucores: Add support for sched_getaffinity().
+446e4318,Lasse Collin,lasse.collin@tukaani.org,2016-06-30,xz: Fix copying of timestamps on Windows.
+1b0ac0c5,Lasse Collin,lasse.collin@tukaani.org,2016-06-16,xz: Silence warnings from -Wlogical-op.
+c83b7a03,Lasse Collin,lasse.collin@tukaani.org,2016-04-10,Build: Fix = to += for xz_SOURCES in src/xz/Makefile.am.
+ade31a2b,Lasse Collin,lasse.collin@tukaani.org,2016-04-10,Build: Bump GNU Gettext version requirement to 0.19.
+6fd5ecb5,Lasse Collin,lasse.collin@tukaani.org,2016-03-10,Update THANKS.
+473ef0dc,Lasse Collin,lasse.collin@tukaani.org,2016-03-10,Build: Avoid SHA256_Init on FreeBSD and MINIX 3.
+e52e9151,Lasse Collin,lasse.collin@tukaani.org,2015-11-04,Update THANKS.
+14115f84,Lasse Collin,lasse.collin@tukaani.org,2015-11-04,liblzma: Make Valgrind happier with optimized (gcc -O2) liblzma.
+282e768a,Lasse Collin,lasse.collin@tukaani.org,2015-10-12,Update THANKS.
+3bf857ed,Lasse Collin,lasse.collin@tukaani.org,2015-10-12,liblzma: Fix a memory leak in error path of lzma_index_dup().
+0275a539,Lasse Collin,lasse.collin@tukaani.org,2015-08-09,Windows: Define DLL_EXPORT when building liblzma.dll with MSVC.
+713dbe5c,Lasse Collin,lasse.collin@tukaani.org,2015-06-19,Update THANKS.
+b0798c6a,Lasse Collin,lasse.collin@tukaani.org,2015-06-19,Windows: Add MSVC project files for building liblzma.
+c7f4041f,Lasse Collin,lasse.collin@tukaani.org,2015-05-13,Tests: Fix a memory leak in test_bcj_exact_size.
+17b29d4f,Lasse Collin,lasse.collin@tukaani.org,2015-05-12,Fix NEWS about threading in 5.2.0.
+5b2458cb,Lasse Collin,lasse.collin@tukaani.org,2015-04-20,Update THANKS.
+6bd0349c,Lasse Collin,lasse.collin@tukaani.org,2015-04-20,Revert "xz: Use pipe2() if available."
+57393615,Lasse Collin,lasse.collin@tukaani.org,2015-03-31,Update THANKS.
+12383811,Lasse Collin,lasse.collin@tukaani.org,2015-03-31,xz: Add support for sandboxing with Capsicum.
+6e845c6a,Lasse Collin,lasse.collin@tukaani.org,2015-03-31,Add m4/ax_check_capsicum.m4 for detecting Capsicum support.
+eccd8155,Lasse Collin,lasse.collin@tukaani.org,2015-03-29,Update THANKS.
+25263fd9,Lasse Collin,lasse.collin@tukaani.org,2015-03-29,Fix the detection of installed RAM on QNX.
+4c544d24,Lasse Collin,lasse.collin@tukaani.org,2015-03-27,Fix CPU core count detection on QNX.
+2205bb58,Lasse Collin,lasse.collin@tukaani.org,2015-02-10,Update THANKS.
+d935b0cd,Lasse Collin,lasse.collin@tukaani.org,2015-02-10,tuklib_cpucores: Use cpuset_getaffinity() on FreeBSD if available.
+eb61bc58,Lasse Collin,lasse.collin@tukaani.org,2015-02-09,xzdiff: Make the mktemp usage compatible with FreeBSD's mktemp.
+b9a5b6b7,Lasse Collin,lasse.collin@tukaani.org,2015-02-03,Add a few casts to tuklib_integer.h to silence possible warnings.
+3c500174,Lasse Collin,lasse.collin@tukaani.org,2015-01-26,Update THANKS.
+fec88d41,Lasse Collin,lasse.collin@tukaani.org,2015-01-26,liblzma: Silence harmless Valgrind errors.
+541aee6d,Lasse Collin,lasse.collin@tukaani.org,2015-01-09,Update THANKS.
+4170edc9,Lasse Collin,lasse.collin@tukaani.org,2015-01-09,xz: Don't fail if stdout doesn't support O_NONBLOCK.
+542cac12,Lasse Collin,lasse.collin@tukaani.org,2014-11-17,Build: Fix Autoconf warnings about escaped backquotes.
+230fa4a6,Lasse Collin,lasse.collin@tukaani.org,2014-11-10,Update THANKS.
+c923b140,Lasse Collin,lasse.collin@tukaani.org,2014-10-29,Build: Prepare to support Automake's subdir-objects.
+08c2aa16,Lasse Collin,lasse.collin@tukaani.org,2014-10-24,Translations: Update the Italian translation.
+2f9f61aa,Lasse Collin,lasse.collin@tukaani.org,2014-10-18,Translations: Update the Polish translation.
+7c32e6a9,Lasse Collin,lasse.collin@tukaani.org,2014-10-09,Update THANKS.
+076258cc,Lasse Collin,lasse.collin@tukaani.org,2014-10-09,Add support for AmigaOS/AROS to tuklib_physmem().
+efa7b0a2,Lasse Collin,lasse.collin@tukaani.org,2014-10-09,xzgrep: Avoid passing both -q and -l to grep.
+c4911f2d,Lasse Collin,lasse.collin@tukaani.org,2014-09-25,Build: Detect supported compiler warning flags better.
+d62028b4,Lasse Collin,lasse.collin@tukaani.org,2014-09-20,liblzma: Fix a portability problem in Makefile.am.
+71e1437a,Lasse Collin,lasse.collin@tukaani.org,2014-08-04,liblzma: Use lzma_memcmplen() in the BT3 match finder.
+41dc9ea0,Lasse Collin,lasse.collin@tukaani.org,2014-08-04,Update THANKS.
+35321213,Lasse Collin,lasse.collin@tukaani.org,2014-07-25,Update THANKS.
+e1c8f1d0,Lasse Collin,lasse.collin@tukaani.org,2014-07-25,liblzma: Add lzma_memcmplen() for fast memory comparison.
+765735cf,Lasse Collin,lasse.collin@tukaani.org,2014-07-12,Update THANKS.
+59da0178,Lasse Collin,lasse.collin@tukaani.org,2014-07-12,Translations: Add Vietnamese translation.
+ceca3790,Lasse Collin,lasse.collin@tukaani.org,2014-06-11,xzgrep: exit 0 when at least one file matches.
+87f1a248,Lasse Collin,lasse.collin@tukaani.org,2014-05-25,Update THANKS.
+da1718f2,Lasse Collin,lasse.collin@tukaani.org,2014-05-25,liblzma: Use lzma_alloc_zero() in LZ encoder initialization.
+ed9ac858,Lasse Collin,lasse.collin@tukaani.org,2014-05-08,xz: Fix uint64_t vs. size_t which broke 32-bit build.
+6de61d87,Lasse Collin,lasse.collin@tukaani.org,2014-04-24,Update INSTALL.
+54df4287,Lasse Collin,lasse.collin@tukaani.org,2014-04-09,xz: Rename a variable to avoid a namespace collision on Solaris.
+e90ea601,Lasse Collin,lasse.collin@tukaani.org,2013-11-26,Update THANKS.
+b22e94d8,Lasse Collin,lasse.collin@tukaani.org,2013-11-26,liblzma: Document the need for block->check for lzma_block_header_decode().
+76be7c61,Lasse Collin,lasse.collin@tukaani.org,2013-11-12,Update THANKS.
+dd750acb,Lasse Collin,lasse.collin@tukaani.org,2013-11-12,xz: Make --block-list and --block-size work together in single-threaded.
+72975df6,Lasse Collin,lasse.collin@tukaani.org,2013-09-09,Build: Create liblzma.pc in a src/liblzma/Makefile.am.
+1c2b6e7e,Lasse Collin,lasse.collin@tukaani.org,2013-08-04,Fix the previous commit which broke the build.
+124eb69c,Lasse Collin,lasse.collin@tukaani.org,2013-08-03,Windows: Add Windows support to tuklib_cpucores().
+16581080,Lasse Collin,lasse.collin@tukaani.org,2013-07-15,Update THANKS.
+3e2b198b,Lasse Collin,lasse.collin@tukaani.org,2013-07-15,Build: Fix the detection of missing CRC32.
+24edf8d8,Lasse Collin,lasse.collin@tukaani.org,2013-07-01,Update THANKS.
+c0627b3f,Lasse Collin,lasse.collin@tukaani.org,2013-07-01,xz: Silence a warning seen with _FORTIFY_SOURCE=2.
+b7e200d7,Lasse Collin,lasse.collin@tukaani.org,2013-06-23,Update THANKS.
+46540e4c,Lasse Collin,lasse.collin@tukaani.org,2013-06-23,liblzma: Avoid a warning about a shadowed variable.
+c09e91dd,Lasse Collin,lasse.collin@tukaani.org,2013-06-21,Update THANKS.
+eb6ca985,Lasse Collin,lasse.collin@tukaani.org,2013-06-21,xz: Make the man page more friendly to doclifter.
+0c0a1947,Lasse Collin,lasse.collin@tukaani.org,2013-06-21,xz: A couple of man page fixes.
+2fcda899,Lasse Collin,lasse.collin@tukaani.org,2013-06-21,xz: Fix interaction between preset and custom filter chains.
+ed886e1a,Lasse Collin,lasse.collin@tukaani.org,2013-04-05,Update THANKS.
+9e6dabcf,Lasse Collin,lasse.collin@tukaani.org,2013-03-05,Avoid unneeded use of awk in xzless.
+4c7e2870,Lasse Collin,lasse.collin@tukaani.org,2012-12-13,xz: Mention --threads in --help.
+3d93b635,Lasse Collin,lasse.collin@tukaani.org,2012-09-28,xz: Improve handling of failed realloc in xrealloc.
+ab225620,Lasse Collin,lasse.collin@tukaani.org,2012-08-24,A few typo fixes to comments and the xz man page.
+96e08902,Lasse Collin,lasse.collin@tukaani.org,2012-07-17,Update THANKS.
+3778db1b,Lasse Collin,lasse.collin@tukaani.org,2012-07-17,liblzma: Make the use of lzma_allocator const-correct.
+cafb523a,Lasse Collin,lasse.collin@tukaani.org,2012-07-04,xz: Document --block-list better.
+b3235a0b,Lasse Collin,lasse.collin@tukaani.org,2012-06-18,Docs: Language fix to 01_compress_easy.c.
+4bd1a3bd,Lasse Collin,lasse.collin@tukaani.org,2012-05-30,Translations: Update the French translation.
+3f94b6d8,Lasse Collin,lasse.collin@tukaani.org,2012-05-28,Update THANKS.
+d05d6d65,Lasse Collin,lasse.collin@tukaani.org,2012-05-10,Update THANKS.
+c7376fc4,Lasse Collin,lasse.collin@tukaani.org,2012-02-22,Update THANKS.
+cff070ab,Lasse Collin,lasse.collin@tukaani.org,2012-02-22,Fix exit status of xzgrep when grepping binary files.
+41cafb2b,Lasse Collin,lasse.collin@tukaani.org,2012-02-22,Update THANKS.
+7081d82c,Lasse Collin,lasse.collin@tukaani.org,2011-11-04,xz: Fix a typo in a comment.
+232fe7cd,Lasse Collin,lasse.collin@tukaani.org,2011-11-03,Update THANKS.
+74d2bae4,Lasse Collin,lasse.collin@tukaani.org,2011-11-03,xz: Fix xz on EBCDIC systems.
+4ac4923f,Lasse Collin,lasse.collin@tukaani.org,2011-10-23,Update THANKS.
+ab50ae3e,Lasse Collin,lasse.collin@tukaani.org,2011-10-23,liblzma: Fix invalid free() in the threaded encoder.
+5c5b2256,Lasse Collin,lasse.collin@tukaani.org,2011-08-09,Update THANKS.
+e9ed8812,Lasse Collin,lasse.collin@tukaani.org,2011-08-06,Run the scripts with the correct shell in test_scripts.sh.
+1c673e56,Lasse Collin,lasse.collin@tukaani.org,2011-07-31,Fix exit status of "xzdiff foo.xz bar.xz".
+fc4d4436,Lasse Collin,lasse.collin@tukaani.org,2011-05-28,Don't call close(-1) in tuklib_open_stdxxx() on error.
+afbb2443,Lasse Collin,lasse.collin@tukaani.org,2011-05-28,Translations: Update the Italian translation.
+8bd91918,Lasse Collin,lasse.collin@tukaani.org,2011-05-27,liblzma: Handle allocation failures correctly in lzma_index_init().
+b94aa0c8,Lasse Collin,lasse.collin@tukaani.org,2011-05-21,liblzma: Try to use SHA-256 from the operating system.
+f0041286,Lasse Collin,lasse.collin@tukaani.org,2011-05-17,Don't use clockid_t in mythread.h when clock_gettime() isn't available.
+f779516f,Lasse Collin,lasse.collin@tukaani.org,2011-05-17,Update THANKS.
+ec710630,Lasse Collin,lasse.collin@tukaani.org,2011-05-17,Build: Fix initialization of enable_check_* variables in configure.ac.
+e4622df9,Lasse Collin,lasse.collin@tukaani.org,2011-04-19,Update THANKS.
+3de00cc7,Lasse Collin,lasse.collin@tukaani.org,2011-04-18,Update THANKS.
+3e321a3a,Lasse Collin,lasse.collin@tukaani.org,2011-04-12,Remove doubled words from documentation and comments.
+607f9f98,Lasse Collin,lasse.collin@tukaani.org,2011-04-09,Update THANKS.
+fca396b3,Lasse Collin,lasse.collin@tukaani.org,2011-04-09,liblzma: Add missing #ifdefs to filter_common.c.
+40277998,Lasse Collin,lasse.collin@tukaani.org,2011-03-24,Scripts: Better fix for xzgrep.
+21187330,Lasse Collin,lasse.collin@tukaani.org,2011-03-24,Updated THANKS.
+c7210d9a,Lasse Collin,lasse.collin@tukaani.org,2011-03-24,Scripts: Fix xzgrep -l.
+940d5852,Lasse Collin,lasse.collin@tukaani.org,2011-02-02,Updated THANKS.
+4ebe65f8,Lasse Collin,lasse.collin@tukaani.org,2011-02-02,Translations: Add Polish translation.
+fc1d292d,Lasse Collin,lasse.collin@tukaani.org,2011-02-02,Updated THANKS.
+03ebd1bb,Lasse Collin,lasse.collin@tukaani.org,2011-01-26,xz: Fix --force on setuid/setgid/sticky and multi-hardlink files.
+7bd0a5e7,Lasse Collin,lasse.collin@tukaani.org,2011-01-18,Updated THANKS.
+f71c4e16,Lasse Collin,lasse.collin@tukaani.org,2011-01-18,Add alloc_size and malloc attributes to a few functions.
+4a42aaee,Lasse Collin,lasse.collin@tukaani.org,2010-12-12,Updated THANKS.
+ce56f63c,Lasse Collin,lasse.collin@tukaani.org,2010-12-12,Add missing PRIx32 and PRIx64 compatibility definitions.
+b7afd3e2,Lasse Collin,lasse.collin@tukaani.org,2010-12-07,Translations: Fix Czech translation of "sparse file".
+ae74d1bd,Lasse Collin,lasse.collin@tukaani.org,2010-10-10,test_files.sh: Fix the first line.
+80b5675f,Lasse Collin,lasse.collin@tukaani.org,2010-10-04,A few more languages files to the xz man page.
+cec0ddc8,Lasse Collin,lasse.collin@tukaani.org,2010-09-27,Major man page updates.
+a3c5997c,Lasse Collin,lasse.collin@tukaani.org,2010-09-17,xz: Update the Czech translation.
+a1766af5,Lasse Collin,lasse.collin@tukaani.org,2010-09-16,xz: Add Italian translation.
+be16e28e,Lasse Collin,lasse.collin@tukaani.org,2010-09-14,xz: Add German translation.
+bb0b1004,Lasse Collin,lasse.collin@tukaani.org,2010-09-10,xz: Multiple fixes.
+639f8e2a,Lasse Collin,lasse.collin@tukaani.org,2010-09-08,Update the Czech translation.
+bcb1b898,Lasse Collin,lasse.collin@tukaani.org,2010-09-05,xz: Update the comment about NetBSD in file_io.c.
+da014d55,Lasse Collin,lasse.collin@tukaani.org,2010-09-05,xz: Use an array instead of pointer for stdin_filename.
+d5653ba8,Lasse Collin,lasse.collin@tukaani.org,2010-08-10,Fix test_compress.sh.
+01aa4869,Lasse Collin,lasse.collin@tukaani.org,2010-07-28,Language fixes for man pages.
+a540198f,Lasse Collin,lasse.collin@tukaani.org,2010-07-13,Updated THANKS.
+bab0f01e,Lasse Collin,lasse.collin@tukaani.org,2010-07-13,Add two simple example programs.
+2130926d,Lasse Collin,lasse.collin@tukaani.org,2010-06-11,Updated THANKS.
+bc612d0e,Lasse Collin,lasse.collin@tukaani.org,2010-06-11,Clarify the description of the default memlimit in the man page.
+e1b6935d,Lasse Collin,lasse.collin@tukaani.org,2010-06-11,Fix string to uint64_t conversion.
+a334348d,Lasse Collin,lasse.collin@tukaani.org,2010-05-27,Remove references to the Subblock filter in xz and tests.
+70e5e2f6,Lasse Collin,lasse.collin@tukaani.org,2010-05-27,Remove unused chunk_size.c.
+3fb3d594,Lasse Collin,lasse.collin@tukaani.org,2010-05-10,Updated THANKS.
+6548e304,Lasse Collin,lasse.collin@tukaani.org,2010-05-10,Updates to tuklib_physmem and tuklib_cpucores.
+a290cfee,Lasse Collin,lasse.collin@tukaani.org,2010-04-12,Show both elapsed time and estimated remaining time in xz -v.
+a1f7a986,Lasse Collin,lasse.collin@tukaani.org,2010-03-31,Add a simple tip to faq.txt about tar and xz.
+c737eec9,Lasse Collin,lasse.collin@tukaani.org,2010-03-22,Updated THANKS.
+f4b2b526,Lasse Collin,lasse.collin@tukaani.org,2010-03-07,Fix xzgrep to not break if filenames have spaces or quotes.
+5527b726,Lasse Collin,lasse.collin@tukaani.org,2010-03-06,Updated THANKS.
+d0d1c51a,Lasse Collin,lasse.collin@tukaani.org,2010-03-06,Fix missing initialization in lzma_strm_init().
+eb7d51a3,Lasse Collin,lasse.collin@tukaani.org,2010-02-12,Collection of language fixes to comments and docs.
+6b50c942,Lasse Collin,lasse.collin@tukaani.org,2010-02-12,Use __APPLE__ instead of __MACH__ in ASM files.
+f9dd797a,Lasse Collin,lasse.collin@tukaani.org,2010-01-31,Updated THANKS.
+231c3c70,Lasse Collin,lasse.collin@tukaani.org,2010-01-31,Delay opening the destionation file and other fixes.
+38b8035b,Lasse Collin,lasse.collin@tukaani.org,2010-01-26,Add a missing space to an error message.
+e5496f96,Lasse Collin,lasse.collin@tukaani.org,2010-01-26,Use past tense in error message in io_unlink().
+2a98fdff,Lasse Collin,lasse.collin@tukaani.org,2010-01-20,Fix a typo in README.
+07a11dad,Lasse Collin,lasse.collin@tukaani.org,2010-01-17,Updated windows/Makefile.
+cee12aa8,Lasse Collin,lasse.collin@tukaani.org,2010-01-12,Updated THANKS.
+153c7740,Lasse Collin,lasse.collin@tukaani.org,2010-01-12,Add IRIX-specific code to tuklib_physmem and tuklib_cpucores.
+f7e44c6c,Lasse Collin,lasse.collin@tukaani.org,2009-12-09,Always rely on GCC's auto-import on Windows.
+7b76a3e2,Lasse Collin,lasse.collin@tukaani.org,2009-12-07,Fix file_io.c on DOS-like systems.
+0696f5d2,Lasse Collin,lasse.collin@tukaani.org,2009-12-07,Add Czech translation.
+6db1c35b,Lasse Collin,lasse.collin@tukaani.org,2009-12-07,Prevent xgettext from taking one regular string as a C format string.
+f057a33c,Lasse Collin,lasse.collin@tukaani.org,2009-11-26,Typo fix to sysdefs.h.
+8767b415,Lasse Collin,lasse.collin@tukaani.org,2009-11-26,Fix a memory leak in test_index.c.
+37de5444,Lasse Collin,lasse.collin@tukaani.org,2009-11-22,Updated THANKS.
+7ac3985d,Lasse Collin,lasse.collin@tukaani.org,2009-11-22,Update tuklib_integer.h with bit scan functions.
+d315ca49,Lasse Collin,lasse.collin@tukaani.org,2009-11-16,Add support for --info-memory and --robot to xz.
+93e41856,Lasse Collin,lasse.collin@tukaani.org,2009-11-15,Add lzma_physmem().
+cf39faca,Lasse Collin,lasse.collin@tukaani.org,2009-11-14,Updated THANKS.
+418d64a3,Lasse Collin,lasse.collin@tukaani.org,2009-11-14,Fix a design error in liblzma API.
+7b7fe902,Lasse Collin,lasse.collin@tukaani.org,2009-10-16,Mention --check=none in --long-help. It was already in the man page though.
+188a1dcd,Lasse Collin,lasse.collin@tukaani.org,2009-09-27,Updated THANKS.
+db9119b9,Lasse Collin,lasse.collin@tukaani.org,2009-09-27,Work around a bug in Interix header files.
+b3d105e6,Lasse Collin,lasse.collin@tukaani.org,2009-09-24,Fix an error in OpenVMS-specific code.
+932b2e20,Lasse Collin,lasse.collin@tukaani.org,2009-09-22,Better fixes for OpenVMS support.
+4c3630ec,Lasse Collin,lasse.collin@tukaani.org,2009-09-22,Avoid non-standard preprocessor construct.
+0deb1bb6,Lasse Collin,lasse.collin@tukaani.org,2009-09-21,Make sure that TUKLIB_DOSLIKE doesn't get defined on Cygwin.
+e599bba4,Lasse Collin,lasse.collin@tukaani.org,2009-09-19,Various changes.
+6bfdd3a8,Lasse Collin,lasse.collin@tukaani.org,2009-09-12,Updated THANKS.
+4ab7b16b,Lasse Collin,lasse.collin@tukaani.org,2009-09-12,A few grammar fixes.
+8905a33d,Lasse Collin,lasse.collin@tukaani.org,2009-09-11,Updated THANKS.
+221be761,Lasse Collin,lasse.collin@tukaani.org,2009-09-11,Use $(LN_EXEEXT) in symlinks to executables.
+7aca7b31,Lasse Collin,lasse.collin@tukaani.org,2009-09-05,Updated THANKS.
+60ccb80c,Lasse Collin,lasse.collin@tukaani.org,2009-09-05,Use sysctl() != -1 instead of !sysctl() to check if the function call succeeded.
+162189c3,Lasse Collin,lasse.collin@tukaani.org,2009-08-30,Updated THANKS.
+3432e9c6,Lasse Collin,lasse.collin@tukaani.org,2009-08-29,Updated THANKS.
+27414daa,Lasse Collin,lasse.collin@tukaani.org,2009-08-29,Fix sysctl() usage.
+43f44160,Lasse Collin,lasse.collin@tukaani.org,2009-08-29,Fix x86 assembler on GCC 3.
+fd761861,Lasse Collin,lasse.collin@tukaani.org,2009-08-27,Updated THANKS.
+c29e76c0,Lasse Collin,lasse.collin@tukaani.org,2009-08-27,.xz file format specification 1.0.4 (probably).
+92e536d8,Lasse Collin,lasse.collin@tukaani.org,2009-08-27,Fix a typo in FAQ.
+10242a21,Lasse Collin,lasse.collin@tukaani.org,2009-08-16,Updated THANKS.
+3ce1916c,Lasse Collin,lasse.collin@tukaani.org,2009-08-16,Fix data corruption in LZ/LZMA2 encoder.
+0fd157cc,Lasse Collin,lasse.collin@tukaani.org,2009-08-02,Updated THANKS.
+669413bb,Lasse Collin,lasse.collin@tukaani.org,2009-07-30,Updated THANKS.
+6f62fa88,Lasse Collin,lasse.collin@tukaani.org,2009-07-08,Updated THANKS.
+c3930559,Lasse Collin,lasse.collin@tukaani.org,2009-06-26,Updated THANKS (most of today's commits are based on Charles Wilson's patches).
+1774f27c,Lasse Collin,lasse.collin@tukaani.org,2009-06-04,Fix purporse -> purpose. Thanks to Andrew Dudman. Released .xz spec 1.0.2 due to this fix too.
+72aa0e9c,Lasse Collin,lasse.collin@tukaani.org,2009-05-23,Updated THANKS.
+a0497ff7,Lasse Collin,lasse.collin@tukaani.org,2009-03-18,Updated THANKS.
+390e6988,Lasse Collin,lasse.collin@tukaani.org,2009-03-18,Fix wrong macro names in lc_cpucores.m4 and cpucores.h. Thanks to Bert Wesarg.
+7494816a,Lasse Collin,lasse.collin@tukaani.org,2009-02-15,Make physmem.h work on old Windows versions. Thanks to Hongbo Ni for the original patch.
+edfc2031,Lasse Collin,lasse.collin@tukaani.org,2009-02-07,Updated THANKS.
+880c3309,Lasse Collin,lasse.collin@tukaani.org,2009-02-07,Make it easy to choose if command line tools should be linked statically or dynamically against liblzma. The default is still to use static liblzma, but it can now be changed by passing --enable-dynamic to configure. Thanks to Mike Frysinger for the original patch.
+c4683a66,Lasse Collin,lasse.collin@tukaani.org,2009-01-28,Updated THANKS.
+b0563794,Lasse Collin,lasse.collin@tukaani.org,2009-01-15,Updated THANKS.
+dc8f3be0,Lasse Collin,lasse.collin@tukaani.org,2009-01-15,Fixed a bug in 7z2lzma.bash to make it work with .7z files that use something else than 2^n as the dictionary size. Thanks to Dan Shechter for the bug report.
+f20a0320,Lasse Collin,lasse.collin@tukaani.org,2008-12-09,Updated THANKS.
+691a9155,Lasse Collin,lasse.collin@tukaani.org,2008-11-29,Automake includes the m4 directory, so don't add it in Makefile.am separately.
+01892b2c,Lasse Collin,lasse.collin@tukaani.org,2008-09-11,Updated THANKS.
+2f361ac1,Lasse Collin,lasse.collin@tukaani.org,2008-04-28,Updated THANKS.
+d4d7feb8,Lasse Collin,lasse.collin@tukaani.org,2008-03-10,Updated THANKS.
+b596fac9,Lasse Collin,lasse.collin@tukaani.org,2008-01-26,Updated THANKS.
+4c7ad179,Lasse Collin,lasse.collin@tukaani.org,2008-01-26,Added api/lzma/easy.h. I had forgot to add this to the git repo. Thanks to Stephan Kulow.
+eacb8050,Lasse Collin,lasse.collin@tukaani.org,2008-01-07,Updated THANKS.
+698470b8,Lasse Collin,lasse.collin@tukaani.org,2007-12-13,Fixed a few short options that take an argument. short_opts[] was missing colons to indicate required argument. Thanks to Fabio Pedretti for the bug report.

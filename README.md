@@ -7,7 +7,6 @@ Open Source Software (OSS) has become a cornerstone of modern software developme
 
 * affected_commits/ - annotated commits of attacker (including other repositories)
 * affected_repositories/ - all repositories that attacker commited to
-* main_contributor_commits/ - all commits done by main contributor 
 * data_repositories/
     * data_repositories/emails/ - author emails gathered from affected repositories
     * data_repositories/events/ - Github events with reference to attacker or main author
